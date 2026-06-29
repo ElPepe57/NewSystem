@@ -31,14 +31,16 @@
 - **C6** · `calcularIncidencias()` devuelve `[]` siempre + `riesgoIncidencia` hardcoded a `10` → el riesgo de proveedor muestra 0 falso. Conectar a `incidenciasOC` real. `proveedor.analytics.service.ts:592,650`.
 - Tamaño: ADD chico. Sin dependencias. **Hacer primero** (rompe la confianza del dashboard).
 
-### FASE 1 · Cerrar el modelo de excepciones (surfacear lo atrapado · el pedido explícito del user)
-- Habilitador: `incidenciaOC.service.listAll/subscribeAll` (~10 líneas · hoy solo `subscribeByOC`).
-- **C5** · Tab "Excepciones / Riesgo" en el hub (incidencias cross-OC + atrasados + reclamos + plata en disputa, por impacto USD).
-- **C3** · Radar de atrasados en vuelo (gravedad graduada por lead-time aprendido del proveedor · `diasEnVuelo = hoy − fechaSalida` · NO depende de ETA). ADD chico.
-- **N1** · Capital en tránsito (Σ `totalUSD` de OCs en curso no recibidas · "USD en el aire"). ADD chico.
-- **C2** · Setter `marcarEnvioPerdidoTotal` (el estado `perdida_total` existe sin verbo · dispara reclamo + libera reservas). ADD medio.
-- **C4** · "Atrasado con señal" vs "mudo" (campo última-señal + regla · puente delay→pérdida). ADD medio.
-- Tamaño: ADD chico/medio · alto valor. **Requiere mockear la tab Excepciones/Riesgo primero.**
+### FASE 1 · Tab "Llegadas" (torre de control logística de la OC) — ⚠️ CORREGIDO 2026-06-29 (análisis de IA del hub)
+> **Corrección clave:** la propuesta original "tab Excepciones/Riesgo" CLONABA Envíos (incidencias/reclamos/capital/pérdidas YA tienen dueño ahí · viola no-redundancia + fronteras de funcionalidad). El análisis de IA lo descartó. La 6ª tab correcta es **"Llegadas"**: el seguimiento logístico de la OC (verbo del user: *vigilar/empujar mi pedido*) — lo único genuinamente nuevo de Compras. Lo demás se **CROSS-LINKEA, no se clona**. El user pidió ver el cross-link en mockup (`compras-llegadas-v1.html`, REEMPLAZA a `compras-excepciones-riesgo-v1.html` que queda superado).
+- Habilitador: `incidenciaOC.service.listAll` (~10 líneas · hoy solo `subscribeByOC`) — para los COUNTS del teaser + el scoring C6.
+- **C3** · Radar de atrasados en vuelo OPERABLE (gravedad graduada · `diasEnVuelo = hoy − fechaSalida` vs lead-time · última señal con/mudo · acción "empujar proveedor"). Eleva lo enterrado en Resumen §F. *Es lo propio de Compras.* ADD chico/medio.
+- **N1** · Capital en tránsito + **Unidades por llegar** (LECTURA · cross-link a Envíos/Finanzas y a Stock).
+- **Teaser read-only** "N incidencias · N reclamos $X" → cross-link a Envíos (NO clona el CRUD).
+- **C6** · arreglar el scoring de proveedor que miente (usa la agregación de incidencias · vive en la tab Proveedores).
+- **Términos de proveedor** (lead-time · plazo de pago · MOQ) = CAMPOS en la ficha Proveedor (no tab).
+- **Cross-link, NO clonar:** incidencias/reclamos/pérdidas/recepción + el setter `marcarEnvioPerdidoTotal` (C2) + el campo última-señal (C4) → todo Envíos · pagos → Tesorería. Llegadas SURFACEA y LINKEA, Envíos OPERA.
+- Tamaño: ADD chico/medio · alto valor.
 
 ### FASE 2 · Rework del detalle de OC (la hoja · mockup ya validado)
 - Drill full-page (sale del Modal v1) + 7 tabs + tab "Vista general" (ex "Resumen" · renombrada por el choque de nombres con el Resumen de sección) + data evolucionada (A1 origen · A2 Plan-vs-Real · A3 recepción real por-SKU · etc.) + modales internos → FormModalV2 + Confirmar-con-sub-órdenes como step del drill.
@@ -62,9 +64,9 @@
 - **Unificar cotización** (cotizaciones en colección aparte) ← la deuda reservas-venta de Requerimientos.
 
 ## Falta mockear (especificación)
-- La tab **"Excepciones / Riesgo"** del hub (C5 + C3 + N1) — antes de la Fase 1.
+- La tab **"Llegadas"** del hub (C3 radar operable + capital/unidades cross-link + teaser read-only → Envíos) — EN PROGRESO (`compras-llegadas-v1.html` · REEMPLAZA `compras-excepciones-riesgo-v1.html`, superado por clonar Envíos).
 - El **flujo de pérdida del efectivo** (C1) — antes de la Fase 4.
 
 ## Secuencia recomendada
-**Fase 0 (bugs) → mockear tab Excepciones → Fase 1 (excepciones) → Fase 2 (detalle OC) → Fase 3 (hub dashboard) → Fase 4 (financieros, con sus deudas) → Fase 5 (nice-to-haves).**
+**Fase 0 (bugs · ✅ A1/A2 desplegado · C6→F1) → mockear tab Llegadas (en progreso) → Fase 1 (Llegadas + C6 + campos de proveedor) → Fase 2 (detalle OC) → Fase 3 (hub dashboard) → Fase 4 (financieros, con sus deudas) → Fase 5 (nice-to-haves).**
 Es un programa multi-sesión. Fase 0 es inmediata y barata. Las Fases 2-3 ya tienen su mockup validado. Las Fases 1 y 4 necesitan mockup primero. Cada fase: verificar (tsc + build) + desplegar + validación visual M4 del usuario.

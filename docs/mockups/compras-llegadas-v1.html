@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Hub Compras · tab Llegadas · cross-link · Vita Skin ERP</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  * { font-family: 'Inter', system-ui, sans-serif; }
+  .tabular-nums { font-variant-numeric: tabular-nums; }
+  body { background: #f1f5f9; }
+  .frame { box-shadow: 0 1px 3px rgba(15,23,42,.08), 0 8px 24px rgba(15,23,42,.06); }
+  .modal-sh { box-shadow: 0 10px 15px -3px rgba(15,23,42,.18), 0 20px 50px -12px rgba(15,23,42,.30); }
+  .scrollbar-none { scrollbar-width: none; }
+  .scrollbar-none::-webkit-scrollbar { display: none; }
+  .acto-sep { letter-spacing: 0.10em; }
+  .badge { display: inline-flex; align-items: center; gap: 3px; border-radius: 999px; padding: 1px 7px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+  .progress-fill { transition: width 0.4s ease; }
+  @keyframes skeleton-pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+  .skeleton { animation: skeleton-pulse 1.5s ease-in-out infinite; background: #e2e8f0; border-radius: 6px; }
+  @keyframes radar-sweep { 0%{transform:rotate(0)} 100%{transform:rotate(360deg)} }
+</style>
+</head>
+<body class="text-slate-900">
+
+<div class="max-w-6xl mx-auto px-4 sm:px-6 py-10 space-y-14">
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- HERO -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<header class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 sm:p-8">
+  <div class="flex flex-wrap gap-2 mb-5">
+    <span class="text-[10px] font-bold uppercase tracking-wider text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-full">Especificación · build-ready</span>
+    <span class="text-[10px] font-bold uppercase tracking-wider text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-full">Grupo Comercial · azul</span>
+    <span class="text-[10px] font-bold uppercase tracking-wider text-rose-700 bg-rose-50 border border-rose-200 px-2.5 py-1 rounded-full">6ª tab · REEMPLAZA "Excepciones/Riesgo"</span>
+    <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full">Cobertura total + mobile incluido</span>
+    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-600 bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-full">v1 · 2026-06-29</span>
+  </div>
+  <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 mb-2">Hub Compras · tab <span class="text-blue-700">Llegadas</span> <span class="text-slate-400 font-semibold">+ cómo funciona el cross-link</span></h1>
+  <p class="text-[13px] text-slate-600 max-w-3xl leading-relaxed mb-5">
+    <b>Llegadas = torre de control logística desde la óptica de la OC.</b> El verbo del usuario es
+    <span class="text-blue-700 font-semibold">"vigilar / empujar MI pedido"</span>. REEMPLAZA la propuesta anterior
+    "Excepciones / Riesgo" — que <span class="text-rose-700 font-semibold">clonaba el módulo Envíos</span>. Aquí la regla es estricta:
+    lo que <b>se opera</b> (seguir y empujar mi OC en vuelo) vive en Compras; lo que <b>es de otro dueño</b>
+    (incidencias · reclamos · capital · stock · pagos) se muestra como <span class="text-blue-700 font-semibold">cross-link read-only</span>
+    y se OPERA en su módulo. Anatomía hub intacta: top-bar → header → KPI strip → 6 tabs (Llegadas activa) → body Layout A
+    <code class="bg-slate-100 px-1 rounded text-blue-700">max-w-6xl</code>.
+  </p>
+
+  <!-- LA PROMESA del mockup -->
+  <div class="bg-gradient-to-r from-blue-50 to-indigo-50/40 border border-blue-200 rounded-xl p-4 mb-4">
+    <div class="flex items-center gap-2 mb-2"><i data-lucide="git-fork" class="w-4 h-4 text-blue-700"></i><span class="text-[12px] font-bold text-blue-900">El centro de este mockup · que el cross-link se vea TANGIBLE</span></div>
+    <p class="text-[12px] text-slate-600 leading-relaxed">El usuario dijo que <b>no ve en su cabeza</b> cómo funciona el cross-link. El <b>Acto 3</b> lo hace concreto:
+      <span class="text-blue-700 font-semibold">Frame A</span> (en Llegadas · VES la señal · read-only · discovery) →
+      flecha → <span class="text-orange-700 font-semibold">Frame B</span> (en Envíos · la OPERÁS · su CRUD real · su color de módulo) +
+      anotación de frontera + mini-diagrama "qué vive dónde". <b>Cada cosa donde tiene dueño · cero duplicación.</b></p>
+  </div>
+
+  <!-- Mapa de tabs · Llegadas es la 6ª -->
+  <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3 acto-sep">Mapa de tabs del hub · Llegadas es la 6ª</div>
+    <div class="flex flex-wrap gap-2 text-[12px]">
+      <div class="flex items-center gap-1.5 bg-white border border-slate-200 rounded-lg px-3 py-1.5"><i data-lucide="layout-dashboard" class="w-3.5 h-3.5 text-blue-600"></i><span class="font-medium text-slate-700">Resumen</span></div>
+      <div class="flex items-center gap-1.5 bg-white border border-slate-200 rounded-lg px-3 py-1.5"><i data-lucide="package" class="w-3.5 h-3.5 text-blue-600"></i><span class="font-medium text-slate-700">Órdenes</span></div>
+      <div class="flex items-center gap-1.5 bg-white border border-slate-200 rounded-lg px-3 py-1.5"><i data-lucide="clipboard-list" class="w-3.5 h-3.5 text-blue-600"></i><span class="font-medium text-slate-700">Pendientes</span></div>
+      <div class="flex items-center gap-1.5 bg-white border border-slate-200 rounded-lg px-3 py-1.5"><i data-lucide="building-2" class="w-3.5 h-3.5 text-blue-600"></i><span class="font-medium text-slate-700">Proveedores</span></div>
+      <div class="flex items-center gap-1.5 bg-white border border-slate-200 rounded-lg px-3 py-1.5"><i data-lucide="brain-circuit" class="w-3.5 h-3.5 text-blue-600"></i><span class="font-medium text-slate-700">Inteligencia</span></div>
+      <div class="flex items-center gap-1.5 bg-blue-600 border border-blue-700 rounded-lg px-3 py-1.5">
+        <i data-lucide="plane-landing" class="w-3.5 h-3.5 text-white"></i>
+        <span class="font-medium text-white">Llegadas</span>
+        <span class="text-[10px] bg-white/20 text-white rounded-full px-1.5 py-0.5 font-bold">activa · nueva</span>
+      </div>
+    </div>
+    <div class="mt-3 flex flex-wrap gap-2 text-[11px]">
+      <span class="badge bg-emerald-50 text-emerald-700 border border-emerald-200"><i data-lucide="hammer" class="w-2.5 h-2.5"></i> OPERABLE aquí (propio de Compras): radar de atrasados · empujar proveedor</span>
+      <span class="badge bg-blue-50 text-blue-700 border border-blue-200"><i data-lucide="eye" class="w-2.5 h-2.5"></i> READ-ONLY (cross-link): capital en tránsito · unidades por llegar · incidencias/reclamos</span>
+      <span class="badge bg-amber-50 text-amber-700 border border-amber-200"><i data-lucide="plug" class="w-2.5 h-2.5"></i> Requiere cableado: helper diasEnVuelo · empujarProveedor · incidenciaOC.listAll (counts)</span>
+    </div>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- INDICE DE ACTOS -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
+  <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4 acto-sep">Índice de actos · cobertura total + mobile</div>
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-[12px]">
+    <div class="flex items-start gap-3 bg-blue-50 border border-blue-200 rounded-xl px-3 py-2.5"><span class="w-7 h-7 rounded-lg bg-blue-600 text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">1</span><div><div class="font-semibold text-blue-900">Acto 1 · Shell hub + Llegadas activa</div><div class="text-blue-700 text-[11px]">Top-bar + header + strip + 6 tabs + banner Capital en tránsito</div></div></div>
+    <div class="flex items-start gap-3 bg-rose-50 border border-rose-200 rounded-xl px-3 py-2.5"><span class="w-7 h-7 rounded-lg bg-rose-600 text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">2</span><div><div class="font-semibold text-rose-900">Acto 2 · Radar de atrasados (OPERABLE)</div><div class="text-rose-700 text-[11px]">El núcleo propio · gravedad + última señal + Empujar proveedor</div></div></div>
+    <div class="flex items-start gap-3 bg-rose-50 border border-rose-200 rounded-xl px-3 py-2.5"><span class="w-7 h-7 rounded-lg bg-rose-600 text-white text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">2B</span><div><div class="font-semibold text-rose-900">Acto 2.B · Modal "Empujar proveedor"</div><div class="text-rose-700 text-[11px]">La única captura propia · FormModalV2 desktop + bottom-sheet mobile</div></div></div>
+    <div class="flex items-start gap-3 bg-indigo-50 border border-indigo-300 rounded-xl px-3 py-2.5"><span class="w-7 h-7 rounded-lg bg-indigo-600 text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">3</span><div><div class="font-semibold text-indigo-900">Acto 3 · EL CROSS-LINK explicado ★</div><div class="text-indigo-700 text-[11px]">Frame A → flecha → Frame B (Envíos) + frontera + qué-vive-dónde</div></div></div>
+    <div class="flex items-start gap-3 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5"><span class="w-7 h-7 rounded-lg bg-slate-600 text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">4</span><div><div class="font-semibold text-slate-800">Acto 4 · Teaser + Unidades por llegar</div><div class="text-slate-600 text-[11px]">Read-only cross-link a Envíos + cross-link a Stock</div></div></div>
+    <div class="flex items-start gap-3 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5"><span class="w-7 h-7 rounded-lg bg-slate-600 text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">5</span><div><div class="font-semibold text-slate-800">Acto 5 · Estados</div><div class="text-slate-600 text-[11px]">empty (sin atrasados = buena señal) · loading · error+retry</div></div></div>
+    <div class="flex items-start gap-3 bg-violet-50 border border-violet-200 rounded-xl px-3 py-2.5"><span class="w-7 h-7 rounded-lg bg-violet-600 text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">6</span><div><div class="font-semibold text-violet-900">Acto 6 · Mobile shell + radar</div><div class="text-violet-700 text-[11px]">375px · strip 2×2 · radar como cards por gravedad</div></div></div>
+    <div class="flex items-start gap-3 bg-violet-50 border border-violet-200 rounded-xl px-3 py-2.5"><span class="w-7 h-7 rounded-lg bg-violet-600 text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">7</span><div><div class="font-semibold text-violet-900">Acto 7 · Mobile cross-link vertical</div><div class="text-violet-700 text-[11px]">Frame A → flecha ↓ → Frame B · teaser · touch ≥44px</div></div></div>
+  </div>
+</div>
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 1 · SHELL HUB · LLEGADAS ACTIVA + BANNER CAPITAL EN TRÁNSITO -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section class="space-y-4">
+  <div class="flex items-center gap-3">
+    <span class="w-8 h-8 rounded-lg bg-blue-600 text-white text-[13px] font-bold flex items-center justify-center flex-shrink-0">1</span>
+    <div>
+      <div class="text-[17px] font-bold text-slate-900">Shell hub · desktop · tab Llegadas ACTIVA</div>
+      <div class="text-[12px] text-slate-500">Top-bar (breadcrumb S9.D1 + chip rol) → header banking-grade → KPI strip persistente del hub → 6 tabs (Llegadas activa) → banner de la tab: Capital en tránsito (cross-link · de Envíos)</div>
+    </div>
+  </div>
+
+  <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden frame">
+    <!-- TOP-BAR -->
+    <div class="border-b border-slate-200 px-6 py-2.5 bg-slate-50 flex items-center justify-between">
+      <div class="flex items-center gap-1.5 text-[11px] text-slate-500">
+        <i data-lucide="home" class="w-3 h-3"></i><span>Inicio</span>
+        <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300"></i><span>Comercial</span>
+        <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300"></i><span class="font-semibold text-slate-700">Compras</span>
+        <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300"></i><span class="font-semibold text-blue-700">Llegadas</span>
+      </div>
+      <div class="flex items-center gap-1.5 text-[11px] font-semibold text-blue-700 bg-blue-50 px-2.5 py-1 rounded-full"><i data-lucide="shield" class="w-3 h-3"></i> Vista ejecutiva · admin</div>
+    </div>
+
+    <!-- HEADER banking-grade -->
+    <div class="px-6 py-4 border-b border-slate-200 flex items-start justify-between gap-4 flex-wrap">
+      <div class="flex items-start gap-3">
+        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center flex-shrink-0 shadow-sm"><i data-lucide="shopping-cart" class="w-5 h-5 text-white"></i></div>
+        <div>
+          <h2 class="text-2xl font-bold tracking-tight text-slate-900">Compras</h2>
+          <p class="text-[13px] text-slate-500 leading-snug">Abastecimiento · órdenes en vuelo · proveedores</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button class="text-[12px] font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 px-3 py-2 rounded-lg flex items-center gap-1.5"><i data-lucide="download" class="w-3.5 h-3.5"></i> Exportar</button>
+        <button class="text-[12px] font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200 hover:bg-indigo-100 px-3 py-2 rounded-lg flex items-center gap-1.5"><i data-lucide="sliders-horizontal" class="w-3.5 h-3.5"></i> Política</button>
+        <button class="text-[12px] font-semibold text-white bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded-lg flex items-center gap-1.5"><i data-lucide="plus" class="w-3.5 h-3.5"></i> Generar compra</button>
+      </div>
+    </div>
+
+    <!-- KPI STRIP persistente del hub (5 · NO se tocan acá) -->
+    <div class="px-6 py-4 border-b border-slate-200 bg-slate-50/40">
+      <div class="grid grid-cols-2 lg:grid-cols-5 gap-3">
+        <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-2xl p-4"><div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider text-amber-700 font-bold">Comprado mes</span><i data-lucide="dollar-sign" class="w-3.5 h-3.5 text-amber-700"></i></div><div class="text-2xl font-bold tabular-nums text-amber-900">$28.4<span class="text-amber-400">k</span></div><div class="text-[11px] text-amber-700 mt-1 tabular-nums">7 OCs este mes</div></div>
+        <div class="bg-gradient-to-br from-blue-50 to-blue-100/40 ring-1 ring-blue-200/50 rounded-2xl p-4"><div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider text-blue-700 font-bold">En vuelo</span><i data-lucide="plane" class="w-3.5 h-3.5 text-blue-700"></i></div><div class="text-2xl font-bold tabular-nums text-blue-900">$42.2<span class="text-blue-400">k</span></div><div class="text-[11px] text-blue-700 mt-1 tabular-nums">9 envíos en tránsito</div></div>
+        <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-2xl p-4"><div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider text-rose-700 font-bold">Por firmar</span><i data-lucide="pen-line" class="w-3.5 h-3.5 text-rose-700"></i></div><div class="text-2xl font-bold tabular-nums text-rose-900">3</div><div class="text-[11px] text-rose-700 mt-1 tabular-nums">$9.1k en cola</div></div>
+        <div class="bg-gradient-to-br from-indigo-50 to-indigo-100/40 ring-1 ring-indigo-200/50 rounded-2xl p-4"><div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider text-indigo-700 font-bold">Lead-time prom.</span><i data-lucide="timer" class="w-3.5 h-3.5 text-indigo-700"></i></div><div class="text-2xl font-bold tabular-nums text-indigo-900">26<span class="text-indigo-400">d</span></div><div class="text-[11px] text-indigo-700 mt-1">aprendido</div></div>
+        <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-4"><div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">SLA recepción</span><i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-700"></i></div><div class="text-2xl font-bold tabular-nums text-emerald-900">88<span class="text-emerald-400">%</span></div><div class="text-[11px] text-emerald-700 mt-1">a tiempo 90d</div></div>
+      </div>
+    </div>
+
+    <!-- TABS · 6 · Llegadas activa -->
+    <div class="px-6 border-b border-slate-200 flex items-center gap-1 overflow-x-auto scrollbar-none">
+      <button class="flex items-center gap-1.5 px-3 py-3 text-[13px] font-medium text-slate-500 hover:text-slate-700 whitespace-nowrap border-b-2 border-transparent"><i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i> Resumen</button>
+      <button class="flex items-center gap-1.5 px-3 py-3 text-[13px] font-medium text-slate-500 hover:text-slate-700 whitespace-nowrap border-b-2 border-transparent"><i data-lucide="package" class="w-3.5 h-3.5"></i> Órdenes</button>
+      <button class="flex items-center gap-1.5 px-3 py-3 text-[13px] font-medium text-slate-500 hover:text-slate-700 whitespace-nowrap border-b-2 border-transparent"><i data-lucide="clipboard-list" class="w-3.5 h-3.5"></i> Pendientes</button>
+      <button class="flex items-center gap-1.5 px-3 py-3 text-[13px] font-medium text-slate-500 hover:text-slate-700 whitespace-nowrap border-b-2 border-transparent"><i data-lucide="building-2" class="w-3.5 h-3.5"></i> Proveedores</button>
+      <button class="flex items-center gap-1.5 px-3 py-3 text-[13px] font-medium text-slate-500 hover:text-slate-700 whitespace-nowrap border-b-2 border-transparent"><i data-lucide="brain-circuit" class="w-3.5 h-3.5"></i> Inteligencia</button>
+      <button class="flex items-center gap-1.5 px-3 py-3 text-[13px] font-semibold text-blue-700 whitespace-nowrap border-b-2 border-blue-600"><i data-lucide="plane-landing" class="w-3.5 h-3.5"></i> Llegadas <span class="text-[10px] bg-rose-100 text-rose-700 rounded-full px-1.5 py-0.5 font-bold tabular-nums">2</span></button>
+    </div>
+
+    <!-- BODY de la tab Llegadas -->
+    <div class="bg-slate-50/30 p-3 sm:p-4 md:p-6 space-y-4">
+
+      <!-- BANNER · CAPITAL EN TRÁNSITO (cross-link · read-only · de Envíos) -->
+      <div class="bg-white border border-slate-200 rounded-2xl p-5">
+        <div class="flex items-start justify-between gap-3 flex-wrap mb-3">
+          <div class="flex items-center gap-2">
+            <i data-lucide="ship" class="w-4 h-4 text-slate-700"></i>
+            <span class="text-[13px] font-bold text-slate-900">Capital en tránsito</span>
+            <span class="badge bg-orange-50 text-orange-700 border border-orange-200"><i data-lucide="external-link" class="w-2.5 h-2.5"></i> de Envíos</span>
+            <span class="badge bg-slate-100 text-slate-500 border border-slate-200"><i data-lucide="eye" class="w-2.5 h-2.5"></i> lectura</span>
+          </div>
+          <div class="text-right">
+            <div class="text-2xl font-bold tabular-nums text-slate-900">$42,180</div>
+            <div class="text-[11px] text-slate-500">valor landed en el aire · 9 envíos</div>
+          </div>
+        </div>
+        <!-- barra composición en-riesgo severo vs normal -->
+        <div class="h-3 rounded-full overflow-hidden flex bg-slate-100">
+          <div class="bg-rose-500 h-full" style="width:28%" title="en riesgo severo"></div>
+          <div class="bg-emerald-400 h-full" style="width:72%" title="normal"></div>
+        </div>
+        <div class="flex items-center justify-between mt-2 text-[11px] flex-wrap gap-2">
+          <span class="inline-flex items-center gap-1.5 font-semibold text-rose-700"><span class="w-2.5 h-2.5 rounded-sm bg-rose-500"></span> En riesgo severo <span class="tabular-nums">$11,720 · 28%</span></span>
+          <span class="inline-flex items-center gap-1.5 font-semibold text-emerald-700"><span class="w-2.5 h-2.5 rounded-sm bg-emerald-400"></span> Normal <span class="tabular-nums">$30,460 · 72%</span></span>
+        </div>
+        <div class="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between flex-wrap gap-2">
+          <div class="text-[11px] text-slate-500 flex items-start gap-1.5"><i data-lucide="info" class="w-3 h-3 flex-shrink-0 mt-0.5"></i> <span>Este número <b class="text-slate-600">no se origina en Compras</b> · es la lectura del riesgo del dinero atrapado en envíos. El detalle y el write-off viven en Envíos/Finanzas.</span></div>
+          <button class="text-[11px] font-semibold text-orange-700 border border-orange-200 hover:bg-orange-50 px-2.5 py-1.5 rounded-lg flex items-center gap-1">Ver en Envíos <i data-lucide="arrow-right" class="w-3 h-3"></i></button>
+        </div>
+      </div>
+
+      <div class="text-[10px] text-slate-400 flex items-start gap-1.5"><i data-lucide="info" class="w-3 h-3 flex-shrink-0 mt-0.5"></i><span>Body Layout A: <b class="text-slate-500">main</b> = banner capital + radar de atrasados (Acto 2) · <b class="text-slate-500">aside</b> = unidades por llegar + teaser de excepciones (Acto 4). El radar es el único bloque que se OPERA aquí; todo lo demás es cross-link. El badge "2" de la tab = atrasados con gravedad severo|crítico (los que demandan acción).</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 2 · RADAR DE ATRASADOS (OPERABLE · núcleo propio de Compras) -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section class="space-y-4">
+  <div class="flex items-center gap-3">
+    <span class="w-8 h-8 rounded-lg bg-rose-600 text-white text-[13px] font-bold flex items-center justify-center flex-shrink-0">2</span>
+    <div>
+      <div class="text-[17px] font-bold text-slate-900">Radar de atrasados · OPERABLE · el núcleo propio de Compras</div>
+      <div class="text-[12px] text-slate-500">"Vigilar / empujar MI pedido" · OCs/envíos en vuelo tarde · gravedad graduada · días en vuelo vs lead-time · ÚLTIMA SEÑAL · acción <b>Empujar proveedor</b></div>
+    </div>
+  </div>
+
+  <!-- por qué esto SÍ se opera acá + honestidad de cableado -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+    <div class="bg-white border border-emerald-200 rounded-2xl p-4">
+      <div class="flex items-center gap-2 mb-2"><i data-lucide="hammer" class="w-4 h-4 text-emerald-600"></i><span class="text-[12px] font-bold text-emerald-900">Por qué esto SÍ se opera en Compras</span></div>
+      <p class="text-[12px] text-slate-600">Es el <b class="text-slate-800">seguimiento de MI pedido</b> desde la óptica de la OC: el comprador es quien presiona al proveedor para que se mueva. El verbo es de Compras. El radar es <b class="text-emerald-700">propio</b>, no cross-link. (El detalle físico del envío y sus incidencias sí viven en Envíos → ver Acto 3.)</p>
+    </div>
+    <div class="bg-white border border-amber-200 rounded-2xl p-4">
+      <div class="flex items-center gap-2 mb-2"><i data-lucide="plug" class="w-4 h-4 text-amber-600"></i><span class="text-[12px] font-bold text-amber-900">Honestidad · requiere cómputo NUEVO</span></div>
+      <p class="text-[12px] text-slate-600 tabular-nums"><b class="text-slate-800">Helper</b> <code class="bg-amber-50 border border-amber-100 px-1 rounded">diasEnVuelo = hoy − fechaSalida</code> vs <code class="bg-amber-50 border border-amber-100 px-1 rounded">leadTimePromedioDias</code> · leve &gt;1× · severo &gt;1.5× · crítico &gt;2×. Última señal = <code class="bg-amber-50 border border-amber-100 px-1 rounded">fechaActualizacion</code> del Envío. <b class="text-slate-800">Empujar proveedor</b> = acción NUEVA (registra contacto/escalación · no existe hoy).</p>
+    </div>
+  </div>
+
+  <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden frame">
+    <div class="px-6 py-2.5 border-b border-slate-200 bg-slate-50 flex items-center gap-2 text-[11px]">
+      <i data-lucide="plane-landing" class="w-3.5 h-3.5 text-blue-600"></i>
+      <span class="font-semibold text-blue-700">Llegadas</span>
+      <span class="text-slate-400">· radar de atrasados en vuelo</span>
+      <span class="badge bg-emerald-50 text-emerald-700 border border-emerald-200 ml-1"><i data-lucide="hammer" class="w-2.5 h-2.5"></i> operable aquí</span>
+    </div>
+
+    <div class="bg-slate-50/30 p-3 sm:p-4 md:p-6">
+      <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+        <div class="flex items-center gap-2">
+          <i data-lucide="radar" class="w-4 h-4 text-rose-600"></i>
+          <span class="text-[13px] font-bold text-slate-900">3 envíos atrasados en vuelo</span>
+          <span class="badge bg-rose-100 text-rose-700 border border-rose-200"><i data-lucide="alert-triangle" class="w-2.5 h-2.5"></i> ordenado por gravedad</span>
+        </div>
+        <div class="flex items-center gap-1.5 text-[10px]">
+          <span class="badge bg-amber-50 text-amber-700 border border-amber-200">leve &gt;1×</span>
+          <span class="badge bg-rose-50 text-rose-700 border border-rose-200">severo &gt;1.5×</span>
+          <span class="badge bg-rose-100 text-rose-800 border border-rose-300">crítico &gt;2×</span>
+        </div>
+      </div>
+
+      <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+        <div class="hidden lg:grid grid-cols-[1.4fr_1.3fr_1.4fr_1fr_1.2fr_1fr] gap-3 px-4 py-2.5 bg-slate-50 border-b border-slate-200 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+          <span>OC / envío</span><span>Proveedor</span><span>Días en vuelo vs lead-time</span><span class="text-right">Capital</span><span>Última señal</span><span class="text-right">Acción</span>
+        </div>
+
+        <!-- FILA 1 · CRÍTICO + MUDO -->
+        <div class="grid grid-cols-1 lg:grid-cols-[1.4fr_1.3fr_1.4fr_1fr_1.2fr_1fr] gap-3 px-4 py-3.5 border-b border-slate-100 hover:bg-rose-50/30 transition-colors border-l-4 border-l-rose-500">
+          <div class="flex items-center gap-2 min-w-0"><i data-lucide="ship" class="w-4 h-4 text-rose-500 flex-shrink-0"></i><div class="min-w-0"><div class="text-[13px] font-bold text-slate-900 truncate">ENV-2026-188</div><div class="text-[11px] text-slate-500 tabular-nums">OC-2390 · Corea del Sur</div></div></div>
+          <div class="flex items-center"><div><div class="text-[12px] font-semibold text-slate-700">Beauty of Joseon</div><div class="text-[11px] text-slate-400">viajero · courier KR</div></div></div>
+          <div class="flex items-center"><div class="w-full"><div class="flex items-baseline gap-1.5"><span class="text-[18px] font-bold tabular-nums text-rose-900">62</span><span class="text-[11px] text-slate-400 tabular-nums">/ 28d esp.</span><span class="badge bg-rose-100 text-rose-800 border border-rose-300 ml-1">crítico 2.2×</span></div><div class="mt-1 h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-rose-500 rounded-full" style="width:100%"></div></div></div></div>
+          <div class="flex items-center lg:justify-end"><span class="text-[14px] font-bold tabular-nums text-slate-900">$6,820</span></div>
+          <div class="flex items-center"><span class="inline-flex items-center gap-1.5 text-[11px] font-bold text-rose-700 bg-rose-50 border border-rose-200 px-2 py-1 rounded-lg"><i data-lucide="volume-x" class="w-3 h-3"></i> MUDO hace 20d</span></div>
+          <div class="flex items-center gap-1.5 lg:justify-end"><button class="text-[11px] font-semibold text-slate-600 border border-slate-200 hover:bg-slate-50 px-2.5 py-1.5 rounded-lg">Ver</button><button class="text-[11px] font-semibold text-white bg-rose-600 hover:bg-rose-700 px-2.5 py-1.5 rounded-lg flex items-center gap-1"><i data-lucide="megaphone" class="w-3 h-3"></i> Empujar</button></div>
+        </div>
+
+        <!-- FILA 2 · SEVERO -->
+        <div class="grid grid-cols-1 lg:grid-cols-[1.4fr_1.3fr_1.4fr_1fr_1.2fr_1fr] gap-3 px-4 py-3.5 border-b border-slate-100 hover:bg-rose-50/20 transition-colors border-l-4 border-l-rose-400">
+          <div class="flex items-center gap-2 min-w-0"><i data-lucide="ship" class="w-4 h-4 text-rose-400 flex-shrink-0"></i><div class="min-w-0"><div class="text-[13px] font-bold text-slate-900 truncate">ENV-2026-191</div><div class="text-[11px] text-slate-500 tabular-nums">OC-2402 · Corea del Sur</div></div></div>
+          <div class="flex items-center"><div><div class="text-[12px] font-semibold text-slate-700">COSRX Co.</div><div class="text-[11px] text-slate-400">consolidado · viajero</div></div></div>
+          <div class="flex items-center"><div class="w-full"><div class="flex items-baseline gap-1.5"><span class="text-[18px] font-bold tabular-nums text-rose-900">46</span><span class="text-[11px] text-slate-400 tabular-nums">/ 28d esp.</span><span class="badge bg-rose-50 text-rose-700 border border-rose-200 ml-1">severo 1.6×</span></div><div class="mt-1 h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-rose-400 rounded-full" style="width:82%"></div></div></div></div>
+          <div class="flex items-center lg:justify-end"><span class="text-[14px] font-bold tabular-nums text-slate-900">$4,900</span></div>
+          <div class="flex items-center"><span class="inline-flex items-center gap-1.5 text-[11px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-1 rounded-lg"><i data-lucide="activity" class="w-3 h-3"></i> señal hace 6d</span></div>
+          <div class="flex items-center gap-1.5 lg:justify-end"><button class="text-[11px] font-semibold text-slate-600 border border-slate-200 hover:bg-slate-50 px-2.5 py-1.5 rounded-lg">Ver</button><button class="text-[11px] font-semibold text-rose-600 border border-rose-200 hover:bg-rose-50 px-2.5 py-1.5 rounded-lg flex items-center gap-1"><i data-lucide="megaphone" class="w-3 h-3"></i> Empujar</button></div>
+        </div>
+
+        <!-- FILA 3 · LEVE + señal viva -->
+        <div class="grid grid-cols-1 lg:grid-cols-[1.4fr_1.3fr_1.4fr_1fr_1.2fr_1fr] gap-3 px-4 py-3.5 hover:bg-amber-50/20 transition-colors border-l-4 border-l-amber-400">
+          <div class="flex items-center gap-2 min-w-0"><i data-lucide="ship" class="w-4 h-4 text-amber-500 flex-shrink-0"></i><div class="min-w-0"><div class="text-[13px] font-bold text-slate-900 truncate">ENV-2026-195</div><div class="text-[11px] text-slate-500 tabular-nums">OC-2411 · EE.UU.</div></div></div>
+          <div class="flex items-center"><div><div class="text-[12px] font-semibold text-slate-700">Anua USA</div><div class="text-[11px] text-slate-400">courier internacional</div></div></div>
+          <div class="flex items-center"><div class="w-full"><div class="flex items-baseline gap-1.5"><span class="text-[18px] font-bold tabular-nums text-amber-900">24</span><span class="text-[11px] text-slate-400 tabular-nums">/ 20d esp.</span><span class="badge bg-amber-50 text-amber-700 border border-amber-200 ml-1">leve 1.2×</span></div><div class="mt-1 h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-amber-400 rounded-full" style="width:52%"></div></div></div></div>
+          <div class="flex items-center lg:justify-end"><span class="text-[14px] font-bold tabular-nums text-slate-900">$6,920</span></div>
+          <div class="flex items-center"><span class="inline-flex items-center gap-1.5 text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-1 rounded-lg"><i data-lucide="activity" class="w-3 h-3"></i> señal hace 2d</span></div>
+          <div class="flex items-center gap-1.5 lg:justify-end"><button class="text-[11px] font-semibold text-slate-600 border border-slate-200 hover:bg-slate-50 px-2.5 py-1.5 rounded-lg">Ver</button><button class="text-[11px] font-semibold text-slate-400 border border-slate-200 px-2.5 py-1.5 rounded-lg flex items-center gap-1"><i data-lucide="megaphone" class="w-3 h-3"></i> Empujar</button></div>
+        </div>
+      </div>
+
+      <div class="mt-2 text-[10px] text-slate-400 flex items-start gap-1.5"><i data-lucide="info" class="w-3 h-3 flex-shrink-0 mt-0.5"></i><span>Borde izquierdo refuerza la gravedad. <b class="text-slate-500">Empujar proveedor</b> abre un mini-form (contactar / escalar / registrar promesa de fecha) — acción NUEVA y PROPIA de Compras (ver Acto 2.B). "Ver" abre el envío en Envíos (cross-link de detalle). El badge "2" de la tab = filas severo+crítico (2); el leve con señal viva no demanda acción.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 2.B · MODAL "EMPUJAR PROVEEDOR" (la ÚNICA acción operable propia) -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section class="space-y-4">
+  <div class="flex items-center gap-3">
+    <span class="w-8 h-8 rounded-lg bg-rose-600 text-white text-[13px] font-bold flex items-center justify-center flex-shrink-0">2B</span>
+    <div>
+      <div class="text-[17px] font-bold text-slate-900">Modal "Empujar proveedor" · la captura de la ÚNICA acción operable propia</div>
+      <div class="text-[12px] text-slate-500">Lo que abre el botón <b>Empujar</b> del radar · FormModalV2 (desktop=modal · mobile=bottom-sheet) · registra contacto/escalación/promesa de fecha · acción NUEVA <code class="bg-slate-100 px-1 rounded text-[11px]">empujarProveedor</code></div>
+    </div>
+  </div>
+
+  <!-- honestidad: esta acción no existe hoy -->
+  <div class="bg-white border border-amber-200 rounded-2xl p-4 flex items-start gap-3">
+    <i data-lucide="plug" class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5"></i>
+    <div class="text-[12px] text-slate-600">
+      <span class="font-bold text-amber-900">Requiere cableado · acción nueva.</span> No existe hoy. Persiste un registro de seguimiento sobre la OC/envío: <code class="bg-amber-50 border border-amber-100 px-1 rounded">empujarProveedor({ envioId, ocId, canal, tipo, promesaFecha?, nota })</code>. Actualiza la "última señal" del envío y deja traza para el SLA del proveedor. <b class="text-slate-800">Es la única superficie de CAPTURA propia del módulo</b> — el resto es read-only.
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-[1.4fr_1fr] gap-6 items-start">
+
+    <!-- ───────── MODAL desktop (FormModalV2) ───────── -->
+    <div class="bg-slate-200/60 rounded-2xl p-6 flex items-center justify-center">
+      <div class="w-full max-w-md bg-white rounded-2xl overflow-hidden modal-sh">
+        <!-- header del modal -->
+        <div class="px-5 py-4 border-b border-slate-200 flex items-start justify-between gap-3">
+          <div class="flex items-start gap-3">
+            <div class="w-10 h-10 rounded-xl bg-rose-50 border border-rose-200 flex items-center justify-center flex-shrink-0"><i data-lucide="megaphone" class="w-5 h-5 text-rose-600"></i></div>
+            <div>
+              <div class="text-[15px] font-bold text-slate-900 leading-tight">Empujar proveedor</div>
+              <div class="text-[12px] text-slate-500 tabular-nums">ENV-2026-188 · OC-2390 · Beauty of Joseon</div>
+            </div>
+          </div>
+          <button class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+
+        <!-- body del modal -->
+        <div class="px-5 py-4 space-y-4 bg-slate-50/30">
+          <!-- contexto rápido del atraso (read-only) -->
+          <div class="bg-rose-50/60 border border-rose-200 rounded-xl px-3 py-2.5 flex items-center gap-2 text-[11px]">
+            <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-rose-600 flex-shrink-0"></i>
+            <span class="text-rose-800"><b class="tabular-nums">62 / 28d</b> · crítico 2.2× · <b>MUDO hace 20d</b></span>
+          </div>
+
+          <!-- tipo de acción (toggle group) -->
+          <div>
+            <label class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1.5 block">Tipo de empuje</label>
+            <div class="grid grid-cols-3 gap-1.5">
+              <button class="text-[12px] font-semibold text-rose-700 bg-rose-50 border border-rose-300 ring-2 ring-rose-500/30 px-2 py-2 rounded-lg flex flex-col items-center gap-1"><i data-lucide="phone" class="w-4 h-4"></i> Contactar</button>
+              <button class="text-[12px] font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 px-2 py-2 rounded-lg flex flex-col items-center gap-1"><i data-lucide="trending-up" class="w-4 h-4"></i> Escalar</button>
+              <button class="text-[12px] font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 px-2 py-2 rounded-lg flex flex-col items-center gap-1"><i data-lucide="calendar-clock" class="w-4 h-4"></i> Promesa</button>
+            </div>
+          </div>
+
+          <!-- canal -->
+          <div>
+            <label class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1.5 block">Canal</label>
+            <div class="relative">
+              <select class="w-full text-[13px] text-slate-700 bg-white border border-slate-200 rounded-lg px-3 py-2.5 appearance-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-300">
+                <option>WhatsApp</option><option>Email</option><option>Llamada</option><option>Plataforma del courier</option>
+              </select>
+              <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+            </div>
+          </div>
+
+          <!-- promesa de fecha (solo si tipo=Promesa · aquí mostrada) -->
+          <div>
+            <label class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1.5 block flex items-center gap-1.5">Nueva fecha prometida <span class="text-[9px] font-medium text-slate-400 normal-case tracking-normal">· si el proveedor se compromete</span></label>
+            <div class="relative">
+              <input type="text" value="15 jul 2026" class="w-full text-[13px] text-slate-700 bg-white border border-slate-200 rounded-lg px-3 py-2.5 tabular-nums focus:ring-2 focus:ring-blue-500/40 focus:border-blue-300" />
+              <i data-lucide="calendar" class="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+            </div>
+          </div>
+
+          <!-- nota -->
+          <div>
+            <label class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1.5 block">Nota del seguimiento</label>
+            <textarea rows="3" placeholder="Ej: Pedí tracking actualizado · confirmó despacho esta semana…" class="w-full text-[13px] text-slate-700 bg-white border border-slate-200 rounded-lg px-3 py-2.5 resize-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-300"></textarea>
+          </div>
+        </div>
+
+        <!-- footer del modal -->
+        <div class="px-5 py-3.5 border-t border-slate-200 flex items-center justify-between gap-2">
+          <span class="text-[10px] text-slate-400 flex items-center gap-1"><i data-lucide="history" class="w-3 h-3"></i> Queda en el historial del envío</span>
+          <div class="flex items-center gap-2">
+            <button class="text-[12px] font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 px-3 py-2 rounded-lg">Cancelar</button>
+            <button class="text-[12px] font-semibold text-white bg-rose-600 hover:bg-rose-700 px-3 py-2 rounded-lg flex items-center gap-1.5"><i data-lucide="megaphone" class="w-3.5 h-3.5"></i> Registrar empuje</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ───────── MODAL mobile (bottom-sheet) + notas ───────── -->
+    <div class="space-y-4">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 acto-sep">Mobile · bottom-sheet (mismo form · touch ≥44px)</div>
+      <div class="flex justify-center">
+        <div class="w-[320px] bg-slate-300/40 rounded-[24px] p-3 pt-10 relative overflow-hidden">
+          <span class="absolute top-3 left-1/2 -translate-x-1/2 text-[10px] text-slate-400">contenido detrás atenuado</span>
+          <!-- sheet pegado abajo -->
+          <div class="bg-white rounded-t-2xl overflow-hidden modal-sh">
+            <div class="flex justify-center pt-2"><div class="w-9 h-1 rounded-full bg-slate-300"></div></div>
+            <div class="px-4 py-3 border-b border-slate-200 flex items-center gap-2.5">
+              <div class="w-9 h-9 rounded-xl bg-rose-50 border border-rose-200 flex items-center justify-center flex-shrink-0"><i data-lucide="megaphone" class="w-4 h-4 text-rose-600"></i></div>
+              <div class="min-w-0"><div class="text-[14px] font-bold text-slate-900 leading-tight">Empujar proveedor</div><div class="text-[10px] text-slate-500 tabular-nums truncate">ENV-2026-188 · Beauty of Joseon</div></div>
+            </div>
+            <div class="px-4 py-3 space-y-3 bg-slate-50/30">
+              <div class="bg-rose-50/60 border border-rose-200 rounded-lg px-2.5 py-1.5 text-[10px] text-rose-800 flex items-center gap-1.5"><i data-lucide="alert-triangle" class="w-3 h-3 flex-shrink-0"></i> <span class="tabular-nums">62/28d · crítico · MUDO 20d</span></div>
+              <div class="grid grid-cols-3 gap-1.5">
+                <button class="text-[11px] font-semibold text-rose-700 bg-rose-50 border border-rose-300 ring-2 ring-rose-500/30 py-2 rounded-lg flex flex-col items-center gap-0.5 min-h-[44px]"><i data-lucide="phone" class="w-3.5 h-3.5"></i> Contactar</button>
+                <button class="text-[11px] font-semibold text-slate-600 bg-white border border-slate-200 py-2 rounded-lg flex flex-col items-center gap-0.5 min-h-[44px]"><i data-lucide="trending-up" class="w-3.5 h-3.5"></i> Escalar</button>
+                <button class="text-[11px] font-semibold text-slate-600 bg-white border border-slate-200 py-2 rounded-lg flex flex-col items-center gap-0.5 min-h-[44px]"><i data-lucide="calendar-clock" class="w-3.5 h-3.5"></i> Promesa</button>
+              </div>
+              <div class="relative">
+                <select class="w-full text-[13px] text-slate-700 bg-white border border-slate-200 rounded-lg px-3 py-2.5 appearance-none min-h-[44px]"><option>WhatsApp</option><option>Email</option><option>Llamada</option></select>
+                <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+              </div>
+              <textarea rows="2" placeholder="Nota del seguimiento…" class="w-full text-[13px] text-slate-700 bg-white border border-slate-200 rounded-lg px-3 py-2.5 resize-none"></textarea>
+            </div>
+            <div class="px-4 py-3 border-t border-slate-200 flex items-center gap-2">
+              <button class="flex-1 text-[13px] font-semibold text-slate-600 bg-white border border-slate-200 py-2.5 rounded-lg min-h-[44px]">Cancelar</button>
+              <button class="flex-1 text-[13px] font-semibold text-white bg-rose-600 py-2.5 rounded-lg flex items-center justify-center gap-1.5 min-h-[44px]"><i data-lucide="megaphone" class="w-3.5 h-3.5"></i> Registrar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="text-[10px] text-slate-400 flex items-start gap-1.5"><i data-lucide="info" class="w-3 h-3 flex-shrink-0 mt-0.5"></i><span>El campo <b class="text-slate-500">"Nueva fecha prometida"</b> aparece solo con tipo=Promesa (en mobile se inserta sobre la nota). Confirmar = toast success "Empuje registrado · señal actualizada". Es la única captura propia del módulo · todo lo demás sale a su dueño.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 3 · EL CROSS-LINK EXPLICADO ★ (centro del mockup) -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section class="space-y-4">
+  <div class="flex items-center gap-3">
+    <span class="w-8 h-8 rounded-lg bg-indigo-600 text-white text-[13px] font-bold flex items-center justify-center flex-shrink-0">3</span>
+    <div>
+      <div class="text-[17px] font-bold text-slate-900">★ EL CROSS-LINK explicado · cómo funciona (centro del mockup)</div>
+      <div class="text-[12px] text-slate-500">Frame A (en Llegadas · read-only · discovery) → flecha → Frame B (en Envíos · operable · su CRUD real · su color) + anotación de frontera + mini-diagrama qué-vive-dónde</div>
+    </div>
+  </div>
+
+  <!-- la lección, arriba de todo -->
+  <div class="bg-gradient-to-r from-indigo-600 to-blue-700 rounded-2xl p-5 text-white">
+    <div class="flex items-start gap-3">
+      <i data-lucide="lightbulb" class="w-5 h-5 flex-shrink-0 mt-0.5"></i>
+      <div>
+        <div class="text-[14px] font-bold mb-1">La lección que este mockup deja clarísima</div>
+        <p class="text-[13px] text-white/90 leading-relaxed">En <b>Llegadas VES la señal</b> (read-only · discovery: "ojo, estas OCs tienen líos") · en <b>Envíos la OPERÁS</b> (gestión: el CRUD real de incidencias y reclamos). <b class="underline decoration-white/40">Cada cosa donde tiene dueño · cero duplicación.</b> Compras NO clona la pantalla de Envíos: solo muestra el count y el link contextualizado.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- EL FLUJO: Frame A → flecha → Frame B -->
+  <div class="grid grid-cols-1 lg:grid-cols-[1fr_auto_1fr] gap-4 items-stretch">
+
+    <!-- ───────── FRAME A · en Llegadas · READ-ONLY ───────── -->
+    <div class="bg-white border-2 border-blue-300 rounded-2xl overflow-hidden frame flex flex-col">
+      <div class="bg-blue-50 border-b border-blue-200 px-4 py-2.5 flex items-center justify-between">
+        <div class="flex items-center gap-2 text-[11px]"><i data-lucide="plane-landing" class="w-3.5 h-3.5 text-blue-600"></i><span class="font-bold text-blue-800">FRAME A · Compras › Llegadas</span></div>
+        <span class="badge bg-blue-100 text-blue-700 border border-blue-200"><i data-lucide="eye" class="w-2.5 h-2.5"></i> read-only</span>
+      </div>
+      <div class="p-4 flex-1 flex flex-col">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 acto-sep mb-2">Teaser · excepciones en curso</div>
+        <!-- el teaser read-only -->
+        <div class="bg-rose-50/50 border border-rose-200 rounded-xl p-4 relative">
+          <div class="absolute top-3 right-3 flex items-center gap-1 text-[10px] font-bold text-slate-400"><i data-lucide="eye" class="w-3 h-3"></i> vista</div>
+          <div class="flex items-start gap-3">
+            <div class="w-9 h-9 rounded-xl bg-rose-100 border border-rose-200 flex items-center justify-center flex-shrink-0"><i data-lucide="alert-octagon" class="w-4 h-4 text-rose-600"></i></div>
+            <div class="min-w-0">
+              <div class="text-[13px] font-bold text-slate-900">3 incidencias abiertas en estas OCs</div>
+              <div class="text-[12px] text-slate-600 tabular-nums mt-0.5">2 reclamos por cobrar · S/ 1,180 + $ 320</div>
+              <div class="text-[11px] text-slate-400 mt-1">Recepción incompleta · facturación · logística</div>
+            </div>
+          </div>
+          <button class="mt-3 w-full text-[12px] font-semibold text-orange-700 bg-white border border-orange-200 hover:bg-orange-50 px-3 py-2.5 rounded-lg flex items-center justify-center gap-1.5">Ver en Envíos <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></button>
+        </div>
+        <div class="mt-3 text-[11px] text-slate-500 flex items-start gap-1.5 mt-auto pt-3"><i data-lucide="info" class="w-3 h-3 flex-shrink-0 mt-0.5 text-slate-400"></i><span>Solo el <b class="text-slate-700">count + el link</b>. NO el detalle, NO el CRUD. El badge "vista" + el ojo marcan que aquí <b class="text-slate-700">no se opera</b>.</span></div>
+        <!-- NOTA DE NO-DUPLICACIÓN · este Frame A = la MISMA card del aside (Acto 4) -->
+        <div class="mt-2 text-[10px] text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-2.5 py-1.5 flex items-start gap-1.5"><i data-lucide="copy" class="w-3 h-3 flex-shrink-0 mt-0.5"></i><span>Este Frame A es la <b>MISMA</b> card del teaser del aside (Acto 4) · mostrada aislada solo para explicar el flujo. En runtime es <b>UNA sola</b> — el implementador NO renderiza ambas.</span></div>
+      </div>
+    </div>
+
+    <!-- ───────── FLECHA del flujo ───────── -->
+    <div class="flex lg:flex-col items-center justify-center gap-2 px-2">
+      <div class="hidden lg:flex flex-col items-center gap-1.5">
+        <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-600 acto-sep text-center leading-tight">click<br>"Ver en<br>Envíos"</span>
+        <div class="w-12 h-12 rounded-full bg-indigo-600 flex items-center justify-center shadow-lg"><i data-lucide="arrow-right" class="w-6 h-6 text-white"></i></div>
+        <span class="text-[10px] text-slate-400 text-center leading-tight">aterriza<br>contextualizado</span>
+      </div>
+      <!-- mobile/tablet: flecha hacia abajo -->
+      <div class="flex lg:hidden flex-col items-center gap-1.5 py-2">
+        <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-600 acto-sep">click "Ver en Envíos"</span>
+        <div class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center shadow-lg"><i data-lucide="arrow-down" class="w-5 h-5 text-white"></i></div>
+      </div>
+    </div>
+
+    <!-- ───────── FRAME B · en Envíos · OPERABLE · color ORANGE ───────── -->
+    <div class="bg-white border-2 border-orange-300 rounded-2xl overflow-hidden frame flex flex-col">
+      <div class="bg-orange-50 border-b border-orange-200 px-4 py-2.5 flex items-center justify-between">
+        <div class="flex items-center gap-2 text-[11px]"><i data-lucide="truck" class="w-3.5 h-3.5 text-orange-600"></i><span class="font-bold text-orange-800">FRAME B · Envíos › Incidencias</span></div>
+        <span class="badge bg-emerald-100 text-emerald-700 border border-emerald-200"><i data-lucide="hammer" class="w-2.5 h-2.5"></i> operable</span>
+      </div>
+      <div class="flex-1 flex flex-col">
+        <!-- mini top-bar de Envíos (OTRO módulo · orange) -->
+        <div class="px-4 py-2 border-b border-orange-100 bg-orange-50/40 flex items-center gap-1.5 text-[10px] text-slate-500">
+          <i data-lucide="home" class="w-2.5 h-2.5"></i> Inicio <i data-lucide="chevron-right" class="w-2.5 h-2.5 text-slate-300"></i> Inventario <i data-lucide="chevron-right" class="w-2.5 h-2.5 text-slate-300"></i> <span class="font-semibold text-orange-700">Envíos</span>
+        </div>
+        <!-- tabs de Envíos (reales · Incidencias activa · orange) -->
+        <div class="px-3 border-b border-slate-200 flex items-center gap-0.5 overflow-x-auto scrollbar-none text-[11px]">
+          <span class="px-2 py-2 text-slate-400 whitespace-nowrap border-b-2 border-transparent">Resumen</span>
+          <span class="px-2 py-2 text-slate-400 whitespace-nowrap border-b-2 border-transparent">Operaciones</span>
+          <span class="px-2 py-2 font-semibold text-orange-700 whitespace-nowrap border-b-2 border-orange-600 flex items-center gap-1">Incidencias <span class="text-[9px] bg-rose-100 text-rose-700 rounded-full px-1 font-bold">3</span></span>
+          <span class="px-2 py-2 text-slate-400 whitespace-nowrap border-b-2 border-transparent">Reclamos</span>
+          <span class="px-2 py-2 text-slate-400 whitespace-nowrap border-b-2 border-transparent">Costos</span>
+        </div>
+        <!-- chip de contexto: filtrado por las OCs de origen -->
+        <div class="px-4 pt-3">
+          <div class="inline-flex items-center gap-1.5 text-[10px] font-semibold text-orange-700 bg-orange-50 border border-orange-200 px-2 py-1 rounded-full"><i data-lucide="filter" class="w-2.5 h-2.5"></i> Filtrado: OC-2390 · OC-2402 · OC-2411 <button class="ml-1"><i data-lucide="x" class="w-2.5 h-2.5"></i></button></div>
+        </div>
+        <!-- incidencias reales · OPERABLES (con su CRUD) -->
+        <div class="p-4 space-y-2 flex-1">
+          <div class="bg-white border border-slate-200 rounded-xl p-3 border-l-4 border-l-rose-500">
+            <div class="flex items-start justify-between gap-2">
+              <div class="flex items-center gap-2 min-w-0"><i data-lucide="package" class="w-4 h-4 text-rose-600 flex-shrink-0"></i><div class="min-w-0"><div class="text-[12px] font-bold text-slate-900 truncate">Recepción incompleta · OC-2390</div><div class="text-[10px] text-slate-400">faltan 40 uds · en gestión</div></div></div>
+              <span class="badge bg-rose-50 text-rose-700 border border-rose-200">crítica</span>
+            </div>
+            <div class="flex items-center gap-1.5 mt-2"><button class="text-[10px] font-semibold text-white bg-orange-600 hover:bg-orange-700 px-2 py-1 rounded-lg">Gestionar</button><button class="text-[10px] font-semibold text-slate-600 border border-slate-200 px-2 py-1 rounded-lg">Resolver</button></div>
+          </div>
+          <div class="bg-white border border-slate-200 rounded-xl p-3 border-l-4 border-l-amber-400">
+            <div class="flex items-start justify-between gap-2">
+              <div class="flex items-center gap-2 min-w-0"><i data-lucide="receipt" class="w-4 h-4 text-amber-600 flex-shrink-0"></i><div class="min-w-0"><div class="text-[12px] font-bold text-slate-900 truncate">Diferencia de factura · OC-2402</div><div class="text-[10px] text-slate-400">$210 de más · abierta</div></div></div>
+              <span class="badge bg-amber-50 text-amber-700 border border-amber-200">media</span>
+            </div>
+            <div class="flex items-center gap-1.5 mt-2"><button class="text-[10px] font-semibold text-white bg-orange-600 hover:bg-orange-700 px-2 py-1 rounded-lg">Gestionar</button><button class="text-[10px] font-semibold text-slate-600 border border-slate-200 px-2 py-1 rounded-lg">Resolver</button></div>
+          </div>
+        </div>
+        <div class="px-4 pb-4 text-[11px] text-orange-700 flex items-start gap-1.5"><i data-lucide="info" class="w-3 h-3 flex-shrink-0 mt-0.5"></i><span>Aquí <b>SÍ hay CRUD</b>: Gestionar · Resolver · adjuntar · marcar reclamo. Este es el <b>dueño</b> de la incidencia. Mismo dato que el teaser del Frame A, pero <b>operable</b> y en <b>su</b> módulo (orange).</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ANOTACIÓN de frontera (entre los frames) -->
+  <div class="bg-white border border-slate-200 rounded-2xl p-5">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="bg-blue-50/50 border border-blue-200 rounded-xl p-4">
+        <div class="flex items-center gap-2 mb-2"><i data-lucide="eye" class="w-4 h-4 text-blue-600"></i><span class="text-[12px] font-bold text-blue-900">En Llegadas · VES la señal</span></div>
+        <ul class="text-[12px] text-slate-600 space-y-1">
+          <li class="flex items-start gap-1.5"><i data-lucide="check" class="w-3 h-3 text-blue-600 flex-shrink-0 mt-0.5"></i> Count agregado ("3 incidencias · 2 reclamos")</li>
+          <li class="flex items-start gap-1.5"><i data-lucide="check" class="w-3 h-3 text-blue-600 flex-shrink-0 mt-0.5"></i> Discovery: "ojo, mis OCs tienen líos"</li>
+          <li class="flex items-start gap-1.5"><i data-lucide="x" class="w-3 h-3 text-rose-400 flex-shrink-0 mt-0.5"></i> NO el detalle · NO el CRUD · NO duplicar</li>
+        </ul>
+      </div>
+      <div class="bg-orange-50/50 border border-orange-200 rounded-xl p-4">
+        <div class="flex items-center gap-2 mb-2"><i data-lucide="hammer" class="w-4 h-4 text-orange-600"></i><span class="text-[12px] font-bold text-orange-900">En Envíos · la OPERÁS</span></div>
+        <ul class="text-[12px] text-slate-600 space-y-1">
+          <li class="flex items-start gap-1.5"><i data-lucide="check" class="w-3 h-3 text-orange-600 flex-shrink-0 mt-0.5"></i> CRUD real: gestionar · resolver · reclamar</li>
+          <li class="flex items-start gap-1.5"><i data-lucide="check" class="w-3 h-3 text-orange-600 flex-shrink-0 mt-0.5"></i> Contextualizado a esas OCs (filtro pre-aplicado)</li>
+          <li class="flex items-start gap-1.5"><i data-lucide="check" class="w-3 h-3 text-orange-600 flex-shrink-0 mt-0.5"></i> Es el DUEÑO del dato (una sola fuente)</li>
+        </ul>
+      </div>
+    </div>
+    <div class="mt-3 text-center text-[12px] font-semibold text-slate-700 bg-slate-50 border border-slate-200 rounded-xl py-2.5">Cada cosa donde tiene dueño · <span class="text-indigo-700">cero duplicación</span>. El cross-link NO copia la pantalla · la <span class="text-indigo-700">enlaza</span>.</div>
+  </div>
+
+  <!-- MINI-DIAGRAMA · qué vive dónde (repite el patrón para los otros cross-links) -->
+  <div class="bg-white border border-slate-200 rounded-2xl p-5">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3 acto-sep">Mini-diagrama · qué vive dónde · el mismo patrón para CADA cross-link de Llegadas</div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-[12px]">
+      <!-- 1 -->
+      <div class="border border-slate-200 rounded-xl p-3">
+        <div class="text-[11px] font-bold text-slate-900 mb-1.5 flex items-center gap-1.5"><i data-lucide="alert-octagon" class="w-3.5 h-3.5 text-rose-600"></i> Incidencias / reclamos</div>
+        <div class="flex items-center gap-1.5 text-[11px]"><span class="badge bg-blue-50 text-blue-700 border border-blue-200">VES · Llegadas</span><i data-lucide="arrow-right" class="w-3 h-3 text-slate-300"></i><span class="badge bg-orange-50 text-orange-700 border border-orange-200">OPERÁS · Envíos</span></div>
+        <div class="text-[10px] text-slate-400 mt-1.5">count + link → CRUD de incidencias</div>
+      </div>
+      <!-- 2 -->
+      <div class="border border-slate-200 rounded-xl p-3">
+        <div class="text-[11px] font-bold text-slate-900 mb-1.5 flex items-center gap-1.5"><i data-lucide="ship" class="w-3.5 h-3.5 text-slate-600"></i> Capital en tránsito</div>
+        <div class="flex items-center gap-1.5 text-[11px]"><span class="badge bg-blue-50 text-blue-700 border border-blue-200">VES · Llegadas</span><i data-lucide="arrow-right" class="w-3 h-3 text-slate-300"></i><span class="badge bg-orange-50 text-orange-700 border border-orange-200">Envíos / Finanzas</span></div>
+        <div class="text-[10px] text-slate-400 mt-1.5">barra riesgo → write-off / P&L</div>
+      </div>
+      <!-- 3 -->
+      <div class="border border-slate-200 rounded-xl p-3">
+        <div class="text-[11px] font-bold text-slate-900 mb-1.5 flex items-center gap-1.5"><i data-lucide="boxes" class="w-3.5 h-3.5 text-amber-600"></i> Unidades por llegar</div>
+        <div class="flex items-center gap-1.5 text-[11px]"><span class="badge bg-blue-50 text-blue-700 border border-blue-200">VES · Llegadas</span><i data-lucide="arrow-right" class="w-3 h-3 text-slate-300"></i><span class="badge bg-orange-50 text-orange-700 border border-orange-200">OPERÁS · Stock</span></div>
+        <div class="text-[10px] text-slate-400 mt-1.5">teaser uds → posición / recepción</div>
+      </div>
+      <!-- 4 -->
+      <div class="border border-slate-200 rounded-xl p-3">
+        <div class="text-[11px] font-bold text-slate-900 mb-1.5 flex items-center gap-1.5"><i data-lucide="banknote" class="w-3.5 h-3.5 text-teal-600"></i> Pagos de OC</div>
+        <div class="flex items-center gap-1.5 text-[11px]"><span class="badge bg-blue-50 text-blue-700 border border-blue-200">VES · Llegadas</span><i data-lucide="arrow-right" class="w-3 h-3 text-slate-300"></i><span class="badge bg-teal-50 text-teal-700 border border-teal-200">OPERÁS · Tesorería</span></div>
+        <div class="text-[10px] text-slate-400 mt-1.5">estado pago → programar / pagar</div>
+      </div>
+    </div>
+    <div class="mt-3 text-[11px] text-slate-500 flex items-start gap-1.5"><i data-lucide="git-fork" class="w-3.5 h-3.5 text-indigo-500 flex-shrink-0 mt-0.5"></i><span>El color del destino <b class="text-slate-700">cambia según el módulo dueño</b> (Envíos/Stock = orange · Tesorería = teal). Esa pista cromática le dice al usuario "esto se opera EN OTRO LADO". El radar de atrasados (Acto 2) es la excepción: <b class="text-emerald-700">no apunta a otro módulo · es propio</b>.</span></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 4 · ASIDE · UNIDADES POR LLEGAR + TEASER EXCEPCIONES -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section class="space-y-4">
+  <div class="flex items-center gap-3">
+    <span class="w-8 h-8 rounded-lg bg-slate-600 text-white text-[13px] font-bold flex items-center justify-center flex-shrink-0">4</span>
+    <div>
+      <div class="text-[17px] font-bold text-slate-900">Aside · Unidades por llegar (→ Stock) + Teaser excepciones (→ Envíos)</div>
+      <div class="text-[12px] text-slate-500">Los dos bloques read-only del aside (Layout A) · ambos cross-link · ninguno se opera aquí</div>
+    </div>
+  </div>
+
+  <!-- NOTA DE NO-DUPLICACIÓN · el teaser de excepciones de abajo = el Frame A del Acto 3 -->
+  <div class="bg-amber-50 border border-amber-200 rounded-xl px-4 py-2.5 flex items-start gap-2 text-[12px] text-amber-900">
+    <i data-lucide="copy" class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5"></i>
+    <span><b>Es UNA sola card en runtime.</b> El "Teaser excepciones" de abajo es <b>el mismo bloque</b> que el Frame A del Acto 3 (allá se mostró aislado para explicar el cross-link). Esta es su ubicación REAL: el aside del Layout A. El implementador renderiza <b>una sola vez</b>, aquí.</span>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <!-- UNIDADES POR LLEGAR · cross-link a Stock -->
+    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden frame">
+      <div class="px-4 py-2.5 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+        <div class="flex items-center gap-2 text-[11px]"><i data-lucide="boxes" class="w-3.5 h-3.5 text-amber-600"></i><span class="font-semibold text-slate-700">Unidades por llegar</span></div>
+        <span class="badge bg-orange-50 text-orange-700 border border-orange-200"><i data-lucide="eye" class="w-2.5 h-2.5"></i> de Stock</span>
+      </div>
+      <div class="p-4">
+        <div class="flex items-baseline gap-2 mb-3"><span class="text-2xl font-bold tabular-nums text-slate-900">1,840</span><span class="text-[12px] text-slate-500">uds en 9 envíos</span></div>
+        <div class="space-y-2">
+          <div class="flex items-center justify-between text-[12px]"><span class="text-slate-600 flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-blue-500"></span> Beauty of Joseon</span><span class="font-semibold tabular-nums text-slate-800">620 uds</span></div>
+          <div class="flex items-center justify-between text-[12px]"><span class="text-slate-600 flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-purple-500"></span> COSRX Co.</span><span class="font-semibold tabular-nums text-slate-800">540 uds</span></div>
+          <div class="flex items-center justify-between text-[12px]"><span class="text-slate-600 flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-amber-500"></span> Anua USA</span><span class="font-semibold tabular-nums text-slate-800">680 uds</span></div>
+        </div>
+        <div class="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between">
+          <span class="text-[10px] text-slate-400 flex items-center gap-1"><i data-lucide="eye" class="w-3 h-3"></i> lectura · no se recibe acá</span>
+          <button class="text-[11px] font-semibold text-orange-700 border border-orange-200 hover:bg-orange-50 px-2.5 py-1.5 rounded-lg flex items-center gap-1">Ver en Stock <i data-lucide="arrow-right" class="w-3 h-3"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TEASER EXCEPCIONES · cross-link a Envíos (read-only) -->
+    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden frame">
+      <div class="px-4 py-2.5 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+        <div class="flex items-center gap-2 text-[11px]"><i data-lucide="alert-octagon" class="w-3.5 h-3.5 text-rose-600"></i><span class="font-semibold text-slate-700">Excepciones en curso</span></div>
+        <span class="badge bg-orange-50 text-orange-700 border border-orange-200"><i data-lucide="eye" class="w-2.5 h-2.5"></i> de Envíos</span>
+      </div>
+      <div class="p-4">
+        <div class="space-y-2.5">
+          <div class="flex items-center gap-3 bg-rose-50/50 border border-rose-100 rounded-xl px-3 py-2.5">
+            <i data-lucide="alert-octagon" class="w-4 h-4 text-rose-600 flex-shrink-0"></i>
+            <div class="min-w-0"><div class="text-[13px] font-bold text-slate-900 tabular-nums">3 incidencias abiertas</div><div class="text-[11px] text-slate-500">en estas OCs · recepción · factura · logística</div></div>
+          </div>
+          <div class="flex items-center gap-3 bg-sky-50/50 border border-sky-100 rounded-xl px-3 py-2.5">
+            <i data-lucide="hand-coins" class="w-4 h-4 text-sky-600 flex-shrink-0"></i>
+            <div class="min-w-0"><div class="text-[13px] font-bold text-slate-900 tabular-nums">2 reclamos por cobrar</div><div class="text-[11px] text-slate-500 tabular-nums">S/ 1,180 + $ 320 por cobrar</div></div>
+          </div>
+        </div>
+        <div class="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between">
+          <span class="text-[10px] text-slate-400 flex items-center gap-1"><i data-lucide="eye" class="w-3 h-3"></i> solo count · no el CRUD</span>
+          <button class="text-[11px] font-semibold text-orange-700 border border-orange-200 hover:bg-orange-50 px-2.5 py-1.5 rounded-lg flex items-center gap-1">Ver en Envíos <i data-lucide="arrow-right" class="w-3 h-3"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white border border-amber-200 rounded-2xl p-4 flex items-start gap-3">
+    <i data-lucide="plug" class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5"></i>
+    <div class="text-[12px] text-slate-600">
+      <span class="font-bold text-amber-900">Honestidad de los counts</span> — el teaser requiere agregación cross-OC: <code class="bg-amber-50 border border-amber-100 px-1 rounded">incidenciaOC.listAll</code> (hoy el servicio solo expone <code class="bg-white border border-slate-200 px-1 rounded">subscribeByOC(ocId)</code>) + el resumen de reclamos por las OCs en vuelo. <b class="text-slate-800">NADA del detalle</b> de incidencias/reclamos se clona aquí · solo el count + el link. Unidades por llegar sale de los envíos en tránsito (ya disponible).
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 5 · ESTADOS · empty / loading / error -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section class="space-y-4">
+  <div class="flex items-center gap-3">
+    <span class="w-8 h-8 rounded-lg bg-slate-600 text-white text-[13px] font-bold flex items-center justify-center flex-shrink-0">5</span>
+    <div>
+      <div class="text-[17px] font-bold text-slate-900">Estados · empty · loading · error + retry</div>
+      <div class="text-[12px] text-slate-500">Fila 1 = radar (cómputo) · Fila 2 = cross-link async (teaser <code class="bg-slate-100 px-1 rounded text-[11px]">incidenciaOC.listAll</code> + capital/uds derivados). Cada card async lleva su propio loading/empty.</div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <!-- EMPTY (buena señal) -->
+    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden frame">
+      <div class="px-4 py-2.5 border-b border-slate-200 bg-emerald-50 text-[11px] font-bold text-emerald-700 flex items-center gap-1.5"><i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Empty · sin atrasados</div>
+      <div class="p-6 text-center">
+        <div class="w-14 h-14 rounded-2xl bg-emerald-100 flex items-center justify-center mx-auto mb-3"><i data-lucide="plane-landing" class="w-7 h-7 text-emerald-600"></i></div>
+        <div class="text-[14px] font-bold text-slate-900 mb-1">Todo en hora</div>
+        <p class="text-[12px] text-slate-500 leading-relaxed mb-4">Ningún envío en vuelo va atrasado contra su lead-time. El radar vacío es <b class="text-emerald-700">buena señal</b>.</p>
+        <button class="text-[12px] font-semibold text-blue-700 border border-blue-200 hover:bg-blue-50 px-3 py-2 rounded-lg inline-flex items-center gap-1.5"><i data-lucide="package" class="w-3.5 h-3.5"></i> Ver órdenes en vuelo</button>
+      </div>
+    </div>
+
+    <!-- LOADING -->
+    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden frame">
+      <div class="px-4 py-2.5 border-b border-slate-200 bg-slate-50 text-[11px] font-bold text-slate-500 flex items-center gap-1.5"><i data-lucide="loader" class="w-3.5 h-3.5"></i> Loading · radar</div>
+      <div class="p-4 space-y-3">
+        <div class="skeleton h-3 w-2/3"></div>
+        <div class="space-y-2.5">
+          <div class="flex items-center gap-3"><div class="skeleton w-9 h-9 rounded-xl"></div><div class="flex-1 space-y-1.5"><div class="skeleton h-2.5 w-1/2"></div><div class="skeleton h-2 w-1/3"></div></div><div class="skeleton h-6 w-16 rounded-lg"></div></div>
+          <div class="flex items-center gap-3"><div class="skeleton w-9 h-9 rounded-xl"></div><div class="flex-1 space-y-1.5"><div class="skeleton h-2.5 w-2/3"></div><div class="skeleton h-2 w-1/4"></div></div><div class="skeleton h-6 w-16 rounded-lg"></div></div>
+          <div class="flex items-center gap-3"><div class="skeleton w-9 h-9 rounded-xl"></div><div class="flex-1 space-y-1.5"><div class="skeleton h-2.5 w-1/2"></div><div class="skeleton h-2 w-1/3"></div></div><div class="skeleton h-6 w-16 rounded-lg"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ERROR + retry -->
+    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden frame">
+      <div class="px-4 py-2.5 border-b border-slate-200 bg-rose-50 text-[11px] font-bold text-rose-700 flex items-center gap-1.5"><i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i> Error · no se pudo cargar</div>
+      <div class="p-6 text-center">
+        <div class="w-14 h-14 rounded-2xl bg-rose-100 flex items-center justify-center mx-auto mb-3"><i data-lucide="cloud-off" class="w-7 h-7 text-rose-600"></i></div>
+        <div class="text-[14px] font-bold text-slate-900 mb-1">No pudimos calcular el radar</div>
+        <p class="text-[12px] text-slate-500 leading-relaxed mb-4">Falló la lectura de envíos en tránsito o el agregado de incidencias. Reintentá.</p>
+        <button class="text-[12px] font-semibold text-white bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded-lg inline-flex items-center gap-1.5"><i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Reintentar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FILA 2 · estados de los CROSS-LINK async (teaser + capital + unidades) -->
+  <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 acto-sep pt-2">Fila 2 · estados de los bloques cross-link async</div>
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+
+    <!-- TEASER · loading (incidenciaOC.listAll en curso) -->
+    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden frame">
+      <div class="px-4 py-2.5 border-b border-slate-200 bg-slate-50 text-[11px] font-bold text-slate-500 flex items-center gap-1.5"><i data-lucide="loader" class="w-3.5 h-3.5"></i> Loading · teaser excepciones <span class="badge bg-orange-50 text-orange-700 border border-orange-200 ml-auto"><i data-lucide="eye" class="w-2.5 h-2.5"></i> de Envíos</span></div>
+      <div class="p-4 space-y-2.5">
+        <div class="flex items-center gap-3"><div class="skeleton w-4 h-4 rounded"></div><div class="flex-1 space-y-1.5"><div class="skeleton h-2.5 w-2/3"></div><div class="skeleton h-2 w-1/2"></div></div></div>
+        <div class="flex items-center gap-3"><div class="skeleton w-4 h-4 rounded"></div><div class="flex-1 space-y-1.5"><div class="skeleton h-2.5 w-1/2"></div><div class="skeleton h-2 w-2/5"></div></div></div>
+        <div class="skeleton h-8 w-full rounded-lg mt-1"></div>
+      </div>
+    </div>
+
+    <!-- TEASER · empty (0 incidencias = sin líos) -->
+    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden frame">
+      <div class="px-4 py-2.5 border-b border-slate-200 bg-emerald-50 text-[11px] font-bold text-emerald-700 flex items-center gap-1.5"><i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Empty · sin excepciones <span class="badge bg-orange-50 text-orange-700 border border-orange-200 ml-auto"><i data-lucide="eye" class="w-2.5 h-2.5"></i> de Envíos</span></div>
+      <div class="p-6 text-center">
+        <div class="w-14 h-14 rounded-2xl bg-emerald-100 flex items-center justify-center mx-auto mb-3"><i data-lucide="shield-check" class="w-7 h-7 text-emerald-600"></i></div>
+        <div class="text-[14px] font-bold text-slate-900 mb-1">Sin líos en estas OCs</div>
+        <p class="text-[12px] text-slate-500 leading-relaxed">0 incidencias abiertas · 0 reclamos por cobrar en las OCs en vuelo. El teaser se oculta el dato pero <b class="text-emerald-700">deja la card</b> (discovery: el feature existe).</p>
+      </div>
+    </div>
+
+    <!-- CAPITAL · empty (sin envíos en vuelo) -->
+    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden frame">
+      <div class="px-4 py-2.5 border-b border-slate-200 bg-slate-50 text-[11px] font-bold text-slate-500 flex items-center gap-1.5"><i data-lucide="ship" class="w-3.5 h-3.5"></i> Empty · capital en tránsito <span class="badge bg-orange-50 text-orange-700 border border-orange-200 ml-auto"><i data-lucide="eye" class="w-2.5 h-2.5"></i> de Envíos</span></div>
+      <div class="p-6 text-center">
+        <div class="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-3"><i data-lucide="plane" class="w-7 h-7 text-slate-400"></i></div>
+        <div class="text-[14px] font-bold text-slate-900 mb-1">Nada en vuelo</div>
+        <p class="text-[12px] text-slate-500 leading-relaxed">No hay envíos en tránsito · $0 de capital en el aire. (La barra de riesgo y "Unidades por llegar" comparten este empty: sin envíos → ambos vacíos.)</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="text-[10px] text-slate-400 flex items-start gap-1.5"><i data-lucide="info" class="w-3 h-3 flex-shrink-0 mt-0.5"></i><span>Los cross-link no muestran <b class="text-slate-500">error+retry</b> propio: si <code class="bg-slate-100 px-1 rounded">listAll</code> o el derivado de envíos falla, la card cae a su empty con un sub-texto "no se pudo leer" — el cross-link NUNCA bloquea el radar (que es lo operable). El error duro vive en el dueño (Envíos).</span></div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 6 · MOBILE shell + KPIs + radar (375px) -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section class="space-y-4">
+  <div class="flex items-center gap-3">
+    <span class="w-8 h-8 rounded-lg bg-violet-600 text-white text-[13px] font-bold flex items-center justify-center flex-shrink-0">6</span>
+    <div>
+      <div class="text-[17px] font-bold text-slate-900">Mobile · 375px · shell + banner + radar</div>
+      <div class="text-[12px] text-slate-500">Strip 2×2 scroll-x · tabs scroll-x · banner capital apilado · radar como cards por gravedad · touch ≥44px</div>
+    </div>
+  </div>
+
+  <div class="flex flex-wrap gap-6 justify-center">
+    <!-- MOBILE 1 · shell + banner -->
+    <div class="w-[375px] bg-white border border-slate-200 rounded-[28px] overflow-hidden shadow-xl flex-shrink-0">
+      <div class="bg-slate-900 text-white text-[10px] px-5 py-1.5 flex justify-between"><span>9:41</span><span class="flex gap-1"><i data-lucide="signal" class="w-3 h-3"></i><i data-lucide="wifi" class="w-3 h-3"></i><i data-lucide="battery-full" class="w-3 h-3"></i></span></div>
+      <!-- top-bar -->
+      <div class="px-4 py-2 bg-slate-50 border-b border-slate-200 flex items-center justify-between text-[10px]">
+        <div class="flex items-center gap-1 text-slate-500"><i data-lucide="chevron-left" class="w-3.5 h-3.5"></i> Compras <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300"></i> <span class="font-semibold text-blue-700">Llegadas</span></div>
+        <span class="text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded-full font-semibold flex items-center gap-1"><i data-lucide="shield" class="w-2.5 h-2.5"></i> admin</span>
+      </div>
+      <!-- header -->
+      <div class="px-4 py-3 border-b border-slate-200 flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center flex-shrink-0"><i data-lucide="shopping-cart" class="w-4 h-4 text-white"></i></div>
+        <div><h2 class="text-[18px] font-bold text-slate-900 leading-none">Compras</h2><p class="text-[11px] text-slate-500">órdenes en vuelo</p></div>
+      </div>
+      <!-- KPI strip 2×2 scroll-x -->
+      <div class="px-4 py-3 border-b border-slate-200 bg-slate-50/40 grid grid-cols-2 gap-2">
+        <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-xl p-2.5"><div class="text-[9px] uppercase tracking-wider text-amber-700 font-bold">Comprado mes</div><div class="text-[18px] font-bold tabular-nums text-amber-900">$28.4k</div></div>
+        <div class="bg-gradient-to-br from-blue-50 to-blue-100/40 ring-1 ring-blue-200/50 rounded-xl p-2.5"><div class="text-[9px] uppercase tracking-wider text-blue-700 font-bold">En vuelo</div><div class="text-[18px] font-bold tabular-nums text-blue-900">$42.2k</div></div>
+        <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-xl p-2.5"><div class="text-[9px] uppercase tracking-wider text-rose-700 font-bold">Por firmar</div><div class="text-[18px] font-bold tabular-nums text-rose-900">3</div></div>
+        <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-xl p-2.5"><div class="text-[9px] uppercase tracking-wider text-emerald-700 font-bold">SLA recep.</div><div class="text-[18px] font-bold tabular-nums text-emerald-900">88%</div></div>
+      </div>
+      <!-- tabs scroll-x -->
+      <div class="flex gap-1 overflow-x-auto scrollbar-none px-3 border-b border-slate-200 text-[12px]">
+        <span class="px-2.5 py-3 text-slate-400 whitespace-nowrap">Resumen</span>
+        <span class="px-2.5 py-3 text-slate-400 whitespace-nowrap">Órdenes</span>
+        <span class="px-2.5 py-3 text-slate-400 whitespace-nowrap">Pendientes</span>
+        <span class="px-2.5 py-3 font-semibold text-blue-700 border-b-2 border-blue-600 whitespace-nowrap flex items-center gap-1">Llegadas <span class="text-[9px] bg-rose-100 text-rose-700 rounded-full px-1 font-bold">2</span></span>
+      </div>
+      <!-- banner capital (apilado) -->
+      <div class="p-4">
+        <div class="bg-white border border-slate-200 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2"><span class="text-[12px] font-bold text-slate-900 flex items-center gap-1.5"><i data-lucide="ship" class="w-3.5 h-3.5 text-slate-700"></i> Capital en tránsito</span><span class="badge bg-orange-50 text-orange-700 border border-orange-200"><i data-lucide="eye" class="w-2.5 h-2.5"></i> de Envíos</span></div>
+          <div class="text-2xl font-bold tabular-nums text-slate-900">$42,180</div>
+          <div class="h-3 rounded-full overflow-hidden flex bg-slate-100 mt-2"><div class="bg-rose-500 h-full" style="width:28%"></div><div class="bg-emerald-400 h-full" style="width:72%"></div></div>
+          <div class="flex items-center justify-between mt-2 text-[10px]"><span class="text-rose-700 font-semibold tabular-nums">Riesgo $11,720</span><span class="text-emerald-700 font-semibold tabular-nums">Normal $30,460</span></div>
+          <button class="mt-3 w-full text-[12px] font-semibold text-orange-700 border border-orange-200 hover:bg-orange-50 py-2.5 rounded-lg flex items-center justify-center gap-1.5">Ver en Envíos <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MOBILE 2 · radar como cards por gravedad -->
+    <div class="w-[375px] bg-white border border-slate-200 rounded-[28px] overflow-hidden shadow-xl flex-shrink-0">
+      <div class="bg-slate-900 text-white text-[10px] px-5 py-1.5 flex justify-between"><span>9:41</span><span class="flex gap-1"><i data-lucide="signal" class="w-3 h-3"></i><i data-lucide="wifi" class="w-3 h-3"></i><i data-lucide="battery-full" class="w-3 h-3"></i></span></div>
+      <div class="px-4 py-3 border-b border-slate-200 flex items-center gap-2"><i data-lucide="radar" class="w-4 h-4 text-rose-600"></i><span class="text-[13px] font-bold text-slate-900">Radar · 3 atrasados</span><span class="badge bg-emerald-50 text-emerald-700 border border-emerald-200 ml-auto"><i data-lucide="hammer" class="w-2.5 h-2.5"></i> operable</span></div>
+      <div class="p-4 space-y-3 bg-slate-50/30">
+        <!-- card crítico -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-3.5 border-l-4 border-l-rose-500">
+          <div class="flex items-start justify-between gap-2 mb-2"><div class="flex items-center gap-2 min-w-0"><i data-lucide="ship" class="w-4 h-4 text-rose-500 flex-shrink-0"></i><div class="min-w-0"><div class="text-[13px] font-bold text-slate-900 truncate">ENV-2026-188</div><div class="text-[10px] text-slate-500 tabular-nums">OC-2390 · Beauty of Joseon</div></div></div><span class="badge bg-rose-100 text-rose-800 border border-rose-300 flex-shrink-0">crítico 2.2×</span></div>
+          <div class="flex items-baseline gap-1.5 mb-1"><span class="text-[16px] font-bold tabular-nums text-rose-900">62</span><span class="text-[10px] text-slate-400 tabular-nums">/ 28d</span><span class="ml-auto text-[12px] font-bold tabular-nums text-slate-900">$6,820</span></div>
+          <div class="h-1.5 bg-slate-100 rounded-full overflow-hidden mb-2"><div class="h-full bg-rose-500 rounded-full" style="width:100%"></div></div>
+          <div class="flex items-center justify-between gap-2"><span class="inline-flex items-center gap-1 text-[10px] font-bold text-rose-700 bg-rose-50 border border-rose-200 px-2 py-1 rounded-lg"><i data-lucide="volume-x" class="w-3 h-3"></i> MUDO 20d</span><button class="text-[12px] font-semibold text-white bg-rose-600 px-3 py-2 rounded-lg flex items-center gap-1 min-h-[44px]"><i data-lucide="megaphone" class="w-3.5 h-3.5"></i> Empujar</button></div>
+        </div>
+        <!-- card severo -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-3.5 border-l-4 border-l-rose-400">
+          <div class="flex items-start justify-between gap-2 mb-2"><div class="flex items-center gap-2 min-w-0"><i data-lucide="ship" class="w-4 h-4 text-rose-400 flex-shrink-0"></i><div class="min-w-0"><div class="text-[13px] font-bold text-slate-900 truncate">ENV-2026-191</div><div class="text-[10px] text-slate-500 tabular-nums">OC-2402 · COSRX Co.</div></div></div><span class="badge bg-rose-50 text-rose-700 border border-rose-200 flex-shrink-0">severo 1.6×</span></div>
+          <div class="flex items-baseline gap-1.5 mb-1"><span class="text-[16px] font-bold tabular-nums text-rose-900">46</span><span class="text-[10px] text-slate-400 tabular-nums">/ 28d</span><span class="ml-auto text-[12px] font-bold tabular-nums text-slate-900">$4,900</span></div>
+          <div class="h-1.5 bg-slate-100 rounded-full overflow-hidden mb-2"><div class="h-full bg-rose-400 rounded-full" style="width:82%"></div></div>
+          <div class="flex items-center justify-between gap-2"><span class="inline-flex items-center gap-1 text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-1 rounded-lg"><i data-lucide="activity" class="w-3 h-3"></i> señal 6d</span><button class="text-[12px] font-semibold text-rose-600 border border-rose-200 px-3 py-2 rounded-lg flex items-center gap-1 min-h-[44px]"><i data-lucide="megaphone" class="w-3.5 h-3.5"></i> Empujar</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 7 · MOBILE · cross-link vertical -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section class="space-y-4">
+  <div class="flex items-center gap-3">
+    <span class="w-8 h-8 rounded-lg bg-violet-600 text-white text-[13px] font-bold flex items-center justify-center flex-shrink-0">7</span>
+    <div>
+      <div class="text-[17px] font-bold text-slate-900">Mobile · el cross-link en vertical</div>
+      <div class="text-[12px] text-slate-500">Frame A (Llegadas) → flecha ↓ → Frame B (Envíos · orange) · el flujo apilado · touch ≥44px</div>
+    </div>
+  </div>
+
+  <div class="flex justify-center">
+    <div class="w-[375px] flex flex-col items-stretch gap-0">
+      <!-- FRAME A mobile -->
+      <div class="bg-white border-2 border-blue-300 rounded-[24px] overflow-hidden shadow-xl">
+        <div class="bg-blue-50 border-b border-blue-200 px-4 py-2.5 flex items-center justify-between"><div class="flex items-center gap-1.5 text-[11px]"><i data-lucide="plane-landing" class="w-3.5 h-3.5 text-blue-600"></i><span class="font-bold text-blue-800">Compras › Llegadas</span></div><span class="badge bg-blue-100 text-blue-700 border border-blue-200"><i data-lucide="eye" class="w-2.5 h-2.5"></i> read-only</span></div>
+        <div class="p-4">
+          <div class="bg-rose-50/50 border border-rose-200 rounded-xl p-3.5 relative">
+            <div class="absolute top-2.5 right-2.5 flex items-center gap-1 text-[9px] font-bold text-slate-400"><i data-lucide="eye" class="w-3 h-3"></i> vista</div>
+            <div class="flex items-start gap-2.5"><div class="w-9 h-9 rounded-xl bg-rose-100 border border-rose-200 flex items-center justify-center flex-shrink-0"><i data-lucide="alert-octagon" class="w-4 h-4 text-rose-600"></i></div><div><div class="text-[13px] font-bold text-slate-900">3 incidencias abiertas</div><div class="text-[11px] text-slate-600 tabular-nums">2 reclamos · S/1,180 + $320</div></div></div>
+            <button class="mt-3 w-full text-[12px] font-semibold text-orange-700 bg-white border border-orange-200 py-2.5 rounded-lg flex items-center justify-center gap-1.5 min-h-[44px]">Ver en Envíos <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></button>
+          </div>
+        </div>
+      </div>
+      <!-- flecha vertical -->
+      <div class="flex flex-col items-center py-2">
+        <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-600 acto-sep mb-1">click "Ver en Envíos"</span>
+        <div class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center shadow-lg"><i data-lucide="arrow-down" class="w-5 h-5 text-white"></i></div>
+      </div>
+      <!-- FRAME B mobile · Envíos orange -->
+      <div class="bg-white border-2 border-orange-300 rounded-[24px] overflow-hidden shadow-xl">
+        <div class="bg-orange-50 border-b border-orange-200 px-4 py-2.5 flex items-center justify-between"><div class="flex items-center gap-1.5 text-[11px]"><i data-lucide="truck" class="w-3.5 h-3.5 text-orange-600"></i><span class="font-bold text-orange-800">Envíos › Incidencias</span></div><span class="badge bg-emerald-100 text-emerald-700 border border-emerald-200"><i data-lucide="hammer" class="w-2.5 h-2.5"></i> operable</span></div>
+        <div class="px-4 pt-3"><div class="inline-flex items-center gap-1.5 text-[10px] font-semibold text-orange-700 bg-orange-50 border border-orange-200 px-2 py-1 rounded-full"><i data-lucide="filter" class="w-2.5 h-2.5"></i> OC-2390 · 2402 · 2411</div></div>
+        <div class="p-4 space-y-2">
+          <div class="bg-white border border-slate-200 rounded-xl p-3 border-l-4 border-l-rose-500">
+            <div class="flex items-center justify-between gap-2 mb-2"><div class="flex items-center gap-2 min-w-0"><i data-lucide="package" class="w-4 h-4 text-rose-600 flex-shrink-0"></i><div class="text-[12px] font-bold text-slate-900 truncate">Recepción incompleta · OC-2390</div></div><span class="badge bg-rose-50 text-rose-700 border border-rose-200 flex-shrink-0">crítica</span></div>
+            <div class="flex items-center gap-2"><button class="flex-1 text-[12px] font-semibold text-white bg-orange-600 py-2 rounded-lg min-h-[44px]">Gestionar</button><button class="flex-1 text-[12px] font-semibold text-slate-600 border border-slate-200 py-2 rounded-lg min-h-[44px]">Resolver</button></div>
+          </div>
+        </div>
+        <div class="px-4 pb-4 text-[10px] text-orange-700 flex items-start gap-1.5"><i data-lucide="info" class="w-3 h-3 flex-shrink-0 mt-0.5"></i> Aquí SÍ hay CRUD · este es el dueño.</div>
+      </div>
+      <!-- frontera resumida -->
+      <div class="mt-3 text-center text-[11px] font-semibold text-slate-700 bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3">VES en Llegadas · OPERÁS en Envíos · <span class="text-indigo-700">cero duplicación</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- FOOTER · checklist + ownership -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<footer class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 sm:p-8 space-y-6">
+
+  <!-- NOTA DE OWNERSHIP -->
+  <div>
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3 acto-sep">Nota de ownership · qué se opera ACÁ vs qué es cross-link</div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div class="bg-emerald-50/50 border border-emerald-200 rounded-xl p-4">
+        <div class="flex items-center gap-2 mb-2"><i data-lucide="hammer" class="w-4 h-4 text-emerald-600"></i><span class="text-[12px] font-bold text-emerald-900">OPERABLE en Llegadas (propio de Compras)</span></div>
+        <ul class="text-[12px] text-slate-600 space-y-1">
+          <li class="flex items-start gap-1.5"><i data-lucide="check" class="w-3 h-3 text-emerald-600 flex-shrink-0 mt-0.5"></i> Radar de atrasados · vigilar MI pedido en vuelo</li>
+          <li class="flex items-start gap-1.5"><i data-lucide="check" class="w-3 h-3 text-emerald-600 flex-shrink-0 mt-0.5"></i> "Empujar proveedor" (contactar · escalar · promesa) — acción NUEVA</li>
+          <li class="flex items-start gap-1.5"><i data-lucide="check" class="w-3 h-3 text-emerald-600 flex-shrink-0 mt-0.5"></i> Ordenar/filtrar el radar por gravedad y señal</li>
+        </ul>
+      </div>
+      <div class="bg-blue-50/50 border border-blue-200 rounded-xl p-4">
+        <div class="flex items-center gap-2 mb-2"><i data-lucide="external-link" class="w-4 h-4 text-blue-600"></i><span class="text-[12px] font-bold text-blue-900">READ-ONLY · cross-link (dueño en otro módulo)</span></div>
+        <ul class="text-[12px] text-slate-600 space-y-1">
+          <li class="flex items-start gap-1.5"><i data-lucide="eye" class="w-3 h-3 text-blue-600 flex-shrink-0 mt-0.5"></i> Capital en tránsito + riesgo → Envíos / Finanzas</li>
+          <li class="flex items-start gap-1.5"><i data-lucide="eye" class="w-3 h-3 text-blue-600 flex-shrink-0 mt-0.5"></i> Incidencias / reclamos (solo count + link) → Envíos</li>
+          <li class="flex items-start gap-1.5"><i data-lucide="eye" class="w-3 h-3 text-blue-600 flex-shrink-0 mt-0.5"></i> Unidades por llegar → Stock · Pagos de OC → Tesorería</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- HONESTIDAD de cableado -->
+  <div>
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3 acto-sep">Honestidad · qué requiere cableado</div>
+    <div class="flex flex-wrap gap-2 text-[11px]">
+      <span class="badge bg-amber-50 text-amber-700 border border-amber-200"><i data-lucide="plug" class="w-2.5 h-2.5"></i> helper diasEnVuelo vs lead-time (cómputo nuevo)</span>
+      <span class="badge bg-amber-50 text-amber-700 border border-amber-200"><i data-lucide="plug" class="w-2.5 h-2.5"></i> empujarProveedor (acción nueva · registra contacto/escalación)</span>
+      <span class="badge bg-amber-50 text-amber-700 border border-amber-200"><i data-lucide="plug" class="w-2.5 h-2.5"></i> incidenciaOC.listAll (agregación cross-OC para el count)</span>
+      <span class="badge bg-emerald-50 text-emerald-700 border border-emerald-200"><i data-lucide="check-circle" class="w-2.5 h-2.5"></i> capital/uds en tránsito · derivables hoy (read-only)</span>
+      <span class="badge bg-slate-100 text-slate-600 border border-slate-200"><i data-lucide="lock" class="w-2.5 h-2.5"></i> NADA del detalle/CRUD de incidencias-reclamos se clona aquí</span>
+    </div>
+  </div>
+
+  <!-- CHECKLIST CANON -->
+  <div>
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3 acto-sep">Checklist canon · cobertura total + DS + mobile</div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[12px]">
+      <div class="flex items-center gap-2 text-slate-600"><i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i> Anatomía hub (top-bar → header → strip → 6 tabs → body)</div>
+      <div class="flex items-center gap-2 text-slate-600"><i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i> Chrome BLUE (Comercial) · Frame B en ORANGE (Envíos = otro módulo)</div>
+      <div class="flex items-center gap-2 text-slate-600"><i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i> Semántico en el dato (rose atraso · amber alerta · emerald ok · sky en-curso)</div>
+      <div class="flex items-center gap-2 text-slate-600"><i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i> Cross-link tangible: Frame A → flecha → Frame B + frontera + diagrama</div>
+      <div class="flex items-center gap-2 text-slate-600"><i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i> NO clona Envíos (teaser = count + link · CRUD vive en el dueño)</div>
+      <div class="flex items-center gap-2 text-slate-600"><i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i> Modal "Empujar proveedor" mockeado (Acto 2.B · desktop + bottom-sheet)</div>
+      <div class="flex items-center gap-2 text-slate-600"><i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i> Estados radar (empty/loading/error) + cross-link async (teaser/capital loading+empty)</div>
+      <div class="flex items-center gap-2 text-slate-600"><i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i> Mobile 375px · radar cards por gravedad · cross-link vertical · touch ≥44px</div>
+      <div class="flex items-center gap-2 text-slate-600"><i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i> Inter · tabular-nums · lucide sin emojis · radios 2xl/xl/lg · max-w-6xl</div>
+      <div class="flex items-center gap-2 text-slate-600"><i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i> No-redundancia: el banner capital NO clona el KPI "En vuelo" (lo desglosa por riesgo)</div>
+      <div class="flex items-center gap-2 text-slate-600"><i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i> Honestidad de cableado declarada (badges "requiere X")</div>
+    </div>
+  </div>
+
+  <div class="pt-4 border-t border-slate-200 text-[11px] text-slate-400 flex items-start gap-1.5">
+    <i data-lucide="info" class="w-3.5 h-3.5 flex-shrink-0 mt-0.5"></i>
+    <span><b class="text-slate-500">Llegadas</b> reemplaza la propuesta "Excepciones / Riesgo" que clonaba Envíos. El reframe: torre de control desde la óptica de la OC, donde lo único que se OPERA es el seguimiento de mi pedido (radar + empujar proveedor); todo lo demás se VE (read-only) y se OPERA en su módulo dueño. El cross-link es el corazón del mockup · hecho tangible en el Acto 3.</span>
+  </div>
+</footer>
+
+</div>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>
