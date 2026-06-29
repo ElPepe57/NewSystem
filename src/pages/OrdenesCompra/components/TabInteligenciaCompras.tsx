@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
-import { BrainCircuit, TrendingUp, TrendingDown, Package, ArrowUpRight, BarChart3, Tag, Trophy, Minus } from 'lucide-react';
+import { BrainCircuit, TrendingUp, TrendingDown, Package, ArrowUpRight, BarChart3, Tag, Trophy, Minus, AlertTriangle } from 'lucide-react';
 import type { OrdenCompra, Proveedor } from '../../../types/ordenCompra.types';
+import type { IncidenciaOC, TipoIncidenciaOC } from '../../../types/incidenciaOC.types';
 import { EmptyDashboardSkeleton } from '../../../design-system';
 
 // chk5.COMERCIALES-F3c · Tab Inteligencia del hub de Compras · vista AGREGADA de compra.
@@ -12,8 +13,31 @@ import { EmptyDashboardSkeleton } from '../../../design-system';
 interface Props {
   ordenes: OrdenCompra[];
   proveedores: Proveedor[];
+  /** Incidencias cross-OC (listAll · fetch único en el padre) · null = cargando, [] = sin datos/error. */
+  incidencias: IncidenciaOC[] | null;
+  incidenciasError?: boolean;
+  /** Drill del bloque de incidencias → tab Llegadas (torre de control · excepciones · cross-link a Envíos). */
+  onIrLlegadas?: () => void;
   navigate: (path: string) => void;
 }
+
+// Etiquetas honestas del tipo de incidencia (modelo real · NO inventamos "faltante/daño/calidad").
+const TIPO_LABEL: Record<TipoIncidenciaOC, string> = {
+  recepcion: 'Recepción',
+  facturacion: 'Facturación',
+  proveedor: 'Proveedor',
+  logistica: 'Logística',
+  impuestos: 'Impuestos',
+  compliance: 'Compliance',
+};
+const TIPO_BAR: Record<TipoIncidenciaOC, string> = {
+  recepcion: 'bg-rose-400',
+  facturacion: 'bg-amber-400',
+  proveedor: 'bg-purple-400',
+  logistica: 'bg-sky-400',
+  impuestos: 'bg-slate-400',
+  compliance: 'bg-teal-400',
+};
 
 const toDate = (v: any): Date | null => {
   if (!v) return null;
@@ -24,8 +48,46 @@ const toDate = (v: any): Date | null => {
 };
 const fmtUSD = (n: number): string => (n >= 1000 ? `$${(n / 1000).toFixed(1)}k` : `$${n.toFixed(0)}`);
 
-export const TabInteligenciaCompras: React.FC<Props> = ({ ordenes, proveedores, navigate }) => {
+export const TabInteligenciaCompras: React.FC<Props> = ({ ordenes, proveedores, incidencias, incidenciasError, onIrLlegadas, navigate }) => {
   const activas = useMemo(() => ordenes.filter((o) => o.estado !== 'cancelada'), [ordenes]);
+
+  // ── A6 · INCIDENCIAS AGREGADAS · # abiertas · $ en disputa · tasa · mix tipo/severidad ──
+  // Todo de listAll (fetch único en el padre). "Abiertas" = estado ≠ resuelta. "$ en disputa" =
+  // Σ impactoEstimadoUSD de las abiertas (la pérdida potencial aún sin cerrar). "Tasa" = % de OCs
+  // (de las activas) que tienen ≥1 incidencia. "Resueltas" = estado resuelta.
+  const incid = useMemo(() => {
+    if (!incidencias) return null;
+    const total = incidencias.length;
+    const abiertas = incidencias.filter((i) => i.estado !== 'resuelta');
+    const resueltas = total - abiertas.length;
+    const disputaUSD = abiertas.reduce((s, i) => s + (i.impactoEstimadoUSD || 0), 0);
+
+    // Tasa: % de OCs ACTIVAS con ≥1 incidencia. El numerador se acota a la MISMA población del
+    // denominador (activas · respeta filtro de línea, excluye canceladas) → ratio en [0,100], nunca
+    // inflado por incidencias de otras líneas o de OCs canceladas. (abiertas/disputa/resueltas SÍ son
+    // totales de sección a propósito · "de N históricas" · son counts, no un ratio.)
+    const idsActivas = new Set(activas.map((o) => o.id));
+    const ocsConIncidencia = new Set(
+      incidencias.map((i) => i.ocId).filter((id): id is string => !!id && idsActivas.has(id)),
+    );
+    const tasa = activas.length > 0 ? Math.round((ocsConIncidencia.size / activas.length) * 100) : 0;
+
+    // Mix por tipo (modelo real · 6 tipos · solo los presentes).
+    const porTipoMap = new Map<TipoIncidenciaOC, number>();
+    for (const i of incidencias) porTipoMap.set(i.tipo, (porTipoMap.get(i.tipo) || 0) + 1);
+    const maxTipo = Math.max(1, ...porTipoMap.values());
+    const porTipo = [...porTipoMap.entries()].sort((a, b) => b[1] - a[1]).map(([tipo, n]) => ({ tipo, n }));
+
+    // Mix por severidad (alta+critica → alta · media · baja · sin = los que no declaran severidad).
+    let alta = 0, media = 0, baja = 0, sinSev = 0;
+    for (const i of incidencias) {
+      if (i.severidad === 'alta' || i.severidad === 'critica') alta++;
+      else if (i.severidad === 'media') media++;
+      else if (i.severidad === 'baja') baja++;
+      else sinSev++;
+    }
+    return { total, abiertas: abiertas.length, resueltas, disputaUSD, tasa, porTipo, maxTipo, alta, media, baja, sinSev };
+  }, [incidencias, activas.length]);
 
   // ── Agregación por SKU desde los productos de las OCs ──
   const porSKU = useMemo(() => {
@@ -75,10 +137,83 @@ export const TabInteligenciaCompras: React.FC<Props> = ({ ordenes, proveedores, 
   const sinDatos = porSKU.length === 0;
   const hayOCs = activas.length > 0;
 
+  // ── A6 · bloque de incidencias agregadas (compartido entre el render normal y el empty de SKUs) ──
+  const incidenciasBlock = (
+    <div className="bg-white border border-rose-200 rounded-2xl p-4">
+      <div className="flex items-start justify-between gap-3 mb-3 flex-wrap">
+        <div>
+          <div className="text-[10px] uppercase tracking-wider text-rose-700 font-bold flex items-center gap-1.5"><AlertTriangle className="w-3.5 h-3.5" /> Incidencias agregadas</div>
+          <div className="text-[11px] text-slate-400">recepción · facturación · proveedor · logística · agregadas de todas las OCs</div>
+        </div>
+      </div>
+      {incid == null ? (
+        <div className="text-[12px] text-slate-400 py-6 text-center">{incidenciasError ? 'No se pudieron cargar las incidencias.' : 'Cargando incidencias…'}</div>
+      ) : incid.total === 0 ? (
+        <div className="text-[12px] text-slate-400 py-6 text-center">Sin incidencias registradas · ningún problema reportado en las OCs.</div>
+      ) : (
+        <>
+          {/* 4 stats */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+            <div className="bg-rose-50 border border-rose-100 rounded-lg p-3">
+              <div className="text-[10px] uppercase tracking-wider text-rose-700 font-bold mb-1">Abiertas</div>
+              <div className="text-2xl font-bold tabular-nums text-rose-900">{incid.abiertas}</div>
+              <div className="text-[10px] text-rose-600 tabular-nums">de {incid.total} históricas</div>
+            </div>
+            <div className="bg-amber-50 border border-amber-100 rounded-lg p-3">
+              <div className="text-[10px] uppercase tracking-wider text-amber-700 font-bold mb-1">En disputa</div>
+              <div className="text-2xl font-bold tabular-nums text-amber-900">{incid.disputaUSD > 0 ? `$${incid.disputaUSD.toLocaleString('en-US', { maximumFractionDigits: 0 })}` : '—'}</div>
+              <div className="text-[10px] text-amber-600">impacto estimado abierto</div>
+            </div>
+            <div className="bg-slate-50 border border-slate-100 rounded-lg p-3">
+              <div className="text-[10px] uppercase tracking-wider text-slate-600 font-bold mb-1">Tasa</div>
+              <div className="text-2xl font-bold tabular-nums text-slate-900">{incid.tasa}<span className="text-slate-400">%</span></div>
+              <div className="text-[10px] text-slate-500">OCs con incidencia</div>
+            </div>
+            <div className="bg-emerald-50 border border-emerald-100 rounded-lg p-3">
+              <div className="text-[10px] uppercase tracking-wider text-emerald-700 font-bold mb-1">Resueltas</div>
+              <div className="text-2xl font-bold tabular-nums text-emerald-900">{incid.resueltas}</div>
+              <div className="text-[10px] text-emerald-600">cerradas</div>
+            </div>
+          </div>
+          {/* mix por tipo + severidad */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <div className="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Por tipo</div>
+              <div className="space-y-1.5 text-[11px]">
+                {incid.porTipo.map(({ tipo, n }) => (
+                  <div key={tipo}>
+                    <div className="flex justify-between mb-0.5"><span className="text-slate-600">{TIPO_LABEL[tipo]}</span><span className="tabular-nums font-bold text-slate-800">{n}</span></div>
+                    <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden"><div className={`h-full rounded-full ${TIPO_BAR[tipo]}`} style={{ width: `${Math.max(4, (n / incid.maxTipo) * 100)}%` }} /></div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div>
+              <div className="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Por severidad</div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full bg-rose-100 text-rose-700 tabular-nums">Alta · {incid.alta}</span>
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full bg-amber-100 text-amber-700 tabular-nums">Media · {incid.media}</span>
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full bg-slate-100 text-slate-600 tabular-nums">Baja · {incid.baja}</span>
+                {incid.sinSev > 0 && (
+                  <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full bg-slate-50 text-slate-400 tabular-nums">Sin clasificar · {incid.sinSev}</span>
+                )}
+              </div>
+              {incid.abiertas > 0 && (
+                <div className="mt-3"><button type="button" onClick={() => (onIrLlegadas ? onIrLlegadas() : navigate('/envios'))} className="text-[11px] font-bold text-rose-700 hover:underline flex items-center gap-1"><ArrowUpRight className="w-3 h-3" /> Ver incidencias abiertas</button></div>
+              )}
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+
   // ── Empty (distingue "sin OCs" de "OCs sin detalle de productos") ──
   if (sinDatos) {
     return (
-      <div className="bg-slate-50/30 p-4 sm:p-6">
+      <div className="bg-slate-50/30 p-4 sm:p-6 space-y-4">
+        {/* A6 · si hay incidencias, se muestran aunque no haya detalle de SKUs para analizar */}
+        {incid && incid.total > 0 && incidenciasBlock}
         <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8">
           <EmptyDashboardSkeleton
             color="blue"
@@ -113,6 +248,9 @@ export const TabInteligenciaCompras: React.FC<Props> = ({ ordenes, proveedores, 
           <span className="inline-flex items-center gap-1.5 text-[11px] bg-white border border-slate-200 rounded-lg px-2.5 py-1.5"><BarChart3 className="w-3.5 h-3.5 text-blue-600" /><span className="font-semibold text-slate-900 tabular-nums">{conVariacion}</span> <span className="text-slate-500">con histórico</span></span>
         </div>
       </div>
+
+      {/* A6 · incidencias agregadas (de la sección · todas las OCs) */}
+      {incidenciasBlock}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* §A ranking de SKUs por gasto */}

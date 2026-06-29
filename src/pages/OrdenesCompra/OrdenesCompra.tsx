@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import { Plus, Package, DollarSign, AlertCircle, Download, ExternalLink, FileText, Truck, CheckCircle, CreditCard, Building2, ShoppingCart, LayoutDashboard, ClipboardList, BrainCircuit, PlaneLanding } from 'lucide-react';
+import { Plus, Package, DollarSign, AlertCircle, Download, ExternalLink, FileText, Truck, CheckCircle, CreditCard, Building2, ShoppingCart, LayoutDashboard, ClipboardList, BrainCircuit, PlaneLanding, Filter, X, List, Kanban } from 'lucide-react';
 import { Modal, useConfirmDialog, ConfirmDialog, useActionModal, ActionModal } from '../../components/common';
 // Control GLOBAL de línea de negocio (canon · va en el chrome del header · OC-POB-4)
 import { LineaDropdown } from '../../components/common/LineaDropdown';
@@ -26,6 +26,8 @@ import { useRadarAtrasados } from './useRadarAtrasados';
 import { OCBuilder } from '../../components/modules/ordenCompra/OCBuilder/OCBuilder';
 import { useRequerimientoStore } from '../../store/requerimientoStore';
 import type { Requerimiento } from '../../types/requerimiento.types';
+import { incidenciaOCService } from '../../services/incidenciaOC.service';
+import type { IncidenciaOC } from '../../types/incidenciaOC.types';
 import { useEnvioStore } from '../../store/envioStore';
 import { PagoUnificadoForm } from '../../components/modules/pagos/PagoUnificadoForm';
 import type { PagoUnificadoResult } from '../../components/modules/pagos/PagoUnificadoForm';
@@ -193,6 +195,13 @@ export const OrdenesCompra: React.FC = () => {
   const [tabActiva, setTabActiva] = useState<'resumen' | 'ordenes' | 'pendientes' | 'proveedores' | 'inteligencia' | 'llegadas'>('resumen');
   const [isOCBuilderOpen, setIsOCBuilderOpen] = useState(false);
   const [ocBuilderReqs, setOcBuilderReqs] = useState<Requerimiento[]>([]);
+  // ACTO 3 (B6) · toggle Lista/Pipeline DENTRO de la tab Órdenes (misma data · canon HUB toggle).
+  const [vistaOrdenes, setVistaOrdenes] = useState<'lista' | 'pipeline'>('lista');
+  // Incidencias cross-OC (listAll) · fetch ÚNICO en el padre (NO por-tab · perf) · alimenta los tabs
+  // Proveedores (scorecard SLA) e Inteligencia (incidencias agregadas). El radar (useRadarAtrasados)
+  // tiene su propio fetch para su teaser · acá es la fuente compartida de los desgloses de sección.
+  const [incidencias, setIncidencias] = useState<IncidenciaOC[] | null>(null);
+  const [incidenciasError, setIncidenciasError] = useState(false);
   // COMERCIALES · Fase 1 (Llegadas) · lead-time global aprendido (baseline del radar de atrasados).
   // Carga lazy al abrir la tab Llegadas · evita el cargarDatos() pesado de productoIntelStore.
   const [leadTimeGlobal, setLeadTimeGlobal] = useState<MetricasLeadTime | null>(null);
@@ -430,6 +439,63 @@ export const OrdenesCompra: React.FC = () => {
     return sorted;
   }, [ordenesLN, filtroEstado, filtroProveedor, filtroEstadoPago, busquedaGlobal, sortValue]);
 
+  // ACTO 3 (B3) · ¿hay filtro activo en la tab Órdenes? (etapa / proveedor / pago / búsqueda)
+  const hayFiltroOrdenes = !!(filtroEstado || filtroProveedor || filtroEstadoPago || busquedaGlobal.trim());
+
+  // ACTO 3 (B3) · resumen del subconjunto filtrado · N OCs · total $ · $ por pagar (todo de ordenesFiltradas).
+  const resumenFiltrado = useMemo(() => {
+    let total = 0;
+    let porPagar = 0;
+    let count = 0; // solo las NO canceladas · el conteo debe cuadrar con el dinero mostrado.
+    for (const o of ordenesFiltradas) {
+      if (o.estado === 'cancelada') continue;
+      count++;
+      total += o.totalUSD || 0;
+      if (o.estadoPago === 'pendiente' || o.estadoPago === 'parcial') {
+        const tcRef = o.tcReferencial || o.tcCompra || 1;
+        const pendiente = o.montoPendiente ? o.montoPendiente / tcRef : (o.totalUSD || 0);
+        if (pendiente > 0.01) porPagar += pendiente;
+      }
+    }
+    return { count, total, porPagar };
+  }, [ordenesFiltradas]);
+
+  // ACTO 3 (B3) · etiqueta legible del filtro activo (la 1ª dimensión con valor · prioriza etapa).
+  const filtroOrdenesLabel = useMemo(() => {
+    if (filtroEstado) {
+      const map: Record<string, string> = { borrador: 'Borrador', confirmada: 'Confirmada', en_despacho: 'En Despacho', completada: 'Completada' };
+      return map[filtroEstado] || filtroEstado;
+    }
+    if (filtroProveedor) return proveedoresActivos.find((p) => p.id === filtroProveedor)?.nombre || 'Proveedor';
+    if (filtroEstadoPago) {
+      const map: Record<string, string> = { pendiente: 'Pago pendiente', parcial: 'Pago parcial', pagado: 'Pagado', __por_pagar__: 'Por pagar' };
+      return map[filtroEstadoPago] || filtroEstadoPago;
+    }
+    if (busquedaGlobal.trim()) return `"${busquedaGlobal.trim()}"`;
+    return '';
+  }, [filtroEstado, filtroProveedor, filtroEstadoPago, busquedaGlobal, proveedoresActivos]);
+
+  const limpiarFiltrosOrdenes = () => {
+    setFiltroEstado(null);
+    setFiltroProveedor('');
+    setFiltroEstadoPago('');
+    setBusquedaGlobal('');
+  };
+
+  // ACTO 3 (B6) · MISMAS ordenesFiltradas agrupadas por etapa del pipeline Opción B (Kanban).
+  const ordenesPorEtapa = useMemo(() => {
+    const grupos: Record<EstadoPipelineCompras, OrdenCompra[]> = {
+      borrador: [], confirmada: [], en_despacho: [], completada: [],
+    };
+    for (const o of ordenesFiltradas) {
+      if (o.estado === 'cancelada') continue;
+      (Object.keys(estadoFilterMapOpcionB) as EstadoPipelineCompras[]).forEach((etapa) => {
+        if (estadoFilterMapOpcionB[etapa].includes(o.estado)) grupos[etapa].push(o);
+      });
+    }
+    return grupos;
+  }, [ordenesFiltradas]);
+
   // Reset paginación cuando cambian filtros (incl. línea · OC-POB-1)
   useEffect(() => {
     setItemsVisibles(10);
@@ -476,6 +542,17 @@ export const OrdenesCompra: React.FC = () => {
 
     loadData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Incidencias cross-OC · fetch ÚNICO al montar (la colección es chica · importador). Alimenta los
+  // desgloses de sección de los tabs Proveedores (scorecard SLA) e Inteligencia (incidencias agregadas).
+  useEffect(() => {
+    let cancelado = false;
+    incidenciaOCService
+      .listAll()
+      .then((items) => { if (!cancelado) { setIncidencias(items); setIncidenciasError(false); } })
+      .catch(() => { if (!cancelado) { setIncidencias([]); setIncidenciasError(true); } });
+    return () => { cancelado = true; };
   }, []);
 
   // Lazy: cargar requerimientos al abrir la tab Pendientes (chk5.COMERCIALES-F3a) o el Resumen
@@ -1115,6 +1192,30 @@ export const OrdenesCompra: React.FC = () => {
             }}
           />
 
+          {/* ACTO 3 (B3 + B6) · barra-resumen del subconjunto filtrado (solo con filtro activo) + toggle Lista/Pipeline */}
+          <div className="flex items-center gap-3 flex-wrap">
+            {hayFiltroOrdenes ? (
+              <div className="flex-1 min-w-0 bg-blue-50 border border-blue-200 rounded-xl px-4 py-2.5 flex items-center justify-between gap-3 flex-wrap">
+                <div className="flex items-center gap-2 text-[12px] flex-wrap">
+                  <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full bg-blue-100 text-blue-700"><Filter className="w-2.5 h-2.5" /> Filtro: {filtroOrdenesLabel}</span>
+                  <span className="text-slate-700"><b className="tabular-nums text-slate-900">{resumenFiltrado.count} OC{resumenFiltrado.count === 1 ? '' : 's'}</b></span>
+                  <span className="text-slate-300">·</span>
+                  <span className="text-slate-700">total <b className="tabular-nums text-amber-700">${resumenFiltrado.total.toLocaleString('en-US', { maximumFractionDigits: 0 })}</b></span>
+                  <span className="text-slate-300">·</span>
+                  <span className="text-slate-700"><b className="tabular-nums text-rose-700">${resumenFiltrado.porPagar.toLocaleString('en-US', { maximumFractionDigits: 0 })}</b> por pagar</span>
+                </div>
+                <button type="button" onClick={limpiarFiltrosOrdenes} className="text-[11px] font-semibold text-blue-700 hover:underline flex items-center gap-1"><X className="w-3 h-3" /> Limpiar filtro</button>
+              </div>
+            ) : (
+              <div className="flex-1" />
+            )}
+            {/* TOGGLE Lista/Pipeline · DENTRO del tab (B6 · misma data · canon HUB toggle) */}
+            <div className="flex items-center gap-0.5 bg-slate-100 rounded-lg p-0.5 flex-shrink-0">
+              <button type="button" onClick={() => setVistaOrdenes('lista')} className={`flex items-center gap-1 text-[11px] px-2.5 py-1.5 rounded-md ${vistaOrdenes === 'lista' ? 'bg-white text-blue-700 shadow-sm font-semibold' : 'text-slate-500 hover:text-slate-700 font-medium'}`}><List className="w-3.5 h-3.5" /> Lista</button>
+              <button type="button" onClick={() => setVistaOrdenes('pipeline')} className={`flex items-center gap-1 text-[11px] px-2.5 py-1.5 rounded-md ${vistaOrdenes === 'pipeline' ? 'bg-white text-blue-700 shadow-sm font-semibold' : 'text-slate-500 hover:text-slate-700 font-medium'}`}><Kanban className="w-3.5 h-3.5" /> Pipeline</button>
+            </div>
+          </div>
+
           {/* Selección masiva (canon F3 · decisión 3 · aparece al seleccionar) */}
           <BulkActionsToolbar
             selectedCount={selectedIds.size}
@@ -1168,7 +1269,7 @@ export const OrdenesCompra: React.FC = () => {
                 <p className="text-sm font-medium text-slate-700">Sin resultados</p>
                 <p className="text-xs text-slate-500 mt-1">No hay OCs que coincidan con los filtros.</p>
               </div>
-            ) : (
+            ) : vistaOrdenes === 'lista' ? (
               <>
                 {ordenesFiltradas.slice(0, itemsVisibles).map((orden) => (
                   <CompraCard
@@ -1210,6 +1311,43 @@ export const OrdenesCompra: React.FC = () => {
                   </div>
                 )}
               </>
+            ) : (
+              /* ACTO 3 (B6) · VISTA PIPELINE/KANBAN · las MISMAS ordenesFiltradas agrupadas por etapa */
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
+                {([
+                  { id: 'borrador' as EstadoPipelineCompras, label: 'Borrador', wrap: 'bg-slate-50 border-slate-200', head: 'text-slate-600', pill: 'border-slate-200 text-slate-500' },
+                  { id: 'confirmada' as EstadoPipelineCompras, label: 'Confirmada', wrap: 'bg-blue-50 border-blue-200', head: 'text-blue-700', pill: 'border-blue-200 text-blue-600' },
+                  { id: 'en_despacho' as EstadoPipelineCompras, label: 'En Despacho', wrap: 'bg-amber-50 border-amber-200', head: 'text-amber-700', pill: 'border-amber-200 text-amber-600' },
+                  { id: 'completada' as EstadoPipelineCompras, label: 'Completada', wrap: 'bg-emerald-50 border-emerald-200', head: 'text-emerald-700', pill: 'border-emerald-200 text-emerald-600' },
+                ]).map((col) => {
+                  const items = ordenesPorEtapa[col.id];
+                  return (
+                    <div key={col.id} className={`border rounded-lg p-2.5 ${col.wrap}`}>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className={`text-[10px] font-bold uppercase tracking-wider ${col.head}`}>{col.label}</span>
+                        <span className={`text-[10px] tabular-nums bg-white border px-1.5 rounded-full font-bold ${col.pill}`}>{items.length}</span>
+                      </div>
+                      <div className="space-y-1.5">
+                        {items.length === 0 ? (
+                          <div className="text-[10px] text-slate-400 text-center py-3">— sin OCs —</div>
+                        ) : (
+                          items.map((orden) => (
+                            <button
+                              type="button"
+                              key={orden.id}
+                              onClick={() => handleViewDetails(orden)}
+                              className="w-full text-left bg-white border border-slate-200 rounded p-2 text-[11px] hover:border-blue-300 transition-colors"
+                            >
+                              <div className="font-semibold text-slate-800 tabular-nums truncate">{orden.numeroOrden}</div>
+                              <div className="text-slate-500 tabular-nums truncate">{orden.nombreProveedor || '—'} · ${(orden.totalUSD || 0).toLocaleString('en-US', { maximumFractionDigits: 0 })}</div>
+                            </button>
+                          ))
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             )}
           </div>
         </div>
@@ -1257,6 +1395,9 @@ export const OrdenesCompra: React.FC = () => {
           <TabProveedoresCompras
             proveedores={proveedoresActivos}
             ordenes={ordenesLN}
+            envios={envios}
+            incidencias={incidencias}
+            incidenciasError={incidenciasError}
             navigate={navigate}
           />
         )}
@@ -1266,6 +1407,9 @@ export const OrdenesCompra: React.FC = () => {
           <TabInteligenciaCompras
             ordenes={ordenesLN}
             proveedores={proveedoresActivos}
+            incidencias={incidencias}
+            incidenciasError={incidenciasError}
+            onIrLlegadas={() => setTabActiva('llegadas')}
             navigate={navigate}
           />
         )}
