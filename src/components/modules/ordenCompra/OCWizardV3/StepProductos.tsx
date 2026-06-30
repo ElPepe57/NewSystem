@@ -271,6 +271,7 @@ export const StepProductos: React.FC<StepProductosProps> = ({ state, dispatch })
               placeholder="Buscar por SKU, marca o nombre..."
               showInvestigacionSugerencia={false}
               proveedorSeleccionado={state.configLogistica.proveedorNombre || undefined}
+              tc={state.tcCompra}
             />
           )}
         </div>

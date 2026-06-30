@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import type { Producto } from '../../../types/producto.types';
 import { useProductoDropdown } from '../../../hooks/useProductoDropdown';
+import { calcularInvestigacion } from '../../../pages/Productos/utils/investigacionCalculos';
 
 export interface ProductoSnapshot {
   productoId: string;
@@ -57,6 +58,8 @@ interface ProductoAutocompleteProps {
   // Datos históricos de compras por producto
   historialCompras?: Map<string, HistorialCompraProducto>;
   showHistorialCompra?: boolean;
+  /** TC USD→PEN · para margen/CTRU VIVOS desde calcularInvestigacion (no campos deprecados). */
+  tc?: number;
 }
 
 export const ProductoAutocomplete: React.FC<ProductoAutocompleteProps> = ({
@@ -70,7 +73,8 @@ export const ProductoAutocomplete: React.FC<ProductoAutocompleteProps> = ({
   proveedorSeleccionado,
   className = '',
   historialCompras,
-  showHistorialCompra = true
+  showHistorialCompra = true,
+  tc,
 }) => {
   const [selectedProducto, setSelectedProducto] = useState<Producto | null>(null);
 
@@ -217,17 +221,20 @@ export const ProductoAutocomplete: React.FC<ProductoAutocompleteProps> = ({
     inputRef.current?.focus();
   };
 
-  // Info de investigación del producto seleccionado
+  // Info de investigación del producto seleccionado.
+  // DECISIÓN C · margen/CTRU desde calcularInvestigacion (VIVO) en vez de
+  // inv.margenEstimado/ctruEstimado (DEPRECADOS · =0 en investigaciones nuevas).
   const investigacionInfo = useMemo(() => {
     if (!selectedProducto?.investigacion) return null;
     const inv = selectedProducto.investigacion;
+    const calc = tc && tc > 0 ? calcularInvestigacion(selectedProducto, tc) : null;
     return {
       vigente: inv.estaVigente,
       mejorProveedor: getMejorProveedor(selectedProducto),
-      margenEstimado: inv.margenEstimado,
-      ctruEstimado: inv.ctruEstimado
+      margenEstimado: calc?.margenPct ?? null,
+      ctruEstimado: calc?.costoPEN ?? null,
     };
-  }, [selectedProducto, getMejorProveedor]);
+  }, [selectedProducto, getMejorProveedor, tc]);
 
   // Obtener historial de compra de un producto
   const getHistorialProducto = useCallback((productoId: string): HistorialCompraProducto | null => {
@@ -287,7 +294,7 @@ export const ProductoAutocomplete: React.FC<ProductoAutocompleteProps> = ({
           required={required}
           className={`
             block w-full pl-8 sm:pl-10 pr-10 py-2 text-sm sm:text-base border rounded-md shadow-sm
-            focus:ring-teal-500 focus:border-teal-500
+            focus:ring-blue-500 focus:border-blue-500
             ${disabled ? 'bg-slate-100 cursor-not-allowed' : 'bg-white'}
             ${value ? 'border-emerald-300 bg-emerald-50' : 'border-slate-300'}
           `}
@@ -365,13 +372,13 @@ export const ProductoAutocomplete: React.FC<ProductoAutocompleteProps> = ({
                     type="button"
                     onClick={() => handleSelectProducto(producto)}
                     className={`w-full px-2.5 sm:px-4 py-2 sm:py-3 text-left border-b border-slate-100 last:border-0 transition-colors ${
-                      isHighlighted ? 'bg-teal-100' : 'hover:bg-teal-50'
+                      isHighlighted ? 'bg-blue-100' : 'hover:bg-blue-50'
                     }`}
                   >
                     {/* Top: SKU + badges + chevron */}
                     <div className="flex items-center justify-between gap-1.5">
                       <div className="flex items-center gap-1 sm:gap-2 flex-wrap min-w-0">
-                        <span className="font-mono text-xs sm:text-sm text-teal-600 flex-shrink-0">{producto.sku}</span>
+                        <span className="font-mono text-xs sm:text-sm text-blue-600 flex-shrink-0">{producto.sku}</span>
                         {producto.varianteLabel && (
                           <span className="px-1 py-0.5 text-[10px] rounded bg-sky-100 text-sky-700 flex-shrink-0">{producto.varianteLabel}</span>
                         )}
