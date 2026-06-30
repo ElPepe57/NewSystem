@@ -1,0 +1,1394 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Compras · Creación de OC · rework al DS · Vita Skin ERP</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  * { font-family: 'Inter', system-ui, sans-serif; }
+  .tabular-nums { font-variant-numeric: tabular-nums; }
+  body { background: #f1f5f9; }
+  .frame { box-shadow: 0 1px 3px rgba(15,23,42,.08), 0 8px 24px rgba(15,23,42,.06); }
+  .modal-sh { box-shadow: 0 10px 15px -3px rgba(15,23,42,.18), 0 20px 50px -12px rgba(15,23,42,.30); }
+  .scrollbar-none { scrollbar-width: none; }
+  .scrollbar-none::-webkit-scrollbar { display: none; }
+  .acto-sep { letter-spacing: 0.10em; }
+  .badge { display: inline-flex; align-items: center; gap: 3px; border-radius: 999px; padding: 1px 7px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+  .progress-fill { transition: width 0.4s ease; }
+  @keyframes skeleton-pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+  .skeleton { animation: skeleton-pulse 1.5s ease-in-out infinite; background: #e2e8f0; border-radius: 6px; }
+  .phone { width: 375px; }
+</style>
+</head>
+<body class="text-slate-900">
+
+<div class="max-w-6xl mx-auto px-4 sm:px-6 py-10 space-y-14">
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- HERO -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<header class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 sm:p-8">
+  <div class="flex flex-wrap gap-2 mb-5">
+    <span class="text-[10px] font-bold uppercase tracking-wider text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-full">Especificación · build-ready</span>
+    <span class="text-[10px] font-bold uppercase tracking-wider text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-full">Grupo Comercial · azul</span>
+    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-600 bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-full">v1 · 2026-06-29</span>
+    <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full">Cobertura total + mobile incluido</span>
+    <span class="text-[10px] font-bold uppercase tracking-wider text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full">Valida antes de Fase C/D</span>
+  </div>
+  <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 mb-2">Creación de OC · rework al DS <span class="text-slate-400 font-semibold">(las 2 vías + Lente 2 + snapshot)</span></h1>
+  <p class="text-[13px] text-slate-600 max-w-3xl leading-relaxed mb-5">
+    El SHELL de creación (<code class="bg-slate-100 px-1 rounded text-blue-700">WizardShell</code>) <b>ya es DS</b>. Lo que esta spec alinea es el <b class="text-blue-700">CONTENIDO de los pasos</b>
+    (eran pre-DS · S40/S42) en las <b>dos vías</b> de creación, e integra la <b class="text-emerald-700">inteligencia de precio AL COMPRAR</b> (Lente 2) + el
+    <b class="text-rose-700">forecast snapshot</b>. Ambas vías montan el <b>MISMO motor</b> <code class="bg-slate-100 px-1 rounded text-blue-700">analizarPrecio()</code> — contrato compartido, sin duplicar lógica.
+    Honestidad: el semáforo/score/margen muestran <b>lo que el helper realmente da</b> · <span class="text-slate-500 font-semibold">"sin referencia" / "—"</span> donde no hay base. No se fabrican números.
+  </p>
+  <!-- Mapa de las 2 vías -->
+  <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3 acto-sep">Las 2 vías de creación · ambas al DS</div>
+    <div class="flex flex-wrap gap-2 text-[12px]">
+      <div class="flex items-center gap-1.5 bg-blue-600 border border-blue-700 rounded-lg px-3 py-1.5">
+        <i data-lucide="file-plus-2" class="w-3.5 h-3.5 text-white"></i>
+        <span class="font-medium text-white">Vía 1 · Wizard single</span>
+        <span class="text-[10px] bg-white/20 text-white rounded-full px-1.5 py-0.5 font-bold">5 pasos · OCWizardV3</span>
+      </div>
+      <div class="flex items-center gap-1.5 bg-white border border-slate-200 rounded-lg px-3 py-1.5"><i data-lucide="layers-3" class="w-3.5 h-3.5 text-blue-600"></i><span class="font-medium text-slate-700">Vía 2 · OC consolidada</span><span class="text-[10px] bg-slate-100 text-slate-500 rounded-full px-1.5 py-0.5 font-bold">"Generar compra" · OCBuilder</span></div>
+    </div>
+    <div class="mt-3 flex flex-wrap gap-2 text-[11px]">
+      <span class="badge bg-emerald-50 text-emerald-700 border border-emerald-200"><i data-lucide="brain-circuit" class="w-2.5 h-2.5"></i> Lente 2 = analizarPrecio() · 1 helper compartido</span>
+      <span class="badge bg-rose-50 text-rose-700 border border-rose-200"><i data-lucide="snowflake" class="w-2.5 h-2.5"></i> Dato NUEVO: forecast snapshot al confirmar</span>
+      <span class="badge bg-amber-50 text-amber-700 border border-amber-200"><i data-lucide="git-merge" class="w-2.5 h-2.5"></i> SEAM-A: semáforo crudo-vs-crudo · margen landed</span>
+      <span class="badge bg-blue-50 text-blue-700 border border-blue-200"><i data-lucide="route" class="w-2.5 h-2.5"></i> Cierre de seam: el OCBuilder ahora captura config de ruta</span>
+    </div>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- INDICE DE ACTOS -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
+  <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4 acto-sep">Índice de actos · cobertura total + mobile</div>
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-[12px]">
+    <a href="#acto1" class="flex items-start gap-3 bg-blue-50 border border-blue-200 rounded-xl px-3 py-2.5"><span class="w-7 h-7 rounded-lg bg-blue-600 text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">1</span><div><div class="font-semibold text-blue-900">Acto 1 · Mapa de las 2 vías</div><div class="text-blue-700 text-[11px]">dónde vive el Lente 2 · helper compartido</div></div></a>
+    <a href="#acto2" class="flex items-start gap-3 bg-blue-50 border border-blue-200 rounded-xl px-3 py-2.5"><span class="w-7 h-7 rounded-lg bg-blue-600 text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">2</span><div><div class="font-semibold text-blue-900">Acto 2 · Vía 1 · Shell del wizard</div><div class="text-blue-700 text-[11px]">WizardShell blue · 5 steps · borrador</div></div></a>
+    <a href="#acto3" class="flex items-start gap-3 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5"><span class="w-7 h-7 rounded-lg bg-slate-600 text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">3</span><div><div class="font-semibold text-slate-800">Acto 3 · Paso Ruta al DS</div><div class="text-slate-600 text-[11px]">7 cards → HubCard · SmartSearch · sin emojis</div></div></a>
+    <a href="#acto4" class="flex items-start gap-3 bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2.5"><span class="w-7 h-7 rounded-lg bg-emerald-600 text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">4</span><div><div class="font-semibold text-emerald-900">Acto 4 · Paso Productos + semáforo</div><div class="text-emerald-700 text-[11px]">MoneyField · chip por producto · fuente honesta</div></div></a>
+    <a href="#acto5" class="flex items-start gap-3 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5"><span class="w-7 h-7 rounded-lg bg-slate-600 text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">5</span><div><div class="font-semibold text-slate-800">Acto 5 · Paso Cargos al DS</div><div class="text-slate-600 text-[11px]">DynamicChargesSection · totales monocromáticos</div></div></a>
+    <a href="#acto6" class="flex items-start gap-3 bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2.5"><span class="w-7 h-7 rounded-lg bg-emerald-600 text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">6</span><div><div class="font-semibold text-emerald-900">Acto 6 · Paso Inteligencia (corazón)</div><div class="text-emerald-700 text-[11px]">KPIs N2 · veredicto · skip explícito</div></div></a>
+    <a href="#acto7" class="flex items-start gap-3 bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2.5"><span class="w-7 h-7 rounded-lg bg-emerald-600 text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">7</span><div><div class="font-semibold text-emerald-900">Acto 7 · Paso Confirmar al DS</div><div class="text-emerald-700 text-[11px]">franja veredicto SIEMPRE visible · snapshot</div></div></a>
+    <a href="#acto8" class="flex items-start gap-3 bg-blue-50 border border-blue-200 rounded-xl px-3 py-2.5"><span class="w-7 h-7 rounded-lg bg-blue-600 text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">8</span><div><div class="font-semibold text-blue-900">Acto 8 · Vía 2 · OCBuilder al DS</div><div class="text-blue-700 text-[11px]">consolida reqs · Lente 2 · cierra seam ruta</div></div></a>
+    <a href="#acto9" class="flex items-start gap-3 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5"><span class="w-7 h-7 rounded-lg bg-slate-600 text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">9</span><div><div class="font-semibold text-slate-800">Acto 9 · Lente 2 en detalle</div><div class="text-slate-600 text-[11px]">crudo vs landed · sin referencia · ¿acertó?</div></div></a>
+    <a href="#acto10" class="flex items-start gap-3 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5"><span class="w-7 h-7 rounded-lg bg-slate-600 text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">10</span><div><div class="font-semibold text-slate-800">Acto 10 · Estados</div><div class="text-slate-600 text-[11px]">empty · loading · error con retry</div></div></a>
+    <a href="#acto11" class="flex items-start gap-3 bg-violet-50 border border-violet-200 rounded-xl px-3 py-2.5"><span class="w-7 h-7 rounded-lg bg-violet-600 text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">11</span><div><div class="font-semibold text-violet-900">Acto 11 · Mobile · wizard + Ruta</div><div class="text-violet-700 text-[11px]">steps scroll-x · cards apiladas · touch ≥44px</div></div></a>
+    <a href="#acto12" class="flex items-start gap-3 bg-violet-50 border border-violet-200 rounded-xl px-3 py-2.5"><span class="w-7 h-7 rounded-lg bg-violet-600 text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">12</span><div><div class="font-semibold text-violet-900">Acto 12 · Mobile · Productos + Inteligencia</div><div class="text-violet-700 text-[11px]">semáforo inline · KPIs apilados · veredicto</div></div></a>
+    <a href="#acto13" class="flex items-start gap-3 bg-violet-50 border border-violet-200 rounded-xl px-3 py-2.5"><span class="w-7 h-7 rounded-lg bg-violet-600 text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">13</span><div><div class="font-semibold text-violet-900">Acto 13 · Mobile · Confirmar + OCBuilder</div><div class="text-violet-700 text-[11px]">franja veredicto · snapshot · pool 1-col</div></div></a>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 1 · MAPA DE LAS 2 VÍAS -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section id="acto1" class="space-y-4">
+  <div class="flex items-center gap-3">
+    <span class="w-8 h-8 rounded-lg bg-blue-600 text-white text-[13px] font-bold flex items-center justify-center flex-shrink-0">1</span>
+    <div>
+      <div class="text-[17px] font-bold text-slate-900">Mapa · las 2 vías de creación + dónde vive el Lente 2</div>
+      <div class="text-[12px] text-slate-500">Dos puntos de entrada distintos, un destino común. Ambas vías montan el MISMO helper <code class="bg-slate-100 px-1 rounded">analizarPrecio()</code> — el contrato compartido no se duplica.</div>
+    </div>
+  </div>
+
+  <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden frame">
+    <div class="bg-slate-50/30 p-3 sm:p-4 md:p-6 space-y-4">
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+        <!-- VÍA 1 -->
+        <div class="bg-white border border-blue-200 rounded-2xl overflow-hidden">
+          <div class="bg-gradient-to-r from-blue-50 to-blue-100/40 px-4 py-3 border-b border-blue-100">
+            <div class="flex items-center gap-2"><div class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0"><i data-lucide="file-plus-2" class="w-4 h-4 text-blue-600"></i></div><div><div class="text-[13px] font-bold text-blue-900">Vía 1 · Wizard single</div><div class="text-[10px] text-blue-700">una OC desde cero · <code>OCWizardV3</code></div></div></div>
+          </div>
+          <div class="p-4 space-y-2.5 text-[12px]">
+            <div class="flex flex-wrap items-center gap-1.5">
+              <span class="badge bg-slate-100 text-slate-600 border border-slate-200">Ruta</span><i data-lucide="chevron-right" class="w-3 h-3 text-slate-300"></i>
+              <span class="badge bg-slate-100 text-slate-600 border border-slate-200">Productos</span><i data-lucide="chevron-right" class="w-3 h-3 text-slate-300"></i>
+              <span class="badge bg-slate-100 text-slate-600 border border-slate-200">Cargos</span><i data-lucide="chevron-right" class="w-3 h-3 text-slate-300"></i>
+              <span class="badge bg-emerald-100 text-emerald-700 border border-emerald-300">Inteligencia</span><i data-lucide="chevron-right" class="w-3 h-3 text-slate-300"></i>
+              <span class="badge bg-slate-100 text-slate-600 border border-slate-200">Confirmar</span>
+            </div>
+            <div class="flex items-start gap-2"><i data-lucide="brain-circuit" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0 mt-0.5"></i><div><b class="text-slate-800">Lente 2 vive en 2 lugares:</b> chip INLINE al tipear el costo (paso Productos) + paso dedicado Inteligencia (KPIs · tabla · veredicto).</div></div>
+            <div class="flex items-start gap-2"><i data-lucide="map-pin" class="w-3.5 h-3.5 text-blue-600 flex-shrink-0 mt-0.5"></i><div>Lanza desde <b class="text-slate-800">"Nueva OC"</b> en el hub Compras (header · acción primary).</div></div>
+          </div>
+        </div>
+
+        <!-- VÍA 2 -->
+        <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+          <div class="bg-slate-50 px-4 py-3 border-b border-slate-100">
+            <div class="flex items-center gap-2"><div class="w-8 h-8 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center flex-shrink-0"><i data-lucide="layers-3" class="w-4 h-4 text-blue-600"></i></div><div><div class="text-[13px] font-bold text-slate-900">Vía 2 · OC consolidada</div><div class="text-[10px] text-slate-500">"Generar compra" desde reqs · <code>OCBuilder</code></div></div></div>
+          </div>
+          <div class="p-4 space-y-2.5 text-[12px]">
+            <div class="flex flex-wrap items-center gap-1.5">
+              <span class="badge bg-slate-100 text-slate-600 border border-slate-200">Agrupar productos</span><i data-lucide="chevron-right" class="w-3 h-3 text-slate-300"></i>
+              <span class="badge bg-emerald-100 text-emerald-700 border border-emerald-300">Configurar OCs <span class="text-[8px]">(+precio)</span></span><i data-lucide="chevron-right" class="w-3 h-3 text-slate-300"></i>
+              <span class="badge bg-slate-100 text-slate-600 border border-slate-200">Revisar y crear</span>
+            </div>
+            <div class="flex items-start gap-2"><i data-lucide="brain-circuit" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0 mt-0.5"></i><div><b class="text-slate-800">Lente 2 entra en "Configurar OCs"</b> — el paso donde se editan precios por grupo. Hoy tiene <b class="text-rose-700">0 inteligencia de precio</b>: se le monta el MISMO chip + un veredicto por grupo en revisar.</div></div>
+            <div class="flex items-start gap-2"><i data-lucide="combine" class="w-3.5 h-3.5 text-blue-600 flex-shrink-0 mt-0.5"></i><div>Toma N requerimientos → <code class="bg-slate-100 px-1 rounded">buildPool</code> → grupos por proveedor → <code class="bg-slate-100 px-1 rounded">distributeOrigenes</code> (preservados).</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- diagrama · helper compartido -->
+      <div class="bg-white border border-slate-200 rounded-2xl p-4">
+        <div class="flex items-center justify-between mb-4">
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold acto-sep">Las 2 vías → 1 motor → 1 snapshot</div>
+          <i data-lucide="git-merge" class="w-4 h-4 text-slate-400"></i>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+          <!-- col vías -->
+          <div class="space-y-2">
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-center gap-2"><div class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0"><i data-lucide="file-plus-2" class="w-4 h-4 text-blue-600"></i></div><div class="text-[12px] font-bold text-blue-900">OCWizardV3 <span class="font-normal text-blue-700">· paso Productos + Inteligencia</span></div></div>
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-center gap-2"><div class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0"><i data-lucide="layers-3" class="w-4 h-4 text-blue-600"></i></div><div class="text-[12px] font-bold text-blue-900">OCBuilder <span class="font-normal text-blue-700">· paso Configurar OCs</span></div></div>
+          </div>
+          <!-- flecha -->
+          <div class="flex md:flex-col items-center justify-center gap-2">
+            <div class="flex items-center gap-1.5 text-[10px] text-slate-500"><span class="font-semibold">consumen</span><i data-lucide="arrow-right" class="w-4 h-4 text-slate-300"></i></div>
+            <div class="bg-emerald-600 border border-emerald-700 rounded-xl p-3 text-center w-full max-w-[200px]">
+              <div class="w-9 h-9 rounded-lg bg-white/20 flex items-center justify-center mx-auto mb-1.5"><i data-lucide="brain-circuit" class="w-5 h-5 text-white"></i></div>
+              <div class="text-[12px] font-bold text-white">analizarPrecio()</div>
+              <div class="text-[10px] text-emerald-50 mt-0.5">helper PURO · contrato compartido · sin Firestore</div>
+            </div>
+          </div>
+          <!-- col destino -->
+          <div class="space-y-2">
+            <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-3"><div class="text-[12px] font-bold text-slate-900 flex items-center gap-1.5"><i data-lucide="gauge" class="w-3.5 h-3.5 text-emerald-600"></i> Semáforo + score + margen</div><div class="text-[10px] text-emerald-700 mt-0.5">veredicto · deltaPct · fuenteBase · landedUnitPEN</div></div>
+            <div class="bg-rose-50 border border-rose-200 rounded-lg p-3"><div class="text-[12px] font-bold text-slate-900 flex items-center gap-1.5"><i data-lucide="snowflake" class="w-3.5 h-3.5 text-rose-600"></i> Forecast snapshot <span class="badge bg-rose-100 text-rose-700 border border-rose-300">NUEVO</span></div><div class="text-[10px] text-rose-700 mt-0.5">se congela al confirmar (ambas vías)</div></div>
+          </div>
+        </div>
+        <div class="mt-3 text-[10px] text-slate-400 flex items-start gap-1.5"><i data-lucide="info" class="w-3 h-3 flex-shrink-0 mt-0.5"></i><span>El helper YA existe y YA lo consume el wizard (chip inline + paso Inteligencia). El rework lo <b>extiende al OCBuilder</b> y le agrega el <b>snapshot</b> al confirmar — misma fuente de verdad, cero números fabricados.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 2 · VÍA 1 · SHELL DEL WIZARD -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section id="acto2" class="space-y-4">
+  <div class="flex items-center gap-3">
+    <span class="w-8 h-8 rounded-lg bg-blue-600 text-white text-[13px] font-bold flex items-center justify-center flex-shrink-0">2</span>
+    <div>
+      <div class="text-[17px] font-bold text-slate-900">Vía 1 · Shell del wizard (DS · ya canónico)</div>
+      <div class="text-[12px] text-slate-500"><code class="bg-slate-100 px-1 rounded">WizardShell accent="blue"</code> · breadcrumb + 5 steps + preview lateral + footer 3-tier + banner de borrador (canon Borrador+Descartar).</div>
+    </div>
+  </div>
+
+  <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden frame">
+    <!-- banner borrador (vive afuera del shell · canon) -->
+    <div class="bg-amber-50 border-b border-amber-200 px-4 sm:px-6 py-3 flex items-center justify-between gap-3 flex-wrap">
+      <div class="flex items-center gap-2.5 text-[12px]">
+        <div class="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0"><i data-lucide="file-text" class="w-4 h-4 text-amber-600"></i></div>
+        <div><div class="font-bold text-amber-900">Tienes una OC en borrador</div><div class="text-amber-700 text-[11px]">COSRX Korea · $1,240 · paso 3 de 5 · hace 2 h</div></div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button class="inline-flex items-center gap-1.5 px-3 py-2 bg-white border border-amber-300 text-amber-800 rounded-lg text-[12px] font-semibold hover:bg-amber-50"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Descartar</button>
+        <button class="inline-flex items-center gap-1.5 px-3 py-2 bg-amber-600 text-white rounded-lg text-[12px] font-semibold hover:bg-amber-700"><i data-lucide="arrow-right" class="w-3.5 h-3.5"></i> Continuar</button>
+      </div>
+    </div>
+
+    <!-- breadcrumb -->
+    <nav class="border-b border-slate-200 px-4 sm:px-6 py-2 bg-slate-50/50 flex items-center gap-1.5 text-[11px] text-slate-500">
+      <span>Inicio</span><i data-lucide="chevron-right" class="w-3 h-3"></i><span>Compras</span><i data-lucide="chevron-right" class="w-3 h-3"></i><span class="text-slate-900 font-medium">Nueva Orden de Compra</span>
+    </nav>
+
+    <!-- header del wizard -->
+    <div class="px-4 sm:px-6 py-4 border-b border-slate-200 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0"><i data-lucide="shopping-cart" class="w-5 h-5 text-blue-600"></i></div>
+        <div><div class="text-lg font-bold text-slate-900 tracking-tight">Nueva Orden de Compra</div><div class="text-[13px] text-slate-500">Captura los datos de la orden paso a paso</div></div>
+      </div>
+      <button class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg"><i data-lucide="x" class="w-5 h-5"></i></button>
+    </div>
+
+    <!-- body: stepper + preview -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-0">
+      <!-- main: stepper horizontal + zona de paso -->
+      <div class="md:col-span-2 p-4 sm:p-6 border-b md:border-b-0 md:border-r border-slate-200">
+        <!-- stepper -->
+        <div class="flex items-center gap-1 mb-5 overflow-x-auto scrollbar-none pb-1">
+          <!-- step 1 done -->
+          <div class="flex items-center gap-1.5 flex-shrink-0"><div class="w-7 h-7 rounded-full bg-blue-600 text-white text-[11px] font-bold flex items-center justify-center"><i data-lucide="check" class="w-3.5 h-3.5"></i></div><span class="text-[12px] font-semibold text-slate-700">Ruta</span></div>
+          <div class="w-6 h-px bg-blue-300 flex-shrink-0"></div>
+          <div class="flex items-center gap-1.5 flex-shrink-0"><div class="w-7 h-7 rounded-full bg-blue-600 text-white text-[11px] font-bold flex items-center justify-center"><i data-lucide="check" class="w-3.5 h-3.5"></i></div><span class="text-[12px] font-semibold text-slate-700">Productos</span></div>
+          <div class="w-6 h-px bg-blue-300 flex-shrink-0"></div>
+          <!-- step 3 active -->
+          <div class="flex items-center gap-1.5 flex-shrink-0"><div class="w-7 h-7 rounded-full bg-blue-600 text-white text-[11px] font-bold flex items-center justify-center ring-2 ring-blue-200">3</div><span class="text-[12px] font-bold text-blue-700">Cargos</span></div>
+          <div class="w-6 h-px bg-slate-200 flex-shrink-0"></div>
+          <div class="flex items-center gap-1.5 flex-shrink-0"><div class="w-7 h-7 rounded-full bg-slate-100 text-slate-400 text-[11px] font-bold flex items-center justify-center">4</div><span class="text-[12px] text-slate-400">Inteligencia</span></div>
+          <div class="w-6 h-px bg-slate-200 flex-shrink-0"></div>
+          <div class="flex items-center gap-1.5 flex-shrink-0"><div class="w-7 h-7 rounded-full bg-slate-100 text-slate-400 text-[11px] font-bold flex items-center justify-center">5</div><span class="text-[12px] text-slate-400">Confirmar</span></div>
+        </div>
+
+        <!-- placeholder de zona de paso -->
+        <div class="border-2 border-dashed border-slate-200 rounded-xl p-8 text-center">
+          <i data-lucide="layout-template" class="w-8 h-8 text-slate-300 mx-auto mb-2"></i>
+          <div class="text-[13px] font-semibold text-slate-600">Aquí se renderiza el paso activo</div>
+          <div class="text-[11px] text-slate-400 mt-1">Ruta (Acto 3) · Productos (Acto 4) · Cargos (Acto 5) · Inteligencia (Acto 6) · Confirmar (Acto 7)</div>
+        </div>
+      </div>
+
+      <!-- preview lateral (OCWizardPreview) -->
+      <aside class="md:col-span-1 p-4 sm:p-6 bg-slate-50/50">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3 acto-sep">Resumen en vivo</div>
+        <div class="bg-white border border-slate-200 rounded-xl p-3 space-y-2.5 text-[12px]">
+          <div class="flex items-center justify-between"><span class="text-slate-500">Proveedor</span><span class="font-semibold text-slate-800">COSRX Korea</span></div>
+          <div class="flex items-center justify-between"><span class="text-slate-500">Ruta</span><span class="font-medium text-slate-700">Vía casilla · Corea</span></div>
+          <div class="flex items-center justify-between"><span class="text-slate-500">Productos</span><span class="font-medium text-slate-700">4 · 120 uds</span></div>
+          <div class="h-px bg-slate-100"></div>
+          <div class="flex items-center justify-between"><span class="text-slate-500">Subtotal</span><span class="tabular-nums text-slate-700">$1,120.00</span></div>
+          <div class="flex items-center justify-between"><span class="text-slate-500">+ Cargos</span><span class="tabular-nums text-slate-700">$120.00</span></div>
+          <div class="flex items-center justify-between pt-1.5 border-t border-slate-100"><span class="font-bold text-slate-900">Total USD</span><span class="text-base font-bold text-blue-700 tabular-nums">$1,240.00</span></div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- footer 3-tier -->
+    <div class="px-4 sm:px-6 py-3 border-t border-slate-200 bg-white flex items-center justify-between gap-3">
+      <button class="inline-flex items-center gap-1.5 px-3 py-2 text-[13px] text-slate-600 hover:text-slate-900"><i data-lucide="x" class="w-4 h-4"></i> Cancelar</button>
+      <div class="flex items-center gap-2">
+        <span class="text-[11px] text-slate-400 mr-1">Paso 3 de 5</span>
+        <button class="inline-flex items-center gap-1.5 px-4 py-2 bg-white border border-slate-200 text-slate-600 rounded-lg text-[13px] font-semibold hover:bg-slate-50"><i data-lucide="chevron-left" class="w-4 h-4"></i> Anterior</button>
+        <button class="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white rounded-lg text-[13px] font-semibold hover:bg-blue-700">Siguiente <i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 3 · PASO RUTA AL DS -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section id="acto3" class="space-y-4">
+  <div class="flex items-center gap-3">
+    <span class="w-8 h-8 rounded-lg bg-blue-600 text-white text-[13px] font-bold flex items-center justify-center flex-shrink-0">3</span>
+    <div>
+      <div class="text-[17px] font-bold text-slate-900">Paso Ruta · al DS</div>
+      <div class="text-[12px] text-slate-500">Las cards selectable → <code class="bg-slate-100 px-1 rounded">HubCard</code> (icono tonal blue + Check en selección) · <code class="bg-slate-100 px-1 rounded">SmartSearch</code> para proveedor/casilla · <code class="bg-slate-100 px-1 rounded">SeccionColapsable</code> · <b>sin emojis de bandera</b> (F8 · lucide). Campos preservados: proveedor · tramos logísticos · recojo-en-origen · deudor alternativo.</div>
+    </div>
+  </div>
+
+  <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden frame">
+    <div class="bg-slate-50/30 p-4 sm:p-6 space-y-5 max-w-3xl">
+
+      <!-- header del paso -->
+      <div>
+        <h3 class="text-base font-semibold text-slate-900">¿De dónde viene y cómo llega?</h3>
+        <p class="text-xs text-slate-500 mt-0.5">Proveedor, ruta logística y quién paga. Los tramos finales (casilla→Perú) se deciden después en Envíos.</p>
+      </div>
+
+      <!-- 1 · Proveedor · SmartSearch -->
+      <div>
+        <label class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5 block">Proveedor</label>
+        <div class="relative">
+          <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+          <div class="w-full pl-10 pr-3 py-2.5 border border-blue-300 rounded-lg bg-white flex items-center justify-between">
+            <span class="text-sm text-slate-900 font-medium">COSRX Korea</span>
+            <span class="text-[10px] text-slate-400 flex items-center gap-1"><i data-lucide="building-2" class="w-3 h-3"></i> Corea del Sur</span>
+          </div>
+        </div>
+        <div class="text-[10px] text-slate-400 mt-1 flex items-center gap-1"><i data-lucide="plus-circle" class="w-3 h-3"></i> SmartSearch <code>mode=select-create</code> · crear proveedor inline si no existe</div>
+      </div>
+
+      <!-- 2 · Tipo de ruta · 2 HubCards -->
+      <div>
+        <label class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5 block">Tipo de ruta</label>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <!-- selected -->
+          <button class="relative text-left bg-white border-2 border-blue-500 rounded-xl p-3.5 ring-2 ring-blue-100">
+            <div class="absolute top-2.5 right-2.5 w-5 h-5 rounded-full bg-blue-600 flex items-center justify-center"><i data-lucide="check" class="w-3 h-3 text-white"></i></div>
+            <div class="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center mb-2"><i data-lucide="warehouse" class="w-5 h-5 text-blue-600"></i></div>
+            <div class="text-[13px] font-bold text-slate-900">Vía casilla</div>
+            <div class="text-[11px] text-slate-500 mt-0.5">El proveedor envía a tu casilla en origen · luego viaja a Perú.</div>
+          </button>
+          <!-- unselected -->
+          <button class="relative text-left bg-white border border-slate-200 rounded-xl p-3.5 hover:border-blue-300">
+            <div class="w-9 h-9 rounded-lg bg-slate-50 flex items-center justify-center mb-2"><i data-lucide="plane" class="w-5 h-5 text-slate-500"></i></div>
+            <div class="text-[13px] font-bold text-slate-900">DDP directo</div>
+            <div class="text-[11px] text-slate-500 mt-0.5">El proveedor entrega directo en Perú (2 nodos · sin casilla).</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- 3 · Casilla destino · SmartSearch -->
+      <div>
+        <label class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5 block">Casilla destino (en origen)</label>
+        <div class="relative">
+          <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+          <div class="w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-lg bg-white flex items-center justify-between">
+            <span class="text-sm text-slate-900 font-medium">Casilla Seúl · KR-204</span>
+            <span class="text-[10px] text-slate-400">Corea del Sur</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4 · Tramo 1: salida del proveedor · 2 HubCards -->
+      <div>
+        <label class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5 block">Tramo 1 · salida del proveedor</label>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <button class="relative text-left bg-white border-2 border-blue-500 rounded-xl p-3.5 ring-2 ring-blue-100">
+            <div class="absolute top-2.5 right-2.5 w-5 h-5 rounded-full bg-blue-600 flex items-center justify-center"><i data-lucide="check" class="w-3 h-3 text-white"></i></div>
+            <div class="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center mb-2"><i data-lucide="truck" class="w-5 h-5 text-blue-600"></i></div>
+            <div class="text-[13px] font-bold text-slate-900">Proveedor envía</div>
+            <div class="text-[11px] text-slate-500 mt-0.5">El proveedor despacha a tu casilla.</div>
+          </button>
+          <button class="relative text-left bg-white border border-slate-200 rounded-xl p-3.5 hover:border-blue-300">
+            <div class="w-9 h-9 rounded-lg bg-slate-50 flex items-center justify-center mb-2"><i data-lucide="hand-helping" class="w-5 h-5 text-slate-500"></i></div>
+            <div class="text-[13px] font-bold text-slate-900">Recojo en origen</div>
+            <div class="text-[11px] text-slate-500 mt-0.5">Un colaborador retira la mercadería del proveedor.</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- shipping pagado aparte (condicional) -->
+      <div class="bg-blue-50/50 border border-blue-200 rounded-xl p-3.5">
+        <div class="flex items-center gap-2 mb-2.5"><i data-lucide="ship" class="w-4 h-4 text-blue-600"></i><span class="text-[12px] font-bold text-slate-800">Shipping del proveedor</span></div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <label class="flex items-center gap-2 text-[12px]"><input type="radio" checked class="text-blue-600"><span class="text-slate-700">Incluido en el precio</span></label>
+          <label class="flex items-center gap-2 text-[12px]"><input type="radio" class="text-blue-600"><span class="text-slate-700">Pagado aparte → se agrega a Cargos</span></label>
+        </div>
+        <div class="text-[10px] text-blue-700 mt-2 flex items-center gap-1"><i data-lucide="info" class="w-3 h-3"></i> Si "aparte", el monto se auto-sincroniza como cargo en el paso 3 (lógica preservada).</div>
+      </div>
+
+      <!-- 5 · Deudor alternativo · SeccionColapsable -->
+      <div class="border border-slate-200 rounded-xl overflow-hidden">
+        <button class="w-full flex items-center justify-between px-3.5 py-3 bg-slate-50 hover:bg-slate-100">
+          <span class="flex items-center gap-2 text-[12px] font-bold text-slate-700"><i data-lucide="user-cog" class="w-4 h-4 text-slate-500"></i> Deudor alternativo del pago <span class="text-[10px] font-normal text-slate-400">(opcional)</span></span>
+          <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i>
+        </button>
+        <div class="p-3.5 border-t border-slate-200 space-y-2.5">
+          <p class="text-[11px] text-slate-500">Por defecto, el deudor es el proveedor. Si un colaborador adelantó el pago (patrón "recojo en origen"), la CxP se crea contra él.</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <button class="text-left bg-white border-2 border-blue-500 rounded-lg p-2.5 ring-2 ring-blue-100 text-[12px] font-semibold text-slate-800">Proveedor <span class="block text-[10px] font-normal text-slate-500">default</span></button>
+            <button class="text-left bg-white border border-slate-200 rounded-lg p-2.5 hover:border-blue-300 text-[12px] font-semibold text-slate-800">Colaborador <span class="block text-[10px] font-normal text-slate-500">adelantó el pago</span></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- nota canon F8 -->
+      <div class="text-[10px] text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg p-2.5 flex items-start gap-1.5">
+        <i data-lucide="check-circle" class="w-3.5 h-3.5 flex-shrink-0 mt-0.5"></i>
+        <span><b>Cambio DS:</b> el código actual usa emojis de bandera (🇰🇷🇺🇸🇨🇳) en las rutas. El rework los reemplaza por iconos lucide tonales (canon F8 · sin emojis en chrome de UI) y migra el form crudo a HubCard selectable + SmartSearch.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 4 · PASO PRODUCTOS + SEMÁFORO -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section id="acto4" class="space-y-4">
+  <div class="flex items-center gap-3">
+    <span class="w-8 h-8 rounded-lg bg-emerald-600 text-white text-[13px] font-bold flex items-center justify-center flex-shrink-0">4</span>
+    <div>
+      <div class="text-[17px] font-bold text-slate-900">Paso Productos · al DS + EL SEMÁFORO INLINE (Lente 2)</div>
+      <div class="text-[12px] text-slate-500"><code class="bg-slate-100 px-1 rounded">MoneyField</code> para costo/cantidad · y el chip de semáforo por producto al tipear el costo. Veredicto + deltaPct + <b>fuente de base HONESTA</b> ("vs tu histórico" / "vs mercado"). El número viene de <code class="bg-slate-100 px-1 rounded">analizarPrecio()</code>.</div>
+    </div>
+  </div>
+
+  <!-- leyenda del semáforo -->
+  <div class="bg-white border border-slate-200 rounded-2xl p-4">
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3 acto-sep">Los 5 veredictos del semáforo · paleta semántica fija</div>
+    <div class="flex flex-wrap gap-2 text-[11px]">
+      <span class="badge bg-emerald-50 text-emerald-700 border border-emerald-200"><i data-lucide="check-circle-2" class="w-2.5 h-2.5"></i> Excelente · ≤ −5%</span>
+      <span class="badge bg-sky-50 text-sky-700 border border-sky-200"><i data-lucide="circle-check" class="w-2.5 h-2.5"></i> En rango · ≤ +3%</span>
+      <span class="badge bg-amber-50 text-amber-700 border border-amber-200"><i data-lucide="alert-triangle" class="w-2.5 h-2.5"></i> Caro · ≤ +10%</span>
+      <span class="badge bg-rose-50 text-rose-700 border border-rose-200"><i data-lucide="x-circle" class="w-2.5 h-2.5"></i> No recomendable · > +10%</span>
+      <span class="badge bg-slate-100 text-slate-500 border border-slate-200"><i data-lucide="minus-circle" class="w-2.5 h-2.5"></i> Sin referencia · no hay base</span>
+    </div>
+    <div class="text-[10px] text-slate-400 mt-2.5 flex items-start gap-1.5"><i data-lucide="git-merge" class="w-3 h-3 flex-shrink-0 mt-0.5"></i><span><b>SEAM-A:</b> este chip compara CRUDO-vs-CRUDO (lo que negociás vs tu histórico crudo · base unificada). El margen landed vive en el paso Inteligencia. Umbrales reales: <code class="bg-slate-100 px-1 rounded">DELTA_EXCELENTE=-5 · DELTA_EN_RANGO=3 · DELTA_CARO=10</code>.</span></div>
+  </div>
+
+  <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden frame">
+    <div class="bg-slate-50/30 p-4 sm:p-6 space-y-4">
+      <!-- buscador + escanear -->
+      <div class="flex gap-2">
+        <div class="relative flex-1">
+          <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+          <div class="w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm text-slate-400 bg-white">Buscar producto por SKU, nombre o marca…</div>
+        </div>
+        <button class="px-3 py-2.5 border border-slate-300 rounded-lg text-sm flex items-center gap-1.5 text-slate-700 hover:bg-slate-50"><i data-lucide="scan-line" class="w-4 h-4"></i> Escanear</button>
+      </div>
+
+      <!-- tabla productos -->
+      <div class="border border-slate-200 rounded-xl overflow-hidden bg-white">
+        <div class="bg-slate-50 px-4 py-2 border-b border-slate-200 flex items-center justify-between">
+          <span class="text-xs font-semibold text-slate-700">4 productos agregados · 120 unidades</span>
+          <span class="text-xs text-slate-500">Subtotal: <b class="text-slate-900 tabular-nums">$1,120.00</b></span>
+        </div>
+        <div class="divide-y divide-slate-100">
+
+          <!-- fila 1 · EXCELENTE (vs tu histórico) -->
+          <div class="px-4 pt-3 pb-2.5">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-lg bg-pink-50 text-pink-600 flex items-center justify-center flex-shrink-0"><i data-lucide="sparkles" class="w-5 h-5"></i></div>
+              <div class="flex-1 min-w-0">
+                <div class="font-medium text-slate-900 text-sm truncate">Advanced Snail 96 Mucin</div>
+                <div class="text-xs text-slate-500 flex items-center gap-1.5 flex-wrap mt-0.5"><span class="font-mono">CSX-SNL-96</span><span>·</span><span class="px-1.5 py-0.5 bg-sky-50 text-sky-700 rounded text-[10px] font-medium">COSRX</span><span>·</span><span class="text-slate-600"><strong>100 ml</strong></span></div>
+              </div>
+              <div class="flex items-center bg-slate-100 rounded-lg flex-shrink-0"><button class="px-2 py-1.5 text-slate-500"><i data-lucide="minus" class="w-3 h-3"></i></button><span class="w-10 text-center text-sm tabular-nums">40</span><button class="px-2 py-1.5 text-slate-500"><i data-lucide="plus" class="w-3 h-3"></i></button></div>
+              <div class="text-right w-24 flex-shrink-0">
+                <div class="text-[10px] text-slate-500">USD/u · MoneyField</div>
+                <div class="relative"><span class="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-slate-400">$</span><div class="w-full pl-5 pr-1 text-right text-sm font-semibold text-slate-900 border border-emerald-300 bg-emerald-50/40 rounded tabular-nums py-1">7.10</div></div>
+              </div>
+              <div class="text-right w-20 flex-shrink-0"><div class="text-[10px] text-slate-500">Subtotal</div><div class="text-sm font-bold text-blue-700 tabular-nums">$284.00</div></div>
+              <button class="p-1 text-slate-400 hover:text-rose-600 flex-shrink-0"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+            </div>
+            <!-- semáforo inline -->
+            <div class="mt-1.5 ml-[52px] flex items-center gap-2 text-[10px] flex-wrap">
+              <span class="inline-flex items-center gap-1 text-slate-400 font-semibold uppercase tracking-wider"><i data-lucide="history" class="w-3 h-3"></i> Referencia</span>
+              <span class="text-slate-500">prom <b class="text-slate-700 tabular-nums">$7.80</b></span><span class="text-slate-300">·</span><span class="text-slate-500">últ <b class="text-slate-700 tabular-nums">$8.00</b></span>
+              <span class="inline-flex items-center gap-1 text-emerald-700 font-bold ml-1 bg-emerald-50 border border-emerald-200 rounded-full px-2 py-0.5"><i data-lucide="check-circle-2" class="w-3 h-3"></i> Excelente · −9% vs tu histórico</span>
+            </div>
+          </div>
+
+          <!-- fila 2 · CARO (vs tu histórico) -->
+          <div class="px-4 pt-3 pb-2.5">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-lg bg-pink-50 text-pink-600 flex items-center justify-center flex-shrink-0"><i data-lucide="sparkles" class="w-5 h-5"></i></div>
+              <div class="flex-1 min-w-0">
+                <div class="font-medium text-slate-900 text-sm truncate">Low pH Good Morning Gel</div>
+                <div class="text-xs text-slate-500 flex items-center gap-1.5 flex-wrap mt-0.5"><span class="font-mono">CSX-PH-GEL</span><span>·</span><span class="px-1.5 py-0.5 bg-sky-50 text-sky-700 rounded text-[10px] font-medium">COSRX</span><span>·</span><span class="text-slate-600"><strong>150 ml</strong></span></div>
+              </div>
+              <div class="flex items-center bg-slate-100 rounded-lg flex-shrink-0"><button class="px-2 py-1.5 text-slate-500"><i data-lucide="minus" class="w-3 h-3"></i></button><span class="w-10 text-center text-sm tabular-nums">30</span><button class="px-2 py-1.5 text-slate-500"><i data-lucide="plus" class="w-3 h-3"></i></button></div>
+              <div class="text-right w-24 flex-shrink-0">
+                <div class="text-[10px] text-slate-500">USD/u · MoneyField</div>
+                <div class="relative"><span class="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-slate-400">$</span><div class="w-full pl-5 pr-1 text-right text-sm font-semibold text-slate-900 border border-amber-300 bg-amber-50/40 rounded tabular-nums py-1">9.40</div></div>
+              </div>
+              <div class="text-right w-20 flex-shrink-0"><div class="text-[10px] text-slate-500">Subtotal</div><div class="text-sm font-bold text-blue-700 tabular-nums">$282.00</div></div>
+              <button class="p-1 text-slate-400 hover:text-rose-600 flex-shrink-0"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+            </div>
+            <div class="mt-1.5 ml-[52px] flex items-center gap-2 text-[10px] flex-wrap">
+              <span class="inline-flex items-center gap-1 text-slate-400 font-semibold uppercase tracking-wider"><i data-lucide="history" class="w-3 h-3"></i> Referencia</span>
+              <span class="text-slate-500">prom <b class="text-slate-700 tabular-nums">$8.60</b></span>
+              <span class="inline-flex items-center gap-1 text-amber-700 font-bold ml-1 bg-amber-50 border border-amber-200 rounded-full px-2 py-0.5"><i data-lucide="alert-triangle" class="w-3 h-3"></i> Caro · +9% vs tu histórico</span>
+            </div>
+          </div>
+
+          <!-- fila 3 · SIN REFERENCIA (con sugerencia de mercado para llenar) -->
+          <div class="px-4 pt-3 pb-2.5">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center flex-shrink-0"><i data-lucide="pill" class="w-5 h-5"></i></div>
+              <div class="flex-1 min-w-0">
+                <div class="font-medium text-slate-900 text-sm truncate">Centella Calming Toner</div>
+                <div class="text-xs text-slate-500 flex items-center gap-1.5 flex-wrap mt-0.5"><span class="font-mono">SKN-CNT-TON</span><span>·</span><span class="px-1.5 py-0.5 bg-sky-50 text-sky-700 rounded text-[10px] font-medium">SKIN1004</span></div>
+              </div>
+              <div class="flex items-center bg-slate-100 rounded-lg flex-shrink-0"><button class="px-2 py-1.5 text-slate-500"><i data-lucide="minus" class="w-3 h-3"></i></button><span class="w-10 text-center text-sm tabular-nums">30</span><button class="px-2 py-1.5 text-slate-500"><i data-lucide="plus" class="w-3 h-3"></i></button></div>
+              <div class="text-right w-24 flex-shrink-0">
+                <div class="text-[10px] text-slate-500">USD/u · MoneyField</div>
+                <div class="relative"><span class="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-slate-400">$</span><div class="w-full pl-5 pr-1 text-right text-sm font-normal text-slate-400 border border-slate-200 rounded tabular-nums py-1">0.00</div></div>
+              </div>
+              <div class="text-right w-20 flex-shrink-0"><div class="text-[10px] text-slate-500">Subtotal</div><div class="text-sm font-bold text-slate-300 tabular-nums">$0.00</div></div>
+              <button class="p-1 text-slate-400 hover:text-rose-600 flex-shrink-0"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+            </div>
+            <div class="mt-1.5 ml-[52px] flex items-center gap-2 text-[10px] flex-wrap">
+              <span class="inline-flex items-center gap-1 text-slate-400 font-semibold uppercase tracking-wider"><i data-lucide="history" class="w-3 h-3"></i> Referencia</span>
+              <span class="text-slate-500">invest <b class="text-slate-700 tabular-nums">$6</b></span>
+              <span class="text-slate-300">·</span>
+              <span class="inline-flex items-center gap-1 text-slate-500 italic">sin histórico · primera compra de este SKU</span>
+              <button class="inline-flex items-center gap-1 ml-1 text-blue-700 font-bold bg-blue-100 hover:bg-blue-200 rounded px-1.5 py-0.5"><i data-lucide="arrow-down-left" class="w-3 h-3"></i> usar $6</button>
+            </div>
+          </div>
+
+          <!-- fila 4 · SIN REFERENCIA puro (sin base · veredicto sin_referencia) -->
+          <div class="px-4 pt-3 pb-2.5">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-lg bg-slate-100 text-slate-500 flex items-center justify-center flex-shrink-0"><i data-lucide="package" class="w-5 h-5"></i></div>
+              <div class="flex-1 min-w-0">
+                <div class="font-medium text-slate-900 text-sm truncate">Sun Stick SPF50+</div>
+                <div class="text-xs text-slate-500 flex items-center gap-1.5 flex-wrap mt-0.5"><span class="font-mono">NEW-SUN-STK</span><span>·</span><span class="px-1.5 py-0.5 bg-sky-50 text-sky-700 rounded text-[10px] font-medium">ROUND LAB</span></div>
+              </div>
+              <div class="flex items-center bg-slate-100 rounded-lg flex-shrink-0"><button class="px-2 py-1.5 text-slate-500"><i data-lucide="minus" class="w-3 h-3"></i></button><span class="w-10 text-center text-sm tabular-nums">20</span><button class="px-2 py-1.5 text-slate-500"><i data-lucide="plus" class="w-3 h-3"></i></button></div>
+              <div class="text-right w-24 flex-shrink-0">
+                <div class="text-[10px] text-slate-500">USD/u · MoneyField</div>
+                <div class="relative"><span class="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-slate-400">$</span><div class="w-full pl-5 pr-1 text-right text-sm font-semibold text-slate-900 border border-slate-200 rounded tabular-nums py-1">13.50</div></div>
+              </div>
+              <div class="text-right w-20 flex-shrink-0"><div class="text-[10px] text-slate-500">Subtotal</div><div class="text-sm font-bold text-blue-700 tabular-nums">$270.00</div></div>
+              <button class="p-1 text-slate-400 hover:text-rose-600 flex-shrink-0"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+            </div>
+            <div class="mt-1.5 ml-[52px] flex items-center gap-2 text-[10px] flex-wrap">
+              <span class="inline-flex items-center gap-1 text-slate-400 font-semibold uppercase tracking-wider"><i data-lucide="history" class="w-3 h-3"></i> Referencia</span>
+              <span class="inline-flex items-center gap-1 text-slate-500 bg-slate-100 border border-slate-200 rounded-full px-2 py-0.5"><i data-lucide="minus-circle" class="w-3 h-3"></i> Sin referencia · no hay base contra la cual comparar</span>
+            </div>
+          </div>
+
+        </div>
+        <button class="w-full border-t border-dashed border-slate-300 py-3 text-sm text-slate-500 hover:bg-blue-50 hover:text-blue-700 flex items-center justify-center gap-2"><i data-lucide="plus" class="w-4 h-4"></i> Agregar otro producto</button>
+      </div>
+
+      <!-- honestidad de la fuente -->
+      <div class="text-[10px] text-slate-500 bg-slate-50 border border-slate-200 rounded-lg p-2.5 flex items-start gap-1.5">
+        <i data-lucide="shield-check" class="w-3.5 h-3.5 flex-shrink-0 mt-0.5 text-slate-400"></i>
+        <span><b>Fuente de base HONESTA:</b> el chip rotula contra qué compara. Si hay histórico propio → <b>"vs tu histórico"</b> (<code>fuenteBase='historico'</code>). Si no hay histórico pero hay mejor proveedor investigado → <b>"vs mercado"</b> (<code>fuenteBase='mercado'</code>). Si no hay ninguno → <b>"Sin referencia"</b> (no se inventa un número). El delta y el veredicto salen 1:1 de <code>analizarPrecio()</code>.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 5 · PASO CARGOS -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section id="acto5" class="space-y-4">
+  <div class="flex items-center gap-3">
+    <span class="w-8 h-8 rounded-lg bg-blue-600 text-white text-[13px] font-bold flex items-center justify-center flex-shrink-0">5</span>
+    <div>
+      <div class="text-[17px] font-bold text-slate-900">Paso Cargos · al DS</div>
+      <div class="text-[12px] text-slate-500"><code class="bg-slate-100 px-1 rounded">DynamicChargesSection</code> (cargos / descuentos / impuestos · arrays v2) con conceptos sugeridos · card de totales <b>MONOCROMÁTICA</b> (color del módulo, no gradient bi-color).</div>
+    </div>
+  </div>
+
+  <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden frame">
+    <div class="bg-slate-50/30 p-4 sm:p-6 space-y-4 max-w-3xl">
+
+      <!-- Cargos -->
+      <div class="border border-slate-200 rounded-xl overflow-hidden bg-white">
+        <div class="bg-slate-50 px-4 py-2.5 border-b border-slate-200 flex items-center justify-between"><span class="text-[12px] font-bold text-slate-700 flex items-center gap-1.5"><i data-lucide="plus-circle" class="w-4 h-4 text-blue-600"></i> Cargos</span><span class="text-[11px] text-slate-500">se suman al costo · prorrateo configurable</span></div>
+        <div class="divide-y divide-slate-100">
+          <div class="px-4 py-2.5 flex items-center gap-3 text-[12px]">
+            <div class="flex-1"><div class="font-medium text-slate-800">Shipping internacional</div><div class="text-[10px] text-slate-400">prorrateo: por valor</div></div>
+            <div class="tabular-nums font-semibold text-slate-900">$95.00</div>
+            <button class="text-slate-400 hover:text-rose-600"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+          </div>
+          <div class="px-4 py-2.5 flex items-center gap-3 text-[12px]">
+            <div class="flex-1"><div class="font-medium text-slate-800">Handling fee</div><div class="text-[10px] text-slate-400">prorrateo: por cantidad</div></div>
+            <div class="tabular-nums font-semibold text-slate-900">$25.00</div>
+            <button class="text-slate-400 hover:text-rose-600"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+          </div>
+        </div>
+        <button class="w-full border-t border-dashed border-slate-300 py-2.5 text-[12px] text-slate-500 hover:bg-blue-50 hover:text-blue-700 flex items-center justify-center gap-2"><i data-lucide="plus" class="w-3.5 h-3.5"></i> Agregar cargo</button>
+      </div>
+
+      <!-- Descuentos + Impuestos (compactos) -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="border border-slate-200 rounded-xl overflow-hidden bg-white">
+          <div class="bg-slate-50 px-4 py-2.5 border-b border-slate-200"><span class="text-[12px] font-bold text-slate-700 flex items-center gap-1.5"><i data-lucide="minus-circle" class="w-4 h-4 text-emerald-600"></i> Descuentos</span></div>
+          <div class="px-4 py-2.5 flex items-center gap-3 text-[12px]"><div class="flex-1 font-medium text-slate-800">Subscribe &amp; Save</div><div class="tabular-nums font-semibold text-emerald-700">−$56.00</div></div>
+          <button class="w-full border-t border-dashed border-slate-300 py-2.5 text-[12px] text-slate-500 hover:bg-emerald-50 hover:text-emerald-700 flex items-center justify-center gap-2"><i data-lucide="plus" class="w-3.5 h-3.5"></i> Agregar descuento</button>
+        </div>
+        <div class="border border-slate-200 rounded-xl overflow-hidden bg-white">
+          <div class="bg-slate-50 px-4 py-2.5 border-b border-slate-200"><span class="text-[12px] font-bold text-slate-700 flex items-center gap-1.5"><i data-lucide="receipt" class="w-4 h-4 text-slate-500"></i> Impuestos</span></div>
+          <div class="px-4 py-2.5 flex items-center gap-3 text-[12px]"><div class="flex-1"><div class="font-medium text-slate-800">Sales Tax CA</div><div class="text-[10px] text-slate-400">8.5% · porcentaje</div></div><div class="tabular-nums font-semibold text-slate-900">$95.20</div></div>
+          <button class="w-full border-t border-dashed border-slate-300 py-2.5 text-[12px] text-slate-500 hover:bg-slate-100 flex items-center justify-center gap-2"><i data-lucide="plus" class="w-3.5 h-3.5"></i> Agregar impuesto</button>
+        </div>
+      </div>
+
+      <!-- Card de TOTALES · MONOCROMÁTICA (blue del módulo · no gradient bi-color) -->
+      <div class="bg-blue-50 border border-blue-200 rounded-2xl p-4">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-blue-700 mb-3 acto-sep">Totales de la orden</div>
+        <div class="space-y-1.5 text-[13px]">
+          <div class="flex items-center justify-between"><span class="text-blue-700">Subtotal productos</span><span class="tabular-nums font-medium text-blue-900">$1,120.00</span></div>
+          <div class="flex items-center justify-between"><span class="text-blue-700">+ Cargos</span><span class="tabular-nums font-medium text-blue-900">$120.00</span></div>
+          <div class="flex items-center justify-between"><span class="text-blue-700">− Descuentos</span><span class="tabular-nums font-medium text-blue-900">$56.00</span></div>
+          <div class="flex items-center justify-between"><span class="text-blue-700">+ Impuestos</span><span class="tabular-nums font-medium text-blue-900">$95.20</span></div>
+          <div class="flex items-center justify-between pt-2 border-t border-blue-200 mt-1.5"><span class="text-[15px] font-bold text-blue-900">Total USD</span><span class="text-xl font-bold text-blue-900 tabular-nums">$1,279.20</span></div>
+        </div>
+        <div class="text-[10px] text-blue-700 mt-2 flex items-center gap-1"><i data-lucide="check-circle" class="w-3 h-3"></i> Card monocromática (todo en la escala blue del módulo) · canon tipografía G: el delta hereda el color de la card, no se pinta verde/rojo por dirección.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 6 · PASO INTELIGENCIA · CORAZÓN DEL LENTE 2 -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section id="acto6" class="space-y-4">
+  <div class="flex items-center gap-3">
+    <span class="w-8 h-8 rounded-lg bg-emerald-600 text-white text-[13px] font-bold flex items-center justify-center flex-shrink-0">6</span>
+    <div>
+      <div class="text-[17px] font-bold text-slate-900">Paso Inteligencia · el corazón del Lente 2</div>
+      <div class="text-[12px] text-slate-500">KPIs en cards N2 (gradient sutil + ring) · veredicto ACCIONABLE arriba · tabla por producto · banner de <b>skip explícito con consecuencia</b>. Margen / CTRU = costo LANDED (vivo). Precio vs histórico = crudo.</div>
+    </div>
+  </div>
+
+  <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden frame">
+    <div class="bg-slate-50/30 p-4 sm:p-6 space-y-4">
+
+      <!-- VEREDICTO ACCIONABLE arriba -->
+      <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-start gap-3">
+        <div class="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0"><i data-lucide="alert-triangle" class="w-5 h-5 text-amber-600"></i></div>
+        <div class="flex-1">
+          <div class="text-[14px] font-bold text-amber-900">Revisá 1 producto caro antes de comprar</div>
+          <div class="text-[12px] text-amber-800 mt-0.5">"Low pH Good Morning Gel" está +9% sobre tu histórico (<code class="bg-white/60 px-1 rounded">veredicto='caro'</code>). El resto está OK. Score global de la orden: <b>72 · Bueno · comprar</b>.</div>
+        </div>
+        <button class="px-3 py-2 bg-amber-600 text-white rounded-lg text-[12px] font-semibold hover:bg-amber-700 flex-shrink-0 hidden sm:block">Ver caro</button>
+      </div>
+
+      <!-- KPIs N2 · 4 cards gradient sutil + ring -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <!-- Score viabilidad -->
+        <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">Score viabilidad</span><i data-lucide="gauge" class="w-3.5 h-3.5 text-emerald-700"></i></div>
+          <div class="text-2xl font-bold tabular-nums text-emerald-900">72</div>
+          <div class="text-[11px] text-emerald-700 mt-1">Bueno · comprar</div>
+        </div>
+        <!-- Precio vs histórico (CRUDO) -->
+        <div class="bg-gradient-to-br from-sky-50 to-sky-100/40 ring-1 ring-sky-200/50 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider text-sky-700 font-bold">Precio vs histórico</span><i data-lucide="trending-down" class="w-3.5 h-3.5 text-sky-700"></i></div>
+          <div class="text-2xl font-bold tabular-nums text-sky-900">−2.1<span class="text-sky-400">%</span></div>
+          <div class="text-[11px] text-sky-700 mt-1">$9.33 vs $9.53 prom · <b>crudo</b></div>
+        </div>
+        <!-- Margen proyectado (LANDED · vivo) -->
+        <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider text-amber-700 font-bold">Margen proyectado</span><i data-lucide="percent" class="w-3.5 h-3.5 text-amber-700"></i></div>
+          <div class="text-2xl font-bold tabular-nums text-amber-900">41<span class="text-amber-400">%</span></div>
+          <div class="text-[11px] text-amber-700 mt-1">S/ 34 → S/ 58 PVP · <b>landed</b></div>
+        </div>
+        <!-- CTRU estimado (LANDED) -->
+        <div class="bg-gradient-to-br from-indigo-50 to-indigo-100/40 ring-1 ring-indigo-200/50 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider text-indigo-700 font-bold">CTRU estimado</span><i data-lucide="layers" class="w-3.5 h-3.5 text-indigo-700"></i></div>
+          <div class="text-2xl font-bold tabular-nums text-indigo-900">S/ 34<span class="text-indigo-400">.20</span></div>
+          <div class="text-[11px] text-indigo-700 mt-1">incl. cargos prorrateados</div>
+        </div>
+      </div>
+
+      <!-- rótulo SEAM-A -->
+      <div class="text-[10px] text-slate-500 bg-slate-50 border border-slate-200 rounded-lg p-2.5 flex items-start gap-1.5">
+        <i data-lucide="git-merge" class="w-3.5 h-3.5 flex-shrink-0 mt-0.5 text-slate-400"></i>
+        <span><b>SEAM-A rotulado:</b> "Precio vs histórico" = <b>CRUDO-vs-CRUDO</b> (negociación · base unificada). "Margen" y "CTRU" usan el costo <b>LANDED</b> (con cargos prorrateados · costo real). Dos lentes distintos, no se mezclan.</span>
+      </div>
+
+      <!-- Tabla por producto -->
+      <div class="border border-slate-200 rounded-xl overflow-hidden bg-white">
+        <div class="bg-slate-50 px-4 py-2 border-b border-slate-200"><span class="text-xs font-semibold text-slate-700">Análisis por producto</span></div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead class="bg-slate-50 text-xs text-slate-500"><tr>
+              <th class="px-4 py-2 text-left font-medium">Producto</th>
+              <th class="px-4 py-2 text-right font-medium">Precio actual</th>
+              <th class="px-4 py-2 text-right font-medium">Prom. histórico</th>
+              <th class="px-4 py-2 text-right font-medium">Diferencia</th>
+              <th class="px-4 py-2 text-right font-medium">Margen esperado</th>
+            </tr></thead>
+            <tbody class="divide-y divide-slate-100">
+              <tr>
+                <td class="px-4 py-2"><div class="flex items-center gap-2"><i data-lucide="sparkles" class="w-4 h-4 text-pink-500"></i><span class="font-medium text-slate-800">Advanced Snail 96 Mucin</span></div></td>
+                <td class="px-4 py-2 text-right font-semibold text-slate-900 tabular-nums">$ 7.10</td>
+                <td class="px-4 py-2 text-right text-slate-600 tabular-nums">$ 7.80 <span class="text-[11px] text-slate-400">(6c)</span></td>
+                <td class="px-4 py-2 text-right tabular-nums text-emerald-700">−9%</td>
+                <td class="px-4 py-2 text-right font-semibold tabular-nums text-emerald-700">48%</td>
+              </tr>
+              <tr>
+                <td class="px-4 py-2"><div class="flex items-center gap-2"><i data-lucide="sparkles" class="w-4 h-4 text-pink-500"></i><span class="font-medium text-slate-800">Low pH Good Morning Gel</span></div></td>
+                <td class="px-4 py-2 text-right font-semibold text-slate-900 tabular-nums">$ 9.40</td>
+                <td class="px-4 py-2 text-right text-slate-600 tabular-nums">$ 8.60 <span class="text-[11px] text-slate-400">(4c)</span></td>
+                <td class="px-4 py-2 text-right tabular-nums text-amber-700">+9.3%</td>
+                <td class="px-4 py-2 text-right font-semibold tabular-nums text-amber-700">34%</td>
+              </tr>
+              <tr>
+                <td class="px-4 py-2"><div class="flex items-center gap-2"><i data-lucide="pill" class="w-4 h-4 text-teal-500"></i><span class="font-medium text-slate-800">Centella Calming Toner</span></div></td>
+                <td class="px-4 py-2 text-right text-slate-400 tabular-nums italic">—</td>
+                <td class="px-4 py-2 text-right text-slate-400 italic">—</td>
+                <td class="px-4 py-2 text-right text-slate-400 italic">primera vez</td>
+                <td class="px-4 py-2 text-right text-slate-400">—</td>
+              </tr>
+              <tr>
+                <td class="px-4 py-2"><div class="flex items-center gap-2"><i data-lucide="package" class="w-4 h-4 text-slate-400"></i><span class="font-medium text-slate-800">Sun Stick SPF50+</span></div></td>
+                <td class="px-4 py-2 text-right font-semibold text-slate-900 tabular-nums">$ 13.50</td>
+                <td class="px-4 py-2 text-right text-slate-400 italic">—</td>
+                <td class="px-4 py-2 text-right text-slate-400 italic">primera vez</td>
+                <td class="px-4 py-2 text-right font-semibold tabular-nums text-emerald-700">52%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- BANNER · skip explícito con consecuencia -->
+      <div class="bg-slate-100 border border-slate-200 rounded-2xl p-4 flex items-start gap-3">
+        <div class="w-10 h-10 rounded-xl bg-white flex items-center justify-center flex-shrink-0 border border-slate-200"><i data-lucide="skip-forward" class="w-5 h-5 text-slate-500"></i></div>
+        <div class="flex-1">
+          <div class="text-[13px] font-bold text-slate-800">Paso opcional · podés saltarlo</div>
+          <div class="text-[12px] text-slate-600 mt-0.5">Pero <b>el veredicto te sigue a Confirmar</b>: si saltás sin revisar, en la última pantalla aparece una franja con el resultado del precio (no comprás a ciegas). El skip queda <b>registrado</b> en la OC.</div>
+        </div>
+        <button class="px-3 py-2 bg-white border border-slate-300 text-slate-600 rounded-lg text-[12px] font-semibold hover:bg-slate-50 flex-shrink-0 inline-flex items-center gap-1.5"><i data-lucide="skip-forward" class="w-3.5 h-3.5"></i> Saltar paso</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 7 · PASO CONFIRMAR -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section id="acto7" class="space-y-4">
+  <div class="flex items-center gap-3">
+    <span class="w-8 h-8 rounded-lg bg-emerald-600 text-white text-[13px] font-bold flex items-center justify-center flex-shrink-0">7</span>
+    <div>
+      <div class="text-[17px] font-bold text-slate-900">Paso Confirmar · al DS</div>
+      <div class="text-[12px] text-slate-500">TC del día (read-only) · ruta visual SIN emojis · <b>FRANJA de veredicto de precio SIEMPRE VISIBLE</b> (la consecuencia del skip) · bloque "se congela el snapshot de expectativa al confirmar".</div>
+    </div>
+  </div>
+
+  <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden frame">
+    <div class="bg-slate-50/30 p-4 sm:p-6 space-y-4 max-w-3xl">
+
+      <!-- FRANJA de veredicto SIEMPRE visible (la consecuencia del skip) -->
+      <div class="bg-amber-50 border border-amber-300 rounded-2xl p-4">
+        <div class="flex items-center justify-between mb-2.5">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 acto-sep flex items-center gap-1.5"><i data-lucide="gauge" class="w-3.5 h-3.5"></i> Veredicto de precio · siempre visible</div>
+          <span class="badge bg-white text-amber-700 border border-amber-300"><i data-lucide="skip-forward" class="w-2.5 h-2.5"></i> Inteligencia: saltada</span>
+        </div>
+        <div class="flex flex-wrap items-center gap-2 text-[12px]">
+          <span class="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full px-2.5 py-1 font-bold"><i data-lucide="check-circle-2" class="w-3 h-3"></i> 2 excelentes/en rango</span>
+          <span class="inline-flex items-center gap-1 bg-amber-100 text-amber-800 border border-amber-300 rounded-full px-2.5 py-1 font-bold"><i data-lucide="alert-triangle" class="w-3 h-3"></i> 1 caro</span>
+          <span class="inline-flex items-center gap-1 bg-slate-100 text-slate-500 border border-slate-200 rounded-full px-2.5 py-1 font-bold"><i data-lucide="minus-circle" class="w-3 h-3"></i> 1 sin referencia</span>
+          <span class="text-amber-800 ml-1">Score global <b>72 · Bueno</b>. <a href="#acto6" class="underline font-semibold">Revisar inteligencia</a> antes de crear.</span>
+        </div>
+      </div>
+
+      <!-- Ruta · sin emojis (RouteVisual) -->
+      <div class="bg-white border border-slate-200 rounded-xl p-4">
+        <div class="flex items-center gap-2 mb-3"><i data-lucide="map-pin" class="w-4 h-4 text-slate-500"></i><span class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Ruta logística</span></div>
+        <div class="flex items-center gap-3 mb-3"><div class="text-sm font-semibold text-slate-800">COSRX Korea</div><span class="text-xs text-slate-400">Corea del Sur</span></div>
+        <!-- RouteVisual sin emojis -->
+        <div class="flex items-center gap-2">
+          <div class="flex flex-col items-center text-center">
+            <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center"><i data-lucide="building-2" class="w-5 h-5 text-blue-600"></i></div>
+            <div class="text-[11px] font-semibold text-slate-800 mt-1">Proveedor</div>
+          </div>
+          <div class="flex-1 flex flex-col items-center">
+            <div class="text-[9px] text-slate-400 uppercase tracking-wider mb-0.5">Proveedor envía</div>
+            <div class="w-full border-t-2 border-dashed border-slate-300"></div>
+          </div>
+          <div class="flex flex-col items-center text-center">
+            <div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center"><i data-lucide="warehouse" class="w-5 h-5 text-slate-500"></i></div>
+            <div class="text-[11px] font-semibold text-slate-800 mt-1">Casilla Seúl</div>
+            <div class="text-[9px] text-slate-400">KR-204</div>
+          </div>
+        </div>
+        <div class="text-[10px] text-slate-400 mt-2.5 flex items-center gap-1"><i data-lucide="info" class="w-3 h-3"></i> El tramo casilla → Perú se decide después en Envíos (no es parte de esta OC).</div>
+      </div>
+
+      <!-- TC del día read-only -->
+      <div class="bg-white border border-slate-200 rounded-xl p-4">
+        <div class="text-xs font-medium text-slate-700 mb-1.5">TC de referencia (USD → PEN)</div>
+        <div class="flex items-center gap-3 py-2 px-3 bg-slate-50 border border-slate-200 rounded-lg">
+          <span class="text-lg font-bold text-slate-900 tabular-nums">3.7520</span>
+          <span class="text-xs text-slate-500">PEN por USD</span>
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 text-[10px] font-semibold border border-blue-200"><i data-lucide="sparkles" class="w-3 h-3"></i> SUNAT · del día</span>
+        </div>
+        <div class="text-[10px] text-slate-400 mt-1.5">Solo lectura · se resuelve del sistema (misma fuente que toda la contabilidad).</div>
+      </div>
+
+      <!-- BLOQUE SNAPSHOT (dato NUEVO) -->
+      <div class="bg-gradient-to-br from-rose-50 to-rose-100/30 border border-rose-200 rounded-2xl p-4">
+        <div class="flex items-center justify-between mb-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 acto-sep flex items-center gap-1.5"><i data-lucide="snowflake" class="w-3.5 h-3.5"></i> Se congela el snapshot de expectativa</div>
+          <span class="badge bg-rose-100 text-rose-700 border border-rose-300"><i data-lucide="sparkles" class="w-2.5 h-2.5"></i> Dato NUEVO</span>
+        </div>
+        <p class="text-[12px] text-rose-800 mb-3">Al confirmar, por cada producto se congela su <b>expectativa</b>. Después permite "¿la compra acertó?" (esperado vs real · reusa <code class="bg-white/60 px-1 rounded">calcularAciertoInversion</code> · el snapshot lo vuelve honesto).</p>
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 text-[11px]">
+          <div class="bg-white border border-rose-100 rounded-lg p-2.5"><div class="text-[9px] uppercase tracking-wider text-rose-500 font-bold mb-0.5">PVP esperado</div><div class="font-bold text-slate-900 tabular-nums">S/ 58</div></div>
+          <div class="bg-white border border-rose-100 rounded-lg p-2.5"><div class="text-[9px] uppercase tracking-wider text-rose-500 font-bold mb-0.5">Margen proy.</div><div class="font-bold text-slate-900 tabular-nums">41%</div></div>
+          <div class="bg-white border border-rose-100 rounded-lg p-2.5"><div class="text-[9px] uppercase tracking-wider text-rose-500 font-bold mb-0.5">CTRU estimado</div><div class="font-bold text-slate-900 tabular-nums">S/ 34.20</div></div>
+          <div class="bg-white border border-rose-100 rounded-lg p-2.5"><div class="text-[9px] uppercase tracking-wider text-rose-500 font-bold mb-0.5">Score viab.</div><div class="font-bold text-slate-900 tabular-nums">72</div></div>
+          <div class="bg-white border border-rose-100 rounded-lg p-2.5"><div class="text-[9px] uppercase tracking-wider text-rose-500 font-bold mb-0.5">Precio vs hist.</div><div class="font-bold text-slate-900 tabular-nums">−2.1%</div></div>
+        </div>
+        <div class="text-[10px] text-rose-600 mt-2.5 flex items-center gap-1"><i data-lucide="lock" class="w-3 h-3"></i> Shape del snapshot: <code class="bg-white/60 px-1 rounded">{precioVentaEsperado, margenProyectado, ctruEstimado, scoreViabilidad, precioVsHistoricoPct}</code> por producto. Se decide junto con Fase 2 (detalle de OC).</div>
+      </div>
+
+      <!-- confirmación final -->
+      <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-3 flex items-center gap-2">
+        <i data-lucide="check-circle" class="w-4 h-4 text-emerald-600 flex-shrink-0"></i>
+        <span class="text-sm text-emerald-900">Todos los datos están listos. Al hacer <strong>Crear Orden</strong> se confirma la OC y se congela el snapshot.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 8 · VÍA 2 · OCBUILDER AL DS -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section id="acto8" class="space-y-4">
+  <div class="flex items-center gap-3">
+    <span class="w-8 h-8 rounded-lg bg-blue-600 text-white text-[13px] font-bold flex items-center justify-center flex-shrink-0">8</span>
+    <div>
+      <div class="text-[17px] font-bold text-slate-900">Vía 2 · OCBuilder ("Generar compra") reworkeado al DS</div>
+      <div class="text-[12px] text-slate-500">Shell <code class="bg-slate-100 px-1 rounded">common/Modal+Stepper</code> → <code class="bg-slate-100 px-1 rounded">WizardShell</code> · consolidación de reqs preservada (<code>buildPool</code>/<code>distributeOrigenes</code>) · Lente 2 montado (MISMO helper) · canon de borrador · <b>cierre del seam de ruta</b>.</div>
+    </div>
+  </div>
+
+  <!-- callout: lo que se rework -->
+  <div class="bg-white border border-rose-200 rounded-2xl p-4">
+    <div class="flex items-center gap-2 mb-3"><i data-lucide="wrench" class="w-4 h-4 text-rose-600"></i><span class="text-[12px] font-bold text-rose-900">Lo que el OCBuilder arrastra hoy (legacy) → cómo queda</span></div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 text-[11px]">
+      <div class="bg-rose-50/60 border border-rose-100 rounded-xl p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Shell pre-DS</div><p class="text-slate-600"><code class="bg-white border border-slate-200 px-1 rounded">common/Modal + Stepper</code> → <b class="text-slate-800">WizardShell blue</b> (mismo lenguaje que la Vía 1).</p></div>
+      <div class="bg-rose-50/60 border border-rose-100 rounded-xl p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">0 inteligencia de precio</div><p class="text-slate-600">Hoy editás precios <b>a ciegas</b>. → se monta el <b class="text-slate-800">MISMO chip semáforo</b> + veredicto por grupo.</p></div>
+      <div class="bg-rose-50/60 border border-rose-100 rounded-xl p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Borrador crudo</div><p class="text-slate-600"><code class="bg-white border border-slate-200 px-1 rounded">localStorage</code> a mano → <b class="text-slate-800">canon Borrador+Descartar</b> (mismo banner amber).</p></div>
+      <div class="bg-rose-50/60 border border-rose-100 rounded-xl p-3"><div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">SEAM · ruta dropeada</div><p class="text-slate-600"><code class="bg-white border border-slate-200 px-1 rounded">groupToFormData</code> guarda una entrega POBRE (modoEntrega/flete sí, pero sin casilla/DDP · recojo · deudor). → captura la <b class="text-slate-800">config de ruta</b> completa.</p></div>
+    </div>
+  </div>
+
+  <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden frame">
+    <!-- breadcrumb -->
+    <nav class="border-b border-slate-200 px-4 sm:px-6 py-2 bg-slate-50/50 flex items-center gap-1.5 text-[11px] text-slate-500">
+      <span>Inicio</span><i data-lucide="chevron-right" class="w-3 h-3"></i><span>Requerimientos</span><i data-lucide="chevron-right" class="w-3 h-3"></i><span class="text-slate-900 font-medium">Generar compra</span>
+    </nav>
+    <!-- header -->
+    <div class="px-4 sm:px-6 py-4 border-b border-slate-200 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0"><i data-lucide="layers-3" class="w-5 h-5 text-blue-600"></i></div>
+        <div><div class="text-lg font-bold text-slate-900 tracking-tight">Generar compra</div><div class="text-[13px] text-slate-500">3 requerimientos · 7 productos · 2 grupos de OC</div></div>
+      </div>
+      <button class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg"><i data-lucide="x" class="w-5 h-5"></i></button>
+    </div>
+
+    <!-- stepper -->
+    <div class="px-4 sm:px-6 py-3 border-b border-slate-200 bg-slate-50/50">
+      <div class="flex items-center gap-1 overflow-x-auto scrollbar-none pb-1">
+        <div class="flex items-center gap-1.5 flex-shrink-0"><div class="w-7 h-7 rounded-full bg-blue-600 text-white text-[11px] font-bold flex items-center justify-center"><i data-lucide="check" class="w-3.5 h-3.5"></i></div><span class="text-[12px] font-semibold text-slate-700">Agrupar productos</span></div>
+        <div class="w-6 h-px bg-blue-300 flex-shrink-0"></div>
+        <div class="flex items-center gap-1.5 flex-shrink-0"><div class="w-7 h-7 rounded-full bg-blue-600 text-white text-[11px] font-bold flex items-center justify-center ring-2 ring-blue-200">2</div><span class="text-[12px] font-bold text-blue-700">Configurar OCs</span></div>
+        <div class="w-6 h-px bg-slate-200 flex-shrink-0"></div>
+        <div class="flex items-center gap-1.5 flex-shrink-0"><div class="w-7 h-7 rounded-full bg-slate-100 text-slate-400 text-[11px] font-bold flex items-center justify-center">3</div><span class="text-[12px] text-slate-400">Revisar y crear</span></div>
+      </div>
+    </div>
+
+    <!-- body: paso Configurar OCs con Lente 2 + ruta -->
+    <div class="p-4 sm:p-6 bg-slate-50/30 space-y-4">
+      <div class="flex items-center justify-between">
+        <div><h3 class="text-base font-semibold text-slate-900">Configurar cada OC</h3><p class="text-xs text-slate-500 mt-0.5">Proveedor, ruta, precios y cargos por grupo. El semáforo de precio aplica el MISMO motor que la Vía 1.</p></div>
+        <div class="flex gap-1.5 text-[11px]">
+          <span class="px-2 py-1 rounded-lg bg-blue-100 text-blue-700 font-semibold border border-blue-200">Grupo A · COSRX</span>
+          <span class="px-2 py-1 rounded-lg bg-white text-slate-500 border border-slate-200">Grupo B · Beauty of Joseon</span>
+        </div>
+      </div>
+
+      <!-- Grupo A · config -->
+      <div class="bg-white border border-blue-200 rounded-2xl overflow-hidden">
+        <div class="bg-gradient-to-r from-blue-50 to-blue-100/40 px-4 py-2.5 border-b border-blue-100 flex items-center justify-between">
+          <span class="text-[13px] font-bold text-blue-900 flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-blue-500"></span> Grupo A · COSRX Korea</span>
+          <span class="text-[11px] text-blue-700">4 productos · 90 uds</span>
+        </div>
+        <div class="p-4 space-y-4">
+          <!-- proveedor + ruta (SEAM cerrado) -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1 block">Proveedor · SmartSearch</label>
+              <div class="px-3 py-2 border border-slate-300 rounded-lg bg-white text-sm font-medium text-slate-800 flex items-center justify-between">COSRX Korea <i data-lucide="building-2" class="w-3.5 h-3.5 text-slate-400"></i></div>
+            </div>
+            <div>
+              <label class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1 block flex items-center gap-1"><i data-lucide="route" class="w-3 h-3"></i> Config de ruta <span class="badge bg-emerald-100 text-emerald-700 border border-emerald-300">SEAM cerrado</span></label>
+              <div class="px-3 py-2 border border-emerald-300 rounded-lg bg-emerald-50/40 text-sm font-medium text-slate-800 flex items-center justify-between">Vía casilla · Seúl · proveedor envía <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i></div>
+            </div>
+          </div>
+          <div class="text-[10px] text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg p-2 flex items-start gap-1.5"><i data-lucide="check-circle" class="w-3 h-3 flex-shrink-0 mt-0.5"></i><span><b>Cierre del seam:</b> antes <code>groupToFormData</code> guardaba una entrega más POBRE que StepRuta (modoEntrega/flete sí, pero perdía casilla/DDP, recojo-en-origen y deudor). Ahora el grupo captura la misma config de ruta que StepRuta de la Vía 1.</span></div>
+
+          <!-- productos del grupo con semáforo (mismo chip) -->
+          <div class="border border-slate-200 rounded-xl overflow-hidden">
+            <div class="bg-slate-50 px-4 py-2 border-b border-slate-200 flex items-center justify-between"><span class="text-xs font-semibold text-slate-700">Precios del grupo · semáforo Lente 2</span><span class="text-[11px] text-slate-500">orígenes preservados (de qué req/cliente viene)</span></div>
+            <div class="divide-y divide-slate-100 text-[12px]">
+              <!-- prod excelente -->
+              <div class="px-4 py-2.5 flex items-center gap-3 flex-wrap">
+                <div class="w-8 h-8 rounded-lg bg-pink-50 text-pink-600 flex items-center justify-center flex-shrink-0"><i data-lucide="sparkles" class="w-4 h-4"></i></div>
+                <div class="flex-1 min-w-0"><div class="font-medium text-slate-800 truncate">Advanced Snail 96 Mucin</div><div class="text-[10px] text-slate-400">REQ-0412 · REQ-0418 · 40 uds</div></div>
+                <div class="relative w-20"><span class="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-slate-400">$</span><div class="pl-5 pr-1 py-1 text-right text-sm font-semibold border border-emerald-300 bg-emerald-50/40 rounded tabular-nums">7.10</div></div>
+                <span class="inline-flex items-center gap-1 text-emerald-700 font-bold bg-emerald-50 border border-emerald-200 rounded-full px-2 py-0.5"><i data-lucide="check-circle-2" class="w-3 h-3"></i> Excelente · −9% vs hist.</span>
+              </div>
+              <!-- prod caro -->
+              <div class="px-4 py-2.5 flex items-center gap-3 flex-wrap">
+                <div class="w-8 h-8 rounded-lg bg-pink-50 text-pink-600 flex items-center justify-center flex-shrink-0"><i data-lucide="sparkles" class="w-4 h-4"></i></div>
+                <div class="flex-1 min-w-0"><div class="font-medium text-slate-800 truncate">Low pH Good Morning Gel</div><div class="text-[10px] text-slate-400">REQ-0412 · 30 uds</div></div>
+                <div class="relative w-20"><span class="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-slate-400">$</span><div class="pl-5 pr-1 py-1 text-right text-sm font-semibold border border-amber-300 bg-amber-50/40 rounded tabular-nums">9.40</div></div>
+                <span class="inline-flex items-center gap-1 text-amber-700 font-bold bg-amber-50 border border-amber-200 rounded-full px-2 py-0.5"><i data-lucide="alert-triangle" class="w-3 h-3"></i> Caro · +9% vs hist.</span>
+              </div>
+              <!-- prod sin ref -->
+              <div class="px-4 py-2.5 flex items-center gap-3 flex-wrap">
+                <div class="w-8 h-8 rounded-lg bg-slate-100 text-slate-500 flex items-center justify-center flex-shrink-0"><i data-lucide="package" class="w-4 h-4"></i></div>
+                <div class="flex-1 min-w-0"><div class="font-medium text-slate-800 truncate">Sun Stick SPF50+</div><div class="text-[10px] text-slate-400">REQ-0418 · 20 uds</div></div>
+                <div class="relative w-20"><span class="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-slate-400">$</span><div class="pl-5 pr-1 py-1 text-right text-sm font-semibold border border-slate-200 rounded tabular-nums">13.50</div></div>
+                <span class="inline-flex items-center gap-1 text-slate-500 bg-slate-100 border border-slate-200 rounded-full px-2 py-0.5"><i data-lucide="minus-circle" class="w-3 h-3"></i> Sin referencia</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- cargos del grupo (DynamicChargesSection) -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px]">
+            <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5"><div class="text-[9px] uppercase tracking-wider text-slate-400 font-bold">Envío prov.</div><div class="font-semibold text-slate-800 tabular-nums">$80.00</div></div>
+            <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5"><div class="text-[9px] uppercase tracking-wider text-slate-400 font-bold">Otros gastos</div><div class="font-semibold text-slate-800 tabular-nums">$15.00</div></div>
+            <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5"><div class="text-[9px] uppercase tracking-wider text-slate-400 font-bold">Tax 8.5%</div><div class="font-semibold text-slate-800 tabular-nums">$58.40</div></div>
+            <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5"><div class="text-[9px] uppercase tracking-wider text-slate-400 font-bold">Descuento</div><div class="font-semibold text-emerald-700 tabular-nums">−$40.00</div></div>
+          </div>
+          <div class="text-[10px] text-slate-400 flex items-center gap-1"><i data-lucide="info" class="w-3 h-3"></i> Los cargos del grupo viajan en arrays v2 (<code>cargosOC</code>/<code>impuestosOC</code>/<code>descuentosOC</code>) · ya lo hace <code>groupToFormData</code> (se preserva).</div>
+        </div>
+      </div>
+
+      <!-- veredicto por grupo (Lente 2 agregado) -->
+      <div class="bg-white border border-slate-200 rounded-2xl p-4 flex items-start gap-3">
+        <div class="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center flex-shrink-0"><i data-lucide="brain-circuit" class="w-5 h-5 text-emerald-600"></i></div>
+        <div class="flex-1">
+          <div class="text-[13px] font-bold text-slate-800">Veredicto del grupo A · Score 70 · Bueno · comprar</div>
+          <div class="text-[12px] text-slate-600 mt-0.5">3 de 4 productos OK · 1 caro a revisar · 1 sin referencia (primera compra). El veredicto por grupo se calcula con el MISMO <code class="bg-slate-100 px-1 rounded">analizarPrecio()</code> que la Vía 1.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- footer -->
+    <div class="px-4 sm:px-6 py-3 border-t border-slate-200 bg-white flex items-center justify-between gap-3">
+      <button class="inline-flex items-center gap-1.5 px-3 py-2 text-[13px] text-slate-600 hover:text-slate-900"><i data-lucide="x" class="w-4 h-4"></i> Cancelar</button>
+      <div class="flex items-center gap-2">
+        <button class="inline-flex items-center gap-1.5 px-4 py-2 bg-white border border-slate-200 text-slate-600 rounded-lg text-[13px] font-semibold hover:bg-slate-50"><i data-lucide="chevron-left" class="w-4 h-4"></i> Anterior</button>
+        <button class="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white rounded-lg text-[13px] font-semibold hover:bg-blue-700">Siguiente <i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 9 · LENTE 2 EN DETALLE -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section id="acto9" class="space-y-4">
+  <div class="flex items-center gap-3">
+    <span class="w-8 h-8 rounded-lg bg-emerald-600 text-white text-[13px] font-bold flex items-center justify-center flex-shrink-0">9</span>
+    <div>
+      <div class="text-[17px] font-bold text-slate-900">Lente 2 en detalle · qué sale del helper y cómo se rotula</div>
+      <div class="text-[12px] text-slate-500">El semáforo (crudo-vs-crudo) vs el margen (landed) rotulados distinto · la cobertura honesta ("sin referencia" / "—") · el snapshot → "¿la compra acertó?".</div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <!-- SEAM-A · crudo vs landed -->
+    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden frame">
+      <div class="px-4 py-3 border-b border-slate-200 bg-slate-50/50"><div class="text-[13px] font-bold text-slate-800 flex items-center gap-2"><i data-lucide="git-merge" class="w-4 h-4 text-slate-500"></i> SEAM-A · dos lentes, dos bases</div></div>
+      <div class="p-4 space-y-3">
+        <div class="bg-sky-50 border border-sky-200 rounded-xl p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-sky-700 mb-1">Semáforo · CRUDO vs CRUDO</div>
+          <p class="text-[12px] text-slate-600">Compara lo que <b>negociás</b> (costo crudo USD) contra tu <b>base unificada</b> = promedio histórico crudo. <code class="bg-slate-100 px-1 rounded">deltaPct = (costo − base) / base × 100</code>. Responde: <b>¿estoy negociando bien?</b></p>
+        </div>
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-3">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Margen / CTRU · LANDED</div>
+          <p class="text-[12px] text-slate-600">Usa el costo <b>aterrizado</b> = <code class="bg-slate-100 px-1 rounded">(costo + cargos prorrateados) × tc</code>. Margen vs PVP efectivo. Responde: <b>¿esto deja plata al venderlo?</b></p>
+        </div>
+        <div class="text-[10px] text-slate-400 flex items-start gap-1.5"><i data-lucide="alert-circle" class="w-3 h-3 flex-shrink-0 mt-0.5"></i><span>Nunca se mezclan: el delta del semáforo NO incluye cargos (es negociación pura) · el margen SÍ (es costo real). Por eso se rotulan distinto en toda la UI.</span></div>
+      </div>
+    </div>
+
+    <!-- Cobertura honesta -->
+    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden frame">
+      <div class="px-4 py-3 border-b border-slate-200 bg-slate-50/50"><div class="text-[13px] font-bold text-slate-800 flex items-center gap-2"><i data-lucide="shield-check" class="w-4 h-4 text-slate-500"></i> Cobertura honesta · qué muestra cuando NO hay dato</div></div>
+      <div class="p-4 space-y-2.5 text-[12px]">
+        <div class="flex items-start gap-2"><span class="badge bg-emerald-50 text-emerald-700 border border-emerald-200 flex-shrink-0 mt-0.5">historico</span><div class="text-slate-600">hay promedio propio → <b>"vs tu histórico"</b> + deltaPct real.</div></div>
+        <div class="flex items-start gap-2"><span class="badge bg-sky-50 text-sky-700 border border-sky-200 flex-shrink-0 mt-0.5">mercado</span><div class="text-slate-600">no hay histórico pero sí mejor proveedor investigado → <b>"vs mercado"</b> + deltaPct.</div></div>
+        <div class="flex items-start gap-2"><span class="badge bg-slate-100 text-slate-500 border border-slate-200 flex-shrink-0 mt-0.5">ninguna</span><div class="text-slate-600">no hay base → <b>"Sin referencia"</b> · deltaPct = <code class="bg-slate-100 px-1 rounded">null</code> · veredicto = <code class="bg-slate-100 px-1 rounded">sin_referencia</code> · se muestra <b>"—"</b>, no un número inventado.</div></div>
+        <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-[11px] text-slate-500 mt-1">El score también re-normaliza por los factores con datos: si falta margen o histórico, no se penaliza por lo ausente — y si no hay nada, score = 0 → <b>"Sin datos suficientes"</b>.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ¿la compra acertó? -->
+  <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden frame">
+    <div class="px-4 py-3 border-b border-slate-200 bg-slate-50/50 flex items-center justify-between">
+      <div class="text-[13px] font-bold text-slate-800 flex items-center gap-2"><i data-lucide="target" class="w-4 h-4 text-emerald-600"></i> El snapshot habilita "¿la compra acertó?"</div>
+      <span class="badge bg-rose-100 text-rose-700 border border-rose-300"><i data-lucide="sparkles" class="w-2.5 h-2.5"></i> habilitado por el dato NUEVO</span>
+    </div>
+    <div class="p-4">
+      <p class="text-[12px] text-slate-600 mb-3">Después de vender, se compara el <b>snapshot congelado</b> (esperado al comprar) contra el <b>real</b> (ventas con costo). Reusa <code class="bg-slate-100 px-1 rounded">calcularAciertoInversion</code> — que ya existe pero hoy compara contra valores que cambian; el snapshot lo vuelve honesto.</p>
+      <div class="overflow-x-auto">
+        <table class="w-full text-[12px]">
+          <thead class="bg-slate-50 text-[11px] text-slate-500"><tr>
+            <th class="px-3 py-2 text-left font-medium">Métrica</th>
+            <th class="px-3 py-2 text-right font-medium">Esperado (snapshot)</th>
+            <th class="px-3 py-2 text-right font-medium">Real (a hoy)</th>
+            <th class="px-3 py-2 text-right font-medium">Acierto</th>
+          </tr></thead>
+          <tbody class="divide-y divide-slate-100">
+            <tr><td class="px-3 py-2 text-slate-700">Margen</td><td class="px-3 py-2 text-right tabular-nums text-slate-600">41%</td><td class="px-3 py-2 text-right tabular-nums font-semibold text-slate-900">44%</td><td class="px-3 py-2 text-right"><span class="inline-flex items-center gap-1 text-emerald-700 font-bold"><i data-lucide="trending-up" class="w-3 h-3"></i> +3 pp</span></td></tr>
+            <tr><td class="px-3 py-2 text-slate-700">PVP</td><td class="px-3 py-2 text-right tabular-nums text-slate-600">S/ 58</td><td class="px-3 py-2 text-right tabular-nums font-semibold text-slate-900">S/ 60</td><td class="px-3 py-2 text-right"><span class="inline-flex items-center gap-1 text-emerald-700 font-bold"><i data-lucide="trending-up" class="w-3 h-3"></i> mejor</span></td></tr>
+            <tr><td class="px-3 py-2 text-slate-700">CTRU</td><td class="px-3 py-2 text-right tabular-nums text-slate-600">S/ 34.20</td><td class="px-3 py-2 text-right tabular-nums font-semibold text-slate-900">S/ 35.10</td><td class="px-3 py-2 text-right"><span class="inline-flex items-center gap-1 text-amber-700 font-bold"><i data-lucide="trending-up" class="w-3 h-3"></i> +S/ 0.90</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 10 · ESTADOS -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section id="acto10" class="space-y-4">
+  <div class="flex items-center gap-3">
+    <span class="w-8 h-8 rounded-lg bg-blue-600 text-white text-[13px] font-bold flex items-center justify-center flex-shrink-0">10</span>
+    <div>
+      <div class="text-[17px] font-bold text-slate-900">Estados · empty · loading · error</div>
+      <div class="text-[12px] text-slate-500">Empty (sin productos · sin historial → semáforo "sin referencia") · loading skeletons · error con retry.</div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <!-- EMPTY -->
+    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden frame">
+      <div class="px-4 py-2.5 border-b border-slate-200 bg-slate-50/50 text-[11px] font-bold uppercase tracking-wider text-slate-500 acto-sep">Empty · sin productos</div>
+      <div class="p-6 text-center">
+        <div class="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-3"><i data-lucide="package" class="w-6 h-6 text-slate-300"></i></div>
+        <div class="text-sm font-semibold text-slate-700 mb-1">Sin productos agregados</div>
+        <div class="text-xs text-slate-500 mb-3">Usa el buscador o el escáner para agregar productos.</div>
+        <div class="grid grid-cols-2 gap-2 text-left">
+          <button class="bg-white border border-slate-200 rounded-lg p-2.5 hover:border-blue-300 hover:bg-blue-50/30"><i data-lucide="search" class="w-4 h-4 text-blue-600 mb-1"></i><div class="text-[11px] font-bold text-slate-900">Buscar SKU</div></button>
+          <button class="bg-white border border-slate-200 rounded-lg p-2.5 hover:border-sky-300 hover:bg-sky-50/30"><i data-lucide="scan-line" class="w-4 h-4 text-sky-600 mb-1"></i><div class="text-[11px] font-bold text-slate-900">Escanear</div></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOADING -->
+    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden frame">
+      <div class="px-4 py-2.5 border-b border-slate-200 bg-slate-50/50 text-[11px] font-bold uppercase tracking-wider text-slate-500 acto-sep">Loading · skeletons</div>
+      <div class="p-4 space-y-3">
+        <div class="grid grid-cols-2 gap-3">
+          <div class="rounded-2xl p-4 ring-1 ring-slate-100"><div class="skeleton h-2.5 w-16 mb-3"></div><div class="skeleton h-6 w-12 mb-2"></div><div class="skeleton h-2 w-20"></div></div>
+          <div class="rounded-2xl p-4 ring-1 ring-slate-100"><div class="skeleton h-2.5 w-16 mb-3"></div><div class="skeleton h-6 w-12 mb-2"></div><div class="skeleton h-2 w-20"></div></div>
+        </div>
+        <div class="border border-slate-100 rounded-xl p-3 space-y-2.5">
+          <div class="flex items-center gap-3"><div class="skeleton w-8 h-8 rounded-lg"></div><div class="flex-1 space-y-1.5"><div class="skeleton h-2.5 w-32"></div><div class="skeleton h-2 w-20"></div></div><div class="skeleton h-4 w-12"></div></div>
+          <div class="flex items-center gap-3"><div class="skeleton w-8 h-8 rounded-lg"></div><div class="flex-1 space-y-1.5"><div class="skeleton h-2.5 w-28"></div><div class="skeleton h-2 w-16"></div></div><div class="skeleton h-4 w-12"></div></div>
+        </div>
+        <div class="text-[10px] text-slate-400 flex items-center gap-1"><i data-lucide="loader" class="w-3 h-3"></i> Score muestra "—" mientras carga el histórico (no 0 falso).</div>
+      </div>
+    </div>
+
+    <!-- ERROR -->
+    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden frame">
+      <div class="px-4 py-2.5 border-b border-slate-200 bg-slate-50/50 text-[11px] font-bold uppercase tracking-wider text-slate-500 acto-sep">Error · con retry</div>
+      <div class="p-6 text-center">
+        <div class="w-12 h-12 rounded-2xl bg-rose-50 flex items-center justify-center mx-auto mb-3"><i data-lucide="wifi-off" class="w-6 h-6 text-rose-500"></i></div>
+        <div class="text-sm font-semibold text-slate-700 mb-1">No se pudo cargar el histórico de precios</div>
+        <div class="text-xs text-slate-500 mb-3">El semáforo cae a "sin referencia" hasta reintentar. Podés seguir creando la OC igual.</div>
+        <button class="inline-flex items-center gap-1.5 px-4 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg text-[12px] font-semibold hover:bg-slate-50"><i data-lucide="rotate-cw" class="w-3.5 h-3.5"></i> Reintentar</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 11 · MOBILE · WIZARD + RUTA -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section id="acto11" class="space-y-4">
+  <div class="flex items-center gap-3">
+    <span class="w-8 h-8 rounded-lg bg-violet-600 text-white text-[13px] font-bold flex items-center justify-center flex-shrink-0">11</span>
+    <div>
+      <div class="text-[17px] font-bold text-slate-900">Mobile 375px · wizard shell + paso Ruta</div>
+      <div class="text-[12px] text-slate-500">Steps en scroll-x (canon N6) · preview colapsa a barra-resumen sticky · cards de ruta apiladas 1-col · touch ≥44px.</div>
+    </div>
+  </div>
+
+  <div class="flex flex-wrap gap-6 justify-center">
+    <!-- mobile shell -->
+    <div class="phone bg-white border border-slate-200 rounded-2xl overflow-hidden modal-sh">
+      <!-- banner borrador compacto -->
+      <div class="bg-amber-50 border-b border-amber-200 px-3 py-2.5 flex items-center gap-2">
+        <i data-lucide="file-text" class="w-4 h-4 text-amber-600 flex-shrink-0"></i>
+        <div class="flex-1 text-[11px]"><div class="font-bold text-amber-900">Borrador · paso 3 de 5</div><div class="text-amber-700">COSRX · $1,240 · hace 2 h</div></div>
+        <button class="px-2.5 py-2 bg-amber-600 text-white rounded-lg text-[11px] font-semibold">Seguir</button>
+      </div>
+      <!-- breadcrumb + close -->
+      <div class="px-3 py-2 border-b border-slate-200 bg-slate-50/50 flex items-center justify-between text-[11px] text-slate-500">
+        <span class="flex items-center gap-1">Compras <i data-lucide="chevron-right" class="w-3 h-3"></i> <span class="text-slate-900 font-medium">Nueva OC</span></span>
+        <button class="p-1"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <!-- header -->
+      <div class="px-3 py-3 border-b border-slate-200 flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0"><i data-lucide="shopping-cart" class="w-5 h-5 text-blue-600"></i></div>
+        <div><div class="text-[15px] font-bold text-slate-900">Nueva OC</div><div class="text-[11px] text-slate-500">paso a paso</div></div>
+      </div>
+      <!-- steps scroll-x -->
+      <div class="px-3 py-2.5 border-b border-slate-200 bg-slate-50/50">
+        <div class="flex items-center gap-1 overflow-x-auto scrollbar-none">
+          <span class="flex items-center gap-1 flex-shrink-0 text-[11px] text-slate-700"><span class="w-5 h-5 rounded-full bg-blue-600 text-white text-[9px] flex items-center justify-center"><i data-lucide="check" class="w-3 h-3"></i></span>Ruta</span>
+          <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 flex-shrink-0"></i>
+          <span class="flex items-center gap-1 flex-shrink-0 text-[11px] text-slate-700"><span class="w-5 h-5 rounded-full bg-blue-600 text-white text-[9px] flex items-center justify-center"><i data-lucide="check" class="w-3 h-3"></i></span>Prod.</span>
+          <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 flex-shrink-0"></i>
+          <span class="flex items-center gap-1 flex-shrink-0 text-[11px] font-bold text-blue-700"><span class="w-5 h-5 rounded-full bg-blue-600 text-white text-[9px] flex items-center justify-center">3</span>Cargos</span>
+          <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 flex-shrink-0"></i>
+          <span class="flex items-center gap-1 flex-shrink-0 text-[11px] text-slate-400"><span class="w-5 h-5 rounded-full bg-slate-100 text-slate-400 text-[9px] flex items-center justify-center">4</span>Intel.</span>
+          <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 flex-shrink-0"></i>
+          <span class="flex items-center gap-1 flex-shrink-0 text-[11px] text-slate-400"><span class="w-5 h-5 rounded-full bg-slate-100 text-slate-400 text-[9px] flex items-center justify-center">5</span>Confirm.</span>
+        </div>
+      </div>
+      <!-- contenido placeholder -->
+      <div class="p-3">
+        <div class="border-2 border-dashed border-slate-200 rounded-xl p-6 text-center"><i data-lucide="layout-template" class="w-6 h-6 text-slate-300 mx-auto mb-1.5"></i><div class="text-[12px] font-semibold text-slate-600">Paso activo</div></div>
+      </div>
+      <!-- barra resumen sticky (preview colapsado) -->
+      <div class="px-3 py-2 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-[11px]">
+        <span class="text-slate-500">4 prod · Total</span><span class="font-bold text-blue-700 tabular-nums">$1,240.00</span>
+      </div>
+      <!-- footer -->
+      <div class="px-3 py-2.5 border-t border-slate-200 flex items-center gap-2">
+        <button class="flex-1 py-2.5 bg-white border border-slate-200 text-slate-600 rounded-lg text-[12px] font-semibold">Anterior</button>
+        <button class="flex-1 py-2.5 bg-blue-600 text-white rounded-lg text-[12px] font-semibold">Siguiente</button>
+      </div>
+    </div>
+
+    <!-- mobile ruta -->
+    <div class="phone bg-white border border-slate-200 rounded-2xl overflow-hidden modal-sh">
+      <div class="px-3 py-2.5 border-b border-slate-200 bg-slate-50/50 text-[11px] font-bold uppercase tracking-wider text-violet-600 acto-sep">Mobile · paso Ruta (1-col)</div>
+      <div class="p-3 space-y-3.5">
+        <div><h3 class="text-[15px] font-bold text-slate-900">¿De dónde viene?</h3></div>
+        <div>
+          <label class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1 block">Proveedor</label>
+          <div class="relative"><i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i><div class="pl-10 pr-3 py-3 border border-blue-300 rounded-lg bg-white text-[13px] font-medium text-slate-900">COSRX Korea</div></div>
+        </div>
+        <div>
+          <label class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1 block">Tipo de ruta</label>
+          <div class="space-y-2">
+            <button class="relative w-full text-left bg-white border-2 border-blue-500 rounded-xl p-3 ring-2 ring-blue-100 flex items-center gap-3 min-h-[44px]">
+              <div class="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0"><i data-lucide="warehouse" class="w-5 h-5 text-blue-600"></i></div>
+              <div class="flex-1"><div class="text-[13px] font-bold text-slate-900">Vía casilla</div><div class="text-[11px] text-slate-500">a tu casilla en origen</div></div>
+              <div class="w-5 h-5 rounded-full bg-blue-600 flex items-center justify-center"><i data-lucide="check" class="w-3 h-3 text-white"></i></div>
+            </button>
+            <button class="w-full text-left bg-white border border-slate-200 rounded-xl p-3 flex items-center gap-3 min-h-[44px]">
+              <div class="w-9 h-9 rounded-lg bg-slate-50 flex items-center justify-center flex-shrink-0"><i data-lucide="plane" class="w-5 h-5 text-slate-500"></i></div>
+              <div class="flex-1"><div class="text-[13px] font-bold text-slate-900">DDP directo</div><div class="text-[11px] text-slate-500">entrega en Perú</div></div>
+            </button>
+          </div>
+        </div>
+        <div class="border border-slate-200 rounded-xl">
+          <button class="w-full flex items-center justify-between px-3 py-3 bg-slate-50 min-h-[44px]"><span class="text-[12px] font-bold text-slate-700 flex items-center gap-2"><i data-lucide="user-cog" class="w-4 h-4 text-slate-500"></i> Deudor alternativo</span><i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 12 · MOBILE · PRODUCTOS + INTELIGENCIA -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section id="acto12" class="space-y-4">
+  <div class="flex items-center gap-3">
+    <span class="w-8 h-8 rounded-lg bg-violet-600 text-white text-[13px] font-bold flex items-center justify-center flex-shrink-0">12</span>
+    <div>
+      <div class="text-[17px] font-bold text-slate-900">Mobile 375px · paso Productos (semáforo) + paso Inteligencia</div>
+      <div class="text-[12px] text-slate-500">Cada producto en card vertical con el chip de semáforo debajo · KPIs apilados 2×2 · veredicto arriba.</div>
+    </div>
+  </div>
+
+  <div class="flex flex-wrap gap-6 justify-center">
+    <!-- mobile productos -->
+    <div class="phone bg-white border border-slate-200 rounded-2xl overflow-hidden modal-sh">
+      <div class="px-3 py-2.5 border-b border-slate-200 bg-slate-50/50 text-[11px] font-bold uppercase tracking-wider text-violet-600 acto-sep">Mobile · Productos + semáforo</div>
+      <div class="p-3 space-y-3">
+        <div class="relative"><i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i><div class="pl-10 pr-3 py-3 border border-slate-300 rounded-lg text-[13px] text-slate-400 bg-white">Buscar producto…</div></div>
+        <!-- card prod excelente -->
+        <div class="border border-slate-200 rounded-xl p-3">
+          <div class="flex items-center gap-2.5 mb-2">
+            <div class="w-9 h-9 rounded-lg bg-pink-50 text-pink-600 flex items-center justify-center flex-shrink-0"><i data-lucide="sparkles" class="w-5 h-5"></i></div>
+            <div class="flex-1 min-w-0"><div class="text-[13px] font-medium text-slate-900 truncate">Advanced Snail 96 Mucin</div><div class="text-[10px] text-slate-400 font-mono">CSX-SNL-96 · COSRX</div></div>
+            <button class="p-1.5 text-slate-400"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+          </div>
+          <div class="flex items-center gap-2 mb-2">
+            <div class="flex items-center bg-slate-100 rounded-lg"><button class="px-2.5 py-2 text-slate-500"><i data-lucide="minus" class="w-3 h-3"></i></button><span class="w-9 text-center text-[13px] tabular-nums">40</span><button class="px-2.5 py-2 text-slate-500"><i data-lucide="plus" class="w-3 h-3"></i></button></div>
+            <div class="relative flex-1"><span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-slate-400">$</span><div class="pl-6 pr-2 py-2.5 text-right text-[13px] font-semibold border border-emerald-300 bg-emerald-50/40 rounded tabular-nums">7.10</div></div>
+            <div class="text-right"><div class="text-[9px] text-slate-400">Subtot.</div><div class="text-[13px] font-bold text-blue-700 tabular-nums">$284</div></div>
+          </div>
+          <div class="flex items-center gap-1.5 text-[10px] flex-wrap">
+            <span class="text-slate-500">prom $7.80</span>
+            <span class="inline-flex items-center gap-1 text-emerald-700 font-bold bg-emerald-50 border border-emerald-200 rounded-full px-2 py-0.5"><i data-lucide="check-circle-2" class="w-3 h-3"></i> Excelente · −9% vs hist.</span>
+          </div>
+        </div>
+        <!-- card prod sin ref -->
+        <div class="border border-slate-200 rounded-xl p-3">
+          <div class="flex items-center gap-2.5 mb-2">
+            <div class="w-9 h-9 rounded-lg bg-slate-100 text-slate-500 flex items-center justify-center flex-shrink-0"><i data-lucide="package" class="w-5 h-5"></i></div>
+            <div class="flex-1 min-w-0"><div class="text-[13px] font-medium text-slate-900 truncate">Sun Stick SPF50+</div><div class="text-[10px] text-slate-400 font-mono">NEW-SUN-STK · ROUND LAB</div></div>
+            <button class="p-1.5 text-slate-400"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+          </div>
+          <div class="flex items-center gap-2 mb-2">
+            <div class="flex items-center bg-slate-100 rounded-lg"><button class="px-2.5 py-2 text-slate-500"><i data-lucide="minus" class="w-3 h-3"></i></button><span class="w-9 text-center text-[13px] tabular-nums">20</span><button class="px-2.5 py-2 text-slate-500"><i data-lucide="plus" class="w-3 h-3"></i></button></div>
+            <div class="relative flex-1"><span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-slate-400">$</span><div class="pl-6 pr-2 py-2.5 text-right text-[13px] font-semibold border border-slate-200 rounded tabular-nums">13.50</div></div>
+            <div class="text-right"><div class="text-[9px] text-slate-400">Subtot.</div><div class="text-[13px] font-bold text-blue-700 tabular-nums">$270</div></div>
+          </div>
+          <div class="flex items-center gap-1.5 text-[10px]">
+            <span class="inline-flex items-center gap-1 text-slate-500 bg-slate-100 border border-slate-200 rounded-full px-2 py-0.5"><i data-lucide="minus-circle" class="w-3 h-3"></i> Sin referencia</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- mobile inteligencia -->
+    <div class="phone bg-white border border-slate-200 rounded-2xl overflow-hidden modal-sh">
+      <div class="px-3 py-2.5 border-b border-slate-200 bg-slate-50/50 text-[11px] font-bold uppercase tracking-wider text-violet-600 acto-sep">Mobile · Inteligencia</div>
+      <div class="p-3 space-y-3">
+        <!-- veredicto -->
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-start gap-2">
+          <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5"></i>
+          <div><div class="text-[12px] font-bold text-amber-900">Revisá 1 producto caro</div><div class="text-[11px] text-amber-800">Score global 72 · Bueno</div></div>
+        </div>
+        <!-- KPIs 2x2 -->
+        <div class="grid grid-cols-2 gap-2.5">
+          <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-3"><div class="text-[9px] uppercase tracking-wider text-emerald-700 font-bold mb-1.5">Score viab.</div><div class="text-2xl font-bold tabular-nums text-emerald-900">72</div><div class="text-[10px] text-emerald-700 mt-0.5">Bueno</div></div>
+          <div class="bg-gradient-to-br from-sky-50 to-sky-100/40 ring-1 ring-sky-200/50 rounded-2xl p-3"><div class="text-[9px] uppercase tracking-wider text-sky-700 font-bold mb-1.5">Precio vs hist.</div><div class="text-2xl font-bold tabular-nums text-sky-900">−2.1<span class="text-sky-400">%</span></div><div class="text-[10px] text-sky-700 mt-0.5">crudo</div></div>
+          <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-2xl p-3"><div class="text-[9px] uppercase tracking-wider text-amber-700 font-bold mb-1.5">Margen proy.</div><div class="text-2xl font-bold tabular-nums text-amber-900">41<span class="text-amber-400">%</span></div><div class="text-[10px] text-amber-700 mt-0.5">landed</div></div>
+          <div class="bg-gradient-to-br from-indigo-50 to-indigo-100/40 ring-1 ring-indigo-200/50 rounded-2xl p-3"><div class="text-[9px] uppercase tracking-wider text-indigo-700 font-bold mb-1.5">CTRU est.</div><div class="text-2xl font-bold tabular-nums text-indigo-900">S/34<span class="text-indigo-400">.20</span></div><div class="text-[10px] text-indigo-700 mt-0.5">landed</div></div>
+        </div>
+        <!-- skip explícito -->
+        <div class="bg-slate-100 border border-slate-200 rounded-xl p-3">
+          <div class="text-[12px] font-bold text-slate-800">Paso opcional</div>
+          <div class="text-[11px] text-slate-600 mt-0.5">El veredicto te sigue a Confirmar. El skip queda registrado.</div>
+          <button class="mt-2 w-full py-2.5 bg-white border border-slate-300 text-slate-600 rounded-lg text-[12px] font-semibold inline-flex items-center justify-center gap-1.5 min-h-[44px]"><i data-lucide="skip-forward" class="w-3.5 h-3.5"></i> Saltar paso</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 13 · MOBILE · CONFIRMAR + OCBUILDER -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section id="acto13" class="space-y-4">
+  <div class="flex items-center gap-3">
+    <span class="w-8 h-8 rounded-lg bg-violet-600 text-white text-[13px] font-bold flex items-center justify-center flex-shrink-0">13</span>
+    <div>
+      <div class="text-[17px] font-bold text-slate-900">Mobile 375px · Confirmar (franja + snapshot) + OCBuilder</div>
+      <div class="text-[12px] text-slate-500">La franja de veredicto SIEMPRE visible · el snapshot apilado · el OCBuilder con pool 1-col + semáforo por grupo.</div>
+    </div>
+  </div>
+
+  <div class="flex flex-wrap gap-6 justify-center">
+    <!-- mobile confirmar -->
+    <div class="phone bg-white border border-slate-200 rounded-2xl overflow-hidden modal-sh">
+      <div class="px-3 py-2.5 border-b border-slate-200 bg-slate-50/50 text-[11px] font-bold uppercase tracking-wider text-violet-600 acto-sep">Mobile · Confirmar</div>
+      <div class="p-3 space-y-3">
+        <!-- franja veredicto siempre visible -->
+        <div class="bg-amber-50 border border-amber-300 rounded-xl p-3">
+          <div class="flex items-center justify-between mb-2"><span class="text-[10px] font-bold uppercase tracking-wider text-amber-700 flex items-center gap-1"><i data-lucide="gauge" class="w-3 h-3"></i> Veredicto de precio</span><span class="badge bg-white text-amber-700 border border-amber-300">saltada</span></div>
+          <div class="flex flex-wrap gap-1.5 text-[10px]">
+            <span class="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full px-2 py-0.5 font-bold"><i data-lucide="check-circle-2" class="w-2.5 h-2.5"></i> 2 OK</span>
+            <span class="inline-flex items-center gap-1 bg-amber-100 text-amber-800 border border-amber-300 rounded-full px-2 py-0.5 font-bold"><i data-lucide="alert-triangle" class="w-2.5 h-2.5"></i> 1 caro</span>
+            <span class="inline-flex items-center gap-1 bg-slate-100 text-slate-500 border border-slate-200 rounded-full px-2 py-0.5 font-bold"><i data-lucide="minus-circle" class="w-2.5 h-2.5"></i> 1 sin ref</span>
+          </div>
+          <div class="text-[11px] text-amber-800 mt-2">Score 72 · <a href="#" class="underline font-semibold">Revisar</a></div>
+        </div>
+        <!-- TC -->
+        <div class="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 flex items-center gap-2"><span class="text-[15px] font-bold text-slate-900 tabular-nums">3.7520</span><span class="text-[10px] text-slate-500">PEN/USD</span><span class="badge bg-blue-50 text-blue-700 border border-blue-200 ml-auto">SUNAT</span></div>
+        <!-- snapshot -->
+        <div class="bg-gradient-to-br from-rose-50 to-rose-100/30 border border-rose-200 rounded-xl p-3">
+          <div class="flex items-center justify-between mb-2"><span class="text-[10px] font-bold uppercase tracking-wider text-rose-700 flex items-center gap-1"><i data-lucide="snowflake" class="w-3 h-3"></i> Snapshot</span><span class="badge bg-rose-100 text-rose-700 border border-rose-300">NUEVO</span></div>
+          <div class="grid grid-cols-2 gap-1.5 text-[10px]">
+            <div class="bg-white border border-rose-100 rounded-lg p-2"><div class="text-[8px] uppercase text-rose-500 font-bold">PVP esp.</div><div class="font-bold tabular-nums">S/ 58</div></div>
+            <div class="bg-white border border-rose-100 rounded-lg p-2"><div class="text-[8px] uppercase text-rose-500 font-bold">Margen</div><div class="font-bold tabular-nums">41%</div></div>
+            <div class="bg-white border border-rose-100 rounded-lg p-2"><div class="text-[8px] uppercase text-rose-500 font-bold">CTRU</div><div class="font-bold tabular-nums">S/ 34.2</div></div>
+            <div class="bg-white border border-rose-100 rounded-lg p-2"><div class="text-[8px] uppercase text-rose-500 font-bold">Score</div><div class="font-bold tabular-nums">72</div></div>
+          </div>
+        </div>
+        <button class="w-full py-3 bg-blue-600 text-white rounded-lg text-[13px] font-semibold min-h-[44px]">Crear Orden</button>
+      </div>
+    </div>
+
+    <!-- mobile ocbuilder -->
+    <div class="phone bg-white border border-slate-200 rounded-2xl overflow-hidden modal-sh">
+      <div class="px-3 py-2.5 border-b border-slate-200 bg-slate-50/50 text-[11px] font-bold uppercase tracking-wider text-violet-600 acto-sep">Mobile · OCBuilder · Configurar</div>
+      <div class="p-3 space-y-3">
+        <div class="px-3 py-2 border-b border-slate-100 bg-slate-50/50 -mx-3 -mt-3 mb-1 flex items-center gap-1 text-[10px] text-slate-500">Requerimientos <i data-lucide="chevron-right" class="w-3 h-3"></i> <span class="text-slate-900 font-medium">Generar compra</span></div>
+        <!-- grupos scroll-x -->
+        <div class="flex gap-1.5 overflow-x-auto scrollbar-none pb-1">
+          <span class="flex-shrink-0 px-2.5 py-2 rounded-lg bg-blue-100 text-blue-700 font-semibold border border-blue-200 text-[11px] min-h-[44px] flex items-center">Grupo A · COSRX</span>
+          <span class="flex-shrink-0 px-2.5 py-2 rounded-lg bg-white text-slate-500 border border-slate-200 text-[11px] min-h-[44px] flex items-center">Grupo B · Joseon</span>
+        </div>
+        <!-- ruta seam -->
+        <div class="px-3 py-2.5 border border-emerald-300 rounded-lg bg-emerald-50/40 text-[12px] font-medium text-slate-800 flex items-center justify-between"><span class="flex items-center gap-1.5"><i data-lucide="route" class="w-3.5 h-3.5 text-emerald-600"></i> Vía casilla · Seúl</span><span class="badge bg-emerald-100 text-emerald-700 border border-emerald-300">seam</span></div>
+        <!-- pool 1-col con semáforo -->
+        <div class="border border-slate-200 rounded-xl p-3 space-y-2.5">
+          <div class="flex items-center gap-2 flex-wrap">
+            <div class="w-8 h-8 rounded-lg bg-pink-50 text-pink-600 flex items-center justify-center flex-shrink-0"><i data-lucide="sparkles" class="w-4 h-4"></i></div>
+            <div class="flex-1 min-w-0"><div class="text-[12px] font-medium text-slate-800 truncate">Advanced Snail 96</div><div class="text-[10px] text-slate-400">REQ-0412 · 40 uds</div></div>
+            <div class="relative w-16"><span class="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-slate-400">$</span><div class="pl-5 pr-1 py-1.5 text-right text-[12px] font-semibold border border-emerald-300 bg-emerald-50/40 rounded tabular-nums">7.10</div></div>
+          </div>
+          <span class="inline-flex items-center gap-1 text-emerald-700 font-bold bg-emerald-50 border border-emerald-200 rounded-full px-2 py-0.5 text-[10px]"><i data-lucide="check-circle-2" class="w-3 h-3"></i> Excelente · −9% vs hist.</span>
+        </div>
+        <!-- veredicto grupo -->
+        <div class="bg-white border border-slate-200 rounded-xl p-3 flex items-start gap-2">
+          <i data-lucide="brain-circuit" class="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5"></i>
+          <div><div class="text-[12px] font-bold text-slate-800">Grupo A · Score 70</div><div class="text-[11px] text-slate-600">mismo helper que la Vía 1</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- FOOTER · CHECKLIST CANON -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<footer class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 sm:p-8 space-y-6">
+  <div>
+    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1 acto-sep">Cierre · build-ready</div>
+    <h2 class="text-xl font-bold text-slate-900">Checklist canon + datos nuevos + decisiones</h2>
+  </div>
+
+  <!-- checklist cobertura -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+      <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2.5 acto-sep">Cobertura A (superficies)</div>
+      <ul class="space-y-1.5 text-[12px] text-slate-600">
+        <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Shell de ambas vías (wizard + builder)</li>
+        <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Los 5 pasos de la Vía 1 + los 3 de la Vía 2</li>
+        <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Cards · forms inline · totales · franjas</li>
+        <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Banners (borrador · skip · veredicto · snapshot)</li>
+        <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Empty · loading · error con retry</li>
+      </ul>
+    </div>
+    <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+      <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2.5 acto-sep">Cobertura B (mobile 375px)</div>
+      <ul class="space-y-1.5 text-[12px] text-slate-600">
+        <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Wizard shell · steps scroll-x (N6)</li>
+        <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Ruta 1-col · Productos con semáforo</li>
+        <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Inteligencia KPIs 2×2 + veredicto</li>
+        <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Confirmar (franja + snapshot) · OCBuilder pool 1-col</li>
+        <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Touch ≥44px en controles · scroll-x grupos</li>
+      </ul>
+    </div>
+    <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+      <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2.5 acto-sep">Alineación al DS</div>
+      <ul class="space-y-1.5 text-[12px] text-slate-600">
+        <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> WizardShell blue (ambas vías)</li>
+        <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> HubCard · SmartSearch · MoneyField · SeccionColapsable</li>
+        <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> DynamicChargesSection · Button 3-tier</li>
+        <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Color Comercial=blue (chrome) · semántico (datos)</li>
+        <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Sin emojis (F8 · lucide) · tabular-nums · Inter</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- datos nuevos -->
+  <div class="bg-rose-50 border border-rose-200 rounded-xl p-4">
+    <div class="text-[11px] font-bold uppercase tracking-wider text-rose-700 mb-2.5 acto-sep flex items-center gap-1.5"><i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Datos / cambios NUEVOS (lo demás es plomería sobre lo que ya existe)</div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-[12px]">
+      <div class="bg-white border border-rose-100 rounded-lg p-3"><div class="font-bold text-slate-800 flex items-center gap-1.5"><i data-lucide="snowflake" class="w-3.5 h-3.5 text-rose-600"></i> Forecast snapshot al confirmar</div><p class="text-slate-600 mt-1"><code class="bg-slate-100 px-1 rounded">{precioVentaEsperado, margenProyectado, ctruEstimado, scoreViabilidad, precioVsHistoricoPct}</code> por producto · congelado en ambas vías · vuelve honesto a <code>calcularAciertoInversion</code>.</p></div>
+      <div class="bg-white border border-rose-100 rounded-lg p-3"><div class="font-bold text-slate-800 flex items-center gap-1.5"><i data-lucide="route" class="w-3.5 h-3.5 text-rose-600"></i> Cierre del seam de ruta (OCBuilder)</div><p class="text-slate-600 mt-1"><code>groupToFormData</code> hoy guarda una entrega más pobre (sin casilla/DDP · recojo-en-origen · deudor) · el rework captura la config de ruta completa como la Vía 1.</p></div>
+    </div>
+  </div>
+
+  <!-- decisiones para el user -->
+  <div class="bg-amber-50 border border-amber-200 rounded-xl p-4">
+    <div class="text-[11px] font-bold uppercase tracking-wider text-amber-700 mb-2.5 acto-sep flex items-center gap-1.5"><i data-lucide="help-circle" class="w-3.5 h-3.5"></i> Decisiones a confirmar antes de Fase C/D</div>
+    <div class="space-y-2 text-[12px] text-slate-700">
+      <div class="flex items-start gap-2"><span class="badge bg-white text-amber-700 border border-amber-300 flex-shrink-0 mt-0.5">SEAM-A</span><div><b>Rótulo crudo vs landed</b> — confirmado en spec: semáforo = crudo-vs-crudo · margen/CTRU = landed. ¿OK el wording en la UI ("vs tu histórico" / "landed")?</div></div>
+      <div class="flex items-start gap-2"><span class="badge bg-white text-amber-700 border border-amber-300 flex-shrink-0 mt-0.5">snapshot</span><div><b>Shape del snapshot</b> — propuesto 5 campos. Se decide DEFINITIVO junto con Fase 2 (detalle de OC), que es quien lo lee.</div></div>
+      <div class="flex items-start gap-2"><span class="badge bg-white text-amber-700 border border-amber-300 flex-shrink-0 mt-0.5">skip</span><div><b>Skip explícito</b> — el paso Inteligencia es salteable pero el skip se REGISTRA + el veredicto migra a una franja en Confirmar. ¿OK que el skip quede asentado en la OC (auditoría)?</div></div>
+    </div>
+  </div>
+
+  <!-- referencias -->
+  <div class="text-[11px] text-slate-400 flex flex-wrap items-center gap-x-4 gap-y-1.5 pt-2 border-t border-slate-100">
+    <span class="flex items-center gap-1"><i data-lucide="file-code-2" class="w-3 h-3"></i> Motor: <code>src/utils/precioInteligencia.helper.ts</code></span>
+    <span class="flex items-center gap-1"><i data-lucide="file-code-2" class="w-3 h-3"></i> Vía 1: <code>OCWizardV3/</code></span>
+    <span class="flex items-center gap-1"><i data-lucide="file-code-2" class="w-3 h-3"></i> Vía 2: <code>OCBuilder/</code></span>
+    <span class="flex items-center gap-1"><i data-lucide="palette" class="w-3 h-3"></i> Refs: compras-hub-evolucion-v1 · compras-lente-comercial-v1</span>
+  </div>
+</footer>
+
+</div>
+
+<script>
+  lucide.createIcons();
+</script>
+</body>
+</html>
