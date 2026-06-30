@@ -29,6 +29,8 @@ import { BarcodeScanner } from '../../../common/BarcodeScanner';
 import { ProductoService } from '../../../../services/producto.service';
 // F3 · referencia de precio inline (histórico en-memoria · sin emojis · canon)
 import { getReferenciaPreciosEnMemoria } from '../../../../services/ordenCompra.stats.service';
+// F3 · motor PURO del semáforo de precio (UNA sola base · 3 bugs corregidos)
+import { analizarPrecio } from '../../../../utils/precioInteligencia.helper';
 
 // Referencia de precio que recibe cada fila (histórico + investigado del catálogo)
 interface ReferenciaPrecio {
@@ -405,9 +407,19 @@ const ProductoFila: React.FC<{
   const tieneRef =
     !!ref && (ref.ultimaCompra != null || ref.promedio != null || ref.investigado != null);
   const sugerido = ref?.investigado ?? ref?.ultimaCompra ?? null;
-  const base = ref?.promedio ?? ref?.investigado ?? null;
-  const deltaPct = base && costo > 0 ? ((costo - base) / base) * 100 : null;
-  const sobrePrecio = deltaPct != null && deltaPct > 2;
+  // Semáforo via motor PURO · UNA sola base (promedio histórico · cae al investigado/mercado).
+  // Fixea el bug #3 (la base del delta ya no diverge del número sugerido para llenar).
+  const semaforo = analizarPrecio({
+    costoUnitarioUSD: costo,
+    costoAdicionalPorUnidadUSD: 0,
+    tc: 0, // el chip no muestra landed/margen · solo el semáforo crudo-vs-crudo
+    referencia: { ultimaCompra: ref?.ultimaCompra ?? null, promedio: ref?.promedio ?? null, nMuestras: ref?.nMuestras ?? 0 },
+    investigacion: ref?.investigado != null
+      ? { precioMejorProvUSD: ref.investigado, precioEfectivo: 0, tieneProveedores: true, tieneCompetidores: false }
+      : null,
+  });
+  const deltaPct = semaforo.deltaPct;
+  const sobrePrecio = semaforo.veredicto === 'caro' || semaforo.veredicto === 'no_recomendable';
 
   return (
     <div className="px-4 pt-3 pb-2.5 hover:bg-slate-50 transition-colors">

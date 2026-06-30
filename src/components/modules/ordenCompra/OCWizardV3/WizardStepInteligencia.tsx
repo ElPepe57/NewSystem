@@ -5,6 +5,10 @@ import type { ProductoOrden } from '../../../../types/ordenCompra.types';
 import { OrdenCompraService } from '../../../../services/ordenCompra.service';
 import { useProductoStore } from '../../../../store/productoStore';
 import { getEmojiPorProducto } from './productoEmoji';
+// F3 · motor PURO del Lente 2 (semáforo + margen landed + score · 3 bugs corregidos)
+import { analizarPrecio, type InvestigacionViva, type ScoreTone } from '../../../../utils/precioInteligencia.helper';
+// Fuente VIVA del margen/PVP (reemplaza los campos deprecados de producto.investigacion)
+import { calcularInvestigacion } from '../../../../pages/Productos/utils/investigacionCalculos';
 
 // ─── Types ────────────────────────────────────────────────────────
 
@@ -29,84 +33,26 @@ interface WizardStepInteligenciaProps {
   descuentosOC?: Array<{ montoUSD: number }>;
 }
 
-// ─── Compute product score (numeric only) ─────────────────────────
-// Lógica intacta desde S41 — 40% precio / 30% margen / 20% carga / 10% inv.
+// ─── Score → KPI 1 (label/tono agregado) ──────────────────────────
+// El score por-producto y su label/tono ahora vienen del helper PURO
+// (analizarPrecio). Esta función SOLO mapea el score AGREGADO del strip
+// a label + tono, reutilizando los mismos umbrales del helper.
 
-function computeScore(
-  prod: ProductoOrden,
-  hist: PrecioHistorico,
-  inv: any | null,
-  tcCompra: number,
-  costoAdicionalPorUnidadUSD: number,
-): number {
-  let total = 0;
-  let weight = 0;
-  const mejorProv = inv?.precioUSAMin > 0 ? inv.precioUSAMin : null;
-
-  // 1. Price vs best provider (40%)
-  if (mejorProv && prod.costoUnitario > 0) {
-    const diff = ((prod.costoUnitario - mejorProv) / mejorProv) * 100;
-    const s = diff <= -5 ? 95 : diff <= 0 ? 85 : diff <= 2 ? 65 : diff <= 5 ? 45 : diff <= 10 ? 25 : 10;
-    total += s * 40;
-    weight += 40;
-  } else if (hist.promedio && hist.promedio > 0 && prod.costoUnitario > 0) {
-    const diff = ((prod.costoUnitario - hist.promedio) / hist.promedio) * 100;
-    const s = diff <= -5 ? 90 : diff <= 0 ? 75 : diff <= 5 ? 50 : diff <= 10 ? 30 : 10;
-    total += s * 40;
-    weight += 40;
-  }
-
-  // 2. Margin with charges (30%)
-  const ctruConCargos = prod.costoUnitario > 0 && tcCompra > 0
-    ? (prod.costoUnitario + costoAdicionalPorUnidadUSD) * tcCompra
-    : null;
-  const precioVenta = inv?.precioPERUMin > 0
-    ? inv.precioPERUMin * 0.95
-    : (inv?.precioSugeridoCalculado > 0 ? inv.precioSugeridoCalculado : null);
-  if (ctruConCargos && precioVenta && precioVenta > 0) {
-    const margenReal = ((precioVenta - ctruConCargos) / precioVenta) * 100;
-    const s = margenReal >= 60 ? 90 : margenReal >= 45 ? 75 : margenReal >= 30 ? 60 : margenReal >= 15 ? 35 : margenReal >= 0 ? 15 : 5;
-    total += s * 30;
-    weight += 30;
-  } else if (inv?.margenEstimado > 0) {
-    const s = inv.margenEstimado >= 60 ? 90 : inv.margenEstimado >= 45 ? 75 : inv.margenEstimado >= 30 ? 60 : inv.margenEstimado >= 15 ? 35 : 10;
-    total += s * 30;
-    weight += 30;
-  }
-
-  // 3. Charge burden (20%)
-  if (prod.costoUnitario > 0) {
-    const chargeRatio = costoAdicionalPorUnidadUSD > 0 ? (costoAdicionalPorUnidadUSD / prod.costoUnitario) * 100 : 0;
-    const s = chargeRatio === 0 ? 70 : chargeRatio <= 5 ? 65 : chargeRatio <= 10 ? 55 : chargeRatio <= 20 ? 40 : chargeRatio <= 35 ? 25 : 10;
-    total += s * 20;
-    weight += 20;
-  }
-
-  // 4. Viability from research (10%)
-  if (inv?.puntuacionViabilidad > 0) {
-    total += inv.puntuacionViabilidad * 10;
-    weight += 10;
-  }
-
-  return weight > 0 ? Math.round(total / weight) : 0;
-}
-
-// ─── Score label (para KPI 1) ─────────────────────────────────────
-
-function scoreLabelAndTone(score: number): { label: string; tone: 'emerald' | 'amber' | 'red' | 'slate' } {
+function scoreLabelAndTone(score: number): { label: string; tone: ScoreTone } {
   if (score === 0) return { label: 'Sin datos suficientes', tone: 'slate' };
   if (score >= 85) return { label: 'Excelente · comprar', tone: 'emerald' };
   if (score >= 70) return { label: 'Bueno · comprar', tone: 'emerald' };
   if (score >= 55) return { label: 'Aceptable · revisar', tone: 'amber' };
   if (score >= 40) return { label: 'Dudoso · revisar', tone: 'amber' };
-  return { label: 'No recomendable', tone: 'red' };
+  return { label: 'No recomendable', tone: 'rose' };
 }
 
 // ─── Main Component ───────────────────────────────────────────────
 // S42ak — UI alineada al mockup S40 L1160-1252:
 //   Header + 4 KPI cards horizontales + Tabla "Análisis por producto"
-// Toda la lógica de cálculo (intel hook, invMap, analysis, computeScore)
-// se mantiene intacta desde S41 — solo cambia la presentación.
+// F3 · El cálculo por-producto ahora lo resuelve el motor PURO analizarPrecio
+// (precioInteligencia.helper · 3 bugs corregidos · alimentado por calcularInvestigacion
+// = fuente VIVA de margen/PVP). Solo se preserva la presentación pre-DS.
 
 export const WizardStepInteligencia: React.FC<WizardStepInteligenciaProps> = ({
   productos, tcCompra, costoShippingUSD = 0, cargosOC = [], descuentosOC = [],
@@ -154,29 +100,56 @@ export const WizardStepInteligencia: React.FC<WizardStepInteligenciaProps> = ({
     });
   }, [productos]);
 
-  // Market research
+  // Investigación VIVA por producto · calcularInvestigacion (fuente única de margen/PVP)
+  // Reemplaza la lectura de campos deprecados (precioUSAMin/precioPERUMin/margenEstimado).
   const invMap = useMemo(() => {
-    const m: Record<string, any> = {};
+    const m: Record<string, InvestigacionViva | null> = {};
     for (const p of productos) {
       const item = catalogo.find(c => c.id === p.productoId);
-      if (item?.investigacion) m[p.productoId] = item.investigacion;
+      if (item?.investigacion) {
+        const calc = calcularInvestigacion(item, tcCompra);
+        m[p.productoId] = {
+          precioMejorProvUSD: calc.precioMejorProvUSD,
+          precioEfectivo: calc.precioEfectivo,
+          tieneProveedores: calc.tieneProveedores,
+          tieneCompetidores: calc.tieneCompetidores,
+        };
+      } else {
+        m[p.productoId] = null;
+      }
+    }
+    return m;
+  }, [productos, catalogo, tcCompra]);
+
+  // Puntuación de viabilidad por producto (factor 10% del score · de la investigación)
+  const viabilidadMap = useMemo(() => {
+    const m: Record<string, number | undefined> = {};
+    for (const p of productos) {
+      const item = catalogo.find(c => c.id === p.productoId);
+      m[p.productoId] = item?.investigacion?.puntuacionViabilidad;
     }
     return m;
   }, [productos, catalogo]);
 
-  // Per-product analysis
+  // Per-product analysis · TODO via analizarPrecio (motor PURO · 3 bugs corregidos)
   const analysis = useMemo(() => productos.map(prod => {
     const data = intel[prod.productoId];
     const hist = data?.precioHistorico ?? { ultimoPrecio: null, promedio: null, minimo: null, maximo: null, totalCompras: 0 };
     const inv = invMap[prod.productoId] ?? null;
     const loading = data?.loading ?? true;
-    const score = loading ? 0 : computeScore(prod, hist, inv, tcCompra, costoAdicionalPorUnidad);
-    const ctruBase = prod.costoUnitario > 0 && tcCompra > 0 ? prod.costoUnitario * tcCompra : null;
-    const ctru = ctruBase !== null ? ctruBase + (costoAdicionalPorUnidad * tcCompra) : null;
+    const res = analizarPrecio({
+      costoUnitarioUSD: prod.costoUnitario,
+      costoAdicionalPorUnidadUSD: costoAdicionalPorUnidad,
+      tc: tcCompra,
+      referencia: { ultimaCompra: hist.ultimoPrecio, promedio: hist.promedio, nMuestras: hist.totalCompras },
+      investigacion: inv,
+      puntuacionViabilidad: viabilidadMap[prod.productoId],
+    });
+    const score = loading ? 0 : res.score;
+    const ctru = res.landedUnitPEN;            // landed PEN (incl. cargos prorrateados)
     const inversion = (prod.costoUnitario || 0) * (prod.cantidad || 0);
-    const mejorPrecioProveedor = inv?.precioUSAMin > 0 ? inv.precioUSAMin : null;
-    return { prod, hist, inv, loading, score, ctru, ctruBase, inversion, mejorPrecioProveedor };
-  }), [productos, intel, invMap, tcCompra, costoAdicionalPorUnidad]);
+    return { prod, hist, inv, loading, score, res, ctru, inversion };
+  }), [productos, intel, invMap, viabilidadMap, tcCompra, costoAdicionalPorUnidad]);
 
   // Aggregates
   const totalUds = productos.reduce((s, p) => s + (p.cantidad || 0), 0);
@@ -199,7 +172,7 @@ export const WizardStepInteligencia: React.FC<WizardStepInteligenciaProps> = ({
     let margenWeight = 0;
     let huboHistorico = false;
 
-    analysis.forEach(({ prod, hist, inv, ctru }) => {
+    analysis.forEach(({ prod, hist, res }) => {
       const uds = prod.cantidad || 0;
       const costoAct = prod.costoUnitario || 0;
       const inversionAct = costoAct * uds;
@@ -212,11 +185,11 @@ export const WizardStepInteligencia: React.FC<WizardStepInteligenciaProps> = ({
         inversionHistoricaUSD += inversionAct;
       }
 
-      const pvp = inv?.precioPERUMin > 0
-        ? inv.precioPERUMin * 0.95
-        : (inv?.precioSugeridoCalculado > 0 ? inv.precioSugeridoCalculado : null);
+      // PVP y CTRU (landed) del motor PURO · margen ya calculado por el helper
+      const pvp = res.precioVentaPEN;
+      const ctru = res.landedUnitPEN;
 
-      if (pvp && uds > 0) {
+      if (pvp && pvp > 0 && uds > 0) {
         pvpSum += pvp * uds;
         pvpWeight += uds;
       }
@@ -226,12 +199,8 @@ export const WizardStepInteligencia: React.FC<WizardStepInteligenciaProps> = ({
         ctruWeight += uds;
       }
 
-      if (pvp && ctru && pvp > 0 && ctru > 0 && inversionAct > 0) {
-        const margen = ((pvp - ctru) / pvp) * 100;
-        margenSum += margen * inversionAct;
-        margenWeight += inversionAct;
-      } else if (inv?.margenEstimado > 0 && inversionAct > 0) {
-        margenSum += inv.margenEstimado * inversionAct;
+      if (res.margenPct !== null && inversionAct > 0) {
+        margenSum += res.margenPct * inversionAct;
         margenWeight += inversionAct;
       }
     });
@@ -274,14 +243,14 @@ export const WizardStepInteligencia: React.FC<WizardStepInteligenciaProps> = ({
           'p-4 border rounded-xl text-center',
           scoreMeta.tone === 'emerald' && 'bg-emerald-50 border-emerald-200',
           scoreMeta.tone === 'amber' && 'bg-amber-50 border-amber-200',
-          scoreMeta.tone === 'red' && 'bg-red-50 border-red-200',
+          scoreMeta.tone === 'rose' && 'bg-red-50 border-red-200',
           scoreMeta.tone === 'slate' && 'bg-slate-50 border-slate-200',
         )}>
           <div className={cn(
             'text-[10px] font-semibold uppercase mb-1',
             scoreMeta.tone === 'emerald' && 'text-emerald-700',
             scoreMeta.tone === 'amber' && 'text-amber-700',
-            scoreMeta.tone === 'red' && 'text-red-700',
+            scoreMeta.tone === 'rose' && 'text-red-700',
             scoreMeta.tone === 'slate' && 'text-slate-500',
           )}>
             Score de viabilidad
@@ -290,7 +259,7 @@ export const WizardStepInteligencia: React.FC<WizardStepInteligenciaProps> = ({
             'text-3xl font-bold',
             scoreMeta.tone === 'emerald' && 'text-emerald-700',
             scoreMeta.tone === 'amber' && 'text-amber-700',
-            scoreMeta.tone === 'red' && 'text-red-700',
+            scoreMeta.tone === 'rose' && 'text-red-700',
             scoreMeta.tone === 'slate' && 'text-slate-400',
           )}>
             {avgScore > 0 ? avgScore : '—'}
@@ -299,7 +268,7 @@ export const WizardStepInteligencia: React.FC<WizardStepInteligenciaProps> = ({
             'text-[11px] mt-1',
             scoreMeta.tone === 'emerald' && 'text-emerald-600',
             scoreMeta.tone === 'amber' && 'text-amber-600',
-            scoreMeta.tone === 'red' && 'text-red-600',
+            scoreMeta.tone === 'rose' && 'text-red-600',
             scoreMeta.tone === 'slate' && 'text-slate-500',
           )}>
             {scoreMeta.label}
@@ -383,19 +352,16 @@ export const WizardStepInteligencia: React.FC<WizardStepInteligenciaProps> = ({
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {analysis.map(({ prod, hist, inv, loading, ctru }) => {
+              {analysis.map(({ prod, hist, loading, res }) => {
                 const emoji = getEmojiPorProducto(prod).emoji;
                 const mejorHist = hist.minimo && hist.minimo > 0 ? hist.minimo : null;
-                const diffPct =
-                  mejorHist && prod.costoUnitario > 0
-                    ? ((prod.costoUnitario - mejorHist) / mejorHist) * 100
-                    : null;
-                const pvp = inv?.precioPERUMin > 0
-                  ? inv.precioPERUMin * 0.95
-                  : (inv?.precioSugeridoCalculado > 0 ? inv.precioSugeridoCalculado : null);
-                const margen = pvp && ctru && pvp > 0 && ctru > 0
-                  ? ((pvp - ctru) / pvp) * 100
-                  : (inv?.margenEstimado > 0 ? inv.margenEstimado : null);
+                // Margen del motor PURO (vivo · fix bug margen deprecado). La "Diferencia" de ESTA
+                // columna es vs el MEJOR histórico que se muestra al lado (coherente con su propia
+                // columna) · el semáforo unificado vs-promedio vive en StepProductos + el KPI, no acá.
+                const margen = res.margenPct;
+                const diffPct = mejorHist && prod.costoUnitario > 0
+                  ? ((prod.costoUnitario - mejorHist) / mejorHist) * 100
+                  : null;
 
                 return (
                   <tr key={prod.productoId} className="hover:bg-slate-50/50 transition-colors">
