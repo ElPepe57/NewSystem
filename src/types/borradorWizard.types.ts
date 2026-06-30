@@ -29,7 +29,10 @@ export type TipoBorradorWizard =
   | 'nuevo-socio'
   // F4 · HUB-5b (2026-06-20) · form "Nuevo Requerimiento" (decisión D3 · canon F-Borradores)
   // Modo Manual de la creación guiada · ver CreacionGuiada/ModoManual.tsx + Requerimientos.tsx
-  | 'requerimiento';
+  | 'requerimiento'
+  // D2 (2026-06-30) · OCBuilder "Generar compra" (OC consolidada multi-requerimiento)
+  // migrado al canon de borradores · single-draft por tipo (ver compras-creacion-rework-plan).
+  | 'oc_consolidada';
 
 /**
  * Documento de borrador de wizard almacenado en Firestore.

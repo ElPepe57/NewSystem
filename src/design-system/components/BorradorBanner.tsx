@@ -56,6 +56,12 @@ const LABELS: Record<TipoBorradorWizard, {
     resumenFallback: 'OC sin terminar',
     totalPasos: 5,
   },
+  // D2 (2026-06-30) · OCBuilder "Generar compra" (OC consolidada multi-requerimiento)
+  oc_consolidada: {
+    titulo: 'Tienes una compra consolidada en borrador',
+    resumenFallback: 'Compra consolidada sin terminar',
+    totalPasos: 3,
+  },
   envio: {
     titulo: 'Tienes un envío en borrador',
     resumenFallback: 'Envío sin terminar',

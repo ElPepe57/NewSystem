@@ -1,4 +1,4 @@
-import React, { useReducer, useEffect, useCallback, useRef, useState } from 'react';
+import React, { useReducer, useEffect, useCallback, useState, useMemo } from 'react';
 import { Package, Settings, CheckCircle2, Save, ChevronRight } from 'lucide-react';
 import { Modal } from '../../../common/Modal';
 import { Stepper, StepContent, StepNavigation } from '../../../common/Stepper';
@@ -9,6 +9,7 @@ import { OCBuilderStep1 } from './OCBuilderStep1';
 import { OCBuilderStep2 } from './OCBuilderStep2';
 import { OCBuilderStep3 } from './OCBuilderStep3';
 import type { OCBuilderProps, OCDraftGroup } from './ocBuilderTypes';
+import { useWizardAutosave } from '../../../../hooks/useWizardAutosave';
 
 const STEPS: Step[] = [
   { id: 'agrupar', label: 'Agrupar Productos', icon: <Package className="h-4 w-4" /> },
@@ -16,37 +17,26 @@ const STEPS: Step[] = [
   { id: 'revisar', label: 'Revisar y Crear', icon: <CheckCircle2 className="h-4 w-4" /> },
 ];
 
-// ============ Draft persistence helpers ============
+// ============ Draft (canon · borradorWizardService via useWizardAutosave) ============
+// D2 (2026-06-30): migrado del localStorage crudo por-reqIds al canon single-draft
+// ('oc_consolidada' · 2 capas localStorage+Firestore + evento de descarte vía el hook).
+// El estado persistido incluye reqIds para ofrecer el restore SOLO cuando el borrador
+// corresponde a la selección de requerimientos abierta (canon single-draft).
 
-interface OCBuilderDraft {
+interface OCBuilderDraftEstado {
   groups: OCDraftGroup[];
   tcGlobal: number;
   tcMode: 'global' | 'per_group';
   currentStep: number;
   activeGroupId: string | null;
-  savedAt: string;
+  reqIds: string[];
 }
 
-function getDraftKey(reqIds: string[]): string {
-  return `oc-builder-draft-${[...reqIds].sort().join('_')}`;
-}
-
-function saveDraft(reqIds: string[], draft: OCBuilderDraft): void {
-  try {
-    localStorage.setItem(getDraftKey(reqIds), JSON.stringify(draft));
-  } catch { /* storage full or unavailable */ }
-}
-
-function loadDraft(reqIds: string[]): OCBuilderDraft | null {
-  try {
-    const raw = localStorage.getItem(getDraftKey(reqIds));
-    if (!raw) return null;
-    return JSON.parse(raw) as OCBuilderDraft;
-  } catch { return null; }
-}
-
-function clearDraft(reqIds: string[]): void {
-  try { localStorage.removeItem(getDraftKey(reqIds)); } catch { /* */ }
+function mismosReqs(a: string[], b: string[]): boolean {
+  if (a.length !== b.length) return false;
+  const sa = [...a].sort();
+  const sb = [...b].sort();
+  return sa.every((x, i) => x === sb[i]);
 }
 
 // ============ Component ============
@@ -59,67 +49,53 @@ export const OCBuilder: React.FC<OCBuilderProps> = ({
   onComplete,
 }) => {
   const [state, dispatch] = useReducer(ocBuilderReducer, initialState);
-  const [draftRestored, setDraftRestored] = useState(false);
-  const [showDraftPrompt, setShowDraftPrompt] = useState(false);
-  const [savedDraft, setSavedDraft] = useState<OCBuilderDraft | null>(null);
-  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [draftDismissed, setDraftDismissed] = useState(false);
   const reqIds = requerimientos.map(r => r.id);
 
-  // Init when opening
+  // D2 · snapshot persistido al canon (sin el pool · se reconstruye de los reqs al INIT).
+  const draftState = useMemo<OCBuilderDraftEstado>(() => ({
+    groups: state.groups,
+    tcGlobal: state.tcGlobal,
+    tcMode: state.tcMode,
+    currentStep: state.currentStep,
+    activeGroupId: state.activeGroupId,
+    reqIds,
+  }), [state.groups, state.tcGlobal, state.tcMode, state.currentStep, state.activeGroupId, reqIds]);
+
+  // Autoguardado canónico 2 capas (localStorage + Firestore) · single-draft 'oc_consolidada'.
+  const {
+    borradorExistente,
+    continuarBorrador,
+    descartarBorrador,
+    clearDraft: clearBorrador,
+    forceSave,
+  } = useWizardAutosave<OCBuilderDraftEstado>({
+    tipo: 'oc_consolidada',
+    state: draftState,
+    pasoActual: state.currentStep,
+    enabled: isOpen && !state.isCreating,
+    isEmpty: (s) => s.groups.length === 0,
+    buildResumen: (s) => `${s.groups.length} grupo(s) · ${s.groups.reduce((n, g) => n + g.productos.length, 0)} productos`,
+    buildMonto: (s) => s.groups.reduce((sum, g) => sum + g.productos.reduce((gs, p) => gs + p.cantidad * p.costoUnitarioUSD, 0), 0),
+  });
+
+  // El prompt "continuar" se muestra solo si el borrador corresponde a ESTA selección de
+  // requerimientos (canon single-draft · abrir otra selección no lo ofrece · se sobrescribe).
+  const borradorEstado = borradorExistente?.estado as OCBuilderDraftEstado | undefined;
+  const showDraftPrompt =
+    !draftDismissed &&
+    state.groups.length === 0 &&
+    !!borradorEstado &&
+    (borradorEstado.groups?.length ?? 0) > 0 &&
+    mismosReqs(borradorEstado.reqIds ?? [], reqIds);
+
+  // Init (build pool) al abrir.
   useEffect(() => {
     if (isOpen && requerimientos.length > 0) {
       dispatch({ type: 'INIT', payload: { requerimientos, tcSugerido: tcSugerido || 3.5 } });
-      setDraftRestored(false);
-
-      // Check for existing draft
-      const draft = loadDraft(reqIds);
-      if (draft && draft.groups.length > 0) {
-        setSavedDraft(draft);
-        setShowDraftPrompt(true);
-      } else {
-        setSavedDraft(null);
-        setShowDraftPrompt(false);
-      }
+      setDraftDismissed(false);
     }
   }, [isOpen, requerimientos, tcSugerido]);
-
-  // Restore draft after INIT has set pool
-  useEffect(() => {
-    if (draftRestored && savedDraft && state.pool.length > 0) {
-      dispatch({
-        type: 'RESTORE_DRAFT',
-        payload: {
-          groups: savedDraft.groups,
-          tcGlobal: savedDraft.tcGlobal,
-          tcMode: savedDraft.tcMode,
-          currentStep: savedDraft.currentStep,
-          activeGroupId: savedDraft.activeGroupId,
-        },
-      });
-      setSavedDraft(null);
-    }
-  }, [draftRestored, savedDraft, state.pool.length]);
-
-  // Auto-save on meaningful changes (debounced 1s)
-  useEffect(() => {
-    if (!isOpen || state.groups.length === 0 || state.isCreating || showDraftPrompt) return;
-
-    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
-    saveTimerRef.current = setTimeout(() => {
-      saveDraft(reqIds, {
-        groups: state.groups,
-        tcGlobal: state.tcGlobal,
-        tcMode: state.tcMode,
-        currentStep: state.currentStep,
-        activeGroupId: state.activeGroupId,
-        savedAt: new Date().toISOString(),
-      });
-    }, 1000);
-
-    return () => {
-      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
-    };
-  }, [isOpen, state.groups, state.tcGlobal, state.tcMode, state.currentStep, state.activeGroupId, showDraftPrompt]);
 
   const handleStepClick = useCallback((step: number) => {
     if (step < state.currentStep) {
@@ -149,37 +125,41 @@ export const OCBuilder: React.FC<OCBuilderProps> = ({
 
   const handleClose = useCallback(() => {
     if (state.isCreating) return;
-    // Auto-save on close if there's work
+    // Guardar borrador (force a Firestore) al cerrar si hay trabajo.
     if (state.groups.length > 0) {
-      saveDraft(reqIds, {
-        groups: state.groups,
-        tcGlobal: state.tcGlobal,
-        tcMode: state.tcMode,
-        currentStep: state.currentStep,
-        activeGroupId: state.activeGroupId,
-        savedAt: new Date().toISOString(),
-      });
+      void forceSave();
     }
     onClose();
-  }, [state, onClose, reqIds]);
+  }, [state.isCreating, state.groups.length, forceSave, onClose]);
 
   const handleComplete = useCallback((ordenesCreadas: Array<{ id: string; numeroOrden: string; groupName: string }>) => {
-    // Clear draft on successful creation
-    clearDraft(reqIds);
+    // Limpiar el borrador canónico tras crear las OCs.
+    void clearBorrador();
     onComplete(ordenesCreadas);
-  }, [onComplete, reqIds]);
+  }, [clearBorrador, onComplete]);
 
-  // Draft prompt handlers
+  // Draft prompt handlers (canon)
   const handleRestoreDraft = useCallback(() => {
-    setShowDraftPrompt(false);
-    setDraftRestored(true);
-  }, []);
+    const estado = continuarBorrador();
+    if (estado) {
+      dispatch({
+        type: 'RESTORE_DRAFT',
+        payload: {
+          groups: estado.groups,
+          tcGlobal: estado.tcGlobal,
+          tcMode: estado.tcMode,
+          currentStep: estado.currentStep,
+          activeGroupId: estado.activeGroupId,
+        },
+      });
+    }
+    setDraftDismissed(true);
+  }, [continuarBorrador]);
 
   const handleDiscardDraft = useCallback(() => {
-    clearDraft(reqIds);
-    setSavedDraft(null);
-    setShowDraftPrompt(false);
-  }, [reqIds]);
+    void descartarBorrador();
+    setDraftDismissed(true);
+  }, [descartarBorrador]);
 
   // Build title + subtitle (el detalle de requerimientos va al subtitle · canon "Generar compra")
   const reqNumbers = requerimientos.map(r => r.numeroRequerimiento).join(', ');
@@ -227,15 +207,14 @@ export const OCBuilder: React.FC<OCBuilderProps> = ({
         <span className="text-slate-900 font-medium truncate">Generar compra</span>
       </nav>
 
-      {/* Draft restore prompt */}
-      {showDraftPrompt && savedDraft && (
+      {/* Draft restore prompt (canon · single-draft 'oc_consolidada') */}
+      {showDraftPrompt && borradorEstado && (
         <div className="flex-shrink-0 mx-4 sm:mx-6 mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-center justify-between gap-3">
           <div className="flex items-center gap-2 text-sm text-amber-800">
             <Save className="h-4 w-4 flex-shrink-0" />
             <span>
-              Tienes una selección guardada del{' '}
-              <strong>{new Date(savedDraft.savedAt).toLocaleDateString('es-PE', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</strong>
-              {' '}({savedDraft.groups.length} grupo{savedDraft.groups.length > 1 ? 's' : ''}, {savedDraft.groups.reduce((s, g) => s + g.productos.length, 0)} productos)
+              Tienes una compra consolidada en borrador para esta selección
+              {' '}({borradorEstado.groups.length} grupo{borradorEstado.groups.length > 1 ? 's' : ''}, {borradorEstado.groups.reduce((s, g) => s + g.productos.length, 0)} productos)
             </span>
           </div>
           <div className="flex gap-2 flex-shrink-0">
