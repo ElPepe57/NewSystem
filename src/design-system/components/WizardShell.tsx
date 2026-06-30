@@ -68,6 +68,8 @@ interface WizardShellProps {
   accent?: WizardAccent;
   /** ClassName adicional para el contenedor raíz */
   className?: string;
+  /** Oculta el footer estándar (ej. un último paso que renderiza su propio footer · OCBuilder Step3 retry-aware). */
+  hideFooter?: boolean;
 }
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -192,6 +194,7 @@ export const WizardShell: React.FC<WizardShellProps> = ({
   variant = 'page',
   accent = 'teal',
   className,
+  hideFooter = false,
 }) => {
   const isFirstStep = currentStep === 0;
   const isLastStep = currentStep === steps.length - 1;
@@ -263,7 +266,8 @@ export const WizardShell: React.FC<WizardShellProps> = ({
         )}
       </div>
 
-      {/* Footer */}
+      {/* Footer (puede ocultarse · ej. OCBuilder Step3 renderiza su propio footer retry-aware) */}
+      {!hideFooter && (
       <div className="px-6 py-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between flex-shrink-0">
         <div className="flex items-center gap-2">
           {onCancel && (
@@ -310,6 +314,7 @@ export const WizardShell: React.FC<WizardShellProps> = ({
           </button>
         </div>
       </div>
+      )}
     </div>
   );
 };

@@ -1,8 +1,7 @@
 import React, { useReducer, useEffect, useCallback, useState, useMemo } from 'react';
-import { Package, Settings, CheckCircle2, Save, ChevronRight } from 'lucide-react';
-import { Modal } from '../../../common/Modal';
-import { Stepper, StepContent, StepNavigation } from '../../../common/Stepper';
-import type { Step } from '../../../common/Stepper';
+import { Save } from 'lucide-react';
+import { WizardShell } from '../../../../design-system';
+import type { WizardStep } from '../../../../design-system';
 import { ocBuilderReducer, initialState } from './ocBuilderReducer';
 import { validateStep1, validateStep2 } from './ocBuilderUtils';
 import { OCBuilderStep1 } from './OCBuilderStep1';
@@ -11,10 +10,10 @@ import { OCBuilderStep3 } from './OCBuilderStep3';
 import type { OCBuilderProps, OCDraftGroup } from './ocBuilderTypes';
 import { useWizardAutosave } from '../../../../hooks/useWizardAutosave';
 
-const STEPS: Step[] = [
-  { id: 'agrupar', label: 'Agrupar Productos', icon: <Package className="h-4 w-4" /> },
-  { id: 'configurar', label: 'Configurar OCs', icon: <Settings className="h-4 w-4" /> },
-  { id: 'revisar', label: 'Revisar y Crear', icon: <CheckCircle2 className="h-4 w-4" /> },
+const STEPS: WizardStep[] = [
+  { id: 'agrupar', label: 'Agrupar Productos' },
+  { id: 'configurar', label: 'Configurar OCs' },
+  { id: 'revisar', label: 'Revisar y Crear' },
 ];
 
 // ============ Draft (canon · borradorWizardService via useWizardAutosave) ============
@@ -170,96 +169,66 @@ export const OCBuilder: React.FC<OCBuilderProps> = ({
 
   const subtitle = `${detalleReqs} · ${state.pool.length} productos · ${state.groups.length} grupo(s) de OC`;
 
+  // Habilita el botón "Siguiente" del shell solo cuando el paso valida (canon · + nextHint).
+  const puedeAvanzar =
+    state.currentStep === 0 ? validateStep1(state).valid :
+    state.currentStep === 1 ? validateStep2(state).valid : true;
+
   if (!isOpen) return null;
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={handleClose}
-      title={title}
-      subtitle={subtitle}
-      size="full"
-      fullHeight
-      contentPadding="none"
-      showScrollIndicator={false}
-      footer={
-        state.currentStep < 2 ? (
-          <StepNavigation
-            onPrev={handlePrev}
-            onNext={handleNext}
-            isFirstStep={state.currentStep === 0}
-            isLastStep={false}
-            prevLabel="Anterior"
-            nextLabel="Siguiente"
-          />
-        ) : undefined
-      }
-    >
-      {/* Breadcrumb de contexto del hub · S9.D1 (Inicio › Requerimientos › Generar compra) */}
-      <nav
-        className="flex-shrink-0 flex items-center gap-1.5 px-4 sm:px-6 py-2 border-b border-slate-100 bg-slate-50/50 text-[11px] text-slate-500"
-        aria-label="Breadcrumb"
-      >
-        <span className="flex-shrink-0">Inicio</span>
-        <ChevronRight className="w-3 h-3 flex-shrink-0" />
-        <span className="flex-shrink-0">Requerimientos</span>
-        <ChevronRight className="w-3 h-3 flex-shrink-0" />
-        <span className="text-slate-900 font-medium truncate">Generar compra</span>
-      </nav>
-
-      {/* Draft restore prompt (canon · single-draft 'oc_consolidada') */}
-      {showDraftPrompt && borradorEstado && (
-        <div className="flex-shrink-0 mx-4 sm:mx-6 mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2 text-sm text-amber-800">
-            <Save className="h-4 w-4 flex-shrink-0" />
-            <span>
-              Tienes una compra consolidada en borrador para esta selección
-              {' '}({borradorEstado.groups.length} grupo{borradorEstado.groups.length > 1 ? 's' : ''}, {borradorEstado.groups.reduce((s, g) => s + g.productos.length, 0)} productos)
-            </span>
+    <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm p-4 sm:p-6 md:p-8 flex flex-col">
+      <div className="w-full max-w-7xl mx-auto flex-1 min-h-0 flex flex-col">
+        {/* Draft restore prompt (canon · single-draft 'oc_consolidada') */}
+        {showDraftPrompt && borradorEstado && (
+          <div className="flex-shrink-0 mb-3 p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 text-sm text-amber-800">
+              <Save className="h-4 w-4 flex-shrink-0" />
+              <span>
+                Tienes una compra consolidada en borrador para esta selección
+                {' '}({borradorEstado.groups.length} grupo{borradorEstado.groups.length > 1 ? 's' : ''}, {borradorEstado.groups.reduce((s, g) => s + g.productos.length, 0)} productos)
+              </span>
+            </div>
+            <div className="flex gap-2 flex-shrink-0">
+              <button
+                onClick={handleDiscardDraft}
+                className="px-3 py-1.5 text-xs font-medium text-slate-600 bg-white border border-slate-300 rounded-md hover:bg-slate-50"
+              >
+                Descartar
+              </button>
+              <button
+                onClick={handleRestoreDraft}
+                className="px-3 py-1.5 text-xs font-medium text-white bg-amber-600 rounded-md hover:bg-amber-700"
+              >
+                Restaurar
+              </button>
+            </div>
           </div>
-          <div className="flex gap-2 flex-shrink-0">
-            <button
-              onClick={handleDiscardDraft}
-              className="px-3 py-1.5 text-xs font-medium text-slate-600 bg-white border border-slate-300 rounded-md hover:bg-slate-50"
-            >
-              Descartar
-            </button>
-            <button
-              onClick={handleRestoreDraft}
-              className="px-3 py-1.5 text-xs font-medium text-white bg-amber-600 rounded-md hover:bg-amber-700"
-            >
-              Restaurar
-            </button>
-          </div>
-        </div>
-      )}
+        )}
 
-      <div className="flex flex-col h-full min-h-0">
-        {/* Stepper */}
-        <div className="flex-shrink-0 px-4 sm:px-6 py-3 border-b border-slate-100 bg-slate-50/50">
-          <Stepper
-            steps={STEPS}
-            currentStep={state.currentStep}
-            onStepClick={handleStepClick}
-            size="sm"
-            allowClickCompleted
-            allowClickFuture={false}
-          />
-        </div>
-
-        {/* Step Content */}
-        <div className="flex-1 min-h-0 overflow-auto">
-          <StepContent currentStep={state.currentStep} animate>
-            <OCBuilderStep1 state={state} dispatch={dispatch} />
-            <OCBuilderStep2 state={state} dispatch={dispatch} />
-            <OCBuilderStep3
-              state={state}
-              dispatch={dispatch}
-              onComplete={handleComplete}
-            />
-          </StepContent>
-        </div>
+        <WizardShell
+          accent="blue"
+          title={title}
+          subtitle={subtitle}
+          steps={STEPS}
+          currentStep={state.currentStep}
+          onStepChange={handleStepClick}
+          onCancel={handleClose}
+          onPrev={handlePrev}
+          onNext={handleNext}
+          nextDisabled={!puedeAvanzar}
+          hideFooter={state.currentStep === 2}
+          nextHint={puedeAvanzar ? `Paso ${state.currentStep + 1} de ${STEPS.length}` : 'Completa los datos para continuar'}
+          variant="page"
+          className="flex-1 min-h-0"
+        >
+          {state.currentStep === 0 && <OCBuilderStep1 state={state} dispatch={dispatch} />}
+          {state.currentStep === 1 && <OCBuilderStep2 state={state} dispatch={dispatch} />}
+          {state.currentStep === 2 && (
+            <OCBuilderStep3 state={state} dispatch={dispatch} onComplete={handleComplete} />
+          )}
+        </WizardShell>
       </div>
-    </Modal>
+    </div>
   );
 };
