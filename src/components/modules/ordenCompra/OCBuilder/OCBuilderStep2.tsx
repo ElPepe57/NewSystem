@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   ChevronDown, ChevronUp, Truck, FileText, Globe,
   Tag, Percent, Receipt,
@@ -7,6 +7,10 @@ import { ProveedorAutocomplete } from '../../entidades/ProveedorAutocomplete';
 import { AlmacenAutocomplete } from '../../entidades/AlmacenAutocomplete';
 import { calcGroupTotals, validateStep2, formatUSD, formatPEN, formatProductSubtitle } from './ocBuilderUtils';
 import type { OCBuilderState, OCBuilderAction, OCDraftGroup, GroupColor } from './ocBuilderTypes';
+import { useOrdenCompraStore } from '../../../../store/ordenCompraStore';
+import { useProductoStore } from '../../../../store/productoStore';
+import { getReferenciaPreciosEnMemoria } from '../../../../services/ordenCompra.stats.service';
+import { SemaforoPrecioInline, type ReferenciaPrecio } from '../SemaforoPrecioInline';
 
 interface Props {
   state: OCBuilderState;
@@ -54,6 +58,26 @@ const GroupConfigForm: React.FC<{
   dispatch: React.Dispatch<OCBuilderAction>;
 }> = ({ group, state, dispatch }) => {
   const [showObs, setShowObs] = useState(false);
+  // D1 · referencia de precio + semáforo por producto (mismo motor que el wizard single · DRY).
+  const { ordenes, fetchOrdenes } = useOrdenCompraStore();
+  const { productos: catalogo, fetchProductos } = useProductoStore();
+  useEffect(() => {
+    if (ordenes.length === 0) fetchOrdenes();
+    if (catalogo.length === 0) fetchProductos();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const referencias = useMemo(() => {
+    const ids = group.productos.map((p) => p.productoId).filter(Boolean) as string[];
+    const hist = getReferenciaPreciosEnMemoria(ids, ordenes);
+    const map = new Map<string, ReferenciaPrecio>();
+    for (const id of ids) {
+      const h = hist.get(id) ?? { ultimaCompra: null, promedio: null, nMuestras: 0 };
+      const cat = catalogo.find((c) => c.id === id);
+      const inv = cat?.investigacion?.precioUSAPromedio ?? null;
+      map.set(id, { ...h, investigado: inv && inv > 0 ? inv : null });
+    }
+    return map;
+  }, [group.productos, ordenes, catalogo]);
   const totals = useMemo(() => calcGroupTotals(group), [group]);
   const tc = state.tcMode === 'global' ? state.tcGlobal : group.tcCompra;
   const costoUnitarioPromedio = totals.cantidadUnidades > 0
@@ -119,7 +143,8 @@ const GroupConfigForm: React.FC<{
             </thead>
             <tbody className="divide-y divide-slate-100">
               {group.productos.map((p, idx) => (
-                <tr key={p.productoId} className="hover:bg-slate-50">
+                <React.Fragment key={p.productoId}>
+                <tr className="hover:bg-slate-50">
                   <td className="px-3 py-2 text-slate-400">{idx + 1}</td>
                   <td className="px-3 py-2">
                     <div className="text-xs text-slate-400 font-mono">{p.sku}</div>
@@ -162,6 +187,23 @@ const GroupConfigForm: React.FC<{
                     ${(p.cantidad * p.costoUnitarioUSD).toFixed(2)}
                   </td>
                 </tr>
+                {referencias.get(p.productoId) && (
+                  <tr>
+                    <td colSpan={5} className="pl-10 pr-3 pb-2 pt-0">
+                      <SemaforoPrecioInline
+                        costo={p.costoUnitarioUSD || 0}
+                        referencia={referencias.get(p.productoId)}
+                        onUsarSugerido={(precio) =>
+                          dispatch({
+                            type: 'UPDATE_PRODUCT_IN_GROUP',
+                            payload: { groupId: group.id, productoId: p.productoId, changes: { costoUnitarioUSD: precio } },
+                          })
+                        }
+                      />
+                    </td>
+                  </tr>
+                )}
+                </React.Fragment>
               ))}
             </tbody>
           </table>

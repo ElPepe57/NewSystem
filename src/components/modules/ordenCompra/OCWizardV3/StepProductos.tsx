@@ -11,10 +11,7 @@ import {
   Layers,
   Pill,
   Sparkles,
-  History,
   Check,
-  TrendingUp,
-  ArrowDownLeft,
 } from 'lucide-react';
 import { cn } from '../../../../design-system';
 import type { OCWizardState } from './ocWizardTypes';
@@ -31,14 +28,8 @@ import { ProductoService } from '../../../../services/producto.service';
 import { getReferenciaPreciosEnMemoria } from '../../../../services/ordenCompra.stats.service';
 // F3 · motor PURO del semáforo de precio (UNA sola base · 3 bugs corregidos)
 import { analizarPrecio } from '../../../../utils/precioInteligencia.helper';
-
-// Referencia de precio que recibe cada fila (histórico + investigado del catálogo)
-interface ReferenciaPrecio {
-  ultimaCompra: number | null;
-  promedio: number | null;
-  investigado: number | null;
-  nMuestras: number;
-}
+// F3 · semáforo de precio inline (componente compartido · DRY con OCBuilder)
+import { SemaforoPrecioInline, type ReferenciaPrecio } from '../SemaforoPrecioInline';
 
 // Ícono tonal por línea (reemplaza el emoji · canon F8 · espejo de ProductoDisplay)
 function iconoDeProducto(p: { atributosSkincare?: unknown; presentacion?: string; dosaje?: string; lineaNegocio?: string }) {
@@ -407,24 +398,18 @@ const ProductoFila: React.FC<{
   const descripcion = getDescripcionProducto(producto);
   const subtotalFila = (producto.cantidad || 0) * (producto.costoUnitario || 0);
 
-  // F3 · referencia de precio inline
+  // F3 · referencia de precio inline · el borde ámbar del input de costo usa sobrePrecio (semáforo).
   const ref = referenciaPrecio;
   const costo = producto.costoUnitario || 0;
-  const tieneRef =
-    !!ref && (ref.ultimaCompra != null || ref.promedio != null || ref.investigado != null);
-  const sugerido = ref?.investigado ?? ref?.ultimaCompra ?? null;
-  // Semáforo via motor PURO · UNA sola base (promedio histórico · cae al investigado/mercado).
-  // Fixea el bug #3 (la base del delta ya no diverge del número sugerido para llenar).
   const semaforo = analizarPrecio({
     costoUnitarioUSD: costo,
     costoAdicionalPorUnidadUSD: 0,
-    tc: 0, // el chip no muestra landed/margen · solo el semáforo crudo-vs-crudo
+    tc: 0, // solo el semáforo crudo-vs-crudo (no landed/margen)
     referencia: { ultimaCompra: ref?.ultimaCompra ?? null, promedio: ref?.promedio ?? null, nMuestras: ref?.nMuestras ?? 0 },
     investigacion: ref?.investigado != null
       ? { precioMejorProvUSD: ref.investigado, precioEfectivo: 0, tieneProveedores: true, tieneCompetidores: false }
       : null,
   });
-  const deltaPct = semaforo.deltaPct;
   const sobrePrecio = semaforo.veredicto === 'caro' || semaforo.veredicto === 'no_recomendable';
 
   return (
@@ -528,60 +513,13 @@ const ProductoFila: React.FC<{
         </button>
       </div>
 
-      {/* F3 · Referencia de precio inline (sin sidebar · canon · histórico + investigado) */}
-      {ref && (
-        <div className="mt-1.5 ml-[52px] flex items-center gap-2 text-[10px] flex-wrap">
-          {tieneRef ? (
-            <>
-              <span className="inline-flex items-center gap-1 text-slate-400 font-semibold uppercase tracking-wider">
-                <History className="w-3 h-3" />Referencia
-              </span>
-              {ref.ultimaCompra != null && (
-                <span className="text-slate-500">últ <b className="text-slate-700 tabular-nums">${ref.ultimaCompra.toFixed(0)}</b></span>
-              )}
-              {ref.promedio != null && (
-                <>
-                  <span className="text-slate-300">·</span>
-                  <span className="text-slate-500">prom <b className="text-slate-700 tabular-nums">${ref.promedio.toFixed(0)}</b></span>
-                </>
-              )}
-              {ref.investigado != null && (
-                <>
-                  <span className="text-slate-300">·</span>
-                  <span className="text-slate-500">invest <b className="text-slate-700 tabular-nums">${ref.investigado.toFixed(0)}</b></span>
-                </>
-              )}
-              {costo === 0 && sugerido != null && (
-                <button
-                  type="button"
-                  onClick={() => onUpdateCosto(Number(sugerido.toFixed(2)))}
-                  className="inline-flex items-center gap-1 ml-1 text-blue-700 font-bold bg-blue-100 hover:bg-blue-200 rounded px-1.5 py-0.5"
-                >
-                  <ArrowDownLeft className="w-3 h-3" />usar ${sugerido.toFixed(0)}
-                </button>
-              )}
-              {costo > 0 && deltaPct != null && (
-                sobrePrecio ? (
-                  <span className="inline-flex items-center gap-1 text-amber-600 font-bold ml-1">
-                    <TrendingUp className="w-3 h-3" />+{Math.round(deltaPct)}% vs prom · caro
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center gap-1 text-emerald-600 font-bold ml-1">
-                    <Check className="w-3 h-3" />{deltaPct < -2 ? `${Math.round(deltaPct)}% vs prom` : 'en rango'}
-                  </span>
-                )
-              )}
-            </>
-          ) : (
-            <>
-              <span className="inline-flex items-center gap-1 text-slate-300 font-semibold uppercase tracking-wider">
-                <History className="w-3 h-3" />Referencia
-              </span>
-              <span className="text-slate-400 italic">sin histórico · primera compra de este SKU</span>
-            </>
-          )}
-        </div>
-      )}
+      {/* F3 · Referencia de precio + semáforo (componente compartido · DRY con OCBuilder) */}
+      <SemaforoPrecioInline
+        costo={costo}
+        referencia={ref}
+        onUsarSugerido={onUpdateCosto}
+        className="mt-1.5 ml-[52px]"
+      />
     </div>
   );
 };
