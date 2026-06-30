@@ -1007,36 +1007,6 @@ const TipoCardMedio: React.FC<{
   </button>
 );
 
-const TipoCardCompactoCenter: React.FC<{
-  icon: React.ReactNode;
-  titulo: string;
-  subtitulo: string;
-  selected: boolean;
-  onClick: () => void;
-}> = ({ icon, titulo, subtitulo, selected, onClick }) => (
-  <button
-    type="button"
-    onClick={onClick}
-    className={cn(
-      'w-full relative border-2 rounded-xl p-3 text-center transition-all',
-      selected
-        ? 'border-blue-500 bg-blue-50 shadow-sm'
-        : 'border-slate-200 bg-white hover:border-blue-300 hover:bg-blue-50/30'
-    )}
-  >
-    {selected && (
-      <div className="absolute top-1 right-1">
-        <div className="w-4 h-4 rounded-full bg-blue-600 flex items-center justify-center">
-          <Check className="w-2.5 h-2.5 text-white" />
-        </div>
-      </div>
-    )}
-    <div className="flex justify-center mb-1">{icon}</div>
-    <div className="font-semibold text-slate-900 text-xs">{titulo}</div>
-    <div className="text-[10px] text-slate-500 mt-0.5">{subtitulo}</div>
-  </button>
-);
-
 const TipoCardPequeno: React.FC<{
   icon: React.ReactNode;
   titulo: string;
