@@ -373,11 +373,16 @@ export const StepProductos: React.FC<StepProductosProps> = ({ state, dispatch })
             <button
               type="button"
               onClick={toggleSubOrdenes}
-              className="mt-2 text-xs font-medium text-amber-900 hover:text-amber-950 underline"
+              className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-amber-900 hover:text-amber-950 underline"
             >
-              {state.useSubOrdenes
-                ? '✓ Sub-órdenes activadas — se configuran al confirmar →'
-                : 'Configurar sub-órdenes →'}
+              {state.useSubOrdenes ? (
+                <>
+                  <Check className="w-3 h-3" />
+                  Sub-órdenes activadas — se configuran al confirmar
+                </>
+              ) : (
+                'Configurar sub-órdenes →'
+              )}
             </button>
           </div>
         </div>
@@ -495,10 +500,10 @@ const ProductoFila: React.FC<{
               step="0.01"
               min={0}
               className={cn(
-                'w-full pl-4 pr-1 text-right text-sm font-semibold text-slate-900 border rounded tabular-nums focus:outline-none focus:bg-white',
+                'w-full pl-4 pr-1 text-right text-sm font-semibold text-slate-900 border rounded-lg tabular-nums focus:outline-none focus:bg-white focus:ring-2',
                 sobrePrecio
-                  ? 'border-amber-300 bg-amber-50/40 focus:border-amber-400'
-                  : 'border-transparent focus:border-slate-300',
+                  ? 'border-amber-300 bg-amber-50/40 focus:border-amber-400 focus:ring-amber-500/30'
+                  : 'border-transparent focus:border-blue-300 focus:ring-blue-500/30',
               )}
             />
           </div>
