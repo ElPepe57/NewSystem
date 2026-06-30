@@ -28,7 +28,6 @@ import type { Casilla } from '../../../../types/casilla.types';
 import type { Colaborador } from '../../../../types/colaborador.types';
 import { ProveedorAutocomplete, type ProveedorSnapshot } from '../../entidades/ProveedorAutocomplete';
 import { useAuthStore } from '../../../../store/authStore';
-import { OrdenCompraService } from '../../../../services/ordenCompra.service';
 
 // ════════════════════════════════════════════════════════════════════════════
 // StepRuta — Paso 1 OCWizardV3 (reescritura completa alineada al mockup S40)
@@ -59,7 +58,7 @@ export const StepRuta: React.FC<StepRutaProps> = ({ state, dispatch }) => {
   const config = state.configLogistica;
 
   // ─── Stores ────────────────────────────────────────────────────────────
-  const { proveedores, fetchProveedores } = useProveedorStore();
+  const { proveedores, fetchProveedores, createProveedor: createProveedorStore } = useProveedorStore();
   const { colaboradores, fetchColaboradores, getByTipo } = useColaboradorStore();
   const { casillas, fetchCasillas } = useAlmacenStore();
   const user = useAuthStore((s) => s.user);
@@ -203,13 +202,18 @@ export const StepRuta: React.FC<StepRutaProps> = ({ state, dispatch }) => {
     dispatch({ type: 'SET_PAIS_ORIGEN', pais: snap.pais || '' } as OCWizardAction);
   };
 
-  // Crear proveedor inline (arregla el alert() TODO previo) · persiste vía el service de OC
-  // (devuelve el Proveedor completo · lo que ProveedorAutocomplete espera de onCreateNew).
+  // Crear proveedor inline (arregla el alert() TODO previo). Usa el PATH CANÓNICO del store
+  // (proveedorStore.createProveedor → proveedor.service.create): genera codigo/url/métricas,
+  // valida duplicados y refresca AMBAS listas (proveedores + proveedoresActivos). Devuelve el id,
+  // así que recuperamos el Proveedor completo del store ya refrescado (lo que onCreateNew espera).
   const handleCrearProveedor = async (data: ProveedorFormData): Promise<Proveedor> => {
     if (!user) throw new Error('Debes iniciar sesión para crear un proveedor.');
-    const prov = await OrdenCompraService.createProveedor(data, user.uid);
-    await fetchProveedores(); // refresca el store para que la card colapsada (proveedorSeleccionado) resuelva
-    return prov;
+    const id = await createProveedorStore(data, user.uid);
+    const creado =
+      useProveedorStore.getState().proveedoresActivos.find((p) => p.id === id) ??
+      useProveedorStore.getState().proveedores.find((p) => p.id === id);
+    if (!creado) throw new Error('No se pudo recuperar el proveedor recién creado.');
+    return creado;
   };
 
   const handleSelectCasillaTransito = (c: Casilla) => {

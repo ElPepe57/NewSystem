@@ -53,6 +53,7 @@ export const ProveedorAutocomplete: React.FC<ProveedorAutocompleteProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [creando, setCreando] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
   const [nuevoProveedor, setNuevoProveedor] = useState<Partial<ProveedorFormData>>({
     tipo: 'distribuidor',
     pais: ''
@@ -154,6 +155,7 @@ export const ProveedorAutocomplete: React.FC<ProveedorAutocompleteProps> = ({
     if (!nuevoProveedor.nombre) return;
 
     setCreando(true);
+    setCreateError(null);
     try {
       // Si hay callback personalizado, usarlo
       if (onCreateNew) {
@@ -175,6 +177,7 @@ export const ProveedorAutocomplete: React.FC<ProveedorAutocompleteProps> = ({
       setIsOpen(false);
     } catch (error) {
       console.error('Error creando proveedor:', error);
+      setCreateError(error instanceof Error ? error.message : 'No se pudo crear el proveedor.');
     } finally {
       setCreando(false);
     }
@@ -287,7 +290,7 @@ export const ProveedorAutocomplete: React.FC<ProveedorAutocompleteProps> = ({
               ))}
 
               {/* Opción de crear nuevo */}
-              {allowCreate && inputValue.length >= 2 && (
+              {allowCreate && onCreateNew && inputValue.length >= 2 && (
                 <button
                   type="button"
                   onClick={handleShowCreate}
@@ -303,7 +306,7 @@ export const ProveedorAutocomplete: React.FC<ProveedorAutocompleteProps> = ({
               <div className="text-sm text-slate-500 mb-2">
                 No se encontraron proveedores con "{inputValue}"
               </div>
-              {allowCreate && (
+              {allowCreate && onCreateNew && (
                 <button
                   type="button"
                   onClick={handleShowCreate}
@@ -418,6 +421,12 @@ export const ProveedorAutocomplete: React.FC<ProveedorAutocompleteProps> = ({
                 />
               </div>
             </div>
+
+            {createError && (
+              <div className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-md px-2.5 py-2">
+                {createError}
+              </div>
+            )}
 
             <div className="flex justify-end space-x-2 pt-2">
               <button
