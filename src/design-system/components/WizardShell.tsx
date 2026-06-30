@@ -70,6 +70,9 @@ interface WizardShellProps {
   className?: string;
   /** Oculta el footer estándar (ej. un último paso que renderiza su propio footer · OCBuilder Step3 retry-aware). */
   hideFooter?: boolean;
+  /** Body a altura completa: el contenido maneja su propia altura/scroll/padding (sin el overflow-y-auto/p-6
+   *  del kit). Para steps con layout full-height propio (ej. OCBuilder Step1 dos-paneles · Step3 sticky footer). */
+  bodyFullHeight?: boolean;
 }
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -195,6 +198,7 @@ export const WizardShell: React.FC<WizardShellProps> = ({
   accent = 'teal',
   className,
   hideFooter = false,
+  bodyFullHeight = false,
 }) => {
   const isFirstStep = currentStep === 0;
   const isLastStep = currentStep === steps.length - 1;
@@ -255,9 +259,15 @@ export const WizardShell: React.FC<WizardShellProps> = ({
           previewPanel ? 'grid grid-cols-1 sm:grid-cols-[1fr_360px]' : ''
         )}
       >
-        <div className="overflow-y-auto p-6">
-          <div className="animate-[fadeIn_200ms_ease-out]">{children}</div>
-        </div>
+        {bodyFullHeight ? (
+          // Modo full-height: el contenido maneja su propia altura/scroll/padding (ej. OCBuilder
+          // Step1 dos-paneles con scroll independiente · Step3 footer sticky full-bleed).
+          <div className="min-h-0 h-full overflow-hidden">{children}</div>
+        ) : (
+          <div className="overflow-y-auto p-6">
+            <div className="animate-[fadeIn_200ms_ease-out]">{children}</div>
+          </div>
+        )}
 
         {previewPanel && (
           <aside className="hidden sm:block overflow-y-auto border-l border-slate-200 bg-slate-50 p-4">

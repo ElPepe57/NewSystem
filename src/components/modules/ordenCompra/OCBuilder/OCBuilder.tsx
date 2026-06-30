@@ -218,6 +218,7 @@ export const OCBuilder: React.FC<OCBuilderProps> = ({
           onNext={handleNext}
           nextDisabled={!puedeAvanzar}
           hideFooter={state.currentStep === 2}
+          bodyFullHeight
           nextHint={puedeAvanzar ? `Paso ${state.currentStep + 1} de ${STEPS.length}` : 'Completa los datos para continuar'}
           variant="page"
           className="flex-1 min-h-0"
