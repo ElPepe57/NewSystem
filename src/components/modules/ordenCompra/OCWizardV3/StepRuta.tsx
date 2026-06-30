@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   Search,
-  Plus,
   Building2,
   Warehouse,
   Truck,
@@ -24,9 +23,12 @@ import type {
 import { useProveedorStore } from '../../../../store/proveedorStore';
 import { useColaboradorStore } from '../../../../store/colaboradorStore';
 import { useAlmacenStore } from '../../../../store/casillaStore';
-import type { Proveedor } from '../../../../types/ordenCompra.types';
+import type { Proveedor, ProveedorFormData } from '../../../../types/ordenCompra.types';
 import type { Casilla } from '../../../../types/casilla.types';
 import type { Colaborador } from '../../../../types/colaborador.types';
+import { ProveedorAutocomplete, type ProveedorSnapshot } from '../../entidades/ProveedorAutocomplete';
+import { useAuthStore } from '../../../../store/authStore';
+import { OrdenCompraService } from '../../../../services/ordenCompra.service';
 
 // ════════════════════════════════════════════════════════════════════════════
 // StepRuta — Paso 1 OCWizardV3 (reescritura completa alineada al mockup S40)
@@ -60,6 +62,7 @@ export const StepRuta: React.FC<StepRutaProps> = ({ state, dispatch }) => {
   const { proveedores, fetchProveedores } = useProveedorStore();
   const { colaboradores, fetchColaboradores, getByTipo } = useColaboradorStore();
   const { casillas, fetchCasillas } = useAlmacenStore();
+  const user = useAuthStore((s) => s.user);
 
   useEffect(() => {
     if (proveedores.length === 0) fetchProveedores();
@@ -132,20 +135,6 @@ export const StepRuta: React.FC<StepRutaProps> = ({ state, dispatch }) => {
     );
   }, [casillasOrigen, searchCasilla]);
 
-  // ─── Search proveedor ───────────────────────────────────────────────────
-  const [searchProveedor, setSearchProveedor] = useState('');
-  const proveedoresFiltrados = useMemo(() => {
-    const proveedoresActivos = proveedores.filter((p) => p.activo);
-    if (!searchProveedor.trim()) return proveedoresActivos;
-    const q = searchProveedor.toLowerCase().trim();
-    return proveedoresActivos.filter(
-      (p) =>
-        p.nombre.toLowerCase().includes(q) ||
-        p.codigo.toLowerCase().includes(q) ||
-        (p.pais && p.pais.toLowerCase().includes(q))
-    );
-  }, [proveedores, searchProveedor]);
-
   // ─── Tipo de ruta (derivado de llegadaPeru) ─────────────────────────────
   // Mockup: 2 cards grandes "Vía casilla" vs "DDP directo"
   // En datos: se refleja en llegadaPeru ('ddp_directo' = DDP, otros = Vía casilla)
@@ -199,20 +188,28 @@ export const StepRuta: React.FC<StepRutaProps> = ({ state, dispatch }) => {
     dispatch({ type: 'SET_CONFIG_LOGISTICA', config: next } as OCWizardAction);
   };
 
-  const handleSelectProveedor = (p: Proveedor) => {
+  // DECISIÓN del user (2026-06-30): reusar ProveedorAutocomplete (search existente) en vez del
+  // search inline custom. Al elegir un proveedor se RESETEA toda la config (cascada · la ruta
+  // depende del proveedor) · mismo comportamiento que el handler anterior, desde el snapshot.
+  const handleSelectProveedorSnap = (snap: ProveedorSnapshot) => {
     const next: ConfigLogistica = {
       ...emptyConfig,
-      proveedorId: p.id,
-      proveedorNombre: p.nombre,
-      paisOrigen: p.pais || '',
+      proveedorId: snap.proveedorId,
+      proveedorNombre: snap.nombre,
+      paisOrigen: snap.pais || '',
     };
     dispatch({ type: 'SET_CONFIG_LOGISTICA', config: next } as OCWizardAction);
-    dispatch({
-      type: 'SET_PROVEEDOR',
-      id: p.id,
-      nombre: p.nombre,
-    } as OCWizardAction);
-    dispatch({ type: 'SET_PAIS_ORIGEN', pais: p.pais || '' } as OCWizardAction);
+    dispatch({ type: 'SET_PROVEEDOR', id: snap.proveedorId, nombre: snap.nombre } as OCWizardAction);
+    dispatch({ type: 'SET_PAIS_ORIGEN', pais: snap.pais || '' } as OCWizardAction);
+  };
+
+  // Crear proveedor inline (arregla el alert() TODO previo) · persiste vía el service de OC
+  // (devuelve el Proveedor completo · lo que ProveedorAutocomplete espera de onCreateNew).
+  const handleCrearProveedor = async (data: ProveedorFormData): Promise<Proveedor> => {
+    if (!user) throw new Error('Debes iniciar sesión para crear un proveedor.');
+    const prov = await OrdenCompraService.createProveedor(data, user.uid);
+    await fetchProveedores(); // refresca el store para que la card colapsada (proveedorSeleccionado) resuelva
+    return prov;
   };
 
   const handleSelectCasillaTransito = (c: Casilla) => {
@@ -294,54 +291,18 @@ export const StepRuta: React.FC<StepRutaProps> = ({ state, dispatch }) => {
             />
           </div>
         ) : (
-          <>
-            {/* Search */}
-            <div className="relative mb-3">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <input
-                type="text"
-                value={searchProveedor}
-                onChange={(e) => setSearchProveedor(e.target.value)}
-                placeholder="Buscar proveedor por nombre, código o país..."
-                className="w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-
-            {/* Lista cards proveedores */}
-            <div className="space-y-2 max-h-72 overflow-y-auto pr-2">
-              {proveedoresFiltrados.length === 0 ? (
-                <div className="text-center py-6 text-sm text-slate-400 italic">
-                  {searchProveedor ? 'Sin resultados' : 'No hay proveedores activos'}
-                </div>
-              ) : (
-                proveedoresFiltrados.map((p) => (
-                  <ProveedorCard
-                    key={p.id}
-                    proveedor={p}
-                    selected={config.proveedorId === p.id}
-                    onClick={() => {
-                      handleSelectProveedor(p);
-                      setProveedorExpandedOverride(false); // colapsar al seleccionar
-                    }}
-                  />
-                ))
-              )}
-
-              {/* Botón crear nuevo */}
-              <button
-                type="button"
-                onClick={() => {
-                  // TODO: abrir modal de crear proveedor inline
-                   
-                  alert('Crear proveedor inline — pendiente de conectar al modal');
-                }}
-                className="w-full border-2 border-dashed border-slate-300 rounded-xl p-3 text-sm text-slate-500 hover:border-blue-400 hover:bg-blue-50 hover:text-blue-700 transition-colors flex items-center justify-center gap-2"
-              >
-                <Plus className="w-4 h-4" />
-                Crear nuevo proveedor
-              </button>
-            </div>
-          </>
+          <ProveedorAutocomplete
+            value={null}
+            onChange={(snap) => {
+              if (snap) {
+                handleSelectProveedorSnap(snap);
+                setProveedorExpandedOverride(false); // colapsar al seleccionar
+              }
+            }}
+            onCreateNew={handleCrearProveedor}
+            placeholder="Buscar proveedor por nombre o país..."
+            allowCreate
+          />
         )}
       </Section>
 

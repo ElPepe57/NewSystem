@@ -221,7 +221,7 @@ export const ProveedorAutocomplete: React.FC<ProveedorAutocompleteProps> = ({
           required={required}
           className={`
             block w-full pl-10 pr-10 py-2 border rounded-md shadow-sm
-            focus:ring-teal-500 focus:border-teal-500
+            focus:ring-blue-500 focus:border-blue-500
             ${disabled ? 'bg-slate-100 cursor-not-allowed' : 'bg-white'}
             ${value ? 'border-emerald-300 bg-emerald-50' : 'border-slate-300'}
           `}
@@ -291,7 +291,7 @@ export const ProveedorAutocomplete: React.FC<ProveedorAutocompleteProps> = ({
                 <button
                   type="button"
                   onClick={handleShowCreate}
-                  className="w-full px-4 py-3 text-left hover:bg-sky-50 text-teal-600 flex items-center"
+                  className="w-full px-4 py-3 text-left hover:bg-blue-50 text-blue-600 flex items-center"
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   Crear nuevo proveedor "{inputValue}"
@@ -307,7 +307,7 @@ export const ProveedorAutocomplete: React.FC<ProveedorAutocompleteProps> = ({
                 <button
                   type="button"
                   onClick={handleShowCreate}
-                  className="w-full px-3 py-2 bg-teal-50 text-teal-600 rounded-md flex items-center justify-center hover:bg-teal-100"
+                  className="w-full px-3 py-2 bg-blue-50 text-blue-600 rounded-md flex items-center justify-center hover:bg-blue-100"
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   Crear nuevo proveedor
@@ -431,7 +431,7 @@ export const ProveedorAutocomplete: React.FC<ProveedorAutocompleteProps> = ({
                 type="button"
                 onClick={handleCreateProveedor}
                 disabled={!nuevoProveedor.nombre || creando}
-                className="px-3 py-1.5 bg-teal-600 text-white text-sm rounded-md hover:bg-teal-700 disabled:opacity-50"
+                className="px-3 py-1.5 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 disabled:opacity-50"
               >
                 {creando ? 'Creando...' : 'Crear y Seleccionar'}
               </button>
