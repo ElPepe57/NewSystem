@@ -9,7 +9,6 @@ import type { OCWizardState } from './ocWizardTypes';
 import { StepRuta } from './StepRuta';
 import { StepProductos } from './StepProductos';
 import { StepCargos } from './StepCargos';
-import { StepInteligencia } from './StepInteligencia';
 import { StepConfirm } from './StepConfirm';
 import { OCWizardPreview } from './OCWizardPreview';
 import { useWizardAutosave } from '../../../../hooks/useWizardAutosave';
@@ -40,19 +39,17 @@ interface OCWizardV3Props {
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-// Step definitions — Nuevo orden S41 (mockup maestro)
-//   1. Ruta        (proveedor + 3 tramos + deudor alternativo)
-//   2. Productos   (separado de ruta — antes iba junto)
+// Step definitions — DECISIÓN C (2026-06-30 · 5→4 pasos · paso "Inteligencia" eliminado)
+//   1. Ruta        (proveedor + tramo + deudor alternativo)
+//   2. Productos   (items + semáforo de precio al tipear · ProductoAutocomplete rico)
 //   3. Cargos      (cargos + descuentos + impuestos comerciales)
-//   4. Inteligencia (score viabilidad — fórmula mantenida)
-//   5. Confirmar   (preview editable + TC + observaciones)
+//   4. Confirmar   (preview editable + TC + SALUD AGREGADA · absorbe el ex-paso Inteligencia)
 // ════════════════════════════════════════════════════════════════════════════
 
 const STEPS: WizardStep[] = [
   { id: 'ruta', label: 'Ruta', description: 'Proveedor y tramos logísticos' },
   { id: 'productos', label: 'Productos', description: 'Items de la compra' },
   { id: 'cargos', label: 'Cargos', description: 'Shipping, descuentos, impuestos' },
-  { id: 'inteligencia', label: 'Inteligencia', description: 'Viabilidad y margen' },
   { id: 'confirmar', label: 'Confirmar', description: 'Revisar y crear' },
 ];
 
@@ -88,10 +85,7 @@ function isStepValid(stepIndex: number, state: ReturnType<typeof ocWizardReducer
       return allCargosNamed && allDescNamed && allImpNamed;
     }
     case 3:
-      // Paso Inteligencia: siempre válido (informativo)
-      return true;
-    case 4:
-      // Paso Confirmar: TC obligatorio
+      // Paso Confirmar: TC obligatorio (DECISIÓN C · era case 4 · paso Inteligencia eliminado)
       return s.tcCompra > 0;
     default:
       return true;
@@ -107,11 +101,11 @@ function isStepValid(stepIndex: number, state: ReturnType<typeof ocWizardReducer
  *
  * Cambios respecto a V2:
  * - Usa WizardShell del design system (stepper + preview panel + footer)
- * - Orden de pasos: Ruta → Productos → Cargos → Inteligencia → Confirmar
- *   (V2 era: Entrega → Flete → Inteligencia → Cargos → Confirmar)
+ * - Orden de pasos (DECISIÓN C · 4): Ruta → Productos → Cargos → Confirmar
+ *   (el paso "Inteligencia" se eliminó · su salud agregada vive ahora en Confirmar)
  * - Productos separados de la configuración de ruta
  * - Paso "Flete" eliminado (se derivaba automáticamente; ahora vive en Ruta)
- * - Cargos ANTES de Inteligencia (el score ya ve los cargos finales)
+ * - La salud agregada (score/margen/caros) se evalúa en Confirmar · imposible de saltear
  * - Preview panel lateral con resumen en vivo
  * - Deudor alternativo capturado en paso Ruta (data lista para futuro)
  *
@@ -438,8 +432,6 @@ export const OCWizardV3: React.FC<OCWizardV3Props> = ({
       case 2:
         return <StepCargos state={state} dispatch={dispatch} subtotalProductos={subtotal} />;
       case 3:
-        return <StepInteligencia state={state} subtotal={subtotal} grandTotal={grandTotal} onSaltar={handleNext} />;
-      case 4:
         return (
           <StepConfirm
             state={state}

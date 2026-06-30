@@ -97,8 +97,9 @@ function clasificarVeredicto(deltaPct: number | null): VeredictoPrecio {
   return 'no_recomendable';
 }
 
-/** Etiqueta + tono del score holístico (preservado de scoreLabelAndTone · red→rose para DS). */
-function scoreLabelAndTone(score: number): { label: string; tone: ScoreTone } {
+/** Etiqueta + tono del score holístico (preservado de scoreLabelAndTone · red→rose para DS).
+ *  Exportado para reusar en el score AGREGADO de la OC (useAnalisisOC · "Salud de la compra"). */
+export function scoreLabelAndTone(score: number): { label: string; tone: ScoreTone } {
   if (score === 0) return { label: 'Sin datos suficientes', tone: 'slate' };
   if (score >= 85) return { label: 'Excelente · comprar', tone: 'emerald' };
   if (score >= 70) return { label: 'Bueno · comprar', tone: 'emerald' };

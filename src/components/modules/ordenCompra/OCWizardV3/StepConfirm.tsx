@@ -1,10 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { CheckCircle, AlertCircle, MapPin, Package, DollarSign, FileText, Sparkles } from 'lucide-react';
+import { CheckCircle, AlertCircle, MapPin, Package, DollarSign, FileText, Sparkles, HeartPulse } from 'lucide-react';
 import { ProductoDisplay, RouteVisual } from '../../../../design-system';
 import { tipoCambioService } from '../../../../services/tipoCambio.service';
 import type { TCResuelto } from '../../../../types/tipoCambio.types';
 import type { OCWizardState } from './ocWizardTypes';
 import type { OCWizardAction } from './ocWizardReducer';
+import { useAnalisisOC } from './useAnalisisOC';
+import type { ScoreTone } from '../../../../utils/precioInteligencia.helper';
+
+// DECISIÓN C · clases del banner "Salud de la compra" por tono del score (semántico).
+const SALUD_TONE: Record<ScoreTone, { grad: string; ring: string; iconBg: string; icon: string; text: string }> = {
+  emerald: { grad: 'from-emerald-50 to-emerald-100/30', ring: 'ring-emerald-200/60', iconBg: 'bg-emerald-100', icon: 'text-emerald-600', text: 'text-emerald-900' },
+  amber: { grad: 'from-amber-50 to-amber-100/30', ring: 'ring-amber-200/60', iconBg: 'bg-amber-100', icon: 'text-amber-600', text: 'text-amber-900' },
+  rose: { grad: 'from-rose-50 to-rose-100/30', ring: 'ring-rose-200/60', iconBg: 'bg-rose-100', icon: 'text-rose-600', text: 'text-rose-900' },
+  slate: { grad: 'from-slate-50 to-slate-100/30', ring: 'ring-slate-200/60', iconBg: 'bg-slate-100', icon: 'text-slate-500', text: 'text-slate-700' },
+};
 
 interface StepConfirmProps {
   state: OCWizardState;
@@ -38,6 +48,10 @@ export const StepConfirm: React.FC<StepConfirmProps> = ({
 }) => {
   const cfg = state.configLogistica;
   const tcFaltante = !state.tcCompra || state.tcCompra <= 0;
+
+  // DECISIÓN C · salud agregada (absorbe el ex-paso Inteligencia · 1 motor: analizarPrecio).
+  const { salud } = useAnalisisOC(state);
+  const saludTone = SALUD_TONE[salud.scoreTone];
 
   // S42ah — Auto-carga del TC del día desde tipoCambioService.
   // Se ejecuta una sola vez al montar el paso Confirmar. Si el usuario
@@ -127,6 +141,60 @@ export const StepConfirm: React.FC<StepConfirmProps> = ({
           Valida los datos de la orden antes de crearla. Puedes regresar a pasos anteriores si
           necesitas corregir algo.
         </p>
+      </div>
+
+      {/* DECISIÓN C · Salud de la compra (absorbe el ex-paso Inteligencia · chequeo pre-commit) */}
+      <div className={`bg-gradient-to-br ${saludTone.grad} ring-1 ${saludTone.ring} rounded-2xl p-4`}>
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className={`w-9 h-9 rounded-xl ${saludTone.iconBg} flex items-center justify-center flex-shrink-0`}>
+              <HeartPulse className={`w-5 h-5 ${saludTone.icon}`} />
+            </div>
+            <div className="min-w-0">
+              <div className={`text-[13px] font-bold ${saludTone.text}`}>Salud de la compra</div>
+              <div className="text-[12px] text-slate-600">
+                {salud.conDatos > 0 ? (
+                  <>
+                    {salud.scoreLabel}
+                    {salud.nCaros > 0 && (
+                      <>
+                        {' · '}
+                        <span className="text-rose-700 font-semibold">
+                          {salud.nCaros} producto{salud.nCaros > 1 ? 's' : ''} caro{salud.nCaros > 1 ? 's' : ''} · revisá
+                        </span>
+                      </>
+                    )}
+                  </>
+                ) : (
+                  'Sin datos de precio para evaluar (sin histórico ni investigación)'
+                )}
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center gap-4 sm:gap-5 flex-shrink-0">
+            <div className="text-right">
+              <div className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Score</div>
+              <div className="text-xl font-bold tabular-nums text-slate-900">
+                {salud.conDatos > 0 ? salud.score : '—'}
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Margen</div>
+              <div className="text-xl font-bold tabular-nums text-slate-900">
+                {salud.margenPromedio != null ? `${salud.margenPromedio}%` : '—'}
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Caros</div>
+              <div className={`text-xl font-bold tabular-nums ${salud.nCaros > 0 ? 'text-rose-700' : 'text-slate-900'}`}>
+                {salud.nCaros}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="mt-2 text-[10px] text-slate-400">
+          Margen landed (con cargos prorrateados) · el detalle por producto y el semáforo de precio están en el paso Productos.
+        </div>
       </div>
 
       {/* Ruta */}
