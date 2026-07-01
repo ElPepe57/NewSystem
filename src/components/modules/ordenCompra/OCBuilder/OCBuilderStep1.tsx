@@ -8,24 +8,13 @@ import { Button } from '../../../common/Button';
 import { validateStep1, formatProductSubtitle } from './ocBuilderUtils';
 import { casillaCrudService } from '../../../../services/casilla.crud.service';
 import type { Casilla } from '../../../../types/casilla.types';
-import type { OCBuilderState, OCBuilderAction, PoolProducto, OCDraftGroup, GroupColor } from './ocBuilderTypes';
+import type { OCBuilderState, OCBuilderAction, PoolProducto, OCDraftGroup } from './ocBuilderTypes';
+import { GroupBadge } from './OCBuilderGroupBadge';
 
 interface Props {
   state: OCBuilderState;
   dispatch: React.Dispatch<OCBuilderAction>;
 }
-
-// Color map for group badges
-const colorMap: Record<GroupColor, { bg: string; border: string; text: string; light: string }> = {
-  blue: { bg: 'bg-sky-500', border: 'border-sky-400', text: 'text-sky-700', light: 'bg-sky-50' },
-  emerald: { bg: 'bg-emerald-500', border: 'border-emerald-400', text: 'text-emerald-700', light: 'bg-emerald-50' },
-  amber: { bg: 'bg-amber-500', border: 'border-amber-400', text: 'text-amber-700', light: 'bg-amber-50' },
-  purple: { bg: 'bg-purple-500', border: 'border-purple-400', text: 'text-purple-700', light: 'bg-purple-50' },
-  rose: { bg: 'bg-rose-500', border: 'border-rose-400', text: 'text-rose-700', light: 'bg-rose-50' },
-  cyan: { bg: 'bg-cyan-500', border: 'border-cyan-400', text: 'text-cyan-700', light: 'bg-cyan-50' },
-  orange: { bg: 'bg-orange-500', border: 'border-orange-400', text: 'text-orange-700', light: 'bg-orange-50' },
-  indigo: { bg: 'bg-blue-500', border: 'border-blue-400', text: 'text-blue-700', light: 'bg-blue-50' },
-};
 
 // Split dialog
 const SplitDialog: React.FC<{
@@ -61,11 +50,10 @@ const SplitDialog: React.FC<{
         </div>
 
         <div className="space-y-3 mb-4">
-          {groups.map(g => {
-            const colors = colorMap[g.color];
+          {groups.map((g, idx) => {
             return (
               <div key={g.id} className="flex items-center gap-3">
-                <div className={`w-3 h-3 rounded-full ${colors.bg} flex-shrink-0`} />
+                <GroupBadge numero={idx + 1} />
                 <span className="text-sm font-medium text-slate-700 flex-1 min-w-0 truncate">{g.nombre}</span>
                 <input
                   type="number"
@@ -369,8 +357,7 @@ export const OCBuilderStep1: React.FC<Props> = ({ state, dispatch }) => {
               <p className="text-xs mt-1">Usa "Auto-agrupar" o crea un grupo manualmente</p>
             </div>
           ) : (
-            state.groups.map(group => {
-              const colors = colorMap[group.color];
+            state.groups.map((group, idx) => {
               const isExpanded = !expandedGroups.has(group.id); // default expanded
               const subtotal = group.productos.reduce((s, p) => s + p.cantidad * p.costoUnitarioUSD, 0);
               const totalUnits = group.productos.reduce((s, p) => s + p.cantidad, 0);
@@ -378,24 +365,23 @@ export const OCBuilderStep1: React.FC<Props> = ({ state, dispatch }) => {
               return (
                 <div
                   key={group.id}
-                  className={`rounded-lg border-l-4 ${colors.border} bg-white border border-slate-200 shadow-sm`}
+                  className="rounded-lg border-l-4 border-blue-400 bg-white border border-slate-200 shadow-sm"
                 >
                   {/* Group header */}
                   <div
-                    className={`flex items-center gap-2 px-3 py-2.5 cursor-pointer ${colors.light} rounded-t-lg`}
+                    className="flex items-center gap-2 px-3 py-2.5 cursor-pointer bg-blue-50 rounded-t-lg"
                     onClick={() => toggleGroupExpand(group.id)}
                   >
-                    {group.almacenDestino ? (
+                    <GroupBadge numero={idx + 1} />
+                    {group.almacenDestino && (
                       <Plane className="h-3.5 w-3.5 text-purple-500 flex-shrink-0" />
-                    ) : (
-                      <div className={`w-3 h-3 rounded-full ${colors.bg} flex-shrink-0`} />
                     )}
                     <input
                       type="text"
                       value={group.nombre}
                       onChange={e => dispatch({ type: 'RENAME_GROUP', payload: { groupId: group.id, nombre: e.target.value } })}
                       onClick={e => e.stopPropagation()}
-                      className={`text-sm font-semibold bg-transparent border-none focus:outline-none focus:ring-0 ${colors.text} flex-1 min-w-0`}
+                      className="text-sm font-semibold bg-transparent border-none focus:outline-none focus:ring-0 text-blue-700 flex-1 min-w-0"
                     />
                     <span className="text-xs text-slate-500">{group.productos.length} prod</span>
                     <span className="text-xs font-medium text-slate-700">${subtotal.toFixed(2)}</span>

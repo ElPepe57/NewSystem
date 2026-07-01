@@ -3,10 +3,8 @@ import type {
   OCDraftGroup,
   PoolProducto,
   GroupTotals,
-  GroupColor,
   ProductoOrigen,
 } from './ocBuilderTypes';
-import { GROUP_COLORS } from './ocBuilderTypes';
 import type { Requerimiento } from '../../../../types/requerimiento.types';
 import type { OrdenCompraFormData, CargoOC } from '../../../../types/ordenCompra.types';
 import { esRequerimientoElegibleParaOC } from '../../../../services/requerimiento.cobertura';
@@ -98,13 +96,6 @@ export function autoGroupByProveedor(pool: PoolProducto[]): Map<string, PoolProd
   return groups;
 }
 
-// ============ Color cycling ============
-
-export function getNextGroupColor(existingGroups: OCDraftGroup[]): GroupColor {
-  const usedColors = new Set(existingGroups.map(g => g.color));
-  const available = GROUP_COLORS.filter(c => !usedColors.has(c));
-  return available.length > 0 ? available[0] : GROUP_COLORS[existingGroups.length % GROUP_COLORS.length];
-}
 
 // ============ Group totals ============
 

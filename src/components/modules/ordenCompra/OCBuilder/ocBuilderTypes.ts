@@ -39,10 +39,6 @@ export interface PoolProducto extends OCBuilderProducto {
 
 // ============ Group types ============
 
-const GROUP_COLORS = ['blue', 'emerald', 'amber', 'purple', 'rose', 'cyan', 'orange', 'indigo'] as const;
-export type GroupColor = typeof GROUP_COLORS[number];
-export { GROUP_COLORS };
-
 /** Modo de entrega del proveedor — determina el flujo logístico */
 export type ModoEntregaOC = 'viajero' | 'envio_directo';
 
@@ -50,7 +46,6 @@ export type ModoEntregaOC = 'viajero' | 'envio_directo';
 export interface OCDraftGroup {
   id: string;
   nombre: string;
-  color: GroupColor;
   proveedor: ProveedorSnapshot | null;
   almacenDestino: AlmacenSnapshot | null;
   productos: OCBuilderProducto[];

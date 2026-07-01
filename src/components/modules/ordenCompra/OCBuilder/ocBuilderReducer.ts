@@ -7,7 +7,6 @@ import type {
 import {
   buildPool,
   autoGroupByProveedor,
-  getNextGroupColor,
   recalcPool,
   generateGroupId,
   distributeOrigenes,
@@ -45,7 +44,6 @@ export function ocBuilderReducer(state: OCBuilderState, action: OCBuilderAction)
       const newGroup: OCDraftGroup = {
         id: generateGroupId(),
         nombre: action.payload?.nombre || `OC ${state.groups.length + 1}`,
-        color: getNextGroupColor(state.groups),
         proveedor: null,
         almacenDestino: action.payload?.almacenDestino || null,
         productos: [],
@@ -183,13 +181,11 @@ export function ocBuilderReducer(state: OCBuilderState, action: OCBuilderAction)
     case 'AUTO_GROUP_BY_PROVEEDOR': {
       const grouped = autoGroupByProveedor(state.pool);
       const newGroups: OCDraftGroup[] = [];
-      let colorIdx = 0;
 
       grouped.forEach((products, proveedorName) => {
         const group: OCDraftGroup = {
           id: generateGroupId(),
           nombre: proveedorName,
-          color: ((['blue', 'emerald', 'amber', 'purple', 'rose', 'cyan', 'orange', 'indigo'] as const)[colorIdx % 8]),
           proveedor: null,
           almacenDestino: null,
           productos: products.map(p => ({
@@ -217,7 +213,6 @@ export function ocBuilderReducer(state: OCBuilderState, action: OCBuilderAction)
           fleteIncluidoEnPrecio: false,
         };
         newGroups.push(group);
-        colorIdx++;
       });
 
       const pool = recalcPool(state.pool, newGroups);

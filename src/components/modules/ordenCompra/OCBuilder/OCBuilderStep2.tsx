@@ -6,7 +6,8 @@ import {
 import { ProveedorAutocomplete } from '../../entidades/ProveedorAutocomplete';
 import { AlmacenAutocomplete } from '../../entidades/AlmacenAutocomplete';
 import { calcGroupTotals, validateStep2, formatUSD, formatPEN, formatProductSubtitle } from './ocBuilderUtils';
-import type { OCBuilderState, OCBuilderAction, OCDraftGroup, GroupColor } from './ocBuilderTypes';
+import type { OCBuilderState, OCBuilderAction, OCDraftGroup } from './ocBuilderTypes';
+import { GroupBadge } from './OCBuilderGroupBadge';
 import { useOrdenCompraStore } from '../../../../store/ordenCompraStore';
 import { useProductoStore } from '../../../../store/productoStore';
 import { getReferenciaPreciosEnMemoria } from '../../../../services/ordenCompra.stats.service';
@@ -17,33 +18,23 @@ interface Props {
   dispatch: React.Dispatch<OCBuilderAction>;
 }
 
-const colorBg: Record<GroupColor, string> = {
-  blue: 'bg-sky-500', emerald: 'bg-emerald-500', amber: 'bg-amber-500', purple: 'bg-purple-500',
-  rose: 'bg-rose-500', cyan: 'bg-cyan-500', orange: 'bg-orange-500', indigo: 'bg-blue-500',
-};
-const colorLight: Record<GroupColor, string> = {
-  blue: 'bg-sky-50 text-sky-700 border-sky-200', emerald: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-  amber: 'bg-amber-50 text-amber-700 border-amber-200', purple: 'bg-purple-50 text-purple-700 border-purple-200',
-  rose: 'bg-rose-50 text-rose-700 border-rose-200', cyan: 'bg-cyan-50 text-cyan-700 border-cyan-200',
-  orange: 'bg-orange-50 text-orange-700 border-orange-200', indigo: 'bg-blue-50 text-blue-700 border-blue-200',
-};
-
 const GroupTab: React.FC<{
   group: OCDraftGroup;
+  numero: number;
   active: boolean;
   onClick: () => void;
-}> = ({ group, active, onClick }) => {
+}> = ({ group, numero, active, onClick }) => {
   const totals = calcGroupTotals(group);
   return (
     <button
       onClick={onClick}
       className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all border whitespace-nowrap ${
         active
-          ? `${colorLight[group.color]} border shadow-sm`
+          ? 'bg-blue-50 text-blue-700 border-blue-200 shadow-sm'
           : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
       }`}
     >
-      <div className={`w-2.5 h-2.5 rounded-full ${colorBg[group.color]} flex-shrink-0`} />
+      <GroupBadge numero={numero} />
       <span>{group.nombre}</span>
       <span className={`text-xs px-1.5 py-0.5 rounded-full ${active ? 'bg-white/60' : 'bg-slate-100'}`}>
         {totals.cantidadProductos}
@@ -465,10 +456,11 @@ export const OCBuilderStep2: React.FC<Props> = ({ state, dispatch }) => {
       {/* Group tabs */}
       {state.groups.length > 1 && (
         <div className="flex gap-2 overflow-x-auto pb-1">
-          {state.groups.map(g => (
+          {state.groups.map((g, idx) => (
             <GroupTab
               key={g.id}
               group={g}
+              numero={idx + 1}
               active={g.id === (activeGroup?.id || '')}
               onClick={() => dispatch({ type: 'SET_ACTIVE_GROUP', payload: { groupId: g.id } })}
             />

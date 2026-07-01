@@ -7,7 +7,8 @@ import { Button } from '../../../common/Button';
 import { OrdenCompraService } from '../../../../services/ordenCompra.service';
 import { useAuthStore } from '../../../../store/authStore';
 import { calcGroupTotals, calcGrandTotals, groupToFormData, formatUSD, formatPEN, formatProductSubtitle } from './ocBuilderUtils';
-import type { OCBuilderState, OCBuilderAction, OCDraftGroup, GroupColor } from './ocBuilderTypes';
+import type { OCBuilderState, OCBuilderAction, OCDraftGroup } from './ocBuilderTypes';
+import { GroupBadge } from './OCBuilderGroupBadge';
 
 interface Props {
   state: OCBuilderState;
@@ -15,20 +16,7 @@ interface Props {
   onComplete: (ordenesCreadas: Array<{ id: string; numeroOrden: string; groupName: string }>) => void;
 }
 
-const colorBg: Record<GroupColor, string> = {
-  blue: 'bg-sky-500', emerald: 'bg-emerald-500', amber: 'bg-amber-500', purple: 'bg-purple-500',
-  rose: 'bg-rose-500', cyan: 'bg-cyan-500', orange: 'bg-orange-500', indigo: 'bg-blue-500',
-};
-const colorBorder: Record<GroupColor, string> = {
-  blue: 'border-sky-400', emerald: 'border-emerald-400', amber: 'border-amber-400', purple: 'border-purple-400',
-  rose: 'border-rose-400', cyan: 'border-cyan-400', orange: 'border-orange-400', indigo: 'border-blue-400',
-};
-const colorHeaderBg: Record<GroupColor, string> = {
-  blue: 'bg-sky-50', emerald: 'bg-emerald-50', amber: 'bg-amber-50', purple: 'bg-purple-50',
-  rose: 'bg-rose-50', cyan: 'bg-cyan-50', orange: 'bg-orange-50', indigo: 'bg-blue-50',
-};
-
-const SummaryCard: React.FC<{ group: OCDraftGroup; state: OCBuilderState }> = ({ group, state }) => {
+const SummaryCard: React.FC<{ group: OCDraftGroup; numero: number; state: OCBuilderState }> = ({ group, numero, state }) => {
   const totals = calcGroupTotals(group);
   const tc = state.tcMode === 'global' ? state.tcGlobal : group.tcCompra;
 
@@ -37,12 +25,12 @@ const SummaryCard: React.FC<{ group: OCDraftGroup; state: OCBuilderState }> = ({
   const error = state.creationErrors.find(e => e.groupId === group.id);
 
   return (
-    <div className={`rounded-lg border-l-4 ${colorBorder[group.color]} border border-slate-200 bg-white overflow-hidden ${
+    <div className={`rounded-lg border-l-4 border-blue-400 border border-slate-200 bg-white overflow-hidden ${
       created ? 'ring-2 ring-emerald-300' : error ? 'ring-2 ring-red-300' : ''
     }`}>
       {/* Header */}
-      <div className={`px-4 py-3 ${colorHeaderBg[group.color]} flex items-center gap-2`}>
-        <div className={`w-3 h-3 rounded-full ${colorBg[group.color]}`} />
+      <div className="px-4 py-3 bg-blue-50 flex items-center gap-2">
+        <GroupBadge numero={numero} />
         <h4 className="font-semibold text-slate-900 flex-1">{group.nombre}</h4>
         {created && <CheckCircle2 className="h-5 w-5 text-emerald-500" />}
         {error && <XCircle className="h-5 w-5 text-red-500" />}
@@ -195,8 +183,8 @@ export const OCBuilderStep3: React.FC<Props> = ({ state, dispatch, onComplete })
         state.groups.length === 2 ? 'grid-cols-1 md:grid-cols-2 max-w-3xl mx-auto' :
         'grid-cols-1 md:grid-cols-2 xl:grid-cols-3'
       }`}>
-        {state.groups.map(g => (
-          <SummaryCard key={g.id} group={g} state={state} />
+        {state.groups.map((g, idx) => (
+          <SummaryCard key={g.id} group={g} numero={idx + 1} state={state} />
         ))}
       </div>
 
