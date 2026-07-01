@@ -892,7 +892,7 @@ const MatrizProductos: React.FC<{
               <th className="text-right p-2 font-semibold whitespace-nowrap">
                 Asignado
               </th>
-              <th className="text-center p-2 font-semibold w-8">✓</th>
+              <th className="text-center p-2 font-semibold w-8"><Check className="w-3.5 h-3.5 inline" /></th>
             </tr>
           </thead>
           <tbody>
@@ -1084,7 +1084,7 @@ const MatrizCargos: React.FC<{
               <th className="text-right p-2 font-semibold whitespace-nowrap">
                 Distribuido
               </th>
-              <th className="text-center p-2 font-semibold w-8">✓</th>
+              <th className="text-center p-2 font-semibold w-8"><Check className="w-3.5 h-3.5 inline" /></th>
             </tr>
           </thead>
           <tbody>

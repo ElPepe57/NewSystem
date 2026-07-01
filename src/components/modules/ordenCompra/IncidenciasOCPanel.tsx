@@ -430,9 +430,9 @@ const IncidenciaRow: React.FC<{
               )}
               <button
                 onClick={() => setResolving(true)}
-                className="text-[11px] px-2 py-1 bg-emerald-600 text-white rounded hover:bg-emerald-700"
+                className="text-[11px] px-2 py-1 bg-emerald-600 text-white rounded hover:bg-emerald-700 inline-flex items-center gap-1"
               >
-                ✓ Resolver
+                <Check className="w-3 h-3" /> Resolver
               </button>
             </div>
           )}
@@ -735,9 +735,15 @@ const ResolverForm: React.FC<{
         <button
           onClick={handle}
           disabled={!puedeGuardar || saving}
-          className="text-xs px-2 py-1 bg-emerald-600 text-white rounded hover:bg-emerald-700 disabled:opacity-50"
+          className="text-xs px-2 py-1 bg-emerald-600 text-white rounded hover:bg-emerald-700 disabled:opacity-50 inline-flex items-center gap-1"
         >
-          {saving ? 'Resolviendo…' : '✓ Marcar resuelta'}
+          {saving ? (
+            'Resolviendo…'
+          ) : (
+            <>
+              <Check className="w-3 h-3" /> Marcar resuelta
+            </>
+          )}
         </button>
       </div>
     </div>

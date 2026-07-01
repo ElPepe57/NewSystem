@@ -1086,7 +1086,6 @@ const AlmacenPeruCard: React.FC<{
       <span className="text-xs font-semibold text-slate-900 font-mono">
         {almacen.codigo}
       </span>
-      <span className="text-sm flex-shrink-0">🇵🇪</span>
     </div>
     <div className="text-xs font-medium text-slate-700 truncate">
       {almacen.nombre}
@@ -1109,23 +1108,24 @@ const EmptyHint: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
+// Código ISO de país (F8 · texto, no emoji-bandera).
 function getFlagByPais(pais?: string): string {
-  if (!pais) return '🌐';
-  const flags: Record<string, string> = {
-    USA: '🇺🇸',
-    'Estados Unidos': '🇺🇸',
-    CHINA: '🇨🇳',
-    China: '🇨🇳',
-    COREA: '🇰🇷',
-    Corea: '🇰🇷',
-    'Corea del Sur': '🇰🇷',
-    JAPÓN: '🇯🇵',
-    Japón: '🇯🇵',
-    MÉXICO: '🇲🇽',
-    México: '🇲🇽',
-    PERÚ: '🇵🇪',
-    Perú: '🇵🇪',
-    Peru: '🇵🇪',
+  if (!pais) return '';
+  const codigos: Record<string, string> = {
+    USA: 'US',
+    'Estados Unidos': 'US',
+    CHINA: 'CN',
+    China: 'CN',
+    COREA: 'KR',
+    Corea: 'KR',
+    'Corea del Sur': 'KR',
+    JAPÓN: 'JP',
+    Japón: 'JP',
+    MÉXICO: 'MX',
+    México: 'MX',
+    PERÚ: 'PE',
+    Perú: 'PE',
+    Peru: 'PE',
   };
-  return flags[pais] ?? '🌐';
+  return codigos[pais] ?? '';
 }

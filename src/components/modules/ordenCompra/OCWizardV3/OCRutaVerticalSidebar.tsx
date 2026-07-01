@@ -1,24 +1,24 @@
 /**
  * OCRutaVerticalSidebar — Sidebar vertical de ruta para OCWizardV3.
  *
- * Adapta el patrón `RutaVerticalSidebar` del Wizard de Envíos Unificado
- * (S52 v7 · D-R) al contexto de Compras. 3 bloques verticales:
- *
- *   📦 PROVEEDOR   →   ✈️ TRÁNSITO   →   🏠 DESTINO
+ * Adapta el patrón `RutaVerticalSidebar` del Wizard de Envíos Unificado al contexto
+ * de Compras. 3 bloques verticales: Proveedor -> Tránsito -> Destino.
  *
  *   - Chip de tipo de ruta arriba (via_casilla / ddp_directo / ya_en_peru)
  *   - Estados por bloque: pending | current | complete
- *   - Iconos fijos por rol + tránsito dinámico según colaborador
+ *   - Iconos lucide por rol + tránsito dinámico según colaborador (canon F8 · sin emojis)
  *
  * Reemplaza la mini-RouteVisual horizontal del OCWizardPreview previo.
  */
 import React from 'react';
+import { Package, Plane, MapPin, Hand, Home, Tag, Truck, Coins, Check } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import type { OCWizardState } from './ocWizardTypes';
 import type { ConfigLogistica } from './configLogistica';
 
 interface Props {
   state: OCWizardState;
-  currentStep: number; // 0=Ruta, 1=Productos, 2=Cargos, 3=Inteligencia, 4=Confirmar
+  currentStep: number; // 0=Ruta, 1=Productos, 2=Cargos, 3=Confirmar
 }
 
 type EstadoBloque = 'pending' | 'current' | 'complete';
@@ -26,30 +26,6 @@ type EstadoBloque = 'pending' | 'current' | 'complete';
 // ============================================================================
 // Helpers
 // ============================================================================
-
-function paisBandera(pais?: string): string {
-  if (!pais) return '🌐';
-  const MAP: Record<string, string> = {
-    USA: '🇺🇸',
-    'Estados Unidos': '🇺🇸',
-    US: '🇺🇸',
-    China: '🇨🇳',
-    CHINA: '🇨🇳',
-    CN: '🇨🇳',
-    Corea: '🇰🇷',
-    'Corea del Sur': '🇰🇷',
-    KR: '🇰🇷',
-    Japón: '🇯🇵',
-    Japon: '🇯🇵',
-    JP: '🇯🇵',
-    México: '🇲🇽',
-    Mexico: '🇲🇽',
-    Perú: '🇵🇪',
-    Peru: '🇵🇪',
-    PE: '🇵🇪',
-  };
-  return MAP[pais] ?? '🌐';
-}
 
 interface TipoRutaInfo {
   nombre: string;
@@ -103,22 +79,22 @@ function getTipoRutaInfo(cfg: ConfigLogistica): TipoRutaInfo | null {
 
 interface BloqueProps {
   estado: EstadoBloque;
-  icono: string;
+  icono: LucideIcon;
   labelRol: string;
   nombre: string;
+  numero: number;
   metadata?: string;
-  extra?: string;
-  badge: string | number;
+  extra?: React.ReactNode;
 }
 
 const Bloque: React.FC<BloqueProps> = ({
   estado,
-  icono,
+  icono: Icono,
   labelRol,
   nombre,
+  numero,
   metadata,
   extra,
-  badge,
 }) => {
   const clases = {
     pending: 'bg-slate-50 border-slate-200 border-dashed',
@@ -138,6 +114,12 @@ const Bloque: React.FC<BloqueProps> = ({
     complete: 'text-green-700',
   }[estado];
 
+  const iconClases = {
+    pending: 'text-slate-400 opacity-60',
+    current: 'text-blue-600',
+    complete: 'text-green-600',
+  }[estado];
+
   const badgeClases = {
     pending: 'bg-slate-200 text-slate-400',
     current: 'bg-blue-500 text-white',
@@ -154,9 +136,7 @@ const Bloque: React.FC<BloqueProps> = ({
     <div className={`rounded-xl p-3 border-2 transition-all ${clases}`}>
       <div className="flex items-start justify-between mb-1">
         <div className="flex items-center gap-1.5">
-          <span className={`text-base ${estado === 'pending' ? 'opacity-50' : ''}`}>
-            {icono}
-          </span>
+          <Icono className={`w-4 h-4 ${iconClases}`} />
           <span
             className={`text-[10px] font-semibold uppercase tracking-wider ${labelClases}`}
           >
@@ -164,9 +144,9 @@ const Bloque: React.FC<BloqueProps> = ({
           </span>
         </div>
         <span
-          className={`inline-flex items-center justify-center w-5 h-5 rounded-full text-[11px] font-bold ${badgeClases}`}
+          className={`inline-flex items-center justify-center w-5 h-5 rounded-full text-[11px] font-bold tabular-nums ${badgeClases}`}
         >
-          {badge}
+          {estado === 'complete' ? <Check className="w-3 h-3" /> : numero}
         </span>
       </div>
       <div className={`text-sm ${nombreClases}`}>{nombre}</div>
@@ -215,21 +195,19 @@ export const OCRutaVerticalSidebar: React.FC<Props> = ({ state, currentStep }) =
   if (destinoCompleto && proveedorCompleto) estadoDestino = 'complete';
   else if (enPasoRuta && proveedorCompleto) estadoDestino = 'current';
 
-  // Contenido de los bloques
+  // Contenido de los bloques (país como texto · sin emoji de bandera · canon F8)
   const proveedorNombre = cfg.proveedorNombre || '(por elegir)';
-  const proveedorMetadata = cfg.proveedorId
-    ? `${paisBandera(cfg.paisOrigen)} ${cfg.paisOrigen || ''}`
-    : undefined;
+  const proveedorMetadata = cfg.proveedorId ? cfg.paisOrigen || undefined : undefined;
 
   // Tránsito depende de salidaProveedor y colaborador
-  const transitoIcono =
+  const transitoIcono: LucideIcon =
     cfg.llegadaPeru === 'ddp_directo'
-      ? '✈️'
+      ? Plane
       : cfg.llegadaPeru === 'ya_en_peru'
-      ? '🇵🇪'
+      ? MapPin
       : cfg.salidaProveedor === 'recojo_en_origen'
-      ? '🙋'
-      : '📦';
+      ? Hand
+      : Package;
   const transitoLabelRol = cfg.llegadaPeru === 'ddp_directo' ? 'Tránsito · DDP' : 'Tránsito';
   const transitoNombre = (() => {
     if (cfg.llegadaPeru === 'ddp_directo') return 'Vuelo directo a Perú';
@@ -247,12 +225,14 @@ export const OCRutaVerticalSidebar: React.FC<Props> = ({ state, currentStep }) =
       ? 'El proveedor despacha a la casilla'
       : 'Colaborador recoge del proveedor';
   })();
-  const transitoExtra = cfg.colaboradorNombre
-    ? `🚚 ${cfg.colaboradorNombre}`
-    : undefined;
+  const transitoExtra = cfg.colaboradorNombre ? (
+    <span className="inline-flex items-center gap-1">
+      <Truck className="w-3 h-3" /> {cfg.colaboradorNombre}
+    </span>
+  ) : undefined;
 
   // Destino
-  const destinoIcono = cfg.llegadaPeru === 'ddp_directo' ? '🇵🇪' : '🏠';
+  const destinoIcono: LucideIcon = cfg.llegadaPeru === 'ddp_directo' ? MapPin : Home;
   const destinoLabelRol = cfg.llegadaPeru === 'ddp_directo' ? 'Destino · PE' : 'Destino';
   const destinoNombre = (() => {
     if (cfg.llegadaPeru === 'ddp_directo') return 'Almacén Perú';
@@ -261,12 +241,13 @@ export const OCRutaVerticalSidebar: React.FC<Props> = ({ state, currentStep }) =
     return cfg.casillaDestinoNombre || 'Casilla';
   })();
   const destinoMetadata = (() => {
-    if (cfg.llegadaPeru === 'ddp_directo') return '🇵🇪 Perú';
-    if (cfg.llegadaPeru === 'ya_en_peru') return '🇵🇪 Stock local';
+    if (cfg.llegadaPeru === 'ddp_directo') return 'Perú';
+    if (cfg.llegadaPeru === 'ya_en_peru') return 'Stock local';
     if (!cfg.casillaDestinoId) return undefined;
-    return `${paisBandera(cfg.casillaDestinoPais)} ${cfg.casillaDestinoPais || ''}${
-      cfg.casillaDestinoCodigo ? ` · ${cfg.casillaDestinoCodigo}` : ''
-    }`;
+    const partes = [cfg.casillaDestinoPais || '', cfg.casillaDestinoCodigo || '']
+      .filter(Boolean)
+      .join(' · ');
+    return partes || undefined;
   })();
 
   return (
@@ -277,7 +258,7 @@ export const OCRutaVerticalSidebar: React.FC<Props> = ({ state, currentStep }) =
           className={`rounded-xl px-3 py-2 border ${tipoInfo.chipBg} ${tipoInfo.chipBorder}`}
         >
           <div className="flex items-center gap-2">
-            <span className="text-lg">🏷️</span>
+            <Tag className={`w-5 h-5 flex-shrink-0 ${tipoInfo.chipTextUpper}`} />
             <div className="flex-1 min-w-0">
               <div
                 className={`text-[10px] font-semibold uppercase tracking-wider ${tipoInfo.chipTextUpper}`}
@@ -298,7 +279,7 @@ export const OCRutaVerticalSidebar: React.FC<Props> = ({ state, currentStep }) =
       ) : (
         <div className="rounded-xl px-3 py-2 border border-slate-200 bg-slate-50">
           <div className="flex items-center gap-2">
-            <span className="text-lg opacity-40">🏷️</span>
+            <Tag className="w-5 h-5 flex-shrink-0 text-slate-400" />
             <div className="flex-1 min-w-0">
               <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
                 Tipo de ruta
@@ -323,11 +304,11 @@ export const OCRutaVerticalSidebar: React.FC<Props> = ({ state, currentStep }) =
         <div className="space-y-2">
           <Bloque
             estado={estadoProveedor}
-            icono="📦"
+            icono={Package}
             labelRol="Proveedor"
             nombre={proveedorNombre}
             metadata={proveedorMetadata}
-            badge={estadoProveedor === 'complete' ? '✓' : estadoProveedor === 'current' ? '⟳' : '1'}
+            numero={1}
           />
 
           <Bloque
@@ -337,7 +318,7 @@ export const OCRutaVerticalSidebar: React.FC<Props> = ({ state, currentStep }) =
             nombre={transitoNombre}
             metadata={transitoMetadata}
             extra={transitoExtra}
-            badge={estadoTransito === 'complete' ? '✓' : estadoTransito === 'current' ? '⟳' : '1'}
+            numero={2}
           />
 
           <Bloque
@@ -346,7 +327,7 @@ export const OCRutaVerticalSidebar: React.FC<Props> = ({ state, currentStep }) =
             labelRol={destinoLabelRol}
             nombre={destinoNombre}
             metadata={destinoMetadata}
-            badge={estadoDestino === 'complete' ? '✓' : estadoDestino === 'current' ? '⟳' : '1'}
+            numero={3}
           />
         </div>
       </div>
@@ -354,8 +335,8 @@ export const OCRutaVerticalSidebar: React.FC<Props> = ({ state, currentStep }) =
       {/* Deudor alternativo (si aplica) */}
       {cfg.deudorTipo === 'colaborador' && cfg.deudorNombre && (
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-3">
-          <div className="text-[10px] font-semibold uppercase tracking-wider text-amber-700 mb-1">
-            💰 Deudor alternativo
+          <div className="text-[10px] font-semibold uppercase tracking-wider text-amber-700 mb-1 flex items-center gap-1">
+            <Coins className="w-3 h-3" /> Deudor alternativo
           </div>
           <div className="text-sm font-semibold text-amber-900">
             {cfg.deudorNombre}

@@ -102,7 +102,7 @@ export const StepConfirm: React.FC<StepConfirmProps> = ({
           state: 'done',
         },
         {
-          flag: '🇵🇪',
+          flag: 'PE',
           nombre: 'Perú',
           tipo: 'destino',
           subtexto: cfg.casillaDestinoNombre || 'Almacén',
@@ -223,9 +223,12 @@ export const StepConfirm: React.FC<StepConfirmProps> = ({
           </div>
 
           {cfg.deudorTipo === 'colaborador' && (
-            <div className="bg-amber-50 border border-amber-200 rounded-lg p-2.5 text-xs text-amber-900">
-              <strong>⚠ Deudor alternativo:</strong> {cfg.deudorNombre} adelantó el pago al
-              proveedor. La CxP se crea con este colaborador.
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-2.5 text-xs text-amber-900 flex items-start gap-1.5">
+              <AlertCircle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+              <div>
+                <strong>Deudor alternativo:</strong> {cfg.deudorNombre} adelantó el pago al
+                proveedor. La CxP se crea con este colaborador.
+              </div>
             </div>
           )}
         </div>
@@ -388,22 +391,23 @@ const Row: React.FC<{ label: string; value: number; accent?: 'success' }> = ({
   </div>
 );
 
+// Código ISO de país (F8 · texto, no emoji-bandera) para el slot `flag` de RouteVisual.
 function getFlag(pais?: string): string {
-  if (!pais) return '🌐';
-  const flags: Record<string, string> = {
-    USA: '🇺🇸',
-    'Estados Unidos': '🇺🇸',
-    CHINA: '🇨🇳',
-    China: '🇨🇳',
-    COREA: '🇰🇷',
-    Corea: '🇰🇷',
-    'Corea del Sur': '🇰🇷',
-    JAPÓN: '🇯🇵',
-    Japón: '🇯🇵',
-    MÉXICO: '🇲🇽',
-    México: '🇲🇽',
-    PERÚ: '🇵🇪',
-    Perú: '🇵🇪',
+  if (!pais) return '';
+  const codigos: Record<string, string> = {
+    USA: 'US',
+    'Estados Unidos': 'US',
+    CHINA: 'CN',
+    China: 'CN',
+    COREA: 'KR',
+    Corea: 'KR',
+    'Corea del Sur': 'KR',
+    JAPÓN: 'JP',
+    Japón: 'JP',
+    MÉXICO: 'MX',
+    México: 'MX',
+    PERÚ: 'PE',
+    Perú: 'PE',
   };
-  return flags[pais] ?? '🌐';
+  return codigos[pais] ?? '';
 }
