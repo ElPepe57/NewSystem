@@ -458,6 +458,75 @@ construido el kit, el código refuerza la regla (imposible desviarse).
 
 ---
 
+# CANON DE ALINEACIÓN DE COLOR + ARMONÍA POR COMPONENTE · OBLIGATORIO (declarado 2026-07-01)
+
+**Toda sección del ERP —y CADA UNO de sus componentes— debe estar alineada al color de
+su GRUPO (`grupoColor.ts`) en TODO el chrome, y ser armónica y consistente entre componentes
+hermanos. Esta alineación NO es opcional: es un entregable obligatorio al construir o
+reworkear cualquier sección, y se audita retroactivamente.**
+
+Cita literal del usuario (2026-07-01):
+*"podemos hacer que este procedimiento sea obligatorio en general, para toda seccion con
+cada uno de sus componentes?"*
+
+Origen: revisión de las superficies del wizard de creación de OC (Compras) donde el usuario
+detectó chrome fuera del color de sección (anillo de foco ámbar, estados que se ponían verde
+al seleccionar, iconos de card sky/ámbar/teal, chip de tipo de ruta multicolor) + inconsistencias
+de componente (una card "sin icono" mientras las hermanas tenían avatar · el preview referenciando
+un paso futuro vacío). Se corrigió alineando TODO a azul (Comercial) y se declaró el procedimiento
+como canon universal.
+
+## Regla operativa
+
+Al construir o reworkear una sección, hay que AUDITAR y ALINEAR **todos sus componentes**
+(hub, tabs, wizard y cada step, cards, modales, forms, inputs, sidebars, previews, banners):
+
+1. **Chrome → color del GRUPO** (de `grupoColor.ts` · ej. Comercial=blue). Va en el color del grupo
+   TODO lo interactivo/estructural: anillos de foco (`focus:ring`) · tab activa · primary CTA ·
+   bordes y glow/"iluminación" de selección · estados de wizard (actual/completo) · chips de
+   tipo/navegación · avatares de icono (icon-box) · iconos de chrome · checkboxes/radios (color de check).
+2. **Semántico → paleta FIJA (NO se alinea al grupo).** Datos y estados de negocio: amber=dinero ·
+   rose=urgencia · emerald=pagado/positivo · sky=parcial · indigo=fijo · purple=venta · slate=neutro ·
+   + warnings reales (ej. "sobre-precio"). Esto NUNCA se pinta del color del grupo.
+3. **Prohibido en chrome:** teal legacy (salvo grupo Finanzas) · colores random/arcoíris ·
+   focus rings de otro color que el grupo · estados de selección en verde (u otro) cuando el grupo
+   es azul · un componente que introduce un color de chrome propio.
+4. **Consistencia entre componentes hermanos.** Cards/selectores de un mismo flujo usan el MISMO
+   patrón: avatar con icono (ninguno queda "sin icono"), misma "iluminación de selección"
+   (border + glow + check), misma forma de colapsar/expandir al seleccionar (se "alarga" igual).
+5. **Previews/resúmenes NO referencian pasos futuros vacíos.** El panel de resumen muestra lo YA
+   ingresado (aparece cada sección cuando tiene contenido) · no placeholders de un paso posterior.
+6. **Diferenciar por forma/texto, no por color de chrome.** Tipos/opciones se distinguen por icono,
+   label o check — no metiendo colores distintos en el chrome.
+
+## Método obligatorio (el "procedimiento")
+
+1. Barrer TODOS los componentes de la sección buscando chrome fuera del color del grupo +
+   inconsistencias de componente (icono faltante, selección distinta, preview con pasos futuros).
+2. Distinguir CHROME (alinear al grupo) de SEMÁNTICO (dejar) · las dudas se declaran, no se pintan.
+3. Corregir en código · `npm run build` verde.
+4. Validación visual del usuario (armonía real) · afinar tonos sobre feedback.
+
+## Checklist antes de cerrar una sección/componente
+
+1. ✅ ¿Los focus rings, tabs activas, primary CTA y bordes/glow de selección usan el color del grupo?
+2. ✅ ¿Los estados (actual/completo/seleccionado) están en el color del grupo (no verde/otro random)?
+3. ✅ ¿Los avatares/iconos de chrome están en el color del grupo y TODOS los componentes hermanos
+      tienen su icono (ninguno "sin icono")?
+4. ✅ ¿El color semántico se usa SOLO para datos/estados de negocio + warnings (no en chrome)?
+5. ✅ ¿No queda teal legacy ni colores random en el chrome?
+6. ✅ ¿Los previews/resúmenes muestran solo lo ingresado (sin referenciar pasos futuros vacíos)?
+7. ✅ ¿Build verde + validación visual del usuario?
+
+## Aplica a
+
+- ✅ Todas las secciones existentes (auditar retroactivamente su chrome + componentes).
+- ✅ Toda sección/componente nuevo y todo rework a partir de 2026-07-01.
+- ✅ Complementa el "CANON DE DESIGN SYSTEM · GOBERNANZA DE COLOR" (que define la regla chrome vs
+  semántico) — éste la vuelve un PROCEDIMIENTO DE AUDITORÍA/ALINEACIÓN obligatorio por componente.
+
+---
+
 # CANON DE COBERTURA DE REWORK DE MÓDULO (declarado 2026-05-11)
 
 **Cuando un módulo entra en rework canon, TODAS sus superficies son parte del
