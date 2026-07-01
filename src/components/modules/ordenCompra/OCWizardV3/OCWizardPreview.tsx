@@ -35,9 +35,10 @@ export const OCWizardPreview: React.FC<OCWizardPreviewProps> = ({
            replica el patrón del Wizard de Envíos Unificado v7 · D-R */}
       <OCRutaVerticalSidebar state={state} currentStep={currentStep} />
 
-      {/* ─── Productos ─────────────────────────────────────────────────── */}
-      <PreviewSection icon={<Package className="w-4 h-4" />} title="Productos" isEmpty={productosCount === 0}>
-        {productosCount > 0 ? (
+      {/* ─── Productos (solo cuando HAY · los productos son del paso 2, no se
+           referencian mientras estás en Ruta · evita el placeholder confuso) ─── */}
+      {productosCount > 0 && (
+        <PreviewSection icon={<Package className="w-4 h-4" />} title="Productos">
           <div className="space-y-1.5">
             <div className="flex items-center justify-between text-xs">
               <span className="text-slate-500">SKUs</span>
@@ -52,10 +53,8 @@ export const OCWizardPreview: React.FC<OCWizardPreviewProps> = ({
               <span className="font-semibold text-slate-900 tabular-nums">${subtotal.toFixed(2)}</span>
             </div>
           </div>
-        ) : (
-          <EmptyHint text="Agrega al menos 1 producto" />
-        )}
-      </PreviewSection>
+        </PreviewSection>
+      )}
 
       {/* ─── Cargos ────────────────────────────────────────────────────── */}
       {(state.cargosOC.length + state.descuentosOC.length + state.impuestosOC.length > 0) && (
@@ -125,10 +124,6 @@ const PreviewSection: React.FC<{
     </div>
     {children}
   </div>
-);
-
-const EmptyHint: React.FC<{ text: string }> = ({ text }) => (
-  <div className="text-xs text-slate-400 italic">{text}</div>
 );
 
 // S53.4 — buildPreviewNodes() y getFlag() ELIMINADOS.

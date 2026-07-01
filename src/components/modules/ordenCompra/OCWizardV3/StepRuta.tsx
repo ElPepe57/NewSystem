@@ -1079,23 +1079,30 @@ const AlmacenPeruCard: React.FC<{
         : 'border-slate-200 bg-white hover:border-blue-300 hover:bg-blue-50/30'
     )}
   >
-    <div className="flex items-center gap-2 mb-1">
-      <MapPin
-        className={cn('w-4 h-4', selected ? 'text-blue-600' : 'text-slate-500')}
-      />
-      <span className="text-xs font-semibold text-slate-900 font-mono">
-        {almacen.codigo}
-      </span>
-    </div>
-    <div className="text-xs font-medium text-slate-700 truncate">
-      {almacen.nombre}
-    </div>
-    {/* S42p — Dirección de referencia del almacén */}
-    {(almacen.direccion || almacen.ciudad) && (
-      <div className="text-[11px] text-slate-500 mt-1 truncate" title={[almacen.direccion, almacen.ciudad].filter(Boolean).join(', ')}>
-        {[almacen.direccion, almacen.ciudad].filter(Boolean).join(', ')}
+    <div className="flex items-start gap-2.5">
+      <div
+        className={cn(
+          'w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0',
+          selected ? 'bg-blue-100' : 'bg-slate-100'
+        )}
+      >
+        <Warehouse className={cn('w-4 h-4', selected ? 'text-blue-700' : 'text-slate-500')} />
       </div>
-    )}
+      <div className="min-w-0 flex-1">
+        <div className="text-xs font-semibold text-slate-900 font-mono">
+          {almacen.codigo}
+        </div>
+        <div className="text-xs font-medium text-slate-700 truncate">
+          {almacen.nombre}
+        </div>
+        {/* S42p — Dirección de referencia del almacén */}
+        {(almacen.direccion || almacen.ciudad) && (
+          <div className="text-[11px] text-slate-500 mt-0.5 truncate" title={[almacen.direccion, almacen.ciudad].filter(Boolean).join(', ')}>
+            {[almacen.direccion, almacen.ciudad].filter(Boolean).join(', ')}
+          </div>
+        )}
+      </div>
+    </div>
   </button>
 );
 

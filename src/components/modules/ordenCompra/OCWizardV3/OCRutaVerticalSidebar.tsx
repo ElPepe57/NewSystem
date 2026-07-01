@@ -39,37 +39,21 @@ interface TipoRutaInfo {
 
 function getTipoRutaInfo(cfg: ConfigLogistica): TipoRutaInfo | null {
   if (!cfg.proveedorId) return null;
-  if (cfg.llegadaPeru === 'ddp_directo') {
-    return {
-      nombre: 'Entrega directa',
-      subtitulo: 'Proveedor → Perú',
-      chipBg: 'bg-amber-50',
-      chipBorder: 'border-amber-200',
-      chipTextUpper: 'text-amber-700',
-      chipTextMain: 'text-amber-900',
-      chipTextSub: 'text-amber-700',
-    };
-  }
-  if (cfg.llegadaPeru === 'ya_en_peru') {
-    return {
-      nombre: 'Ya en Perú',
-      subtitulo: 'Mercadería local',
-      chipBg: 'bg-teal-50',
-      chipBorder: 'border-teal-200',
-      chipTextUpper: 'text-teal-700',
-      chipTextMain: 'text-teal-900',
-      chipTextSub: 'text-teal-700',
-    };
-  }
-  // via_casilla (default)
+  // El chip "Tipo de ruta" es chrome → color de sección (azul · Comercial) para los 3 tipos.
+  // El nombre/subtítulo diferencia el tipo, no el color (canon color por grupo).
+  const nombreSub =
+    cfg.llegadaPeru === 'ddp_directo'
+      ? { nombre: 'Entrega directa', subtitulo: 'Proveedor → Perú' }
+      : cfg.llegadaPeru === 'ya_en_peru'
+      ? { nombre: 'Ya en Perú', subtitulo: 'Mercadería local' }
+      : { nombre: 'Vía casilla', subtitulo: 'Proveedor → Casilla → Perú' };
   return {
-    nombre: 'Vía casilla',
-    subtitulo: 'Proveedor → Casilla → Perú',
-    chipBg: 'bg-sky-50',
-    chipBorder: 'border-sky-200',
-    chipTextUpper: 'text-sky-700',
-    chipTextMain: 'text-sky-900',
-    chipTextSub: 'text-sky-700',
+    ...nombreSub,
+    chipBg: 'bg-blue-50',
+    chipBorder: 'border-blue-200',
+    chipTextUpper: 'text-blue-700',
+    chipTextMain: 'text-blue-900',
+    chipTextSub: 'text-blue-700',
   };
 }
 
