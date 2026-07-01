@@ -170,6 +170,11 @@ export const OCWizardV3: React.FC<OCWizardV3Props> = ({
         (sum, p) => sum + (p.costoUnitario || 0) * (p.cantidad || 0),
         0
       ),
+    // FIX "banner pegado": wizard VACÍO (sin proveedor ni productos) → no autoguardar.
+    // Sin este guard, abrir "Nueva OC" auto-creaba un draft fantasma del estado fresco;
+    // al Descartar, el autosave lo re-creaba y el banner reaparecía. Con isEmpty=true el
+    // autosave frena (borra ambas capas) y el descarte queda firme.
+    isEmpty: (s) => !(s.configLogistica.proveedorNombre || s.proveedorNombre) && s.productos.length === 0,
   });
 
   // ─── S53.9 — Modo edición: pre-cargar state desde la OC al abrir ─────────
