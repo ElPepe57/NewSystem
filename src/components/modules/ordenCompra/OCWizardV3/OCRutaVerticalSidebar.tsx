@@ -98,38 +98,38 @@ const Bloque: React.FC<BloqueProps> = ({
 }) => {
   const clases = {
     pending: 'bg-slate-50 border-slate-200 border-dashed',
-    current: 'bg-blue-50 border-blue-500 shadow-[0_0_0_4px_#dbeafe] animate-pulse',
-    complete: 'bg-green-50 border-green-500',
+    current: 'bg-blue-50 border-blue-400 ring-2 ring-blue-500/25',
+    complete: 'bg-emerald-50 border-emerald-300',
   }[estado];
 
   const nombreClases = {
     pending: 'text-slate-400 italic',
     current: 'text-blue-900 font-semibold',
-    complete: 'text-green-800 font-semibold',
+    complete: 'text-emerald-800 font-semibold',
   }[estado];
 
   const labelClases = {
     pending: 'text-slate-500',
     current: 'text-blue-700',
-    complete: 'text-green-700',
+    complete: 'text-emerald-700',
   }[estado];
 
   const iconClases = {
     pending: 'text-slate-400 opacity-60',
     current: 'text-blue-600',
-    complete: 'text-green-600',
+    complete: 'text-emerald-600',
   }[estado];
 
   const badgeClases = {
     pending: 'bg-slate-200 text-slate-400',
     current: 'bg-blue-500 text-white',
-    complete: 'bg-green-500 text-white',
+    complete: 'bg-emerald-500 text-white',
   }[estado];
 
   const metadataClases = {
     pending: 'text-slate-400',
     current: 'text-blue-700',
-    complete: 'text-green-700',
+    complete: 'text-emerald-700',
   }[estado];
 
   return (

@@ -346,8 +346,8 @@ export const StepRuta: React.FC<StepRutaProps> = ({ state, dispatch }) => {
                 />
               ) : (
                 <TipoCardGrande
-                  icon={<Plane className="w-5 h-5 text-amber-600" />}
-                  iconBg="bg-amber-100"
+                  icon={<Plane className="w-5 h-5 text-indigo-600" />}
+                  iconBg="bg-indigo-100"
                   titulo="Entrega directa a Perú"
                   subtitulo="El proveedor despacha directo a Perú sin pasar por casilla intermedia"
                   selected
@@ -388,8 +388,8 @@ export const StepRuta: React.FC<StepRutaProps> = ({ state, dispatch }) => {
                 }}
               />
               <TipoCardGrande
-                icon={<Plane className="w-5 h-5 text-amber-600" />}
-                iconBg="bg-amber-100"
+                icon={<Plane className="w-5 h-5 text-indigo-600" />}
+                iconBg="bg-indigo-100"
                 titulo="Entrega directa a Perú"
                 subtitulo="El proveedor despacha directo a Perú sin pasar por casilla intermedia"
                 selected={tipoRutaSeleccionado === 'ddp'}

@@ -224,7 +224,7 @@ export const ProveedorAutocomplete: React.FC<ProveedorAutocompleteProps> = ({
           required={required}
           className={`
             block w-full pl-10 pr-10 py-2 border rounded-md shadow-sm
-            focus:ring-blue-500 focus:border-blue-500
+            focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500
             ${disabled ? 'bg-slate-100 cursor-not-allowed' : 'bg-white'}
             ${value ? 'border-emerald-300 bg-emerald-50' : 'border-slate-300'}
           `}
