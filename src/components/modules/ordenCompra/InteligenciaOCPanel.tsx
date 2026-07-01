@@ -1,10 +1,17 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { TrendingUp, TrendingDown, Minus, Truck, DollarSign, Award, Brain } from 'lucide-react';
+import { TrendingUp, TrendingDown, Minus, Truck, DollarSign, Award, Brain, Target } from 'lucide-react';
 import { collection, getDocs, query, where, limit } from 'firebase/firestore';
 import { db } from '../../../lib/firebase';
 import { cn } from '../../../design-system';
-import type { OrdenCompra } from '../../../types/ordenCompra.types';
+import type { OrdenCompra, ForecastSnapshot } from '../../../types/ordenCompra.types';
 import { useTipoCambio } from '../../../hooks/useTipoCambio';
+import { useProductoStore } from '../../../store/productoStore';
+import {
+  calcularAciertoInversion,
+  type AciertoInversion,
+  type EtiquetaAcierto,
+  type EjeComparativo,
+} from '../../../pages/Productos/utils/investigacionCalculos';
 
 /**
  * S54 · Tanda 3 — Panel de Inteligencia del detalle de OC.
@@ -50,6 +57,7 @@ export const InteligenciaOCPanel: React.FC<InteligenciaOCPanelProps> = ({ orden 
   const [precios, setPrecios] = useState<PrecioVsHistorico[]>([]);
   const [loading, setLoading] = useState(true);
   const { tc: tcActual } = useTipoCambio();
+  const catalogo = useProductoStore((s) => s.productos);
 
   // ─── Cálculos de SLA + precio vs histórico ─────────────────────────────
   useEffect(() => {
@@ -167,6 +175,24 @@ export const InteligenciaOCPanel: React.FC<InteligenciaOCPanelProps> = ({ orden 
       .sort((a, b) => (a.variacionPct ?? 0) - (b.variacionPct ?? 0));
   }, [precios]);
 
+  // ─── Lente 2 · ¿La compra acertó? (snapshot congelado vs. realidad) ──────
+  const aciertos = useMemo<AciertoRow[]>(() => {
+    return orden.productos
+      .filter((p) => p.forecastSnapshot)
+      .map((p) => {
+        const prod = catalogo.find((c) => c.id === p.productoId);
+        const acierto = prod
+          ? calcularAciertoInversion(prod, p.forecastSnapshot!.tcCongelado, p.forecastSnapshot)
+          : null;
+        return {
+          productoId: p.productoId,
+          nombre: p.nombreComercial || p.sku || 'Producto',
+          snapshot: p.forecastSnapshot!,
+          acierto,
+        };
+      });
+  }, [orden.productos, catalogo]);
+
   if (loading) {
     return (
       <div className="p-6 text-center text-xs text-slate-500">
@@ -186,6 +212,9 @@ export const InteligenciaOCPanel: React.FC<InteligenciaOCPanelProps> = ({ orden 
           <b>{orden.nombreProveedor}</b>. Los widgets se recalculan cuando cambian los datos del ERP.
         </div>
       </div>
+
+      {/* Lente 2 · ¿La compra acertó? (snapshot congelado al comprar vs. realidad) */}
+      <WidgetAcierto aciertos={aciertos} />
 
       {/* Grid 2 columnas de widgets */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -408,6 +437,109 @@ const WidgetRanking: React.FC<{ ranking: PrecioVsHistorico[] }> = ({ ranking }) 
     </Widget>
   );
 };
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Lente 2 · ¿La compra acertó?
+// ─────────────────────────────────────────────────────────────────────────────
+
+interface AciertoRow {
+  productoId: string;
+  nombre: string;
+  snapshot: ForecastSnapshot;
+  acierto: AciertoInversion | null;
+}
+
+const ACIERTO_STYLE: Record<EtiquetaAcierto, { label: string; badge: string; dot: string }> = {
+  acierto: { label: 'Acertó', badge: 'bg-emerald-100 text-emerald-700', dot: 'bg-emerald-500' },
+  medio: { label: 'Medio', badge: 'bg-amber-100 text-amber-700', dot: 'bg-amber-500' },
+  desvio: { label: 'Desvío', badge: 'bg-rose-100 text-rose-700', dot: 'bg-rose-500' },
+  en_curso: { label: 'En curso', badge: 'bg-slate-100 text-slate-600', dot: 'bg-slate-400' },
+};
+
+const fmtPEN = (n: number | null) => (n === null ? '—' : `S/ ${n.toFixed(2)}`);
+const fmtPctVal = (n: number | null) => (n === null ? '—' : `${n.toFixed(1)}%`);
+
+const EjeAcierto: React.FC<{ label: string; eje: EjeComparativo; fmt: (n: number | null) => string }> = ({
+  label,
+  eje,
+  fmt,
+}) => (
+  <div className="flex items-center gap-2 text-[11px]">
+    <span className="text-slate-500 w-12 flex-shrink-0">{label}</span>
+    <span className="tabular-nums text-slate-600 flex-1 text-right">
+      {fmt(eje.esperado)} <span className="text-slate-400">→</span>{' '}
+      <span className="font-semibold text-slate-800">{fmt(eje.obtenido)}</span>
+    </span>
+    <span className="tabular-nums text-slate-500 w-14 text-right inline-flex items-center justify-end gap-0.5">
+      {eje.variacionPct !== null ? (
+        <>
+          {eje.variacionPct > 0.5 ? (
+            <TrendingUp className="w-3 h-3" />
+          ) : eje.variacionPct < -0.5 ? (
+            <TrendingDown className="w-3 h-3" />
+          ) : (
+            <Minus className="w-3 h-3" />
+          )}
+          {eje.variacionPct > 0 ? '+' : ''}
+          {eje.variacionPct.toFixed(0)}%
+        </>
+      ) : (
+        '—'
+      )}
+    </span>
+  </div>
+);
+
+const WidgetAcierto: React.FC<{ aciertos: AciertoRow[] }> = ({ aciertos }) => (
+  <div className="p-3 border border-slate-200 rounded-lg bg-gradient-to-br from-white to-slate-50">
+    <div className="flex items-center gap-1.5 mb-2">
+      <Target className="w-4 h-4 text-slate-500" />
+      <span className="text-[10px] uppercase font-semibold text-slate-500">¿La compra acertó?</span>
+    </div>
+    {aciertos.length === 0 ? (
+      <EmptyWidget msg="Esta OC no tiene forecast congelado. Las OCs creadas desde ahora guardan la expectativa al comprar (precio, margen y CTRU) para compararla acá con la realidad." />
+    ) : (
+      <div className="space-y-2.5">
+        {aciertos.map((a) => {
+          const et = a.acierto?.etiqueta ?? 'en_curso';
+          const style = ACIERTO_STYLE[et];
+          return (
+            <div key={a.productoId} className="border-b border-slate-100 last:border-0 pb-2.5 last:pb-0">
+              <div className="flex items-center justify-between gap-2 mb-1">
+                <span className="text-xs font-medium text-slate-800 truncate inline-flex items-center gap-1.5 min-w-0">
+                  <span className={cn('w-1.5 h-1.5 rounded-full flex-shrink-0', style.dot)} />
+                  <span className="truncate">{a.nombre}</span>
+                </span>
+                <span className="flex items-center gap-1.5 flex-shrink-0">
+                  {a.acierto?.score != null && (
+                    <span className="text-[11px] tabular-nums font-semibold text-slate-600">
+                      {a.acierto.score}
+                    </span>
+                  )}
+                  <span className={cn('text-[10px] px-1.5 py-0.5 rounded-full font-medium', style.badge)}>
+                    {style.label}
+                  </span>
+                </span>
+              </div>
+              {a.acierto ? (
+                <div className="space-y-0.5 pl-3">
+                  <EjeAcierto label="Costo" eje={a.acierto.costo} fmt={fmtPEN} />
+                  <EjeAcierto label="Precio" eje={a.acierto.precio} fmt={fmtPEN} />
+                  <EjeAcierto label="Margen" eje={a.acierto.margen} fmt={fmtPctVal} />
+                </div>
+              ) : (
+                <div className="text-[10px] text-slate-400 italic pl-3">Producto no encontrado en el catálogo.</div>
+              )}
+            </div>
+          );
+        })}
+        <div className="text-[10px] text-slate-400 italic pt-1 border-t border-slate-100">
+          Esperado = expectativa congelada al comprar · Real = costo (CTRU) y precio de venta actuales del producto.
+        </div>
+      </div>
+    )}
+  </div>
+);
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Primitivos compartidos

@@ -21,6 +21,7 @@
  */
 
 import type { Producto } from '../../../types/producto.types';
+import type { ForecastSnapshot } from '../../../types/ordenCompra.types';
 
 export interface CalculosInvestigacion {
   // Proveedores
@@ -224,17 +225,30 @@ export interface AciertoInversion {
 export function calcularAciertoInversion(
   producto: Producto | null | undefined,
   tc?: number,
+  snapshot?: ForecastSnapshot | null,
 ): AciertoInversion | null {
   if (!producto) return null;
-  const calc = calcularInvestigacion(producto, tc);
 
-  // Requisito mínimo: investigación completa (al menos 1 prov + 1 comp)
-  if (!calc.esCompleta) return null;
+  // Fuente de la EXPECTATIVA:
+  //  - Con forecastSnapshot (Lente 2 · congelado al comprar) → HONESTO: la expectativa del
+  //    momento de la decisión · cierra DEUDA-PV2-INV-SNAPSHOTS (ya no compara vs investigación mutable).
+  //  - Sin snapshot → fallback a la investigación VIVA (comportamiento previo · requiere esCompleta).
+  let costoEsp: number | null;
+  let precioEsp: number | null;
+  if (snapshot) {
+    costoEsp = snapshot.ctruEstimado != null && snapshot.ctruEstimado > 0 ? snapshot.ctruEstimado : null;
+    precioEsp = snapshot.precioVentaEsperado != null && snapshot.precioVentaEsperado > 0 ? snapshot.precioVentaEsperado : null;
+  } else {
+    const calc = calcularInvestigacion(producto, tc);
+    // Requisito mínimo: investigación completa (al menos 1 prov + 1 comp)
+    if (!calc.esCompleta) return null;
+    costoEsp = calc.costoPEN > 0 ? calc.costoPEN : null;
+    precioEsp = calc.precioReferencia > 0 ? calc.precioReferencia : null;
+  }
 
   // ── EJE 1 · COSTO UNITARIO ──────────────────────────────────────────────
-  // Esperado: costoPEN derivado de investigación · Real: ctruPromedio
+  // Esperado: snapshot.ctruEstimado | costoPEN de investigación · Real: ctruPromedio
   const ctruReal = (producto as any).ctruPromedio;
-  const costoEsp = calc.costoPEN > 0 ? calc.costoPEN : null;
   const costoReal = typeof ctruReal === 'number' && ctruReal > 0 ? ctruReal : null;
   const costo: EjeComparativo = {
     esperado: costoEsp,
@@ -245,9 +259,8 @@ export function calcularAciertoInversion(
   };
 
   // ── EJE 2 · PRECIO VENTA ────────────────────────────────────────────────
-  // Esperado: precioReferencia (MIN comp × 0.95) · Real: precio manual confirmado
+  // Esperado: snapshot.precioVentaEsperado | precioReferencia · Real: precio manual confirmado
   const precioManual = (producto as any).precioVenta;
-  const precioEsp = calc.precioReferencia > 0 ? calc.precioReferencia : null;
   const precioReal = typeof precioManual === 'number' && precioManual > 0 ? precioManual : null;
   const precio: EjeComparativo = {
     esperado: precioEsp,
