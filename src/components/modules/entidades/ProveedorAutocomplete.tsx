@@ -191,14 +191,10 @@ export const ProveedorAutocomplete: React.FC<ProveedorAutocompleteProps> = ({
   };
 
   // Obtener color por tipo
-  const getColorByTipo = (tipo: TipoProveedor): string => {
-    const colores: Record<TipoProveedor, string> = {
-      fabricante: 'bg-purple-100 text-purple-800',
-      distribuidor: 'bg-sky-100 text-sky-800',
-      mayorista: 'bg-emerald-100 text-emerald-800',
-      minorista: 'bg-slate-100 text-slate-800'
-    };
-    return colores[tipo] || colores.distribuidor;
+  const getColorByTipo = (_tipo: TipoProveedor): string => {
+    // Etiqueta de tipo alineada al color de sección (Comercial=blue · uniforme y calmo,
+    // como el patrón de casilla de tránsito). El TEXTO del tipo distingue, no el color.
+    return 'bg-blue-50 text-blue-700';
   };
 
   return (
@@ -267,11 +263,14 @@ export const ProveedorAutocomplete: React.FC<ProveedorAutocompleteProps> = ({
                   key={proveedor.id}
                   type="button"
                   onClick={() => handleSelectProveedor(proveedor)}
-                  className="w-full px-4 py-3 text-left hover:bg-slate-50 border-b border-slate-100 last:border-0"
+                  className="w-full px-4 py-3 text-left hover:bg-blue-50/50 border-b border-slate-100 last:border-0"
                 >
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <div className="flex items-center space-x-2">
+                  <div className="flex items-start gap-3">
+                    <div className="w-9 h-9 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
+                      <Building2 className="w-4 h-4 text-blue-700" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-medium text-slate-900">{proveedor.nombre}</span>
                         <span className={`px-1.5 py-0.5 text-xs rounded ${getColorByTipo(proveedor.tipo)}`}>
                           {proveedor.tipo}
