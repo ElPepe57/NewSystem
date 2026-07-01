@@ -57,14 +57,13 @@ interface RentabilidadNetaPeriodo {
   ventasBrutas: number;
   costoBase: number;       // Compra + Flete (puesto en Perú)
   costoGVGD: number;       // Gastos Venta + Distribución
-  costoGAGO: number;       // Gastos Admin + Operativos
-  costoTotal: number;      // costoBase + costoGVGD + costoGAGO
+  costoTotal: number;      // costoBase + costoGVGD
   utilidadBruta: number;   // ventas - costoBase
   margenBruto: number;
   utilidadNeta: number;    // ventas - costoTotal
   margenNeto: number;
   unidadesVendidas: number;
-  cargaPorUnidad: number;  // (costoGVGD + costoGAGO) / unidades
+  cargaPorUnidad: number;  // costoGVGD / unidades
 }
 
 export const Reportes: React.FC = () => {
@@ -145,7 +144,6 @@ export const Reportes: React.FC = () => {
       ventasTotalPEN: number;
       costoBasePEN: number;
       costoGVGDPEN: number;
-      costoGAGOPEN: number;
     }>();
 
     // Agregar desgloseProductos de cada venta por productoId
@@ -158,7 +156,6 @@ export const Reportes: React.FC = () => {
           existing.ventasTotalPEN += dp.precioVenta;
           existing.costoBasePEN += dp.costoBase;
           existing.costoGVGDPEN += dp.costoGVGD;
-          existing.costoGAGOPEN += dp.costoGAGO;
         } else {
           const [marca, ...rest] = dp.nombre.split(' ');
           agregado.set(dp.productoId, {
@@ -170,7 +167,6 @@ export const Reportes: React.FC = () => {
             ventasTotalPEN: dp.precioVenta,
             costoBasePEN: dp.costoBase,
             costoGVGDPEN: dp.costoGVGD,
-            costoGAGOPEN: dp.costoGAGO,
           });
         }
       }
@@ -180,7 +176,7 @@ export const Reportes: React.FC = () => {
 
     // Calcular métricas finales
     const productos: ProductoRentabilidad[] = Array.from(agregado.values()).map(p => {
-      const costoTotalPEN = p.costoBasePEN + p.costoGVGDPEN + p.costoGAGOPEN;
+      const costoTotalPEN = p.costoBasePEN + p.costoGVGDPEN;
       const utilidadPEN = p.ventasTotalPEN - costoTotalPEN;
       const margenPromedio = p.ventasTotalPEN > 0
         ? (utilidadPEN / p.ventasTotalPEN) * 100
@@ -201,7 +197,6 @@ export const Reportes: React.FC = () => {
         // Desglose
         costoBasePEN: p.costoBasePEN,
         costoGVGDPEN: p.costoGVGDPEN,
-        costoGAGOPEN: p.costoGAGOPEN,
       };
     });
 
@@ -225,8 +220,7 @@ export const Reportes: React.FC = () => {
     const ventasBrutas = datosRentabilidad.totalVentas;
     const costoBase = datosRentabilidad.totalCostoBase;
     const costoGVGD = (datosRentabilidad.totalGastosGV || 0) + (datosRentabilidad.totalGastosGD || 0);
-    const costoGAGO = datosRentabilidad.totalCostoGAGO || 0;
-    const costoTotal = costoBase + costoGVGD + costoGAGO;
+    const costoTotal = costoBase + costoGVGD;
 
     const utilidadBruta = ventasBrutas - costoBase;
     const margenBruto = ventasBrutas > 0 ? (utilidadBruta / ventasBrutas) * 100 : 0;
@@ -241,14 +235,12 @@ export const Reportes: React.FC = () => {
       }
     }
 
-    const gastosIndirectos = costoGVGD + costoGAGO;
-    const cargaPorUnidad = unidadesVendidas > 0 ? gastosIndirectos / unidadesVendidas : 0;
+    const cargaPorUnidad = unidadesVendidas > 0 ? costoGVGD / unidadesVendidas : 0;
 
     setRentabilidadNeta({
       ventasBrutas,
       costoBase,
       costoGVGD,
-      costoGAGO,
       costoTotal,
       utilidadBruta,
       margenBruto,
@@ -295,7 +287,6 @@ export const Reportes: React.FC = () => {
       'Ventas Total (PEN)': p.ventasTotalPEN,
       'Costo Base (PEN)': p.costoBasePEN ?? p.costoTotalPEN,
       'GV/GD (PEN)': p.costoGVGDPEN ?? 0,
-      'GA/GO (PEN)': p.costoGAGOPEN ?? 0,
       'Costo Total (PEN)': p.costoTotalPEN,
       'Utilidad (PEN)': p.utilidadPEN,
       'Margen Neto (%)': p.margenPromedio,
@@ -621,9 +612,9 @@ export const Reportes: React.FC = () => {
             </div>
 
             <div className="bg-white rounded-lg p-2.5 sm:p-3 border border-orange-200">
-              <div className="text-[10px] sm:text-xs text-slate-500 mb-0.5">Gastos (GV/GD + GA/GO)</div>
+              <div className="text-[10px] sm:text-xs text-slate-500 mb-0.5">Gastos (GV/GD)</div>
               <div className="text-sm sm:text-xl font-bold text-orange-600 leading-tight">
-                S/ {(rentabilidadNeta.costoGVGD + rentabilidadNeta.costoGAGO).toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                S/ {rentabilidadNeta.costoGVGD.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </div>
               <div className="text-[10px] text-slate-400">S/ {rentabilidadNeta.cargaPorUnidad.toFixed(2)}/ud</div>
             </div>
@@ -660,10 +651,6 @@ export const Reportes: React.FC = () => {
               <div className="flex justify-between text-sky-600">
                 <span className="pl-3">− GV/GD</span>
                 <span>S/ {rentabilidadNeta.costoGVGD.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between text-orange-600">
-                <span className="pl-3">− GA/GO</span>
-                <span>S/ {rentabilidadNeta.costoGAGO.toFixed(2)}</span>
               </div>
               <div className="flex justify-between border-t-2 border-slate-300 pt-1.5">
                 <span className="text-slate-900 font-bold">= UTIL. NETA</span>

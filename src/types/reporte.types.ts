@@ -40,7 +40,6 @@ export interface ProductoRentabilidad {
   // Desglose de costos (modelo completo)
   costoBasePEN?: number;     // Compra + Flete (puesto en Perú)
   costoGVGDPEN?: number;     // Gastos de Venta + Distribución
-  costoGAGOPEN?: number;     // Gastos Administrativos + Operativos
 }
 
 export interface InventarioValorizado {

@@ -140,7 +140,7 @@ export const VentaCard: React.FC<VentaCardProps> = ({
 
   // Siempre ejecutar el hook para tener acceso a datos globales (GA/GO totales)
   const ventasArray = useMemo(() => [venta], [venta]);
-  const { datos: datosRentabilidad, getRentabilidadVenta, loading: loadingRentabilidad } = useRentabilidadVentas(ventasArray);
+  const { getRentabilidadVenta, loading: loadingRentabilidad } = useRentabilidadVentas(ventasArray);
 
   // Usar datos del padre si están disponibles, sino usar los calculados internamente
   const rentabilidadProporcional = rentabilidadData !== undefined
@@ -766,30 +766,8 @@ export const VentaCard: React.FC<VentaCardProps> = ({
                 </span>
               </div>
 
-              {/* Resultado: Utilidad Bruta */}
-              <div className="flex justify-between text-sm bg-sky-50 p-2 rounded border border-sky-200">
-                <span className="text-sky-800 font-medium">= Utilidad Bruta:</span>
-                <span className={`font-semibold ${rentabilidadProporcional.utilidadBruta >= 0 ? 'text-sky-700' : 'text-red-600'}`}>
-                  S/ {rentabilidadProporcional.utilidadBruta.toFixed(2)}
-                  <span className="text-xs ml-1">({rentabilidadProporcional.margenBruto.toFixed(1)}%)</span>
-                </span>
-              </div>
-
-              {/* Paso 5: GA/GO */}
-              <div className="flex justify-between text-sm">
-                <span className="text-slate-600">
-                  5. (-) GA/GO:
-                  <span className="text-xs text-orange-500 ml-1">
-                    ({((rentabilidadProporcional.costoBase / (datosRentabilidad?.baseCostoTotal || 1)) * 100).toFixed(1)}% prorrateo)
-                  </span>
-                </span>
-                <span className="font-medium text-orange-600">
-                  - S/ {rentabilidadProporcional.costoGAGO.toFixed(2)}
-                </span>
-              </div>
-
-              {/* Resultado Final: Utilidad Neta */}
-              <div className="border-t border-orange-300 pt-2 mt-2">
+              {/* Resultado: Utilidad Neta (los gastos de período ya no se prorratean por venta · Acuerdo 3) */}
+              <div className="border-t border-slate-200 pt-2 mt-2">
                 <div className="flex justify-between bg-emerald-50 p-2 rounded border border-emerald-200">
                   <span className="font-semibold text-slate-900">= Utilidad Neta:</span>
                   <span className={`text-lg font-bold ${rentabilidadProporcional.utilidadNeta >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
@@ -814,26 +792,7 @@ export const VentaCard: React.FC<VentaCardProps> = ({
                     <span className="text-purple-600">GV: S/ {rentabilidadProporcional.gastosGV.toFixed(2)}</span>
                     <span className="text-sky-600">GD: S/ {rentabilidadProporcional.gastosGD.toFixed(2)}</span>
                   </div>
-                  <div className="text-orange-600">GA/GO: S/ {rentabilidadProporcional.costoGAGO.toFixed(2)}</div>
                 </div>
-              </div>
-
-              {/* Info global de GA/GO */}
-              <div className="bg-orange-50 p-3 rounded-lg border border-orange-200">
-                <h5 className="text-xs font-medium text-orange-700 mb-2">GA/GO Global</h5>
-                <div className="space-y-1 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-slate-600">Total GA/GO:</span>
-                    <span className="font-medium">S/ {datosRentabilidad?.totalGastosGAGO?.toFixed(2) ?? '0.00'}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-600">Base Costo Total:</span>
-                    <span className="font-medium">S/ {datosRentabilidad?.baseCostoTotal?.toFixed(2) ?? '0.00'}</span>
-                  </div>
-                </div>
-                <p className="text-xs text-slate-500 mt-2 italic">
-                  Prorrateado por % de costo base
-                </p>
               </div>
             </div>
           </div>
@@ -878,18 +837,6 @@ export const VentaCard: React.FC<VentaCardProps> = ({
                       <div className="text-right">
                         <div className="text-sm text-teal-600">S/ {prod.costoGVGD.toFixed(2)}</div>
                         <div className="text-xs text-slate-400">({prod.proporcionVenta.toFixed(1)}%)</div>
-                      </div>
-                    ),
-                  },
-                  {
-                    key: 'costoGAGO',
-                    header: 'GA/GO',
-                    align: 'right',
-                    hideOnMobile: true,
-                    render: (prod) => (
-                      <div className="text-right">
-                        <div className="text-sm text-orange-600">S/ {prod.costoGAGO.toFixed(2)}</div>
-                        <div className="text-xs text-slate-400">({prod.proporcionCosto.toFixed(1)}%)</div>
                       </div>
                     ),
                   },

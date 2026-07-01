@@ -1173,16 +1173,11 @@ export const Ventas: React.FC = () => {
             {/* Indicadores de rentabilidad con distribución proporcional */}
             <div className="flex items-center gap-2 flex-wrap">
               {rentabilidad && rentabilidad.totalGastosGAGO > 0 && (
-                <div className="flex items-center text-sm text-slate-600 bg-orange-50 px-2 py-1 rounded-lg" title="Gastos Administrativos/Operativos distribuidos proporcionalmente">
+                <div className="flex items-center text-sm text-slate-600 bg-orange-50 px-2 py-1 rounded-lg" title="Gastos fijos del mes · no se prorratean a la venta (Acuerdo 3)">
                   <PieChart className="h-4 w-4 text-orange-500 mr-1" />
                   <span className="text-xs">Gastos Fijos:</span>
                   <span className="font-semibold text-orange-600 ml-1">
                     S/ {(rentabilidad.totalGastosGAGO || 0).toFixed(0)}
-                  </span>
-                  <span className="text-xs text-slate-500 ml-1">
-                    ({(rentabilidad.totalCostoBase || 0) > 0
-                      ? (((rentabilidad.totalCostoGAGO || 0) / (rentabilidad.totalCostoBase || 1)) * 100).toFixed(1)
-                      : 0}%)
                   </span>
                 </div>
               )}

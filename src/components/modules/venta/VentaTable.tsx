@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { formatFecha as formatDate } from '../../../utils/dateFormatters';
 import { getDescripcionProducto } from '../../../utils/producto.helpers';
-import { ShoppingCart, Eye, Trash2, TrendingUp, TrendingDown, Calculator, Lock, AlertTriangle, PieChart, Package, DollarSign, Percent, Info, Truck, Zap, RotateCcw } from 'lucide-react';
+import { ShoppingCart, Eye, Trash2, TrendingUp, TrendingDown, Calculator, Lock, AlertTriangle, Package, DollarSign, Percent, Info, Truck, Zap, RotateCcw } from 'lucide-react';
 import { Badge, Pagination, usePagination, LineaNegocioBadge } from '../../common';
 import type { Venta, EstadoVenta } from '../../../types/venta.types';
-import { useRentabilidadVentas, type RentabilidadVenta, type DatosRentabilidadGlobal } from '../../../hooks/useRentabilidadVentas';
+import { useRentabilidadVentas, type RentabilidadVenta } from '../../../hooks/useRentabilidadVentas';
 import { useCanalVentaStore } from '../../../store/canalVentaStore';
 import { DataTable } from '../../../design-system';
 import type { DataTableColumn } from '../../../design-system';
@@ -60,10 +60,9 @@ function resolveCanalLabel(venta: Venta, canales: { id: string; codigo: string; 
 interface DesgloseVentaProps {
   venta: Venta;
   rentabilidad: RentabilidadVenta;
-  datosGlobales: DatosRentabilidadGlobal | null;
 }
 
-const DesgloseVenta: React.FC<DesgloseVentaProps> = ({ venta, rentabilidad, datosGlobales }) => {
+const DesgloseVenta: React.FC<DesgloseVentaProps> = ({ venta, rentabilidad }) => {
   return (
     <div className="bg-slate-50 p-5 border-t border-slate-200">
       {/* Header del desglose */}
@@ -72,13 +71,10 @@ const DesgloseVenta: React.FC<DesgloseVentaProps> = ({ venta, rentabilidad, dato
           <Calculator className="h-4 w-4 mr-2 text-purple-600" />
           Desglose de Rentabilidad - {venta.numeroVenta}
         </h4>
-        <div className="text-xs text-slate-500">
-          Proporción GA/GO: {datosGlobales ? ((rentabilidad.costoBase / datosGlobales.baseCostoTotal) * 100).toFixed(2) : 0}%
-        </div>
       </div>
 
-      {/* Resumen de la venta - 6 tarjetas */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3 mb-5">
+      {/* Resumen de la venta - 5 tarjetas */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3 mb-5">
         <div className="bg-white rounded-lg p-3 border border-slate-200">
           <div className="text-xs text-slate-500 flex items-center">
             <DollarSign className="h-3 w-3 mr-1" />
@@ -109,14 +105,6 @@ const DesgloseVenta: React.FC<DesgloseVentaProps> = ({ venta, rentabilidad, dato
           </div>
           <div className="text-lg font-bold text-sky-600">S/ {rentabilidad.gastosGD.toFixed(2)}</div>
           <div className="text-xs text-slate-400">Delivery</div>
-        </div>
-        <div className="bg-white rounded-lg p-3 border border-orange-200 bg-orange-50">
-          <div className="text-xs text-slate-500 flex items-center">
-            <PieChart className="h-3 w-3 mr-1" />
-            GA/GO
-          </div>
-          <div className="text-lg font-bold text-orange-600">S/ {rentabilidad.costoGAGO.toFixed(2)}</div>
-          <div className="text-xs text-slate-400">Admin/Operativo</div>
         </div>
         <div className={`rounded-lg p-3 border ${rentabilidad.utilidadNeta >= 0 ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200'}`}>
           <div className="text-xs text-slate-500 flex items-center">
@@ -155,17 +143,6 @@ const DesgloseVenta: React.FC<DesgloseVentaProps> = ({ venta, rentabilidad, dato
             <span className="text-slate-600">4. (-) GD (delivery - Transportistas):</span>
             <span className="font-mono font-medium text-sky-600">- S/ {rentabilidad.gastosGD.toFixed(2)}</span>
           </div>
-          <div className="flex justify-between items-center py-1 border-b border-dashed border-slate-200 bg-yellow-50 -mx-2 px-2">
-            <span className="text-slate-700 font-medium">(=) Utilidad Bruta:</span>
-            <span className={`font-mono font-semibold ${rentabilidad.utilidadBruta >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-              S/ {rentabilidad.utilidadBruta.toFixed(2)}
-              <span className="text-xs text-slate-500 ml-1">({rentabilidad.margenBruto.toFixed(1)}%)</span>
-            </span>
-          </div>
-          <div className="flex justify-between items-center py-1 border-b border-dashed border-slate-200">
-            <span className="text-slate-600">5. (-) GA/GO prorrateado:</span>
-            <span className="font-mono font-medium text-orange-600">- S/ {rentabilidad.costoGAGO.toFixed(2)}</span>
-          </div>
           <div className="flex justify-between items-center py-2 bg-slate-100 rounded px-2 mt-2">
             <span className="font-semibold text-slate-800">(=) Utilidad Neta:</span>
             <span className={`font-mono font-bold text-lg ${rentabilidad.utilidadNeta >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
@@ -176,7 +153,7 @@ const DesgloseVenta: React.FC<DesgloseVentaProps> = ({ venta, rentabilidad, dato
         </div>
       </div>
 
-      {/* Desglose por producto - Actualizado con GV/GD y GA/GO separados */}
+      {/* Desglose por producto - GV/GD prorrateado */}
       {rentabilidad.desgloseProductos && rentabilidad.desgloseProductos.length > 0 && (
         <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
           <div className="px-4 py-3 bg-slate-50 border-b border-slate-200">
@@ -193,7 +170,6 @@ const DesgloseVenta: React.FC<DesgloseVentaProps> = ({ venta, rentabilidad, dato
                   <th className="px-3 py-2 text-right font-medium text-slate-500">Precio Venta</th>
                   <th className="px-3 py-2 text-right font-medium text-sky-600">Costo Base</th>
                   <th className="px-3 py-2 text-right font-medium text-teal-600" title="GV + GD prorrateado por % subtotal">GV+GD</th>
-                  <th className="px-3 py-2 text-right font-medium text-orange-600" title="Prorrateado por % costo">GA/GO</th>
                   <th className="px-3 py-2 text-right font-medium text-slate-500">Costo Total</th>
                   <th className="px-3 py-2 text-right font-medium text-slate-500">Util. Neta</th>
                   <th className="px-3 py-2 text-right font-medium text-slate-500">Margen</th>
@@ -219,9 +195,6 @@ const DesgloseVenta: React.FC<DesgloseVentaProps> = ({ venta, rentabilidad, dato
                     </td>
                     <td className="px-3 py-2 text-right font-mono text-teal-600">
                       S/ {prod.costoGVGD.toFixed(2)}
-                    </td>
-                    <td className="px-3 py-2 text-right font-mono text-orange-600">
-                      S/ {prod.costoGAGO.toFixed(2)}
                     </td>
                     <td className="px-3 py-2 text-right font-mono font-medium">
                       S/ {prod.costoTotal.toFixed(2)}
@@ -259,10 +232,6 @@ const DesgloseVenta: React.FC<DesgloseVentaProps> = ({ venta, rentabilidad, dato
             <div>
               <strong className="text-sky-700">GD (Gastos de Distribución):</strong> Costo de delivery.
               Se generan <span className="font-semibold">automáticamente</span> al confirmar entregas en el módulo de Transportistas.
-            </div>
-            <div>
-              <strong className="text-orange-700">GA/GO (Gastos Admin/Operativos):</strong> Alquiler, servicios, sueldos, etc.
-              Se prorratean por <span className="font-mono bg-orange-100 px-1 rounded">% del costo base</span> de cada producto.
             </div>
           </div>
         </div>
@@ -422,7 +391,7 @@ export const VentaTable: React.FC<VentaTableProps> = ({
   });
 
   // Usar el hook de rentabilidad con distribución proporcional
-  const { datos: datosRentabilidad, getRentabilidadVenta, loading: loadingRentabilidad } = useRentabilidadVentas(ventas);
+  const { getRentabilidadVenta, loading: loadingRentabilidad } = useRentabilidadVentas(ventas);
 
   // Toggle expansión de fila
   const toggleRow = (ventaId: string) => {
@@ -601,7 +570,7 @@ export const VentaTable: React.FC<VentaTableProps> = ({
 
         if (tieneRentabilidad) {
           return (
-            <div title={`GA/GO: S/ ${rentabilidad.costoGAGO.toFixed(2)} (${((rentabilidad.costoBase / (datosRentabilidad?.baseCostoTotal || 1)) * 100).toFixed(1)}% proporcional)`}>
+            <div>
               <div className="flex items-center">
                 {margenNetoPositivo
                   ? <TrendingUp className="h-4 w-4 text-emerald-500 mr-1" />
@@ -770,7 +739,6 @@ export const VentaTable: React.FC<VentaTableProps> = ({
               <DesgloseVenta
                 venta={venta}
                 rentabilidad={rentabilidad}
-                datosGlobales={datosRentabilidad}
               />
             );
           }}

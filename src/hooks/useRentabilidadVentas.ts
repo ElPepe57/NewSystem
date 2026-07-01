@@ -53,18 +53,17 @@ export interface DesgloseProducto {
 
   // Costos directos
   costoBase: number;             // Costo base del producto (costoTotalUnidades = compra + flete)
-  proporcionCosto: number;       // % del costo base respecto al total de la venta (para GA/GO)
+  proporcionCosto: number;       // % del costo base respecto al total de la venta
 
   // Gastos prorrateados
   costoGVGD: number;             // GV/GD asignado a este producto (proporcional al subtotal)
-  costoGAGO: number;             // GA/GO asignado a este producto (proporcional al costo base)
 
   // Totales
-  costoTotal: number;            // costoBase + costoGVGD + costoGAGO
+  costoTotal: number;            // costoBase + costoGVGD
 
   // Utilidades
   utilidadBruta: number;         // precioVenta - costoBase - costoGVGD
-  utilidadNeta: number;          // precioVenta - costoTotal (incluye GA/GO)
+  utilidadNeta: number;          // precioVenta - costoTotal
   margenBruto: number;           // % sobre precio venta
   margenNeto: number;            // % sobre precio venta
 }
@@ -80,9 +79,10 @@ export type GAGOProducto = DesgloseProducto;
  * 2. (-) Costo Base (compra + flete)
  * 3. (-) GV (gastos de venta: comisiones, pasarelas)
  * 4. (-) GD (gastos de distribución: delivery - desde Transportistas)
- * 5. (=) Utilidad Bruta
- * 6. (-) GA/GO (gastos admin/operativos prorrateados)
- * 7. (=) Utilidad Neta
+ * 5. (=) Utilidad Neta
+ *
+ * Nota (Acuerdo 3): los gastos de período (ex GA/GO) ya NO se prorratean por venta;
+ * son Gasto Fijo del Mes y se reportan a nivel global, no por venta individual.
  */
 export interface RentabilidadVenta {
   ventaId: string;
@@ -92,12 +92,11 @@ export interface RentabilidadVenta {
   gastosGV: number;            // Gastos de Venta (comisiones, pasarelas, marketing)
   gastosGD: number;            // Gastos de Distribución (delivery desde Transportistas)
   gastosGVGD: number;          // Total GV + GD (para compatibilidad)
-  costoGAGO: number;           // GA/GO prorrateado (proporcional al costo base)
-  costoTotal: number;          // costoBase + gastosGVGD + costoGAGO
+  costoTotal: number;          // costoBase + gastosGVGD
 
   // Utilidades
   utilidadBruta: number;       // totalVenta - costoBase - gastosGVGD
-  utilidadNeta: number;        // utilidadBruta - costoGAGO
+  utilidadNeta: number;        // = utilidadBruta (sin prorrateo de gastos de período)
 
   // Márgenes
   margenBruto: number;         // % (utilidadBruta / totalVenta)
@@ -119,7 +118,6 @@ export interface DatosRentabilidadGlobal {
   // Totales calculados
   totalVentas: number;
   totalCostoBase: number;
-  totalCostoGAGO: number;
   totalUtilidadBruta: number;
   totalGastosGV: number;            // Total gastos de venta (comisiones, pasarelas)
   totalGastosGD: number;            // Total gastos de distribución (delivery)
@@ -291,7 +289,6 @@ export function useRentabilidadVentas(ventas: Venta[]) {
       const rentabilidadPorVenta = new Map<string, RentabilidadVenta>();
       let totalVentas = 0;
       let totalCostoBase = 0;
-      let totalCostoGAGO = 0;
       let totalUtilidadBruta = 0;
       let totalGastosGVSum = 0;
       let totalGastosGDSum = 0;
@@ -327,10 +324,7 @@ export function useRentabilidadVentas(ventas: Venta[]) {
         // Total GV + GD
         const gastosGVGD = gastosGV + gastosGD;
 
-        // REINGENIERIA: GA/GO ya no se prorratean por venta (Acuerdo 3)
-        const costoGAGO = 0;
-
-        // Costo total (sin GA/GO)
+        // Costo total (los gastos de período ya no se prorratean por venta · Acuerdo 3)
         const costoTotal = costoBase + gastosGVGD;
 
         // Utilidades — Margen Bruto = Venta - CTRU - GV/GD
@@ -376,11 +370,10 @@ export function useRentabilidadVentas(ventas: Venta[]) {
             const proporcionCosto = costoBase > 0 ? costoBaseProducto / costoBase : 0;
 
             const costoGVGDProducto = gastosGVGD * proporcionVenta;
-            const costoGAGOProducto = 0; // REINGENIERIA: GA/GO no se asignan por producto
             const costoTotalProducto = costoBaseProducto + costoGVGDProducto;
 
             const utilidadBrutaProducto = ventaAjustada - costoBaseProducto - costoGVGDProducto;
-            const utilidadNetaProducto = utilidadBrutaProducto; // sin GA/GO
+            const utilidadNetaProducto = utilidadBrutaProducto; // sin prorrateo de gastos de período
 
             const margenBrutoProducto = ventaAjustada > 0
               ? (utilidadBrutaProducto / ventaAjustada) * 100
@@ -399,7 +392,6 @@ export function useRentabilidadVentas(ventas: Venta[]) {
               costoBase: costoBaseProducto,
               proporcionCosto: proporcionCosto * 100,
               costoGVGD: costoGVGDProducto,
-              costoGAGO: costoGAGOProducto,
               costoTotal: costoTotalProducto,
               utilidadBruta: utilidadBrutaProducto,
               utilidadNeta: utilidadNetaProducto,
@@ -415,7 +407,6 @@ export function useRentabilidadVentas(ventas: Venta[]) {
           gastosGV,
           gastosGD,
           gastosGVGD,
-          costoGAGO,
           costoTotal,
           utilidadBruta,
           utilidadNeta,
@@ -428,7 +419,6 @@ export function useRentabilidadVentas(ventas: Venta[]) {
         if (!venta.esVentaSocio) {
           totalVentas += venta.totalPEN;
           totalCostoBase += costoBase;
-          totalCostoGAGO += costoGAGO;
           totalUtilidadBruta += utilidadBruta;
           totalGastosGVSum += gastosGV;
           totalGastosGDSum += gastosGD;
@@ -458,7 +448,6 @@ export function useRentabilidadVentas(ventas: Venta[]) {
         impactoPorUnidad,
         totalVentas,
         totalCostoBase,
-        totalCostoGAGO,
         totalUtilidadBruta,
         totalGastosGV: totalGastosGVSum,
         totalGastosGD: totalGastosGDSum,
