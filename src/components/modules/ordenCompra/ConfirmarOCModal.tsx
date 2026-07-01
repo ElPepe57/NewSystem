@@ -1149,7 +1149,7 @@ const MatrizCargos: React.FC<{
                             step="0.01"
                             min={0}
                             max={100}
-                            className="w-14 px-1 py-0.5 text-xs text-right border border-purple-200 rounded bg-white focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-100 tabular-nums text-purple-900 font-semibold"
+                            className="w-14 px-1 py-0.5 text-xs text-right border border-purple-200 rounded bg-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-100 tabular-nums text-purple-900 font-semibold"
                             title="Edita el porcentaje — se recalcula automáticamente en cada sub-orden"
                           />
                           <span className="text-[10px] text-purple-600 font-semibold">%</span>

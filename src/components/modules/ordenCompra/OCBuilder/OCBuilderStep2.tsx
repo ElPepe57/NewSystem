@@ -238,7 +238,7 @@ const GroupConfigForm: React.FC<{
                 type="checkbox"
                 checked={group.fleteIncluidoEnPrecio}
                 onChange={(e) => dispatch({ type: 'SET_GROUP_MODO_ENTREGA', payload: { groupId: group.id, modoEntrega: 'envio_directo', fleteIncluidoEnPrecio: e.target.checked } })}
-                className="rounded border-sky-300 text-sky-600 focus:ring-sky-500"
+                className="rounded border-sky-300 text-blue-600 focus:ring-blue-500"
               />
               El proveedor cubre el envío internacional
             </label>
@@ -247,14 +247,14 @@ const GroupConfigForm: React.FC<{
               placeholder="Operador logístico (DHL, FedEx, EMS...)"
               value={group.operadorLogistico || ''}
               onChange={(e) => dispatch({ type: 'SET_GROUP_OPERADOR', payload: { groupId: group.id, operadorLogistico: e.target.value } })}
-              className="w-full px-2.5 py-1.5 bg-white border border-sky-200 rounded-lg text-xs focus:ring-2 focus:ring-sky-500"
+              className="w-full px-2.5 py-1.5 bg-white border border-sky-200 rounded-lg text-xs focus:ring-2 focus:ring-blue-500"
             />
             <input
               type="text"
               placeholder="Número de tracking"
               value={group.numeroTracking || ''}
               onChange={(e) => dispatch({ type: 'SET_GROUP_TRACKING', payload: { groupId: group.id, numeroTracking: e.target.value } })}
-              className="w-full px-2.5 py-1.5 bg-white border border-sky-200 rounded-lg text-xs focus:ring-2 focus:ring-sky-500"
+              className="w-full px-2.5 py-1.5 bg-white border border-sky-200 rounded-lg text-xs focus:ring-2 focus:ring-blue-500"
             />
           </div>
         )}

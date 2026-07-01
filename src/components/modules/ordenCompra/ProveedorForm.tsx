@@ -134,7 +134,7 @@ export const ProveedorForm: React.FC<ProveedorFormProps> = ({
           value={formData.notasInternas}
           onChange={handleChange}
           rows={3}
-          className="block w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500"
+          className="block w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
           placeholder="Términos de pago, condiciones especiales, etc."
         />
       </div>
