@@ -1,10 +1,10 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { createPortal } from 'react-dom';
 import { Plus, Trash2, ChevronDown, ChevronUp,
   Package, CheckCircle2, AlertCircle, Layers, RotateCcw, Info,
   Plane, Search,
 } from 'lucide-react';
 import { Button } from '../../../common/Button';
+import { FormModalV2 } from '../../../../design-system';
 import { validateStep1, formatProductSubtitle } from './ocBuilderUtils';
 import { casillaCrudService } from '../../../../services/casilla.crud.service';
 import type { Casilla } from '../../../../types/casilla.types';
@@ -16,7 +16,7 @@ interface Props {
   dispatch: React.Dispatch<OCBuilderAction>;
 }
 
-// Split dialog
+// Split dialog — asigna un producto del pool a los grupos (canon FormModalV2)
 const SplitDialog: React.FC<{
   producto: PoolProducto;
   groups: OCDraftGroup[];
@@ -34,65 +34,55 @@ const SplitDialog: React.FC<{
 
   const totalAssigned = Object.values(splits).reduce((s, v) => s + v, 0);
   const remaining = producto.cantidadOriginal - totalAssigned;
+  const subtitle = formatProductSubtitle(producto);
 
-  return createPortal(
-    <div className="fixed inset-0 flex items-center justify-center bg-black/40" style={{ zIndex: 9999 }} onClick={onClose}>
-      <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md mx-4" onClick={e => e.stopPropagation()}>
-        <h3 className="font-semibold text-slate-900 mb-1">Asignar producto a OC</h3>
-        <div className="mb-4">
-          <p className="text-sm font-medium text-slate-700">
-            {producto.marca} - {producto.nombreComercial}
-          </p>
-          {formatProductSubtitle(producto) && (
-            <p className="text-xs text-slate-500 mt-0.5">{formatProductSubtitle(producto)}</p>
-          )}
-          <p className="text-xs text-slate-500 mt-0.5">{producto.cantidadOriginal} uds disponibles</p>
-        </div>
+  return (
+    <FormModalV2
+      isOpen
+      onClose={onClose}
+      onSubmit={() => {
+        const result = Object.entries(splits)
+          .filter(([, qty]) => qty > 0)
+          .map(([groupId, cantidad]) => ({ groupId, cantidad }));
+        onSplit(result);
+      }}
+      title="Asignar producto a OC"
+      subtitle={`${producto.marca} - ${producto.nombreComercial}`}
+      icon={Layers}
+      iconTone="blue"
+      size="sm"
+      submitLabel="Aplicar"
+      submitVariant="primary"
+      disabled={remaining < 0 || totalAssigned === 0}
+      showShortcuts={false}
+    >
+      <p className="text-xs text-slate-500">
+        {subtitle ? `${subtitle} · ` : ''}{producto.cantidadOriginal} uds disponibles
+      </p>
 
-        <div className="space-y-3 mb-4">
-          {groups.map((g, idx) => {
-            return (
-              <div key={g.id} className="flex items-center gap-3">
-                <GroupBadge numero={idx + 1} />
-                <span className="text-sm font-medium text-slate-700 flex-1 min-w-0 truncate">{g.nombre}</span>
-                <input
-                  type="number"
-                  min={0}
-                  max={producto.cantidadOriginal}
-                  value={splits[g.id] || 0}
-                  onChange={e => setSplits(prev => ({ ...prev, [g.id]: Math.max(0, parseInt(e.target.value) || 0) }))}
-                  className="w-20 px-3 py-1.5 border rounded-lg text-sm text-center focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-            );
-          })}
-        </div>
-
-        <div className={`text-sm mb-4 px-3 py-2 rounded-lg ${remaining === 0 ? 'bg-emerald-50 text-emerald-700' : remaining > 0 ? 'bg-sky-50 text-sky-700' : 'bg-red-50 text-red-700'}`}>
-          {remaining === 0 ? 'Todas las unidades asignadas' :
-           remaining > 0 ? `${remaining} unidades quedarán pendientes de compra` :
-           `${Math.abs(remaining)} unidades de más`}
-        </div>
-
-        <div className="flex gap-2 justify-end">
-          <Button variant="ghost" size="sm" onClick={onClose}>Cancelar</Button>
-          <Button
-            variant="primary"
-            size="sm"
-            disabled={remaining < 0 || totalAssigned === 0}
-            onClick={() => {
-              const result = Object.entries(splits)
-                .filter(([, qty]) => qty > 0)
-                .map(([groupId, cantidad]) => ({ groupId, cantidad }));
-              onSplit(result);
-            }}
-          >
-            Aplicar
-          </Button>
-        </div>
+      <div className="space-y-3 mt-4 mb-4">
+        {groups.map((g, idx) => (
+          <div key={g.id} className="flex items-center gap-3">
+            <GroupBadge numero={idx + 1} />
+            <span className="text-sm font-medium text-slate-700 flex-1 min-w-0 truncate">{g.nombre}</span>
+            <input
+              type="number"
+              min={0}
+              max={producto.cantidadOriginal}
+              value={splits[g.id] || 0}
+              onChange={e => setSplits(prev => ({ ...prev, [g.id]: Math.max(0, parseInt(e.target.value) || 0) }))}
+              className="w-20 px-3 py-1.5 border border-slate-200 rounded-lg text-sm text-center tabular-nums focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+        ))}
       </div>
-    </div>,
-    document.body
+
+      <div className={`text-sm px-3 py-2 rounded-lg ${remaining === 0 ? 'bg-emerald-50 text-emerald-700' : remaining > 0 ? 'bg-sky-50 text-sky-700' : 'bg-red-50 text-red-700'}`}>
+        {remaining === 0 ? 'Todas las unidades asignadas' :
+         remaining > 0 ? `${remaining} unidades quedarán pendientes de compra` :
+         `${Math.abs(remaining)} unidades de más`}
+      </div>
+    </FormModalV2>
   );
 };
 
@@ -478,77 +468,72 @@ export const OCBuilderStep1: React.FC<Props> = ({ state, dispatch }) => {
       )}
 
       {/* Viajero Picker */}
-      {showViajerosPicker && createPortal(
-        <div className="fixed inset-0 flex items-center justify-center bg-black/40" style={{ zIndex: 9999 }} onClick={() => { setShowViajerosPicker(false); setViajeroSearch(''); }}>
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 max-h-[70vh] flex flex-col" onClick={e => e.stopPropagation()}>
-            <div className="p-4 border-b">
-              <h3 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
-                <Plane className="h-5 w-5 text-purple-500" />
-                Seleccionar Viajero
-              </h3>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                <input
-                  type="text"
-                  value={viajeroSearch}
-                  onChange={e => setViajeroSearch(e.target.value)}
-                  placeholder="Buscar viajero..."
-                  className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  autoFocus
-                />
-              </div>
-            </div>
-
-            <div className="flex-1 overflow-auto p-2">
-              {loadingViajeros ? (
-                <div className="flex items-center justify-center py-8 text-slate-400">
-                  <div className="animate-spin h-5 w-5 border-2 border-blue-500 border-t-transparent rounded-full mr-2" />
-                  Cargando viajeros...
-                </div>
-              ) : filteredViajeros.length === 0 ? (
-                <div className="text-center py-8 text-slate-400 text-sm">
-                  {viajeroSearch ? 'Sin resultados' : 'No hay viajeros activos'}
-                </div>
-              ) : (
-                filteredViajeros.map(v => {
-                  const alreadyUsed = usedViajeroIds.has(v.id!);
-                  return (
-                    <button
-                      key={v.id}
-                      onClick={() => !alreadyUsed && handleAddViajeroGroup(v)}
-                      disabled={alreadyUsed}
-                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-colors ${
-                        alreadyUsed
-                          ? 'opacity-50 cursor-not-allowed bg-slate-50'
-                          : 'hover:bg-purple-50 cursor-pointer'
-                      }`}
-                    >
-                      <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
-                        <Plane className="h-4 w-4 text-purple-600" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-slate-900 truncate">{v.nombre}</p>
-                        <p className="text-xs text-slate-500">{v.ciudad}{v.estado ? `, ${v.estado}` : ''} · {v.pais}</p>
-                      </div>
-                      {alreadyUsed ? (
-                        <span className="text-xs text-slate-400 bg-slate-100 px-2 py-0.5 rounded">Ya agregado</span>
-                      ) : (
-                        <Plus className="h-4 w-4 text-purple-400" />
-                      )}
-                    </button>
-                  );
-                })
-              )}
-            </div>
-
-            <div className="p-3 border-t flex justify-end">
-              <Button variant="ghost" size="sm" onClick={() => { setShowViajerosPicker(false); setViajeroSearch(''); }}>
-                Cerrar
-              </Button>
-            </div>
+      {showViajerosPicker && (
+        <FormModalV2
+          isOpen
+          onClose={() => { setShowViajerosPicker(false); setViajeroSearch(''); }}
+          onSubmit={() => {}}
+          title="Seleccionar viajero"
+          subtitle="Cada viajero abre un grupo con su casilla de destino"
+          icon={Plane}
+          iconTone="purple"
+          size="sm"
+          hideFooter
+        >
+          <div className="relative mb-3">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <input
+              type="text"
+              value={viajeroSearch}
+              onChange={e => setViajeroSearch(e.target.value)}
+              placeholder="Buscar viajero..."
+              className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              autoFocus
+            />
           </div>
-        </div>,
-        document.body
+
+          <div className="max-h-[50vh] overflow-auto -mx-1 px-1 space-y-0.5">
+            {loadingViajeros ? (
+              <div className="flex items-center justify-center py-8 text-slate-400">
+                <div className="animate-spin h-5 w-5 border-2 border-blue-500 border-t-transparent rounded-full mr-2" />
+                Cargando viajeros...
+              </div>
+            ) : filteredViajeros.length === 0 ? (
+              <div className="text-center py-8 text-slate-400 text-sm">
+                {viajeroSearch ? 'Sin resultados' : 'No hay viajeros activos'}
+              </div>
+            ) : (
+              filteredViajeros.map(v => {
+                const alreadyUsed = usedViajeroIds.has(v.id!);
+                return (
+                  <button
+                    key={v.id}
+                    onClick={() => !alreadyUsed && handleAddViajeroGroup(v)}
+                    disabled={alreadyUsed}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-colors ${
+                      alreadyUsed
+                        ? 'opacity-50 cursor-not-allowed bg-slate-50'
+                        : 'hover:bg-purple-50 cursor-pointer'
+                    }`}
+                  >
+                    <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
+                      <Plane className="h-4 w-4 text-purple-600" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-slate-900 truncate">{v.nombre}</p>
+                      <p className="text-xs text-slate-500">{v.ciudad}{v.estado ? `, ${v.estado}` : ''} · {v.pais}</p>
+                    </div>
+                    {alreadyUsed ? (
+                      <span className="text-xs text-slate-400 bg-slate-100 px-2 py-0.5 rounded">Ya agregado</span>
+                    ) : (
+                      <Plus className="h-4 w-4 text-purple-400" />
+                    )}
+                  </button>
+                );
+              })
+            )}
+          </div>
+        </FormModalV2>
       )}
     </div>
   );
