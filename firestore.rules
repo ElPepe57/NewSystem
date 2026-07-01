@@ -497,6 +497,17 @@ service cloud.firestore {
       allow update, delete: if isActiveUser() && resource.data.userId == request.auth.uid;
     }
 
+    // Borradores de wizards (canon F-Borradores · autosave 2 capas localStorage + Firestore).
+    // Doc id = {userId}_{tipo}. El dueño gestiona los suyos · admin ve/gestiona TODOS (canon "admin ve todo").
+    // Agregada 2026-06-30: antes NO existía esta regla → el catch-all negaba → los borradores nunca
+    // llegaban a Firestore (solo localStorage · sin cross-device real). `resource == null` permite el
+    // get() de un borrador inexistente sin permission-denied.
+    match /borradoresWizard/{docId} {
+      allow read: if isActiveUser() && (isAdmin() || resource == null || resource.data.userId == request.auth.uid);
+      allow create: if isActiveUser() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isActiveUser() && (isAdmin() || resource.data.userId == request.auth.uid);
+    }
+
     match /audit_logs/{docId} {
       allow read: if hasAnyRole(['admin', 'gerente', 'finanzas', 'supervisor']);
       allow create: if isActiveUser();
