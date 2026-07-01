@@ -50,10 +50,13 @@ import type { Gasto, PagoGasto } from '../types/gasto.types';
 import { cuentaCorrienteService } from './cuentaCorriente.service';
 import { ORDENES_COLLECTION } from './ordenCompra.shared';
 import {
-  getPagosOC,
+  getTotalPagadoNetoOC_USD,
   getPagosEnvio,
   getPagosGasto,
 } from './cuentaCorriente.adaptadores';
+// Fuente ÚNICA canónica del estadoPago/montoPendiente de una OC (neto-aware: pagos −
+// reversas + netting por sub-orden). El pago distribuido la REUSA para no divergir de registrarPago.
+import { recalcularEstadoPagoOCDesdeCC } from './ordenCompra.pagos.service';
 import { normalizarEstadoPagoOC } from '../types/ordenCompra.types';
 import { requiereAutorizacionSocio } from './autorizacionEgreso.helper';
 import { montoUSDDeGasto } from './gasto.service';
@@ -105,9 +108,10 @@ function generarIdempotencyKey(input: PagoAbonoDistribuidoInput): string {
  * estar desactualizado si hubo escrituras directas).
  */
 async function calcularPendienteOCDesdeCC(oc: OrdenCompra): Promise<number> {
-  const pagos = await getPagosOC(oc.id);
-  const totalPagadoUSD = pagos.reduce((s, p) => s + p.montoUSD, 0);
-  return Math.max(0, oc.totalUSD - totalPagadoUSD);
+  // NETO = pagos (credito_pago_oc) − reversas (reversa_pago_oc) · consistente con
+  // registrarPago/recalcularEstadoPagoOCDesdeCC. Antes usaba suma BRUTA (ignoraba anulaciones).
+  const totalPagadoNetoUSD = await getTotalPagadoNetoOC_USD(oc.id);
+  return Math.max(0, oc.totalUSD - totalPagadoNetoUSD);
 }
 
 /**
@@ -473,64 +477,10 @@ async function aplicarPagoOC(
   );
   movimientosCCIds.push(ccResult.movimientoId);
 
-  // Recalcular y actualizar denormalización en la OC
-  const pagosCC = await getPagosOC(oc.id);
-  const totalPagadoUSD = pagosCC.reduce((s, p) => s + p.montoUSD, 0);
-  const pendienteUSD = oc.totalUSD - totalPagadoUSD;
-
-  const tieneSubOrdenes = !!(oc.subOrdenes && oc.subOrdenes.length > 0);
-
-  const updates: Record<string, unknown> = {
-    tcPago: input.tipoCambio,
-    montoPendiente: Math.max(0, pendienteUSD * input.tipoCambio),
-    ultimaEdicion: serverTimestamp(),
-    editadoPor: userId,
-  };
-
-  if (tieneSubOrdenes) {
-    updates.subOrdenes = oc.subOrdenes!.map((sub) => {
-      const pagosSub = pagosCC.filter(
-        (p) =>
-          p.subOrdenId === sub.id ||
-          (p.notas && p.notas.includes(`subOrdenId=${sub.id}`)),
-      );
-      const totalPagadoSub = pagosSub.reduce((s, p) => s + p.montoUSD, 0);
-      let estadoPagoSub: 'pendiente' | 'parcial' | 'pagado';
-      if (totalPagadoSub >= sub.totalUSD - TOLERANCIA) estadoPagoSub = 'pagado';
-      else if (totalPagadoSub > TOLERANCIA) estadoPagoSub = 'parcial';
-      else estadoPagoSub = 'pendiente';
-      return { ...sub, estadoPago: estadoPagoSub };
-    });
-
-    const subOrdenesArr = updates.subOrdenes as Array<{ estadoPago: string }>;
-    const todasPagadas = subOrdenesArr.every((s) => s.estadoPago === 'pagado');
-    const algunaConPago = subOrdenesArr.some(
-      (s) => s.estadoPago === 'pagado' || s.estadoPago === 'parcial',
-    );
-    updates.estadoPago = todasPagadas
-      ? 'pagado'
-      : algunaConPago
-        ? 'parcial'
-        : 'pendiente';
-  } else {
-    updates.estadoPago =
-      pendienteUSD <= TOLERANCIA
-        ? 'pagado'
-        : totalPagadoUSD > TOLERANCIA
-          ? 'parcial'
-          : 'pendiente';
-  }
-
-  if (updates.estadoPago === 'pagado') {
-    updates.totalPEN = oc.totalUSD * input.tipoCambio;
-    if (oc.tcCompra) {
-      const costoEnCompra = oc.totalUSD * oc.tcCompra;
-      const costoEnPago = oc.totalUSD * input.tipoCambio;
-      updates.diferenciaCambiaria = costoEnPago - costoEnCompra;
-    }
-  }
-
-  await updateDoc(doc(db, ORDENES_COLLECTION, oc.id), updates);
+  // Denormalización de la OC vía la fuente ÚNICA canónica (neto-aware): pagos − reversas,
+  // netting por sub-orden, y sella tcPago/totalPEN/diferenciaCambiaria si queda 'pagado'.
+  // Antes: bloque inline en BRUTO que divergía de registrarPago ante anulaciones/reversas.
+  await recalcularEstadoPagoOCDesdeCC(oc, userId, input.tipoCambio);
 }
 
 /**
