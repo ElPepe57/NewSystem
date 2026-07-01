@@ -28,9 +28,10 @@
     </div>
     <h1 class="text-2xl font-bold tracking-tight text-slate-900">Proyección 360 · Hub canónico</h1>
     <p class="text-[13px] text-slate-500 leading-snug mt-1 max-w-3xl">
-      Rework de la página suelta legacy (PageShell + Hero teal con texto violet) → <b>Hub canónico</b> del grupo Análisis (indigo).
-      Resuelve la <b>inconsistencia de Deuda 4</b>: se elimina el tab "Flujo de Caja" (caja sintética que contradecía a Finanzas)
-      <b>sin cross-link</b> (decisión del usuario). Escenarios renombrados a "de utilidad". 5 tabs · cobertura total + mobile.
+      Rework de la página suelta legacy → <b>Hub esbelto de forecast del RESULTADO</b> (grupo Análisis · indigo). Su valor único =
+      el <b>P&amp;L/margen PROYECTADO en 3 cajas</b> (Producto·Venta·Período), que ninguna otra sección da.
+      <b>No re-implementa</b>: Inventario <b>consume</b> el Motor de Reorden, Costos cruza a <b>Cost Intelligence</b> (detalle SKU),
+      y la <b>caja se va a Finanzas</b> (se elimina el flujo sintético). Mata el solapamiento (canon no-redundancia). Cobertura total + mobile.
     </p>
     <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mt-4 text-[12px]">
       <a href="#acto1" class="bg-slate-50 hover:bg-indigo-50 rounded-lg px-3 py-2 font-semibold text-slate-700">1 · Shell + Resumen</a>
@@ -325,6 +326,11 @@
       <button class="px-3 py-2.5 font-medium text-slate-400">Margen</button>
     </div>
     <div class="p-3 sm:p-4 md:p-6 bg-slate-50/30 space-y-4">
+      <!-- CONSUMIDOR · el reorden/días-de-stock son del Motor de Reorden (Inventario) · Proyección solo lo presenta al horizonte (no re-proyecta · canon no-redundancia) -->
+      <div class="bg-gradient-to-r from-indigo-50 to-indigo-100/30 ring-1 ring-indigo-200/60 rounded-xl px-4 py-2.5 flex items-center justify-between gap-2 flex-wrap">
+        <span class="text-[12px] text-slate-700 flex items-center gap-2"><i data-lucide="git-branch" class="w-4 h-4 text-indigo-500"></i> Reorden y días de stock vienen del <b>Motor de Reorden</b> · aquí se ven en tu horizonte.</span>
+        <a href="#" class="text-[12px] font-bold text-indigo-700 hover:underline whitespace-nowrap flex items-center gap-1">Ver Inventario <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></a>
+      </div>
       <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
         <div class="bg-white border border-slate-200 rounded-xl p-3"><div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Disponibles</div><div class="text-lg font-bold tabular text-slate-900 mt-0.5">1,240 uds</div></div>
         <div class="bg-white border border-slate-200 rounded-xl p-3"><div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Valor inventario</div><div class="text-lg font-bold tabular text-slate-900 mt-0.5">S/ 86,400</div></div>
@@ -372,6 +378,11 @@
       <button class="px-3 py-2.5 font-medium text-slate-400">Margen</button>
     </div>
     <div class="p-3 sm:p-4 md:p-6 bg-slate-50/30 space-y-4">
+      <!-- CONSUMIDOR · costo consolidado por caja (proyectado) · el detalle por SKU + variance vive en Cost Intelligence (no se duplica · canon no-redundancia) -->
+      <div class="bg-gradient-to-r from-indigo-50 to-indigo-100/30 ring-1 ring-indigo-200/60 rounded-xl px-4 py-2.5 flex items-center justify-between gap-2 flex-wrap">
+        <span class="text-[12px] text-slate-700 flex items-center gap-2"><i data-lucide="git-branch" class="w-4 h-4 text-indigo-500"></i> Costo consolidado por caja (proyectado). El detalle por SKU + variance vive en <b>Cost Intelligence</b>.</span>
+        <a href="#" class="text-[12px] font-bold text-indigo-700 hover:underline whitespace-nowrap flex items-center gap-1">Ver Cost Intelligence <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></a>
+      </div>
       <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
         <div class="bg-white border border-slate-200 rounded-xl p-3"><div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Costo total</div><div class="text-lg font-bold tabular text-slate-900 mt-0.5">S/ 31,500</div></div>
         <div class="bg-white border border-slate-200 rounded-xl p-3"><div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">CTRU promedio</div><div class="text-lg font-bold tabular text-slate-900 mt-0.5">S/ 37.2</div></div>
@@ -605,6 +616,7 @@
         <span class="bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/60 rounded-full px-2.5 py-1 font-semibold">✓ Mobile 375px</span>
         <span class="bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/60 rounded-full px-2.5 py-1 font-semibold">✓ Estados loading/empty/error</span>
         <span class="bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/60 rounded-full px-2.5 py-1 font-semibold">✓ Modelo 3 cajas (Producto·Venta·Período)</span>
+        <span class="bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/60 rounded-full px-2.5 py-1 font-semibold">✓ Consume motores (ROP · Cost Intelligence · Finanzas) · no re-implementa</span>
         <span class="bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/60 rounded-full px-2.5 py-1 font-semibold">✓ Inter + tabular-nums + lucide</span>
       </div>
     </div>
