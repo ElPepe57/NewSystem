@@ -59,6 +59,7 @@ export const Proyeccion: React.FC = () => {
   const productos = productosDetalle || [];
   const productosLN = useLineaFilter(productos, (p: CTRUProductoDetalle) => p.lineaNegocioId);
   const lineaActiva = useLineaNegocioStore(s => s.lineaFiltroGlobal);
+  const setLineaFiltroGlobal = useLineaNegocioStore(s => s.setLineaFiltroGlobal);
 
   const [horizonte, setHorizonte] = useState<Horizonte360>(30);
   const [tab, setTab] = useState('resumen');
@@ -180,25 +181,59 @@ export const Proyeccion: React.FC = () => {
   }
 
   if (!proy) {
+    // Auto-diagnóstico: distinguir "no hay data en el sistema" de "el filtro de
+    // línea oculta todo" (la causa más común de ver esto con data real).
+    const filtroOcultaTodo = productos.length > 0 && productosLN.length === 0;
+    console.info(
+      `[Proyeccion] sin productos para proyectar · productosDetalle=${productos.length} · postFiltroLinea=${productosLN.length} · lineaFiltro=${lineaActiva ?? 'ninguna'} · loading=${ctruLoading} · error=${ctruError ?? 'no'}`
+    );
     return headerShell(
       <div className="bg-white border border-slate-200 rounded-2xl p-10 text-center">
         <div className="w-14 h-14 bg-indigo-50 rounded-2xl flex items-center justify-center mx-auto mb-3">
           <TrendingUp className="w-7 h-7 text-indigo-300" />
         </div>
-        <div className="text-[15px] font-bold text-slate-900">Aún no hay suficiente historial</div>
-        <p className="text-[12px] text-slate-500 mt-1 max-w-sm mx-auto">
-          La proyección necesita al menos <b>1 producto con historial de ventas</b>.
-          Registra ventas o ajusta el filtro de línea de negocio.
-        </p>
-        <div className="flex items-center justify-center gap-2 mt-4">
-          <button
-            type="button"
-            onClick={() => navigate('/productos')}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white text-[12px] font-bold px-3.5 py-2 rounded-lg"
-          >
-            Ir a Productos
-          </button>
-        </div>
+        {filtroOcultaTodo ? (
+          <>
+            <div className="text-[15px] font-bold text-slate-900">El filtro de línea está ocultando todos los productos</div>
+            <p className="text-[12px] text-slate-500 mt-1 max-w-sm mx-auto">
+              Hay <b>{productos.length} producto{productos.length !== 1 ? 's' : ''} con unidades</b> en el sistema,
+              pero ninguno pertenece a la línea seleccionada (o no tiene línea asignada — el filtro es estricto).
+            </p>
+            <div className="flex items-center justify-center gap-2 mt-4">
+              <button
+                type="button"
+                onClick={() => setLineaFiltroGlobal(null)}
+                className="bg-indigo-600 hover:bg-indigo-700 text-white text-[12px] font-bold px-3.5 py-2 rounded-lg"
+              >
+                Quitar filtro de línea
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="text-[15px] font-bold text-slate-900">Aún no hay unidades para proyectar</div>
+            <p className="text-[12px] text-slate-500 mt-1 max-w-sm mx-auto">
+              La proyección se alimenta de las <b>unidades recibidas y sus ventas</b> (mismo dato que Costos CTRU).
+              Cuando registres compras recibidas y ventas, este panel cobra vida.
+            </p>
+            <div className="flex items-center justify-center gap-2 mt-4">
+              <button
+                type="button"
+                onClick={() => fetchAll()}
+                className="bg-indigo-600 hover:bg-indigo-700 text-white text-[12px] font-bold px-3.5 py-2 rounded-lg flex items-center gap-1.5"
+              >
+                <RefreshCw className="w-3.5 h-3.5" /> Recalcular
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate('/productos')}
+                className="bg-white border border-slate-200 text-slate-600 text-[12px] font-semibold px-3.5 py-2 rounded-lg"
+              >
+                Ir a Productos
+              </button>
+            </div>
+          </>
+        )}
       </div>
     );
   }
