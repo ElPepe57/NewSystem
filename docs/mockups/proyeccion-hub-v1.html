@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Proyección 360 · Hub canónico · v1</title>
+<title>Proyección 360 · Diseño final</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -23,15 +23,15 @@
 <div class="max-w-6xl mx-auto px-4 pt-8 pb-4">
   <div class="bg-white rounded-2xl frame p-6 border border-slate-200">
     <div class="flex items-center gap-2 mb-2">
-      <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-700 bg-indigo-50 ring-1 ring-indigo-200/60 rounded-full px-2.5 py-1">Mockup · rediseño</span>
+      <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 ring-1 ring-emerald-200/60 rounded-full px-2.5 py-1">Diseño final</span>
       <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500 bg-slate-100 rounded-full px-2.5 py-1">Grupo Análisis · indigo</span>
     </div>
-    <h1 class="text-2xl font-bold tracking-tight text-slate-900">Proyección 360 · Hub canónico</h1>
+    <h1 class="text-2xl font-bold tracking-tight text-slate-900">Proyección 360</h1>
     <p class="text-[13px] text-slate-500 leading-snug mt-1 max-w-3xl">
-      Rework de la página suelta legacy → <b>Hub esbelto de forecast del RESULTADO</b> (grupo Análisis · indigo). Su valor único =
-      el <b>P&amp;L/margen PROYECTADO en 3 cajas</b> (Producto·Venta·Período), que ninguna otra sección da.
-      <b>No re-implementa</b>: Inventario <b>consume</b> el Motor de Reorden, Costos cruza a <b>Cost Intelligence</b> (detalle SKU),
-      y la <b>caja se va a Finanzas</b> (se elimina el flujo sintético). Mata el solapamiento (canon no-redundancia). Cobertura total + mobile.
+      Hub de <b>forecast del resultado</b> del negocio (grupo Análisis · indigo). Responde <b>"¿hacia dónde voy?"</b>:
+      el <b>P&amp;L y margen PROYECTADO en 3 cajas</b> (Producto · Venta · Período) a 30/90 días — lo único que ninguna otra
+      sección entrega. <b>Consume</b> los motores existentes: Inventario lee el <b>Motor de Reorden</b>, Costos cruza a
+      <b>Cost Intelligence</b> (detalle por SKU) y la caja vive en <b>Finanzas</b>.
     </p>
     <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mt-4 text-[12px]">
       <a href="#acto1" class="bg-slate-50 hover:bg-indigo-50 rounded-lg px-3 py-2 font-semibold text-slate-700">1 · Shell + Resumen</a>
@@ -41,14 +41,14 @@
       <a href="#acto5" class="bg-slate-50 hover:bg-indigo-50 rounded-lg px-3 py-2 font-semibold text-slate-700">5 · Tab Margen</a>
       <a href="#acto6" class="bg-slate-50 hover:bg-indigo-50 rounded-lg px-3 py-2 font-semibold text-slate-700">6 · Estados</a>
       <a href="#acto7" class="bg-slate-50 hover:bg-indigo-50 rounded-lg px-3 py-2 font-semibold text-slate-700">7 · Mobile</a>
-      <a href="#cambios" class="bg-slate-50 hover:bg-indigo-50 rounded-lg px-3 py-2 font-semibold text-slate-700">8 · Qué cambia</a>
+      <a href="#cambios" class="bg-slate-50 hover:bg-indigo-50 rounded-lg px-3 py-2 font-semibold text-slate-700">8 · Canon</a>
     </div>
   </div>
 </div>
 
 <!-- ============ ACTO 1 · SHELL + RESUMEN ============ -->
 <div id="acto1" class="max-w-6xl mx-auto px-4 pt-6">
-  <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">Acto 1 · Shell desktop + tab Resumen (default)</div>
+  <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">Escritorio · Resumen (vista por defecto)</div>
 
   <!-- SHELL FRAME -->
   <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden frame">
@@ -276,7 +276,7 @@
 
 <!-- ============ ACTO 2 · TAB VENTAS ============ -->
 <div id="acto2" class="max-w-6xl mx-auto px-4 pt-10">
-  <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">Acto 2 · Tab Ventas</div>
+  <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">Tab Ventas</div>
   <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden frame">
     <div class="px-6 pt-4 border-b border-slate-200 flex gap-1 overflow-x-auto text-[13px]">
       <button class="px-3 py-2.5 font-medium text-slate-400">Resumen</button>
@@ -316,7 +316,7 @@
 
 <!-- ============ ACTO 3 · TAB INVENTARIO ============ -->
 <div id="acto3" class="max-w-6xl mx-auto px-4 pt-10">
-  <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">Acto 3 · Tab Inventario</div>
+  <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">Tab Inventario</div>
   <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden frame">
     <div class="px-6 pt-4 border-b border-slate-200 flex gap-1 overflow-x-auto text-[13px]">
       <button class="px-3 py-2.5 font-medium text-slate-400">Resumen</button>
@@ -368,7 +368,7 @@
 
 <!-- ============ ACTO 4 · TAB COSTOS ============ -->
 <div id="acto4" class="max-w-6xl mx-auto px-4 pt-10">
-  <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">Acto 4 · Tab Costos</div>
+  <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">Tab Costos</div>
   <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden frame">
     <div class="px-6 pt-4 border-b border-slate-200 flex gap-1 overflow-x-auto text-[13px]">
       <button class="px-3 py-2.5 font-medium text-slate-400">Resumen</button>
@@ -416,7 +416,7 @@
 
 <!-- ============ ACTO 5 · TAB MARGEN ============ -->
 <div id="acto5" class="max-w-6xl mx-auto px-4 pt-10">
-  <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">Acto 5 · Tab Margen</div>
+  <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">Tab Margen</div>
   <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden frame">
     <div class="px-6 pt-4 border-b border-slate-200 flex gap-1 overflow-x-auto text-[13px]">
       <button class="px-3 py-2.5 font-medium text-slate-400">Resumen</button>
@@ -448,7 +448,7 @@
 
 <!-- ============ ACTO 6 · ESTADOS ============ -->
 <div id="acto6" class="max-w-6xl mx-auto px-4 pt-10">
-  <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">Acto 6 · Estados (loading · empty · error)</div>
+  <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">Estados · loading · empty · error</div>
   <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
     <!-- loading -->
     <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden frame">
@@ -491,7 +491,7 @@
 
 <!-- ============ ACTO 7 · MOBILE (375px) ============ -->
 <div id="acto7" class="max-w-6xl mx-auto px-4 pt-10">
-  <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">Acto 7 · Mobile · 375px (shell + Resumen · tabs scroll-x · KPIs 2-col)</div>
+  <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">Mobile · 375px</div>
   <div class="flex gap-6 flex-wrap">
 
     <!-- mobile shell + resumen -->
@@ -580,30 +580,8 @@
 <!-- ============ QUÉ CAMBIA ============ -->
 <div id="cambios" class="max-w-6xl mx-auto px-4 pt-10">
   <div class="bg-white border border-slate-200 rounded-2xl frame p-6">
-    <h2 class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2"><i data-lucide="git-compare" class="w-5 h-5 text-indigo-600"></i> Qué cambia vs. hoy</h2>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-[13px]">
-      <div class="space-y-2">
-        <div class="text-[11px] font-bold uppercase tracking-wider text-rose-500">Antes (página suelta legacy)</div>
-        <ul class="space-y-1.5 text-slate-600">
-          <li class="flex gap-2"><i data-lucide="x" class="w-4 h-4 text-rose-400 flex-shrink-0 mt-0.5"></i> PageShell + Hero <b>teal</b> con subtítulo <b>violet-200</b> (color inconsistente)</li>
-          <li class="flex gap-2"><i data-lucide="x" class="w-4 h-4 text-rose-400 flex-shrink-0 mt-0.5"></i> 6 tabs · incluye <b>Flujo de Caja sintético</b> (saldo desde 0, tasa cobro fija 85%) que <b>contradice</b> a Finanzas</li>
-          <li class="flex gap-2"><i data-lucide="x" class="w-4 h-4 text-rose-400 flex-shrink-0 mt-0.5"></i> "Escenarios" sin apellido → se confunden con caja</li>
-          <li class="flex gap-2"><i data-lucide="x" class="w-4 h-4 text-rose-400 flex-shrink-0 mt-0.5"></i> KPIs/tabs estilo legacy · sin anatomía hub</li>
-          <li class="flex gap-2"><i data-lucide="x" class="w-4 h-4 text-rose-400 flex-shrink-0 mt-0.5"></i> <b>@ts-nocheck</b> oculta 3 bugs reales (tcActual fuera de scope · margenNeto fantasma · montoFinanciamiento mal nombrado)</li>
-        </ul>
-      </div>
-      <div class="space-y-2">
-        <div class="text-[11px] font-bold uppercase tracking-wider text-emerald-600">Ahora (Hub canónico)</div>
-        <ul class="space-y-1.5 text-slate-600">
-          <li class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5"></i> Anatomía hub: shell → top-bar (breadcrumb + chip rol) → header → KPI strip → tabs → body</li>
-          <li class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5"></i> Color <b>indigo</b> (grupo Análisis) en todo el chrome · semántico en los datos</li>
-          <li class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5"></i> <b>5 tabs</b> · sin Flujo de Caja (la caja real vive en Finanzas · sin cross-link)</li>
-          <li class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5"></i> "<b>Escenarios de utilidad</b>" · etiqueta clara (no es caja)</li>
-          <li class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5"></i> Al implementar: quitar <b>@ts-nocheck</b> + arreglar los 3 bugs + borrar <code class="text-[11px] bg-slate-100 px-1 rounded">calcularFlujoCaja</code> muerto</li>
-        </ul>
-      </div>
-    </div>
-    <div class="mt-5 pt-4 border-t border-slate-200">
+    <h2 class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2"><i data-lucide="badge-check" class="w-5 h-5 text-emerald-600"></i> Cumple el canon del Design System</h2>
+    <div>
       <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">Checklist canon</div>
       <div class="flex flex-wrap gap-2 text-[11px]">
         <span class="bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/60 rounded-full px-2.5 py-1 font-semibold">✓ Anatomía hub</span>
@@ -612,7 +590,7 @@
         <span class="bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/60 rounded-full px-2.5 py-1 font-semibold">✓ Tabs · Resumen default</span>
         <span class="bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/60 rounded-full px-2.5 py-1 font-semibold">✓ Layout B (max-w-6xl)</span>
         <span class="bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/60 rounded-full px-2.5 py-1 font-semibold">✓ No-redundancia (P&L = detalle del strip)</span>
-        <span class="bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/60 rounded-full px-2.5 py-1 font-semibold">✓ Sin cross-links</span>
+        <span class="bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/60 rounded-full px-2.5 py-1 font-semibold">✓ Cross-links a motores (ROP · Cost Intelligence)</span>
         <span class="bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/60 rounded-full px-2.5 py-1 font-semibold">✓ Mobile 375px</span>
         <span class="bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/60 rounded-full px-2.5 py-1 font-semibold">✓ Estados loading/empty/error</span>
         <span class="bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/60 rounded-full px-2.5 py-1 font-semibold">✓ Modelo 3 cajas (Producto·Venta·Período)</span>
