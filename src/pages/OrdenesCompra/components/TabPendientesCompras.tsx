@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Package, Search, CheckSquare, Square, Layers, ShoppingCart, Plus, ArrowRight, Boxes, DollarSign } from 'lucide-react';
+import { Package, Search, CheckSquare, Square, Layers, ShoppingCart, Plus, ArrowRight, Boxes, DollarSign, ClipboardList } from 'lucide-react';
 import type { Requerimiento } from '../../../types/requerimiento.types';
 import { calcularPendientesCompra, requerimientosDeProductos, resumenPendientes } from '../../../components/modules/ordenCompra/pendientesCompra.helper';
 
@@ -12,9 +12,11 @@ interface Props {
   loading: boolean;
   onCrearOCConsolidada: (reqs: Requerimiento[]) => void;
   onNuevaOC: () => void;
+  /** Cross-link a Requerimientos (la otra puerta al OCBuilder · consolidar por requerimiento entero). */
+  onVerRequerimientos?: () => void;
 }
 
-export const TabPendientesCompras: React.FC<Props> = ({ requerimientos, loading, onCrearOCConsolidada, onNuevaOC }) => {
+export const TabPendientesCompras: React.FC<Props> = ({ requerimientos, loading, onCrearOCConsolidada, onNuevaOC, onVerRequerimientos }) => {
   const [selectedProductIds, setSelectedProductIds] = useState<Set<string>>(new Set());
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -82,11 +84,18 @@ export const TabPendientesCompras: React.FC<Props> = ({ requerimientos, loading,
           </div>
           <h3 className="text-base font-semibold text-slate-900">Sin productos pendientes de comprar</h3>
           <p className="text-[12px] text-slate-500 mt-1 max-w-sm mx-auto">
-            Todos los productos de requerimientos aprobados ya tienen orden de compra. Cuando se aprueben nuevos requerimientos aparecerán aquí.
+            Acá se listan los productos de requerimientos aprobados que aún no tienen orden de compra, para consolidarlos en una sola compra. Cuando se aprueben nuevos requerimientos, aparecerán acá listos para comprar.
           </p>
-          <button onClick={onNuevaOC} className="mt-5 inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[12px] font-semibold px-4 py-2 rounded-lg transition-colors">
-            <Plus className="w-4 h-4" /> Nueva orden de compra
-          </button>
+          {onVerRequerimientos && (
+            <button onClick={onVerRequerimientos} className="mt-5 inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[12px] font-semibold px-4 py-2 rounded-lg transition-colors">
+              <ClipboardList className="w-4 h-4" /> Ver requerimientos
+            </button>
+          )}
+          <div className="mt-3">
+            <button onClick={onNuevaOC} className="inline-flex items-center gap-1.5 text-[11px] font-medium text-slate-500 hover:text-blue-600 hover:underline">
+              <Plus className="w-3.5 h-3.5" /> ¿Comprar algo fuera de requerimientos? Crear OC manual
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -99,8 +108,20 @@ export const TabPendientesCompras: React.FC<Props> = ({ requerimientos, loading,
       {/* header de sección + mini-stats */}
       <div className="flex items-start justify-between flex-wrap gap-3">
         <div>
-          <div className="text-[13px] font-bold text-slate-900">Pendientes de comprar</div>
-          <div className="text-[11px] text-slate-500">productos de requerimientos aprobados sin orden de compra</div>
+          <div className="text-[13px] font-bold text-slate-900">
+            Pendientes de comprar <span className="text-[11px] font-normal text-slate-400">· por producto</span>
+          </div>
+          <div className="text-[11px] text-slate-500">
+            productos de requerimientos aprobados sin OC · seleccioná para consolidar
+            {onVerRequerimientos && (
+              <>
+                {' · '}
+                <button onClick={onVerRequerimientos} className="text-blue-600 hover:underline font-medium">
+                  ¿por requerimiento entero? →
+                </button>
+              </>
+            )}
+          </div>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <span className="inline-flex items-center gap-1.5 text-[11px] bg-white border border-slate-200 rounded-lg px-2.5 py-1.5"><Package className="w-3.5 h-3.5 text-blue-600" /><span className="font-semibold text-slate-900 tabular-nums">{totalProductos}</span> <span className="text-slate-500">productos</span></span>

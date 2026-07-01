@@ -1387,6 +1387,7 @@ export const OrdenesCompra: React.FC = () => {
             loading={loadingReqs}
             onCrearOCConsolidada={(reqs) => { setOcBuilderReqs(reqs); setIsOCBuilderOpen(true); }}
             onNuevaOC={() => setIsWizardV2Open(true)}
+            onVerRequerimientos={() => navigate('/requerimientos')}
           />
         )}
 
