@@ -29,7 +29,8 @@ import type {
   OrdenCompra,
   OrdenCompraFormData,
   EstadoOrden,
-  ProductoOrden
+  ProductoOrden,
+  ForecastSnapshot
 } from '../types/ordenCompra.types';
 import type { ComponenteCostoUnidad } from '../types/ctru.types';
 import type { MetodoProrrateo, EstadoEnvio } from '../types/envio.types';
@@ -359,6 +360,14 @@ export async function update(
       const productosOrden: ProductoOrden[] = [];
       let subtotalUSD = 0;
 
+      // Lente 2 · preservar el forecast congelado al reescribir el array de productos:
+      // usar el snapshot fresco que trae la edición o, si no viene, el ya guardado en la OC
+      // (NO borrarlo · simétrico al pass-through de create · off money-path).
+      const snapshotsPrevios = new Map<string, ForecastSnapshot>();
+      for (const p of orden.productos) {
+        if (p.forecastSnapshot) snapshotsPrevios.set(p.productoId, p.forecastSnapshot);
+      }
+
       for (const prod of data.productos) {
         const producto = await ProductoService.getById(prod.productoId);
         if (!producto) continue;
@@ -366,12 +375,15 @@ export async function update(
         const subtotal = prod.cantidad * prod.costoUnitario;
         subtotalUSD += subtotal;
 
-        productosOrden.push({
+        const prodOrden: ProductoOrden = {
           ...buildProductoSnapshot({ ...producto, productoId: prod.productoId }),
           cantidad: prod.cantidad,
           costoUnitario: prod.costoUnitario,
           subtotal
-        });
+        };
+        const snap = prod.forecastSnapshot ?? snapshotsPrevios.get(prod.productoId);
+        if (snap) prodOrden.forecastSnapshot = snap;
+        productosOrden.push(prodOrden);
       }
 
       updates.productos = productosOrden;
