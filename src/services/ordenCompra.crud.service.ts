@@ -133,6 +133,8 @@ export async function create(
         costoUnitario: prod.costoUnitario,
         subtotal
       };
+      // Lente 2 · pass-through del forecast congelado en la UI (retrospectivo · NO toca costo/CTRU).
+      if (prod.forecastSnapshot) prodOrden.forecastSnapshot = prod.forecastSnapshot;
       if (snapshot.pesoLibras) {
         pesoTotalEstimadoLb += snapshot.pesoLibras * prod.cantidad;
       }

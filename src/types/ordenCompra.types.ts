@@ -133,6 +133,31 @@ export interface Proveedor {
   editadoPor?: string;
 }
 
+/**
+ * Snapshot de forecast comercial (Lente 2) congelado al CREAR la OC.
+ * Expectativa del comprador en el momento de la decisión — INMUTABLE.
+ * Puramente retrospectivo: NO entra al costo/CTRU/inventario (off money-path).
+ * Se lee en el detalle de la OC ("¿la compra acertó?") vs. la realidad.
+ * La fecha del congelado = fechaCreacion de la OC (no se re-guarda acá).
+ * Todos los campos numéricos usan null (no undefined) para persistencia Firestore limpia.
+ */
+export interface ForecastSnapshot {
+  /** PVP efectivo esperado (PEN) al comprar · null si no había investigación. */
+  precioVentaEsperado: number | null;
+  /** Margen % landed proyectado · null si no calculable. */
+  margenProyectadoPct: number | null;
+  /** Costo aterrizado/unidad estimado (PEN) · null si no calculable. */
+  ctruEstimado: number | null;
+  /** Score holístico de viabilidad 0-100 (analizarPrecio · 40/30/20/10). */
+  scoreViabilidad: number;
+  /** Delta % del costo negociado vs. la base histórica · null si sin base. */
+  precioVsHistoricoPct: number | null;
+  /** Origen de la base de comparación (honestidad del dato). */
+  fuenteReferencia: 'historico' | 'mercado' | 'ninguna';
+  /** TC USD→PEN usado en el análisis (el snapshot se lee con su propio TC). */
+  tcCongelado: number;
+}
+
 export interface ProductoOrden {
   productoId: string;
   sku: string;
@@ -159,6 +184,8 @@ export interface ProductoOrden {
     clienteNombre?: string;
     cantidad: number;
   }>;
+  /** Lente 2 · forecast comercial congelado al crear la OC (retrospectivo · off money-path). */
+  forecastSnapshot?: ForecastSnapshot;
 }
 
 /**
@@ -441,6 +468,8 @@ export interface OrdenCompraFormData {
     // Viajero destino (para distribución multi-viajero)
     viajeroId?: string;
     viajeroNombre?: string;
+    // Lente 2 · snapshot de forecast congelado (se pasa-through a create() · off money-path)
+    forecastSnapshot?: ForecastSnapshot;
   }>;
   subtotalUSD: number;
   totalUSD: number;

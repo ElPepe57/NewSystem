@@ -6,7 +6,9 @@ import {
 import { Button } from '../../../common/Button';
 import { OrdenCompraService } from '../../../../services/ordenCompra.service';
 import { useAuthStore } from '../../../../store/authStore';
-import { calcGroupTotals, calcGrandTotals, groupToFormData, formatUSD, formatPEN, formatProductSubtitle } from './ocBuilderUtils';
+import { useProductoStore } from '../../../../store/productoStore';
+import { useOrdenCompraStore } from '../../../../store/ordenCompraStore';
+import { calcGroupTotals, calcGrandTotals, groupToFormData, analizarGrupoParaSnapshot, formatUSD, formatPEN, formatProductSubtitle } from './ocBuilderUtils';
 import type { OCBuilderState, OCBuilderAction, OCDraftGroup } from './ocBuilderTypes';
 import { GroupBadge } from './OCBuilderGroupBadge';
 
@@ -121,6 +123,9 @@ const SummaryCard: React.FC<{ group: OCDraftGroup; numero: number; state: OCBuil
 
 export const OCBuilderStep3: React.FC<Props> = ({ state, dispatch, onComplete }) => {
   const { user } = useAuthStore();
+  // Lente 2 · catálogo + histórico para congelar el forecast por producto al crear.
+  const catalogo = useProductoStore((s) => s.productos);
+  const ordenes = useOrdenCompraStore((s) => s.ordenes);
   const grandTotals = useMemo(() => calcGrandTotals(state.groups), [state.groups]);
 
   const handleCreateAll = useCallback(async () => {
@@ -143,6 +148,14 @@ export const OCBuilderStep3: React.FC<Props> = ({ state, dispatch, onComplete })
 
       try {
         const formData = groupToFormData(group, state.requerimientos, state.tcMode, state.tcGlobal);
+        // Lente 2 · congelar el forecast por producto (opcional · si falla, la OC se crea igual).
+        try {
+          const tcGrupo = state.tcMode === 'global' ? state.tcGlobal : group.tcCompra;
+          const snaps = analizarGrupoParaSnapshot(group, tcGrupo, catalogo, ordenes);
+          formData.productos = formData.productos.map((fp) =>
+            snaps.has(fp.productoId) ? { ...fp, forecastSnapshot: snaps.get(fp.productoId) } : fp
+          );
+        } catch { /* snapshot es retrospectivo · no bloquea la creación de la OC */ }
         const result = await OrdenCompraService.create(formData, user.uid);
         dispatch({
           type: 'CREATION_SUCCESS',
@@ -157,7 +170,7 @@ export const OCBuilderStep3: React.FC<Props> = ({ state, dispatch, onComplete })
     }
 
     dispatch({ type: 'CREATION_COMPLETE' });
-  }, [state.groups, state.createdOCs, state.requerimientos, state.tcMode, state.tcGlobal, user, dispatch]);
+  }, [state.groups, state.createdOCs, state.requerimientos, state.tcMode, state.tcGlobal, catalogo, ordenes, user, dispatch]);
 
   const isComplete = !state.isCreating && state.createdOCs.length > 0;
   const hasErrors = state.creationErrors.length > 0;

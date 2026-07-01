@@ -14,6 +14,8 @@ import { OCWizardPreview } from './OCWizardPreview';
 import { useWizardAutosave } from '../../../../hooks/useWizardAutosave';
 import { ConfirmarSalidaWizardModal, BorradorBanner } from '../../../../design-system';
 import type { BorradorWizard } from '../../../../types/borradorWizard.types';
+import { useAnalisisOC } from './useAnalisisOC';
+import { buildForecastSnapshot } from '../../../../utils/precioInteligencia.helper';
 
 // ════════════════════════════════════════════════════════════════════════════
 // Types
@@ -127,6 +129,9 @@ export const OCWizardV3: React.FC<OCWizardV3Props> = ({
   // S53.9 — modo edición activo cuando se pasa una OC existente
   const esEdicion = !!ordenEditar;
   const submittedRef = useRef(false);
+  // Lente 2 · análisis de precio por producto (mismo motor que "Salud de la compra") ·
+  // se congela en el forecastSnapshot al confirmar (handleSubmit).
+  const { porProducto: analisisPorProducto } = useAnalisisOC(state);
   const [currentStep, setCurrentStep] = React.useState(0);
   const [draftAceptado, setDraftAceptado] = React.useState(false);
   // S53.19 — Modal de confirmación al cerrar con cambios sin guardar
@@ -362,24 +367,31 @@ export const OCWizardV3: React.FC<OCWizardV3Props> = ({
 
     const config = deriveDeliveryConfig(state.modoEntregaDetallado, state.quienPagaFlete);
 
+    // Lente 2 · congelar el forecast por producto desde el análisis vivo (mismo motor que Confirmar).
+    const analisisPorId = new Map(analisisPorProducto.map((a) => [a.productoId, a.res]));
+
     const formData: OrdenCompraFormData = {
       proveedorId: state.proveedorId || state.configLogistica.proveedorId,
-      productos: state.productos.map((p) => ({
-        productoId: p.productoId,
-        sku: p.sku,
-        marca: p.marca,
-        nombreComercial: p.nombreComercial,
-        presentacion: p.presentacion,
-        contenido: p.contenido,
-        dosaje: p.dosaje,
-        sabor: p.sabor,
-        pesoLibras: p.pesoLibras,
-        cantidad: p.cantidad,
-        costoUnitario: p.costoUnitario,
-        subtotal: p.cantidad * p.costoUnitario,
-        viajeroId: p.viajeroId,
-        viajeroNombre: p.viajeroNombre,
-      })),
+      productos: state.productos.map((p) => {
+        const res = analisisPorId.get(p.productoId);
+        return {
+          productoId: p.productoId,
+          sku: p.sku,
+          marca: p.marca,
+          nombreComercial: p.nombreComercial,
+          presentacion: p.presentacion,
+          contenido: p.contenido,
+          dosaje: p.dosaje,
+          sabor: p.sabor,
+          pesoLibras: p.pesoLibras,
+          cantidad: p.cantidad,
+          costoUnitario: p.costoUnitario,
+          subtotal: p.cantidad * p.costoUnitario,
+          viajeroId: p.viajeroId,
+          viajeroNombre: p.viajeroNombre,
+          ...(res && { forecastSnapshot: buildForecastSnapshot(res, state.tcCompra) }),
+        };
+      }),
       subtotalUSD: subtotal,
       totalUSD: grandTotal,
       tcCompra: state.tcCompra,

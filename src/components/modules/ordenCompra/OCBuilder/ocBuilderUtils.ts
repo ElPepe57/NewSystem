@@ -6,8 +6,12 @@ import type {
   ProductoOrigen,
 } from './ocBuilderTypes';
 import type { Requerimiento } from '../../../../types/requerimiento.types';
-import type { OrdenCompraFormData, CargoOC } from '../../../../types/ordenCompra.types';
+import type { OrdenCompraFormData, CargoOC, OrdenCompra, ForecastSnapshot } from '../../../../types/ordenCompra.types';
+import type { Producto } from '../../../../types/producto.types';
 import { esRequerimientoElegibleParaOC } from '../../../../services/requerimiento.cobertura';
+import { analizarPrecio, buildForecastSnapshot } from '../../../../utils/precioInteligencia.helper';
+import { calcularInvestigacion } from '../../../../pages/Productos/utils/investigacionCalculos';
+import { getReferenciaPreciosEnMemoria } from '../../../../services/ordenCompra.stats.service';
 
 // Redondeo a centavos · mantiene la SummaryCard y el totalUSD persistido coherentes (Fase A).
 const round2 = (n: number): number => Math.round(n * 100) / 100;
@@ -302,6 +306,54 @@ export function groupToFormData(
     numeroTracking: group.numeroTracking || undefined,
     courier: group.operadorLogistico || undefined,
   };
+}
+
+// ============ Lente 2 · forecast snapshot ============
+
+/**
+ * Congela el forecast por producto de un grupo (OCBuilder · Vía 2). Análogo PURO del
+ * loop de useAnalisisOC (wizard · Vía 1): mismo motor `analizarPrecio` + misma base de
+ * cargos landed (envío + otros − descuento) / unidades · EXCLUYE tax (igual que el wizard,
+ * que no mete impuestosOC en el adicional). Devuelve Map<productoId, ForecastSnapshot>.
+ * Off money-path: el snapshot es retrospectivo (sólo se lee en "¿la compra acertó?").
+ */
+export function analizarGrupoParaSnapshot(
+  group: OCDraftGroup,
+  tc: number,
+  catalogo: Producto[],
+  ordenes: OrdenCompra[],
+): Map<string, ForecastSnapshot> {
+  const ids = group.productos.map((p) => p.productoId).filter(Boolean);
+  const refs = getReferenciaPreciosEnMemoria(ids, ordenes);
+  const totalUds = group.productos.reduce((s, p) => s + (p.cantidad || 0), 0);
+  const adicionalPorUd = totalUds > 0
+    ? (group.costoEnvioProveedorUSD + group.otrosGastosCompraUSD - group.descuentoUSD) / totalUds
+    : 0;
+
+  const map = new Map<string, ForecastSnapshot>();
+  for (const p of group.productos) {
+    const item = catalogo.find((c) => c.id === p.productoId);
+    const calc = item ? calcularInvestigacion(item, tc) : null;
+    const investigacion = calc
+      ? {
+          precioMejorProvUSD: calc.precioMejorProvUSD,
+          precioEfectivo: calc.precioEfectivo,
+          tieneProveedores: calc.tieneProveedores,
+          tieneCompetidores: calc.tieneCompetidores,
+        }
+      : null;
+    const ref = refs.get(p.productoId) ?? { ultimaCompra: null, promedio: null, nMuestras: 0 };
+    const res = analizarPrecio({
+      costoUnitarioUSD: p.costoUnitarioUSD || 0,
+      costoAdicionalPorUnidadUSD: adicionalPorUd,
+      tc,
+      referencia: ref,
+      investigacion,
+      puntuacionViabilidad: item?.investigacion?.puntuacionViabilidad,
+    });
+    map.set(p.productoId, buildForecastSnapshot(res, tc));
+  }
+  return map;
 }
 
 // ============ Helpers ============

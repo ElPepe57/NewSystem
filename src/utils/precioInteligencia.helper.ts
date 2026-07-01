@@ -81,6 +81,8 @@ export interface AnalisisPrecioResult {
   scoreTone: ScoreTone;
 }
 
+import type { ForecastSnapshot } from '../types/ordenCompra.types';
+
 const round1 = (n: number) => Math.round(n * 10) / 10;
 
 /** Umbrales del semáforo de precio (delta % vs base · crudo). */
@@ -196,5 +198,22 @@ export function analizarPrecio(input: AnalisisPrecioInput): AnalisisPrecioResult
     score,
     scoreLabel: label,
     scoreTone: tone,
+  };
+}
+
+/**
+ * Congela un AnalisisPrecioResult (Lente 2) en un ForecastSnapshot inmutable de la OC.
+ * PURO · repackagea (no recalcula). Lo llaman AMBAS vías al CREAR la OC (wizard + OCBuilder).
+ * El snapshot es retrospectivo (off money-path): sólo se lee en el detalle "¿la compra acertó?".
+ */
+export function buildForecastSnapshot(res: AnalisisPrecioResult, tc: number): ForecastSnapshot {
+  return {
+    precioVentaEsperado: res.precioVentaPEN,
+    margenProyectadoPct: res.margenPct,
+    ctruEstimado: res.landedUnitPEN,
+    scoreViabilidad: res.score,
+    precioVsHistoricoPct: res.deltaPct,
+    fuenteReferencia: res.fuenteBase,
+    tcCongelado: tc,
   };
 }
