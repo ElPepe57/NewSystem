@@ -67,7 +67,7 @@ export function calcularProyeccion360(
   const costos = calcularCostos(productos, ventas, inventario, gastos, periodos);
 
   // ─── PASO 4: MARGEN (derivado de ventas + costos) ───
-  const margen = calcularMargen(ventas, costos);
+  const margen = calcularMargen(ventas, costos, productos);
 
   // ─── PASO 5: FLUJO DE CAJA (usa todo) ───
   const flujoCaja = calcularFlujoCaja(ventas, costos, inventario, periodos);
@@ -94,7 +94,7 @@ export function calcularProyeccion360(
     ingresosProyectados: ventas.totalMontoPEN,
     costosProyectados: costos.costoTotal,
     utilidadProyectada: margen.utilidadNeta,
-    margenNetoProyectado: margen.margenNetoPct,
+    margenNetoProyectado: margen.margenNeto,
     flujoCajaNeto: flujoCaja.saldoFinal,
     ventas, inventario, costos, margen, flujoCaja,
     escenarios, timeline, alertas,
@@ -286,18 +286,22 @@ function calcularCostos(
   };
 }
 
-function calcularMargen(ventas: ProyeccionVentas, costos: ProyeccionCostos): ProyeccionMargen {
+function calcularMargen(ventas: ProyeccionVentas, costos: ProyeccionCostos, productos: CTRUProductoDetalle[]): ProyeccionMargen {
   const ingresos = ventas.totalMontoPEN;
   const utilBruta = ingresos - costos.costoVentasTotal;
   const utilNeta = utilBruta - costos.costoOperativoTotal;
 
-  const productosNeg = ventas.productos.filter(p => {
-    const margen = p.precioPromedio > 0 ? ((p.ingresosProyectados - p.unidadesProyectadas * (costos.ctruPromedioProyectado || 0)) / p.ingresosProyectados) * 100 : 0;
-    return margen < 0;
-  }).length;
+  // Margen por producto con SU CTRU específico (no el promedio global · fix 2026-07-01)
+  const ctruDeProducto = (productoId: string) =>
+    productos.find(pr => pr.productoId === productoId)?.ctruContableProm || 0;
+  const margenProducto = (p: typeof ventas.productos[number]) =>
+    p.precioPromedio > 0
+      ? ((p.ingresosProyectados - p.unidadesProyectadas * ctruDeProducto(p.productoId)) / p.ingresosProyectados) * 100
+      : 0;
 
+  const productosNeg = ventas.productos.filter(p => margenProducto(p) < 0).length;
   const productosBajo = ventas.productos.filter(p => {
-    const margen = p.precioPromedio > 0 ? ((p.ingresosProyectados - p.unidadesProyectadas * (costos.ctruPromedioProyectado || 0)) / p.ingresosProyectados) * 100 : 0;
+    const margen = margenProducto(p);
     return margen >= 0 && margen < 15;
   }).length;
 

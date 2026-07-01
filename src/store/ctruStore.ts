@@ -1017,7 +1017,12 @@ export const useCTRUStore = create<CTRUState>((set, get) => ({
         // chk5.A15 · el árbol de categorías es OBLIGATORIO para clasificar gastos por
         // bloque (producto/venta/periodo). Sin él, getBloqueDelGasto retorna null y
         // gastosByVentaId/gastosGAGO/historialGastos quedan VACÍOS (bug pre-fix · gastos=0).
-        categoriaCostoService.getArbol().catch(() => null) as Promise<ArbolCategorias | null>
+        // El catch NO es silencioso: si el árbol falla, los gastos quedarían en 0 y el
+        // P&L/Proyección mentirían · se loguea para que el fallo sea observable.
+        categoriaCostoService.getArbol().catch((err) => {
+          console.error('[ctruStore] getArbol() falló · los gastos quedarán sin clasificar (=0). Revisar categoríasCosto/permisos.', err);
+          return null;
+        }) as Promise<ArbolCategorias | null>
       ]);
 
       // Units arriving here already exclude vencida/danada — no client-side filter needed.
