@@ -113,7 +113,7 @@
             <i data-lucide="dollar-sign" class="w-3.5 h-3.5 text-amber-700"></i>
           </div>
           <div class="text-2xl font-bold tabular text-amber-900">S/ 31.5<span class="text-amber-400">k</span></div>
-          <div class="text-[11px] text-amber-700 mt-1">CTRU + GA/GO/GV/GD</div>
+          <div class="text-[11px] text-amber-700 mt-1">CTRU + venta + período</div>
         </div>
         <!-- Utilidad · emerald -->
         <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-4">
@@ -145,7 +145,7 @@
       </div>
       <!-- mini-stats footer integrado (canon N3) -->
       <div class="bg-slate-50/70 border border-slate-200 rounded-xl px-4 py-2 mt-3 flex items-center gap-4 text-[11px] flex-wrap">
-        <span class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Base del cálculo:</span>
+        <span class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Confianza de la proyección:</span>
         <span class="flex items-center gap-1 text-slate-600"><i data-lucide="database" class="w-3 h-3 text-slate-400"></i> 4 meses de historial</span>
         <span class="flex items-center gap-1 text-slate-600"><i data-lucide="gauge" class="w-3 h-3 text-slate-400"></i> Confianza: <span class="font-bold text-amber-600">media</span></span>
         <span class="flex items-center gap-1 text-slate-600"><i data-lucide="calendar" class="w-3 h-3 text-slate-400"></i> Horizonte: 30 días</span>
@@ -214,13 +214,15 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <!-- P&L proyectado (detalle del strip · canon resumen+detalle legítimo) -->
         <div class="bg-white border border-slate-200 rounded-2xl p-4">
-          <h3 class="text-[14px] font-semibold text-slate-900 mb-3">P&amp;L proyectado (30 días)</h3>
+          <h3 class="text-[14px] font-semibold text-slate-900 mb-3">P&amp;L proyectado (30 días) <span class="text-[11px] font-normal text-slate-400">· 3 cajas</span></h3>
           <div class="space-y-1 text-[13px]">
             <div class="flex items-center justify-between py-1 font-semibold"><span>Ingresos por ventas</span><span class="tabular">S/ 48,200</span></div>
-            <div class="flex items-center justify-between py-1"><span class="text-slate-500">(−) Costo de ventas (CTRU)</span><span class="tabular text-rose-500">S/ 22,800</span></div>
+            <div class="flex items-center justify-between py-1"><span class="text-slate-500">(−) Costo de ventas · CTRU <span class="text-[10px] text-indigo-400 font-semibold">Caja 1 · Producto</span></span><span class="tabular text-rose-500">S/ 22,800</span></div>
             <div class="flex items-center justify-between py-1 font-semibold border-t border-slate-100 pt-1"><span>= Utilidad bruta</span><span class="flex items-center gap-2"><span class="tabular">S/ 25,400</span><span class="text-[11px] font-bold text-emerald-600 tabular">52.7%</span></span></div>
-            <div class="flex items-center justify-between py-1"><span class="text-slate-500">(−) Gastos operativos (GA/GO/GV/GD)</span><span class="tabular text-rose-500">S/ 8,700</span></div>
-            <div class="flex items-center justify-between py-1.5 font-bold border-t-2 border-slate-300 mt-1"><span>= Utilidad neta</span><span class="flex items-center gap-2"><span class="tabular">S/ 16,700</span><span class="text-[11px] font-bold text-emerald-600 tabular">34.6%</span></span></div>
+            <div class="flex items-center justify-between py-1"><span class="text-slate-500">(−) Gastos de venta <span class="text-[10px] text-indigo-400 font-semibold">Caja 2 · Venta</span></span><span class="tabular text-rose-500">S/ 2,400</span></div>
+            <div class="flex items-center justify-between py-1 font-semibold border-t border-slate-100 pt-1"><span>= Utilidad de contribución</span><span class="flex items-center gap-2"><span class="tabular">S/ 23,000</span><span class="text-[11px] font-bold text-emerald-600 tabular">47.7%</span></span></div>
+            <div class="flex items-center justify-between py-1"><span class="text-slate-500">(−) Gastos de período (fijos) <span class="text-[10px] text-indigo-400 font-semibold">Caja 3 · Período</span></span><span class="tabular text-rose-500">S/ 6,300</span></div>
+            <div class="flex items-center justify-between py-1.5 font-bold border-t-2 border-slate-300 mt-1"><span>= Utilidad operativa</span><span class="flex items-center gap-2"><span class="tabular">S/ 16,700</span><span class="text-[11px] font-bold text-emerald-600 tabular">34.6%</span></span></div>
           </div>
         </div>
         <!-- Escenarios DE UTILIDAD (renombrado · ya no se confunde con caja) -->
@@ -373,27 +375,26 @@
       <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
         <div class="bg-white border border-slate-200 rounded-xl p-3"><div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Costo total</div><div class="text-lg font-bold tabular text-slate-900 mt-0.5">S/ 31,500</div></div>
         <div class="bg-white border border-slate-200 rounded-xl p-3"><div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">CTRU promedio</div><div class="text-lg font-bold tabular text-slate-900 mt-0.5">S/ 37.2</div></div>
-        <div class="bg-white border border-slate-200 rounded-xl p-3"><div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">GA/GO mensual</div><div class="text-lg font-bold tabular text-slate-900 mt-0.5">S/ 5,400</div></div>
+        <div class="bg-white border border-slate-200 rounded-xl p-3"><div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Gastos período</div><div class="text-lg font-bold tabular text-slate-900 mt-0.5">S/ 6,300</div></div>
         <div class="bg-white border border-slate-200 rounded-xl p-3"><div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Impacto TC +5%</div><div class="text-lg font-bold tabular text-rose-600 mt-0.5">S/ 1,140</div></div>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <!-- donut aproximado -->
         <div class="bg-white border border-slate-200 rounded-2xl p-4">
-          <h3 class="text-[14px] font-semibold text-slate-900 mb-3">Distribución de costos</h3>
+          <h3 class="text-[14px] font-semibold text-slate-900 mb-3">Distribución de costos <span class="text-[11px] font-normal text-slate-400">· 3 cajas</span></h3>
           <div class="flex items-center justify-center h-48">
-            <div class="w-36 h-36 rounded-full" style="background:conic-gradient(#3b82f6 0% 72%, #8b5cf6 72% 83%, #f59e0b 83% 92%, #06b6d4 92% 100%)">
+            <div class="w-36 h-36 rounded-full" style="background:conic-gradient(#3b82f6 0% 72%, #a855f7 72% 80%, #f59e0b 80% 100%)">
               <div class="w-20 h-20 bg-white rounded-full m-8 flex items-center justify-center text-[11px] font-bold text-slate-600 tabular">S/31.5k</div>
             </div>
           </div>
         </div>
         <!-- desglose -->
         <div class="bg-white border border-slate-200 rounded-2xl p-4">
-          <h3 class="text-[14px] font-semibold text-slate-900 mb-3">Desglose</h3>
+          <h3 class="text-[14px] font-semibold text-slate-900 mb-3">Desglose por caja</h3>
           <div class="space-y-2 text-[13px]">
-            <div class="flex items-center justify-between"><span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-blue-500"></span> Costo ventas (CTRU)</span><span class="tabular font-medium">S/ 22,800 <span class="text-slate-400 text-[11px]">72%</span></span></div>
-            <div class="flex items-center justify-between"><span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-violet-500"></span> GA (Admin)</span><span class="tabular font-medium">S/ 3,465 <span class="text-slate-400 text-[11px]">11%</span></span></div>
-            <div class="flex items-center justify-between"><span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-amber-500"></span> GO (Operativo)</span><span class="tabular font-medium">S/ 2,835 <span class="text-slate-400 text-[11px]">9%</span></span></div>
-            <div class="flex items-center justify-between"><span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-cyan-500"></span> GV/GD (Venta)</span><span class="tabular font-medium">S/ 2,400 <span class="text-slate-400 text-[11px]">8%</span></span></div>
+            <div class="flex items-center justify-between"><span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-blue-500"></span> Producto · CTRU <span class="text-[10px] text-slate-400">Caja 1</span></span><span class="tabular font-medium">S/ 22,800 <span class="text-slate-400 text-[11px]">72%</span></span></div>
+            <div class="flex items-center justify-between"><span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-purple-500"></span> Venta <span class="text-[10px] text-slate-400">Caja 2</span></span><span class="tabular font-medium">S/ 2,400 <span class="text-slate-400 text-[11px]">8%</span></span></div>
+            <div class="flex items-center justify-between"><span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-amber-500"></span> Período (fijos) <span class="text-[10px] text-slate-400">Caja 3</span></span><span class="tabular font-medium">S/ 6,300 <span class="text-slate-400 text-[11px]">20%</span></span></div>
             <div class="border-t border-slate-200 pt-2 flex justify-between font-bold"><span>Total</span><span class="tabular">S/ 31,500</span></div>
           </div>
         </div>
@@ -421,12 +422,13 @@
         <div class="bg-white border border-slate-200 rounded-xl p-3"><div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Productos riesgo</div><div class="text-lg font-bold tabular text-amber-600 mt-0.5">1</div></div>
       </div>
       <div class="bg-white border border-slate-200 rounded-2xl p-4">
-        <h3 class="text-[14px] font-semibold text-slate-900 mb-3">Cascada: de ingresos a utilidad</h3>
-        <div class="h-56 flex items-end justify-around gap-3 px-2 border-l border-b border-slate-200">
+        <h3 class="text-[14px] font-semibold text-slate-900 mb-3">Cascada: de ingresos a utilidad <span class="text-[11px] font-normal text-slate-400">· por caja</span></h3>
+        <div class="h-56 flex items-end justify-around gap-2 px-2 border-l border-b border-slate-200">
           <div class="flex flex-col items-center gap-1 flex-1"><div class="w-full max-w-[64px] bg-emerald-500/80 rounded-t" style="height:88%"></div><span class="text-[10px] text-slate-500">Ingresos</span><span class="text-[10px] tabular font-bold text-slate-700">48.2k</span></div>
-          <div class="flex flex-col items-center gap-1 flex-1"><div class="w-full max-w-[64px] bg-rose-500/80 rounded-t" style="height:42%"></div><span class="text-[10px] text-slate-500">CTRU</span><span class="text-[10px] tabular font-bold text-slate-700">−22.8k</span></div>
-          <div class="flex flex-col items-center gap-1 flex-1"><div class="w-full max-w-[64px] bg-orange-500/80 rounded-t" style="height:16%"></div><span class="text-[10px] text-slate-500">GA/GO/GV/GD</span><span class="text-[10px] tabular font-bold text-slate-700">−8.7k</span></div>
-          <div class="flex flex-col items-center gap-1 flex-1"><div class="w-full max-w-[64px] bg-blue-500/80 rounded-t" style="height:31%"></div><span class="text-[10px] text-slate-500">Utilidad</span><span class="text-[10px] tabular font-bold text-slate-700">16.7k</span></div>
+          <div class="flex flex-col items-center gap-1 flex-1"><div class="w-full max-w-[64px] bg-blue-500/80 rounded-t" style="height:42%"></div><span class="text-[10px] text-slate-500">(−) CTRU</span><span class="text-[10px] tabular font-bold text-slate-700">−22.8k</span></div>
+          <div class="flex flex-col items-center gap-1 flex-1"><div class="w-full max-w-[64px] bg-purple-500/80 rounded-t" style="height:4%"></div><span class="text-[10px] text-slate-500">(−) Venta</span><span class="text-[10px] tabular font-bold text-slate-700">−2.4k</span></div>
+          <div class="flex flex-col items-center gap-1 flex-1"><div class="w-full max-w-[64px] bg-amber-500/80 rounded-t" style="height:12%"></div><span class="text-[10px] text-slate-500">(−) Período</span><span class="text-[10px] tabular font-bold text-slate-700">−6.3k</span></div>
+          <div class="flex flex-col items-center gap-1 flex-1"><div class="w-full max-w-[64px] bg-emerald-600/80 rounded-t" style="height:31%"></div><span class="text-[10px] text-slate-500">Utilidad</span><span class="text-[10px] tabular font-bold text-slate-700">16.7k</span></div>
         </div>
       </div>
     </div>
@@ -435,8 +437,8 @@
 
 <!-- ============ ACTO 6 · ESTADOS ============ -->
 <div id="acto6" class="max-w-6xl mx-auto px-4 pt-10">
-  <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">Acto 6 · Estados (loading · empty)</div>
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+  <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">Acto 6 · Estados (loading · empty · error)</div>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
     <!-- loading -->
     <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden frame">
       <div class="border-b border-slate-200 px-6 py-2.5 bg-slate-50 text-[11px] text-slate-500">Inicio › Proyección · cargando</div>
@@ -457,6 +459,19 @@
         <div class="flex items-center justify-center gap-2 mt-4">
           <button class="bg-indigo-600 hover:bg-indigo-700 text-white text-[12px] font-bold px-3.5 py-2 rounded-lg">Ir a Productos</button>
           <button class="bg-white border border-slate-200 text-slate-600 text-[12px] font-semibold px-3.5 py-2 rounded-lg">Quitar filtro de línea</button>
+        </div>
+      </div>
+    </div>
+    <!-- error -->
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden frame">
+      <div class="border-b border-slate-200 px-6 py-2.5 bg-slate-50 text-[11px] text-slate-500">Inicio › Proyección · error</div>
+      <div class="p-10 text-center">
+        <div class="w-14 h-14 bg-rose-50 rounded-2xl flex items-center justify-center mx-auto mb-3"><i data-lucide="alert-triangle" class="w-7 h-7 text-rose-400"></i></div>
+        <div class="text-[15px] font-bold text-slate-900">No se pudo calcular la proyección</div>
+        <p class="text-[12px] text-slate-500 mt-1 max-w-sm mx-auto">Falló la carga de datos del sistema (CTRU / gastos). Si el árbol de categorías no cargó, los gastos saldrían en 0. Reintenta o revisa tus permisos.</p>
+        <div class="flex items-center justify-center gap-2 mt-4">
+          <button class="bg-indigo-600 hover:bg-indigo-700 text-white text-[12px] font-bold px-3.5 py-2 rounded-lg flex items-center gap-1.5"><i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Reintentar</button>
+          <button class="bg-white border border-slate-200 text-slate-600 text-[12px] font-semibold px-3.5 py-2 rounded-lg">Ver detalles</button>
         </div>
       </div>
     </div>
@@ -505,9 +520,10 @@
           <div class="text-[12px] font-semibold mb-2">P&amp;L proyectado</div>
           <div class="space-y-1 text-[11px]">
             <div class="flex justify-between font-semibold"><span>Ingresos</span><span class="tabular">S/48,200</span></div>
-            <div class="flex justify-between text-slate-500"><span>(−) CTRU</span><span class="tabular text-rose-500">S/22,800</span></div>
-            <div class="flex justify-between text-slate-500"><span>(−) GA/GO/GV/GD</span><span class="tabular text-rose-500">S/8,700</span></div>
-            <div class="flex justify-between font-bold border-t-2 border-slate-300 pt-1"><span>Utilidad neta</span><span class="tabular">S/16,700</span></div>
+            <div class="flex justify-between text-slate-500"><span>(−) CTRU · producto</span><span class="tabular text-rose-500">S/22,800</span></div>
+            <div class="flex justify-between text-slate-500"><span>(−) Gastos venta</span><span class="tabular text-rose-500">S/2,400</span></div>
+            <div class="flex justify-between text-slate-500"><span>(−) Gastos período</span><span class="tabular text-rose-500">S/6,300</span></div>
+            <div class="flex justify-between font-bold border-t-2 border-slate-300 pt-1"><span>Utilidad operativa</span><span class="tabular">S/16,700</span></div>
           </div>
         </div>
         <div class="bg-white border border-slate-200 rounded-xl p-3">
@@ -587,7 +603,8 @@
         <span class="bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/60 rounded-full px-2.5 py-1 font-semibold">✓ No-redundancia (P&L = detalle del strip)</span>
         <span class="bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/60 rounded-full px-2.5 py-1 font-semibold">✓ Sin cross-links</span>
         <span class="bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/60 rounded-full px-2.5 py-1 font-semibold">✓ Mobile 375px</span>
-        <span class="bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/60 rounded-full px-2.5 py-1 font-semibold">✓ Estados loading/empty</span>
+        <span class="bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/60 rounded-full px-2.5 py-1 font-semibold">✓ Estados loading/empty/error</span>
+        <span class="bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/60 rounded-full px-2.5 py-1 font-semibold">✓ Modelo 3 cajas (Producto·Venta·Período)</span>
         <span class="bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/60 rounded-full px-2.5 py-1 font-semibold">✓ Inter + tabular-nums + lucide</span>
       </div>
     </div>
