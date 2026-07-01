@@ -152,6 +152,15 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
     subOrdenId: string,
     action: 'en_transito' | 'recibida'
   ) => {
+    // Money-path guard: la recepción REAL (congela CTRU + mueve inventario) SOLO
+    // ocurre vía el envío vinculado (envioRecepcionService.registrarRecepcion).
+    // Marcar 'recibida' aquí sería un bypass que deja la unidad sin costo ni
+    // disponibilidad. La sub-orden se sincroniza automáticamente al recibir el envío,
+    // así que la recepción manual queda deshabilitada sin excepción.
+    if (action === 'recibida') {
+      console.warn('[SubOrden] recepción manual deshabilitada: se registra desde el envío vinculado (congela CTRU + inventario)');
+      return;
+    }
     setSubOrdenLoading(prev => ({ ...prev, [subOrdenId]: true }));
     try {
       const { updateDoc, doc } = await import('firebase/firestore');
@@ -170,9 +179,7 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
             fechaEnvio: new Date()
           };
         }
-        if (action === 'recibida') {
-          return { ...s, estado: 'recibida' as const, fechaRecepcion: new Date() };
-        }
+        // 'recibida' queda deshabilitado por el guard de arriba (recepción vía envío).
         return s;
       });
 
@@ -856,7 +863,6 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
               mode="full"
               loading={subOrdenLoading[sub.id] || false}
               onMarcarEnTransito={(id) => handleSubOrdenAction(id, 'en_transito')}
-              onRecibirProductos={(id) => handleSubOrdenAction(id, 'recibida')}
               onRegistrarPago={onPagarSubOrden || (onRegistrarPago ? () => onRegistrarPago() : undefined)}
               trackingDraft={trackingDraft[sub.id] || { tracking: sub.numeroTracking || '', courier: sub.courier || '' }}
               onTrackingChange={(draft) => setTrackingDraft(prev => ({ ...prev, [sub.id]: draft }))}

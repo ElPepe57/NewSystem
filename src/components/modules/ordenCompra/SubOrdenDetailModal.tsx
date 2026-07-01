@@ -3,10 +3,10 @@ import {
   X,
   ExternalLink,
   ArrowLeft,
-  Check,
   ChevronRight,
   Edit3,
   CheckCircle2,
+  Truck,
 } from 'lucide-react';
 import { cn, StatusBadge, formatFechaRelativa } from '../../../design-system';
 import type {
@@ -51,7 +51,6 @@ interface SubOrdenDetailModalProps {
   onBackToOC?: () => void;
   onRegistrarPago?: () => void;
   onEditarCargos?: () => void;
-  onMarcarRecibida?: () => void;
   onVerEnvio?: () => void;
 }
 
@@ -66,7 +65,6 @@ export const SubOrdenDetailModal: React.FC<SubOrdenDetailModalProps> = ({
   onBackToOC,
   onRegistrarPago,
   onEditarCargos,
-  onMarcarRecibida,
   onVerEnvio,
 }) => {
   if (!isOpen) return null;
@@ -448,15 +446,21 @@ export const SubOrdenDetailModal: React.FC<SubOrdenDetailModalProps> = ({
                 Editar cargos
               </button>
             )}
-            {onMarcarRecibida && estado !== 'recibida' && (
-              <button
-                type="button"
-                onClick={onMarcarRecibida}
-                className="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 flex items-center gap-1.5"
-              >
-                <Check className="w-3.5 h-3.5" />
-                Marcar recibida
-              </button>
+            {/* La recepción se registra SIEMPRE desde el envío vinculado (congela
+                CTRU + mueve inventario). No hay marcado manual: sería un bypass del
+                money-path que dejaría la unidad sin costo ni disponibilidad. */}
+            {estado !== 'recibida' && (
+              <span className={cn(
+                'px-3 py-1.5 text-sm font-medium rounded-lg flex items-center gap-1.5',
+                subOrden.envioId ? 'text-blue-700 bg-blue-50' : 'text-amber-700 bg-amber-50'
+              )}>
+                <Truck className="w-3.5 h-3.5" />
+                {estado === 'recibida_parcial'
+                  ? `Falta el resto · recibe en el envío ${subOrden.envioNumero ?? ''}`.trim()
+                  : subOrden.envioId
+                    ? `Recepción vía envío ${subOrden.envioNumero ?? ''}`.trim()
+                    : 'Vincula un envío para recibir'}
+              </span>
             )}
           </div>
         </div>
@@ -473,6 +477,7 @@ const EstadoSubOrdenPill: React.FC<{ estado: string }> = ({ estado }) => {
   const conf: Record<string, { variant: 'neutral' | 'info' | 'success'; label: string }> = {
     borrador: { variant: 'neutral', label: 'Confirmada' },
     en_transito: { variant: 'info', label: 'En Tránsito' },
+    recibida_parcial: { variant: 'info', label: 'Recibida parcial' },
     recibida: { variant: 'success', label: 'Recibida' },
   };
   const c = conf[estado] ?? { variant: 'neutral' as const, label: estado };

@@ -16,6 +16,7 @@ import {
 import type { RecepcionEnvio, EnvioUnidad } from '../types/envio.types';
 import type { Unidad, EstadoUnidad } from '../types/unidad.types';
 import type { ComponenteCostoUnidad } from '../types/ctru.types';
+import { mapEnvioEstadoToSubOrden } from '../utils/ordenCompra.helpers';
 
 const ENVIOS_COLL = COLLECTIONS.ENVIOS;
 const UNIDADES_COLL = COLLECTIONS.UNIDADES;
@@ -372,27 +373,61 @@ export const envioRecepcionService = {
             e.estado === 'recibida_completa' || e.estado === 'recibida_parcial'
           );
 
+          const updates: any = {};
+
+          // ── Sync SUB-ORDEN 1:1 (fuente de verdad = el envío) ──────────────
+          // La recepción REAL congela CTRU + mueve inventario aquí; la sub-orden
+          // solo REFLEJA el estado + contadores de su envío vinculado. Antes el
+          // marcado manual en OrdenCompraCard divergía (estado sin recepción real).
+          if (envio.subOrdenId && Array.isArray(oc.subOrdenes)) {
+            const subEstado = mapEnvioEstadoToSubOrden(estadoFinal);
+            const totalU = envio.totalUnidades
+              ?? (Array.isArray(envio.unidades) ? envio.unidades.length : undefined);
+            const marcaRecepcion = subEstado === 'recibida' || subEstado === 'recibida_parcial';
+            let subEncontrada = false;
+            updates.subOrdenes = oc.subOrdenes.map((s: any) => {
+              if (s.id !== envio.subOrdenId) return s;
+              subEncontrada = true;
+              return {
+                ...s,                                       // preserva tracking/courier/pago/etc.
+                estado: subEstado,
+                unidadesRecibidas: estadoCalc.totalUnidadesRecibidas ?? 0,
+                unidadesFaltantes: estadoCalc.totalUnidadesFaltantes ?? 0,
+                unidadesDanadas: estadoCalc.totalUnidadesDanadas ?? 0,
+                ...(totalU !== undefined ? { totalUnidades: totalU } : {}),
+                ...(marcaRecepcion ? { fechaRecepcion: now } : {}),
+              };
+            });
+            if (!subEncontrada) {
+              // Invariante roto (subOrdenId apunta a una sub-orden inexistente):
+              // no reescribimos el array; el estado de la OC sí puede actualizarse abajo.
+              logger.warn(`Recepción envío ${envio.numeroEnvio}: subOrdenId ${envio.subOrdenId} no está en OC ${oc.numeroOrden} — sub-orden no sincronizada`);
+              delete updates.subOrdenes;
+            }
+          }
+
+          // ── Estado de la OC (roll-up desde los envíos) ────────────────────
           let nuevoEstadoOC: string | null = null;
           if (todosCompletos && oc.estado !== 'completada' && oc.estado !== 'recibida') {
             nuevoEstadoOC = 'completada';
           } else if (algunoConRecepcion && oc.estado !== 'recibida_parcial' && oc.estado !== 'completada' && oc.estado !== 'recibida') {
             nuevoEstadoOC = 'recibida_parcial';
           }
-
           if (nuevoEstadoOC) {
-            const updates: any = {
-              estado: nuevoEstadoOC,
-              ultimaEdicion: now,
-              editadoPor: userId,
-            };
+            updates.estado = nuevoEstadoOC;
             if (nuevoEstadoOC === 'recibida_parcial' && !oc.fechaPrimeraRecepcion) {
               updates.fechaPrimeraRecepcion = now;
             }
             if (nuevoEstadoOC === 'completada') {
-              updates.fechaRecibida = updates.fechaRecibida || now;
+              updates.fechaRecibida = oc.fechaRecibida || now;
             }
+          }
+
+          if (Object.keys(updates).length > 0) {
+            updates.ultimaEdicion = now;
+            updates.editadoPor = userId;
             await updateDoc(ocRef, updates);
-            logger.info(`OC ${oc.numeroOrden} → ${nuevoEstadoOC} (sync desde Envío ${envio.numeroEnvio})`);
+            logger.info(`OC ${oc.numeroOrden}: sync desde Envío ${envio.numeroEnvio}${nuevoEstadoOC ? ` → ${nuevoEstadoOC}` : ''}${envio.subOrdenId ? ` · sub-orden ${envio.subOrdenId} → ${mapEnvioEstadoToSubOrden(estadoFinal)}` : ''}`);
           }
         }
       } catch (err: any) {

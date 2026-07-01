@@ -14,11 +14,42 @@ export function calcularEstadoDerivadoOC(
 
   const total = subOrdenes.length;
   const recibidas = subOrdenes.filter(s => s.estado === 'recibida').length;
+  const conRecepcion = subOrdenes.filter(
+    s => s.estado === 'recibida' || s.estado === 'recibida_parcial'
+  ).length;
   const enTransito = subOrdenes.filter(s => s.estado === 'en_transito').length;
 
   if (recibidas === total) return 'completada';
-  if (recibidas > 0 || enTransito > 0) return 'en_proceso';
+  // Alguna sub-orden recibió (parcial o total) sin completar todas → parcial.
+  // Alinea el estado MOSTRADO con el estado PERSISTIDO por el sync del envío
+  // (envioRecepcionService escribe 'recibida_parcial' en la OC).
+  if (conRecepcion > 0) return 'recibida_parcial';
+  if (enTransito > 0) return 'en_proceso';
   return estadoActual;
+}
+
+/**
+ * Mapea el estado de un Envío al estado de su sub-orden (relación 1:1).
+ * La FUENTE DE VERDAD de la recepción es el envío; la sub-orden solo lo refleja.
+ * Se usa desde envioRecepcionService.registrarRecepcion al sincronizar.
+ */
+export function mapEnvioEstadoToSubOrden(
+  estadoEnvio: string | undefined
+): NonNullable<SubOrdenCompra['estado']> {
+  switch (estadoEnvio) {
+    case 'recibida_completa':
+      return 'recibida';
+    case 'recibida_parcial':
+      return 'recibida_parcial';
+    case 'cancelada':
+      return 'cancelado';
+    case 'en_transito':
+    case 'confirmado':
+    case 'retenida_aduana':
+      return 'en_transito';
+    default:
+      return 'borrador';
+  }
 }
 
 /**

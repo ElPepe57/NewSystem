@@ -587,8 +587,16 @@ export interface SubOrdenCompra {
   impuestoUSD?: number;
   subtotalProductosUSD?: number;
   // Ciclo de vida independiente
-  estado?: 'borrador' | 'en_transito' | 'recibida' | 'cancelado';
+  // `recibida_parcial` = el envío 1:1 llegó incompleto (faltantes/retenidas).
+  // La fuente de verdad de la recepción es el ENVÍO; la sub-orden lo refleja
+  // (se sincroniza en envioRecepcionService.registrarRecepcion).
+  estado?: 'borrador' | 'en_transito' | 'recibida_parcial' | 'recibida' | 'cancelado';
   estadoPago?: 'pendiente' | 'parcial' | 'pagado';
+  // Contadores de recepción · mirror del envío vinculado (relación 1:1)
+  totalUnidades?: number;              // unidades esperadas del envío
+  unidadesRecibidas?: number;
+  unidadesFaltantes?: number;
+  unidadesDanadas?: number;
   numeroTracking?: string;
   courier?: string;
   fechaEnvio?: any;                    // Timestamp

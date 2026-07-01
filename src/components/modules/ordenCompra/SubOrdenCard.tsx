@@ -12,7 +12,6 @@ interface SubOrdenCardProps {
   mode: 'compact' | 'full';
   loading?: boolean;
   onMarcarEnTransito?: (id: string) => void;
-  onRecibirProductos?: (id: string) => void;
   onRegistrarPago?: (id: string) => void;
   trackingDraft?: { tracking: string; courier: string };
   onTrackingChange?: (draft: { tracking: string; courier: string }) => void;
@@ -27,7 +26,7 @@ const PASOS = [
 ] as const;
 
 const MiniPipeline: React.FC<{ estado: string; compact?: boolean }> = ({ estado, compact }) => {
-  const pasoIdx = estado === 'recibida' ? 2 : estado === 'en_transito' ? 1 : 0;
+  const pasoIdx = (estado === 'recibida' || estado === 'recibida_parcial') ? 2 : estado === 'en_transito' ? 1 : 0;
 
   return (
     <div className="flex items-center gap-1">
@@ -85,42 +84,72 @@ const PagoBadge: React.FC<{ pagado: boolean }> = ({ pagado }) => (
   </span>
 );
 
+// ─── Contador de recepción (mirror del envío) ─────────────
+
+const RecepcionContador: React.FC<{ sub: SubOrdenCompra }> = ({ sub }) => {
+  const tot = sub.totalUnidades ?? 0;
+  if ((sub.estado !== 'recibida_parcial' && sub.estado !== 'recibida') || !tot) return null;
+  const rec = sub.unidadesRecibidas ?? 0;
+  const faltan = sub.unidadesFaltantes ?? 0;
+  const parcial = sub.estado === 'recibida_parcial';
+  return (
+    <span
+      title={parcial ? `${rec} de ${tot} unidades recibidas${faltan ? ` · ${faltan} faltan` : ''}` : `${rec} de ${tot} unidades recibidas`}
+      className={cn(
+        'inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full shrink-0 tabular-nums',
+        parcial ? 'text-sky-700 bg-sky-50' : 'text-emerald-700 bg-emerald-50'
+      )}
+    >
+      <Box className="w-3 h-3" />
+      {rec}/{tot}u
+      {parcial && faltan > 0 ? ` · ${faltan} faltan` : ''}
+    </span>
+  );
+};
+
 // ─── Acción Contextual ────────────────────────────────────
+// `tieneEnvio`: cuando la sub-orden tiene un envío 1:1 vinculado, la recepción
+// se gestiona EXCLUSIVAMENTE desde el envío (congela CTRU + mueve inventario).
+// El botón manual "Recibir Productos" era un bypass del money-path y se retira.
 
 const AccionContextual: React.FC<{
   estado: string;
   pagado: boolean;
+  tieneEnvio: boolean;
   loading?: boolean;
   onMarcarEnTransito?: () => void;
-  onRecibirProductos?: () => void;
   onRegistrarPago?: () => void;
-}> = ({ estado, pagado, loading, onMarcarEnTransito, onRecibirProductos, onRegistrarPago }) => {
+}> = ({ estado, pagado, tieneEnvio, loading, onMarcarEnTransito, onRegistrarPago }) => {
   if (estado === 'borrador' && onMarcarEnTransito) {
     return (
       <button
         type="button"
         disabled={loading}
         onClick={onMarcarEnTransito}
-        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white text-xs font-medium rounded-lg transition-colors"
+        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-xs font-medium rounded-lg transition-colors"
       >
         <Send className="w-3 h-3" />
         {loading ? 'Guardando...' : 'Marcar en Transito'}
       </button>
     );
   }
-  if (estado === 'en_transito' && onRecibirProductos) {
+  // Recepción SIEMPRE vía el envío vinculado (congela CTRU + inventario) — nunca
+  // un botón manual (sería un bypass del money-path). Si por dato-error no hay
+  // envío, se guía a vincularlo en vez de ofrecer una recepción rota.
+  if (estado === 'en_transito' || estado === 'recibida_parcial') {
     return (
-      <button
-        type="button"
-        disabled={loading}
-        onClick={onRecibirProductos}
-        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-xs font-medium rounded-lg transition-colors"
-      >
-        <Box className="w-3 h-3" />
-        {loading ? 'Guardando...' : 'Recibir Productos'}
-      </button>
+      <span className={cn(
+        'inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg',
+        tieneEnvio ? 'bg-blue-50 text-blue-700' : 'bg-amber-50 text-amber-700'
+      )}>
+        <Truck className="w-3.5 h-3.5" />
+        {estado === 'recibida_parcial'
+          ? 'Falta el resto · recibe en el envío'
+          : tieneEnvio ? 'Recepción vía envío' : 'Vincula un envío para recibir'}
+      </span>
     );
   }
+  // (recibida_parcial se resuelve arriba con el hint de recepción)
   if (estado === 'recibida' && !pagado && onRegistrarPago) {
     return (
       <button
@@ -148,6 +177,7 @@ const AccionContextual: React.FC<{
 
 const getBorderColor = (estado: string) => {
   if (estado === 'recibida') return 'border-l-emerald-400';
+  if (estado === 'recibida_parcial') return 'border-l-sky-400';
   if (estado === 'en_transito') return 'border-l-amber-400';
   return 'border-l-slate-300';
 };
@@ -160,7 +190,6 @@ export const SubOrdenCard: React.FC<SubOrdenCardProps> = ({
   mode,
   loading = false,
   onMarcarEnTransito,
-  onRecibirProductos,
   onRegistrarPago,
   trackingDraft,
   onTrackingChange,
@@ -186,6 +215,7 @@ export const SubOrdenCard: React.FC<SubOrdenCardProps> = ({
           }
           <span className="text-xs font-semibold text-slate-700 shrink-0">Sub-orden {index + 1}</span>
           <MiniPipeline estado={estado} compact />
+          <RecepcionContador sub={sub} />
           <PagoBadge pagado={pagado} />
           <span className="text-[10px] text-slate-400 shrink-0">{sub.productos.length} prod. / {unidades}u</span>
           {sub.referenciaProveedor && (
@@ -274,11 +304,14 @@ export const SubOrdenCard: React.FC<SubOrdenCardProps> = ({
       {/* Pipeline + Pago */}
       <div className="flex items-center justify-between gap-3">
         <MiniPipeline estado={estado} />
-        <PagoBadge pagado={pagado} />
+        <div className="flex items-center gap-2 shrink-0">
+          <RecepcionContador sub={sub} />
+          <PagoBadge pagado={pagado} />
+        </div>
       </div>
 
-      {/* Tracking inputs — solo cuando no recibida */}
-      {estado !== 'recibida' && trackingDraft && onTrackingChange && (
+      {/* Tracking inputs — solo antes de recibir (metadata previa al despacho) */}
+      {estado !== 'recibida' && estado !== 'recibida_parcial' && trackingDraft && onTrackingChange && (
         <div className="grid grid-cols-2 gap-2">
           <div>
             <label className="text-[10px] text-slate-500 block mb-0.5">Tracking</label>
@@ -303,8 +336,8 @@ export const SubOrdenCard: React.FC<SubOrdenCardProps> = ({
         </div>
       )}
 
-      {/* Tracking display — cuando recibida */}
-      {estado === 'recibida' && (sub.numeroTracking || sub.courier) && (
+      {/* Tracking display — cuando recibida (total o parcial) */}
+      {(estado === 'recibida' || estado === 'recibida_parcial') && (sub.numeroTracking || sub.courier) && (
         <div className="flex gap-4 text-xs text-slate-500">
           {sub.numeroTracking && <span><span className="font-medium text-slate-700">Tracking:</span> {sub.numeroTracking}</span>}
           {sub.courier && <span><span className="font-medium text-slate-700">Courier:</span> {sub.courier}</span>}
@@ -339,9 +372,9 @@ export const SubOrdenCard: React.FC<SubOrdenCardProps> = ({
       <AccionContextual
         estado={estado}
         pagado={pagado}
+        tieneEnvio={!!sub.envioId}
         loading={loading}
         onMarcarEnTransito={onMarcarEnTransito ? () => onMarcarEnTransito(sub.id) : undefined}
-        onRecibirProductos={onRecibirProductos ? () => onRecibirProductos(sub.id) : undefined}
         onRegistrarPago={onRegistrarPago ? () => onRegistrarPago(sub.id) : undefined}
       />
     </div>
