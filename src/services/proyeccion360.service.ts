@@ -1,17 +1,24 @@
-// @ts-nocheck — archivo tiene mismatches pre-existentes con tipos de proyeccion360.types
-// TODO: sincronizar tipos en una refactorización dedicada
 /**
  * proyeccion360.service.ts
- *
- * Motor de Proyección 360 del Negocio.
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Motor de Proyección 360 · FORECAST DEL RESULTADO del negocio.
  * Calcula TODO en memoria usando datos del ctruStore — sin queries a Firestore.
  *
- * Cadena: Inventario → Ventas → Costos → Margen → Flujo de Caja
+ * Redibujo 2026-07-01 (Fase 2+4):
+ *  - Modelo 3 CAJAS (Acuerdo 3): Producto (CTRU) · Venta · Período.
+ *  - SIN flujo de caja (la caja vive en Finanzas · se eliminó el flujo sintético).
+ *  - Inventario CONSUME el Motor de Reorden (ReordenInsumo del productoIntelStore):
+ *    la proyección lo presenta al horizonte, no re-proyecta demanda.
+ *  - Tipado contra proyeccion360.types (sin @ts-nocheck) · tc se pasa explícito
+ *    (antes `tcActual` quedaba fuera de scope en las calculadoras · bug).
+ *
+ * Cadena: Ventas → Inventario (motor) → Costos (3 cajas) → Margen (P&L) →
+ *         Escenarios → Timeline → Alertas
  */
 
 import type {
   Horizonte360, Proyeccion360, ProyeccionVentas, ProyeccionInventario,
-  ProyeccionCostos, ProyeccionMargen, ProyeccionFlujoCaja, FlujoCajaSemana,
+  ProyeccionCostos, ProyeccionMargen, ReordenInsumo,
   Escenario360, TimelinePoint, Alerta360, VentaProyectadaProducto,
   InventarioProyectadoProducto
 } from '../types/proyeccion360.types';
@@ -20,8 +27,6 @@ import type { CTRUProductoDetalle, HistorialCostosMes, HistorialGastosEntry } fr
 // ============================================
 // HELPERS
 // ============================================
-
-function clamp(v: number, min: number, max: number) { return Math.max(min, Math.min(max, v)); }
 
 function promMovil(arr: number[], n = 3): number {
   const valid = arr.filter(v => v > 0);
@@ -50,7 +55,8 @@ export function calcularProyeccion360(
   historialMensual: HistorialCostosMes[],
   historialGastos: HistorialGastosEntry[],
   horizonte: Horizonte360,
-  tcActual: number = 3.50
+  tcActual: number = 3.50,
+  reorden: ReordenInsumo[] = []
 ): Proyeccion360 {
 
   const periodos = horizonte === 30 ? 1 : 3;
@@ -60,26 +66,23 @@ export function calcularProyeccion360(
   // ─── PASO 1: VENTAS PROYECTADAS ───
   const ventas = calcularVentas(productos, hist, periodos);
 
-  // ─── PASO 2: INVENTARIO PROYECTADO (usa ventas) ───
-  const inventario = calcularInventario(productos, ventas, periodos);
+  // ─── PASO 2: INVENTARIO · consume el Motor de Reorden ───
+  const inventario = calcularInventario(productos, ventas, reorden);
 
-  // ─── PASO 3: COSTOS PROYECTADOS (usa ventas + inventario) ───
-  const costos = calcularCostos(productos, ventas, inventario, gastos, periodos);
+  // ─── PASO 3: COSTOS PROYECTADOS · 3 cajas ───
+  const costos = calcularCostos(productos, ventas, inventario, gastos, periodos, tcActual);
 
-  // ─── PASO 4: MARGEN (derivado de ventas + costos) ───
+  // ─── PASO 4: MARGEN · P&L 3 cajas ───
   const margen = calcularMargen(ventas, costos, productos);
 
-  // ─── PASO 5: FLUJO DE CAJA (usa todo) ───
-  const flujoCaja = calcularFlujoCaja(ventas, costos, inventario, periodos);
+  // ─── PASO 5: ESCENARIOS DE UTILIDAD ───
+  const escenarios = calcularEscenarios(ventas, costos);
 
-  // ─── PASO 6: ESCENARIOS ───
-  const escenarios = calcularEscenarios(ventas, costos, margen);
+  // ─── PASO 6: TIMELINE ───
+  const timeline = construirTimeline(hist, ventas, costos, periodos);
 
-  // ─── PASO 7: TIMELINE ───
-  const timeline = construirTimeline(hist, ventas, costos, margen, periodos);
-
-  // ─── PASO 8: ALERTAS ───
-  const alertas = consolidarAlertas(ventas, inventario, costos, margen, flujoCaja);
+  // ─── PASO 7: ALERTAS ───
+  const alertas = consolidarAlertas(ventas, inventario, margen);
 
   // ─── CONFIANZA ───
   const mesesHistorial = hist.length;
@@ -93,10 +96,9 @@ export function calcularProyeccion360(
     mesesHistorial,
     ingresosProyectados: ventas.totalMontoPEN,
     costosProyectados: costos.costoTotal,
-    utilidadProyectada: margen.utilidadNeta,
-    margenNetoProyectado: margen.margenNeto,
-    flujoCajaNeto: flujoCaja.saldoFinal,
-    ventas, inventario, costos, margen, flujoCaja,
+    utilidadProyectada: margen.utilidadOperativa,
+    margenNetoProyectado: margen.margenOperativo,
+    ventas, inventario, costos, margen,
     escenarios, timeline, alertas,
   };
 }
@@ -110,30 +112,28 @@ function calcularVentas(
   hist: HistorialCostosMes[],
   periodos: number
 ): ProyeccionVentas {
-  const ventasHist = hist.map(h => h.ventasCount);
-  const montoHist = hist.map(h => h.ventasCount * (h.precioVentaProm || 0));
-  const trendVentas = tendencia(ventasHist);
-
   // Mix de canal: estimado desde las ventas de cada producto
   let totalML = 0, totalDirecto = 0;
   productos.forEach(p => {
     const ventas = p.ventasDetalle || [];
     ventas.forEach(v => {
       const monto = (v.cantidad || 1) * (v.precioUnitario || 0);
-      // Heurística: si hay canal, usar; si no, asumir 50/50
+      // Heurística: si hay canal, usar; si no, asumir 60/40
       totalDirecto += monto * 0.6; // ajustar cuando haya campo canal
       totalML += monto * 0.4;
     });
   });
-  const totalMix = totalML + totalDirecto || 1;
-  const pctML = totalML / totalMix;
-  const pctDirecto = totalDirecto / totalMix;
+  // Sin historial de ventas el mix cae a la heurística 60/40 (no a 0/0, que
+  // dejaría montoML+montoDirecto ≠ totalMontoPEN).
+  const totalMix = totalML + totalDirecto;
+  const pctML = totalMix > 0 ? totalML / totalMix : 0.4;
+  const pctDirecto = totalMix > 0 ? totalDirecto / totalMix : 0.6;
 
   const productosVenta: VentaProyectadaProducto[] = productos.map(p => {
     const ventasDetalle = p.ventasDetalle || [];
     // Velocidad de venta: unidades vendidas / días de historial
     const totalUdsVendidas = ventasDetalle.reduce((s, v) => s + (v.cantidad || 1), 0);
-    const diasHistorial = 90; // asumir 90 días de ventana
+    const diasHistorial = 90; // ventana asumida de 90 días
     const ventasDiarias = totalUdsVendidas / diasHistorial;
     const ventasMensuales = ventasDiarias * 30;
 
@@ -156,13 +156,15 @@ function calcularVentas(
       precioPromedio,
       pctML, pctDirecto,
       limitadoPorStock: diasStock < diasHorizonte,
-      diasHastaStockout: Math.round(diasStock),
+      diasHastaStockout: Number.isFinite(diasStock) ? Math.round(diasStock) : 9999,
     };
   });
 
   const totalUnidades = productosVenta.reduce((s, p) => s + p.unidadesProyectadas, 0);
   const totalMontoPEN = productosVenta.reduce((s, p) => s + p.ingresosProyectados, 0);
-  const ventasMesAnterior = hist.length > 0 ? (hist[hist.length - 1]?.ventasCount || 0) * (hist[hist.length - 1]?.precioVentaProm || 0) : 0;
+  const ventasMesAnterior = hist.length > 0
+    ? (hist[hist.length - 1]?.ventasCount || 0) * (hist[hist.length - 1]?.precioVentaProm || 0)
+    : 0;
 
   return {
     totalUnidades,
@@ -173,75 +175,84 @@ function calcularVentas(
     montoDirecto: totalMontoPEN * pctDirecto,
     productos: productosVenta,
     ventasMesAnterior,
-    crecimientoPct: ventasMesAnterior > 0 ? ((totalMontoPEN / periodos - ventasMesAnterior) / ventasMesAnterior) * 100 : 0,
+    crecimientoPct: ventasMesAnterior > 0
+      ? ((totalMontoPEN / periodos - ventasMesAnterior) / ventasMesAnterior) * 100
+      : 0,
   };
 }
 
+/**
+ * Inventario al horizonte · CONSUME el Motor de Reorden (canon no-redundancia).
+ * Con dato del motor: reorden manda (diasParaQuiebre/cantidadSugerida/urgencia).
+ * Sin dato del motor (sin señal real): solo se estima cobertura para display,
+ * SIN sugerir recompra (el gate de señal es del motor, no se re-implementa).
+ */
 function calcularInventario(
   productos: CTRUProductoDetalle[],
   ventas: ProyeccionVentas,
-  periodos: number
+  reorden: ReordenInsumo[]
 ): ProyeccionInventario {
+  const reordenMap = new Map(reorden.map(r => [r.productoId, r]));
+
   const productosInv: InventarioProyectadoProducto[] = productos.map(p => {
+    const r = reordenMap.get(p.productoId);
+    if (r) {
+      const estado: InventarioProyectadoProducto['estado'] =
+        r.urgencia === 'critica' ? 'critico' : 'atencion';
+      return {
+        productoId: p.productoId,
+        nombre: p.productoNombre,
+        sku: p.productoSKU,
+        disponibles: r.stockNeto ?? p.totalUnidades,
+        diasStock: Math.round(r.diasParaQuiebre),
+        necesitaRecompra: true,
+        cantidadSugerida: r.cantidadSugerida,
+        urgencia: r.urgencia,
+        puntoReorden: r.puntoReorden,
+        costoRecompraPEN: r.cantidadSugerida * (p.ctruContableProm || 0),
+        estado,
+        fuente: 'motor',
+      };
+    }
+
+    // Sin señal del motor: cobertura estimada solo para display
     const ventaProd = ventas.productos.find(v => v.productoId === p.productoId);
     const ventasDiarias = ventaProd?.ventasDiarias || 0;
     const diasStock = ventasDiarias > 0 ? p.totalUnidades / ventasDiarias : Infinity;
-    const leadTime = 30; // conservador para importación
-
-    const fechaStockout = new Date();
-    fechaStockout.setDate(fechaStockout.getDate() + Math.min(diasStock, 999));
-    const fechaLimite = new Date();
-    fechaLimite.setDate(fechaLimite.getDate() + Math.max(diasStock - leadTime, 0));
-
-    const necesitaRecompra = diasStock < (periodos * 30 + leadTime);
-    const cantidadSugerida = necesitaRecompra ? Math.ceil(ventasDiarias * 60) : 0;
-    const costoRecompra = cantidadSugerida * (p.costoCompraUSDProm || 0) *
-      ((p.lotes || []).find(l => l.tc > 0)?.tc || tcActual);
-
-    // Riesgo vencimiento: simplificado
-    const unidadesEnRiesgo = 0; // requiere fecha vencimiento por unidad
-
-    let estado: InventarioProyectadoProducto['estado'] = 'ok';
-    if (diasStock < 15) estado = 'critico';
-    else if (diasStock < 45) estado = 'atencion';
-
     return {
       productoId: p.productoId,
       nombre: p.productoNombre,
       sku: p.productoSKU,
       disponibles: p.totalUnidades,
-      enTransito: 0, // TODO: cruzar con transferencias activas
-      diasStock: Math.round(diasStock),
-      fechaStockout,
-      fechaLimiteCompra: fechaLimite,
-      leadTimeDias: leadTime,
-      necesitaRecompra,
-      cantidadSugerida,
-      costoRecompraPEN: costoRecompra,
-      unidadesEnRiesgo,
-      fechaVencProxima: null,
-      estado,
+      diasStock: Number.isFinite(diasStock) ? Math.round(diasStock) : 9999,
+      necesitaRecompra: false,
+      cantidadSugerida: 0,
+      costoRecompraPEN: 0,
+      estado: 'ok',
+      fuente: 'estimado',
     };
   });
 
   return {
     totalDisponibles: productosInv.reduce((s, p) => s + p.disponibles, 0),
-    totalEnTransito: productosInv.reduce((s, p) => s + p.enTransito, 0),
-    valorInventarioPEN: productos.reduce((s, p) => s + p.totalUnidades * p.ctruContableProm, 0),
+    valorInventarioPEN: productos.reduce((s, p) => s + p.totalUnidades * (p.ctruContableProm || 0), 0),
     productosEnRiesgo: productosInv.filter(p => p.estado !== 'ok').length,
     costoTotalRecompraPEN: productosInv.reduce((s, p) => s + p.costoRecompraPEN, 0),
     productos: productosInv,
+    desdeMotorReorden: reorden.length > 0,
   };
 }
 
+/** Costos proyectados · 3 cajas (Producto=CTRU · Venta · Período) */
 function calcularCostos(
   productos: CTRUProductoDetalle[],
   ventas: ProyeccionVentas,
   inventario: ProyeccionInventario,
   gastos: HistorialGastosEntry[],
-  periodos: number
+  periodos: number,
+  tcActual: number
 ): ProyeccionCostos {
-  // Costo de ventas = CTRU × unidades vendidas
+  // Caja 1 · Producto: CTRU × unidades proyectadas
   let costoVentas = 0;
   ventas.productos.forEach(vp => {
     const prod = productos.find(p => p.productoId === vp.productoId);
@@ -250,19 +261,13 @@ function calcularCostos(
     }
   });
 
-  // GA/GO/GV/GD proyectados
-  const gaHist = gastos.map(g => g.GA || 0);
-  const goHist = gastos.map(g => g.GO || 0);
-  const gvHist = gastos.map(g => g.GV || 0);
-  const gdHist = gastos.map(g => g.GD || 0);
+  // Cajas 2 y 3: promedio móvil (3m) del historial de gastos por caja
+  const ventaHist = gastos.map(g => (g.ventaGeneral || 0) + (g.ventaDistribucion || 0));
+  const periodoHist = gastos.map(g => (g.periodoAdministrativo || 0) + (g.periodoOperativo || 0));
 
-  const gaProyMes = promMovil(gaHist);
-  const goProyMes = promMovil(goHist);
-  const gvgdProyMes = promMovil(gvHist) + promMovil(gdHist);
-
-  const gaProyectado = gaProyMes * periodos;
-  const goProyectado = goProyMes * periodos;
-  const gvgdProyectado = gvgdProyMes * periodos;
+  const gastoVentaProyectado = promMovil(ventaHist) * periodos;
+  const gastoPeriodoProyectado = promMovil(periodoHist) * periodos;
+  const totalGastosProyectado = gastoVentaProyectado + gastoPeriodoProyectado;
 
   // Tendencia CTRU
   const ctruHist = productos.filter(p => p.ctruContableProm > 0).map(p => p.ctruContableProm);
@@ -274,27 +279,34 @@ function calcularCostos(
 
   return {
     costoVentasTotal: costoVentas,
-    gaProyectado,
-    goProyectado,
-    gvgdProyectado,
+    gastoVentaProyectado,
+    gastoPeriodoProyectado,
+    totalGastosProyectado,
     costoRecompras: inventario.costoTotalRecompraPEN,
-    costoOperativoTotal: gaProyectado + goProyectado + gvgdProyectado,
-    costoTotal: costoVentas + gaProyectado + goProyectado + gvgdProyectado,
+    costoTotal: costoVentas + totalGastosProyectado,
     ctruPromedioProyectado: ctruProm,
     tendenciaCTRU: tendencia(ctruHist) * 100,
     impactoTC5Pct: impactoTC5,
   };
 }
 
-function calcularMargen(ventas: ProyeccionVentas, costos: ProyeccionCostos, productos: CTRUProductoDetalle[]): ProyeccionMargen {
+/** P&L proyectado · 3 cajas (bruta → contribución → operativa) */
+function calcularMargen(
+  ventas: ProyeccionVentas,
+  costos: ProyeccionCostos,
+  productos: CTRUProductoDetalle[]
+): ProyeccionMargen {
   const ingresos = ventas.totalMontoPEN;
-  const utilBruta = ingresos - costos.costoVentasTotal;
-  const utilNeta = utilBruta - costos.costoOperativoTotal;
+  const utilidadBruta = ingresos - costos.costoVentasTotal;
+  const utilidadContribucion = utilidadBruta - costos.gastoVentaProyectado;
+  const utilidadOperativa = utilidadContribucion - costos.gastoPeriodoProyectado;
+
+  const pct = (v: number) => (ingresos > 0 ? (v / ingresos) * 100 : 0);
 
   // Margen por producto con SU CTRU específico (no el promedio global · fix 2026-07-01)
   const ctruDeProducto = (productoId: string) =>
     productos.find(pr => pr.productoId === productoId)?.ctruContableProm || 0;
-  const margenProducto = (p: typeof ventas.productos[number]) =>
+  const margenProducto = (p: VentaProyectadaProducto) =>
     p.precioPromedio > 0
       ? ((p.ingresosProyectados - p.unidadesProyectadas * ctruDeProducto(p.productoId)) / p.ingresosProyectados) * 100
       : 0;
@@ -305,107 +317,58 @@ function calcularMargen(ventas: ProyeccionVentas, costos: ProyeccionCostos, prod
     return margen >= 0 && margen < 15;
   }).length;
 
-  // Break-even: cuántas unidades para cubrir gastos fijos
-  const ticketNeto = ventas.ticketPromedio - costos.ctruPromedioProyectado;
-  const breakEven = ticketNeto > 0 ? Math.ceil(costos.costoOperativoTotal / ticketNeto) : Infinity;
+  // Break-even: unidades para cubrir los gastos (Caja 2 + Caja 3).
+  // CTRU unitario PONDERADO por las unidades proyectadas (costoVentas/unidades),
+  // no el promedio simple del catálogo — un producto caro sin ventas proyectadas
+  // sesgaría el ticket neto a negativo y rompería el break-even.
+  const ctruUnitarioProyectado = ventas.totalUnidades > 0
+    ? costos.costoVentasTotal / ventas.totalUnidades
+    : 0;
+  const ticketNeto = ventas.ticketPromedio - ctruUnitarioProyectado;
+  const breakEven = ticketNeto > 0 ? Math.ceil(costos.totalGastosProyectado / ticketNeto) : Infinity;
 
   return {
     ingresosBrutos: ingresos,
     costoVentas: costos.costoVentasTotal,
-    utilidadBruta: utilBruta,
-    margenBruto: ingresos > 0 ? (utilBruta / ingresos) * 100 : 0,
-    gastosOperativos: costos.costoOperativoTotal,
-    utilidadNeta: utilNeta,
-    margenNeto: ingresos > 0 ? (utilNeta / ingresos) * 100 : 0,
+    utilidadBruta,
+    margenBruto: pct(utilidadBruta),
+    gastoVenta: costos.gastoVentaProyectado,
+    utilidadContribucion,
+    margenContribucion: pct(utilidadContribucion),
+    gastoPeriodo: costos.gastoPeriodoProyectado,
+    utilidadOperativa,
+    margenOperativo: pct(utilidadOperativa),
     productosMargenNegativo: productosNeg,
     productosMargenBajo: productosBajo,
     unidadesBreakEven: breakEven === Infinity ? 0 : breakEven,
   };
 }
 
-function calcularFlujoCaja(
-  ventas: ProyeccionVentas,
-  costos: ProyeccionCostos,
-  inventario: ProyeccionInventario,
-  periodos: number
-): ProyeccionFlujoCaja {
-  const numSemanas = periodos === 1 ? 4 : 12;
-  const ingresoSemanal = ventas.totalMontoPEN / numSemanas;
-  const tasaCobro = 0.85; // 85% se cobra a tiempo
-  const egresoGastosSemanal = costos.costoOperativoTotal / numSemanas;
-
-  // Distribuir recompras en las semanas donde se necesitan
-  const recompraPorSemana = inventario.costoTotalRecompraPEN / Math.max(periodos, 1);
-
-  const semanas: FlujoCajaSemana[] = [];
-  let saldo = 0; // empezar en 0 (relativo)
-
-  for (let i = 1; i <= numSemanas; i++) {
-    const cobrosVentas = ingresoSemanal * tasaCobro;
-    const cobrosCartera = i <= 2 ? ingresoSemanal * (1 - tasaCobro) * 0.5 : 0;
-    const totalCobros = cobrosVentas + cobrosCartera;
-
-    const egresosRecompras = (i % 4 === 0) ? recompraPorSemana : 0; // recompra mensual
-    const totalEgresos = egresoGastosSemanal + egresosRecompras;
-
-    const flujoNeto = totalCobros - totalEgresos;
-    saldo += flujoNeto;
-
-    const fecha = new Date();
-    fecha.setDate(fecha.getDate() + (i - 1) * 7);
-
-    semanas.push({
-      semana: i,
-      label: `Sem ${i}`,
-      cobrosVentas, cobrosCartera, totalCobros,
-      egresosGastos: egresoGastosSemanal,
-      egresosRecompras,
-      totalEgresos,
-      flujoNeto,
-      saldoAcumulado: Math.round(saldo),
-      critico: saldo < 0,
-    });
-  }
-
-  const saldoFinal = semanas[semanas.length - 1]?.saldoAcumulado || 0;
-  const minSaldo = Math.min(...semanas.map(s => s.saldoAcumulado));
-
-  return {
-    saldoInicial: 0,
-    totalCobros: semanas.reduce((s, w) => s + w.totalCobros, 0),
-    totalEgresos: semanas.reduce((s, w) => s + w.totalEgresos, 0),
-    saldoFinal,
-    necesitaFinanciamiento: minSaldo < 0,
-    montoFinanciamiento: minSaldo < 0 ? Math.abs(minSaldo) : 0,
-    semanas,
-  };
-}
-
 function calcularEscenarios(
   ventas: ProyeccionVentas,
-  costos: ProyeccionCostos,
-  margen: ProyeccionMargen
+  costos: ProyeccionCostos
 ): Escenario360[] {
+  // costoCompraVar = variación del precio de COMPRA (proveedor) · junto con el
+  // TC afecta el CTRU (Caja 1). NO es el precio de venta (ese va en ventasVar).
   const configs = [
-    { nombre: 'optimista' as const, prob: 0.2, tcVar: -5, precioVar: -3, gagoVar: -5, ventasVar: 10 },
-    { nombre: 'base' as const, prob: 0.6, tcVar: 0, precioVar: 0, gagoVar: 0, ventasVar: 0 },
-    { nombre: 'pesimista' as const, prob: 0.2, tcVar: 10, precioVar: 5, gagoVar: 10, ventasVar: -15 },
+    { nombre: 'optimista' as const, prob: 0.2, tcVar: -5, costoCompraVar: -3, gastosVar: -5, ventasVar: 10 },
+    { nombre: 'base' as const, prob: 0.6, tcVar: 0, costoCompraVar: 0, gastosVar: 0, ventasVar: 0 },
+    { nombre: 'pesimista' as const, prob: 0.2, tcVar: 10, costoCompraVar: 5, gastosVar: 10, ventasVar: -15 },
   ];
 
   return configs.map(c => {
     const ingresos = ventas.totalMontoPEN * (1 + c.ventasVar / 100);
-    const costosAdj = costos.costoVentasTotal * (1 + c.tcVar / 100) * (1 + c.precioVar / 100);
-    const gastosAdj = costos.costoOperativoTotal * (1 + c.gagoVar / 100);
+    const costosAdj = costos.costoVentasTotal * (1 + c.tcVar / 100) * (1 + c.costoCompraVar / 100);
+    const gastosAdj = costos.totalGastosProyectado * (1 + c.gastosVar / 100);
     const utilidad = ingresos - costosAdj - gastosAdj;
     return {
       nombre: c.nombre,
       probabilidad: c.prob,
-      supuestos: { tcVar: c.tcVar, precioVar: c.precioVar, gagoVar: c.gagoVar, ventasVar: c.ventasVar },
+      supuestos: { tcVar: c.tcVar, costoCompraVar: c.costoCompraVar, gastosVar: c.gastosVar, ventasVar: c.ventasVar },
       ingresos,
       costos: costosAdj + gastosAdj,
       utilidad,
       margen: ingresos > 0 ? (utilidad / ingresos) * 100 : 0,
-      flujoCaja: utilidad * 0.85, // ajuste por timing de cobro
     };
   });
 }
@@ -414,7 +377,6 @@ function construirTimeline(
   hist: HistorialCostosMes[],
   ventas: ProyeccionVentas,
   costos: ProyeccionCostos,
-  margen: ProyeccionMargen,
   periodos: number
 ): TimelinePoint[] {
   const data: TimelinePoint[] = [];
@@ -446,7 +408,7 @@ function construirTimeline(
       ingresos: Math.round(ingresosMes),
       costos: Math.round(costosMes),
       utilidad: Math.round(utilidadMes),
-      margen: ingresosMes > 0 ? Math.round(((utilidadMes) / ingresosMes) * 100 * 10) / 10 : null,
+      margen: ingresosMes > 0 ? Math.round((utilidadMes / ingresosMes) * 100 * 10) / 10 : null,
       bandaSup: Math.round(utilidadMes * (1 + incertidumbre)),
       bandaInf: Math.round(utilidadMes * (1 - incertidumbre)),
     });
@@ -458,19 +420,17 @@ function construirTimeline(
 function consolidarAlertas(
   ventas: ProyeccionVentas,
   inventario: ProyeccionInventario,
-  costos: ProyeccionCostos,
-  margen: ProyeccionMargen,
-  flujoCaja: ProyeccionFlujoCaja
+  margen: ProyeccionMargen
 ): Alerta360[] {
   const alertas: Alerta360[] = [];
 
-  // Inventario
+  // Inventario (dato del Motor de Reorden)
   inventario.productos.filter(p => p.estado === 'critico').forEach(p => {
     alertas.push({
       seccion: 'inventario', severidad: 'danger',
       mensaje: `${p.nombre}: stock para ${p.diasStock} días`,
       productoNombre: p.nombre,
-      accion: `Comprar ${p.cantidadSugerida} unidades antes del ${p.fechaLimiteCompra.toLocaleDateString('es-PE')}`,
+      accion: `Comprar ${p.cantidadSugerida} unidades (motor de reorden)`,
     });
   });
 
@@ -484,21 +444,12 @@ function consolidarAlertas(
     });
   });
 
-  // Margen
-  if (margen.margenNetoPct < 10) {
+  // Margen operativo proyectado
+  if (margen.margenOperativo < 10) {
     alertas.push({
-      seccion: 'margen', severidad: margen.margenNetoPct < 0 ? 'danger' : 'warning',
-      mensaje: `Margen neto proyectado: ${margen.margenNetoPct.toFixed(1)}%`,
-      accion: margen.margenNetoPct < 0 ? 'Revisar precios y costos urgentemente' : 'Considerar ajuste de precios',
-    });
-  }
-
-  // Flujo de caja
-  if (flujoCaja.necesitaFinanciamiento) {
-    alertas.push({
-      seccion: 'caja', severidad: 'danger',
-      mensaje: `Déficit de caja proyectado: ${formatC((flujoCaja as any).montoFinanciamiento || 0)}`,
-      accion: 'Necesita inyección de capital o postergar recompras',
+      seccion: 'margen', severidad: margen.margenOperativo < 0 ? 'danger' : 'warning',
+      mensaje: `Margen operativo proyectado: ${margen.margenOperativo.toFixed(1)}%`,
+      accion: margen.margenOperativo < 0 ? 'Revisar precios y costos urgentemente' : 'Considerar ajuste de precios',
     });
   }
 
@@ -506,8 +457,4 @@ function consolidarAlertas(
     const sev: Record<string, number> = { danger: 0, warning: 1, info: 2 };
     return (sev[a.severidad] ?? 3) - (sev[b.severidad] ?? 3);
   });
-}
-
-function formatC(n: number): string {
-  return `S/ ${n.toLocaleString('es-PE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
 }

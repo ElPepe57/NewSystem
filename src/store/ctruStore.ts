@@ -165,14 +165,20 @@ export interface HistorialCostosMes {
   ventasCount: number;
 }
 
+/**
+ * Gastos mensuales agregados por CAJA (Acuerdo 3 · nomenclatura 3 cajas).
+ * Caja 2 · Venta: ventaGeneral (comisiones/marketing) + ventaDistribucion (delivery/empaque).
+ * Caja 3 · Período: periodoAdministrativo (admin/nómina) + periodoOperativo (resto fijos).
+ * (Caja 1 · Producto vive en el CTRU de las unidades, no aquí.)
+ */
 export interface HistorialGastosEntry {
   mes: number;
   anio: number;
   label: string;
-  GA: number;
-  GO: number;
-  GV: number;
-  GD: number;
+  periodoAdministrativo: number;
+  periodoOperativo: number;
+  ventaGeneral: number;
+  ventaDistribucion: number;
   total: number;
 }
 
@@ -786,25 +792,26 @@ function processHistorialGastos(todosGastos: Gasto[], arbol?: ArbolCategorias | 
 
     const gastosMes = todosGastos.filter(g => g.mes === mes && g.anio === anio);
 
-    // chk5.A15 · canon · buckets derivados de bloque + tipo (sin legacy categoria):
-    //   GA ≡ bloque periodo administrativo (tipos 'administrativo' / 'nomina')
-    //   GO ≡ bloque periodo no-administrativo
-    //   GV ≡ bloque venta no-distribución (comisiones, marketing)
-    //   GD ≡ bloque venta distribución (delivery, empaque)
-    let GA = 0, GO = 0, GV = 0, GD = 0;
+    // chk5.A15 · canon · buckets por CAJA derivados de bloque + tipo (3 cajas · Acuerdo 3):
+    //   periodoAdministrativo ≡ bloque periodo administrativo (tipos 'administrativo' / 'nomina')
+    //   periodoOperativo      ≡ bloque periodo no-administrativo
+    //   ventaGeneral          ≡ bloque venta no-distribución (comisiones, marketing)
+    //   ventaDistribucion     ≡ bloque venta distribución (delivery, empaque)
+    let periodoAdministrativo = 0, periodoOperativo = 0, ventaGeneral = 0, ventaDistribucion = 0;
     for (const g of gastosMes) {
       if (esGastoDeVenta(g, arbol)) {
-        if (esGastoDistribucion(g)) GD += g.montoPEN;
-        else GV += g.montoPEN;
+        if (esGastoDistribucion(g)) ventaDistribucion += g.montoPEN;
+        else ventaGeneral += g.montoPEN;
       } else if (esGastoDePeriodo(g, arbol)) {
-        if (esGastoAdministrativo(g)) GA += g.montoPEN;
-        else GO += g.montoPEN;
+        if (esGastoAdministrativo(g)) periodoAdministrativo += g.montoPEN;
+        else periodoOperativo += g.montoPEN;
       }
     }
 
     entries.push({
       mes, anio, label: MONTH_LABELS[mes - 1],
-      GA, GO, GV, GD, total: GA + GO + GV + GD
+      periodoAdministrativo, periodoOperativo, ventaGeneral, ventaDistribucion,
+      total: periodoAdministrativo + periodoOperativo + ventaGeneral + ventaDistribucion
     });
   }
 

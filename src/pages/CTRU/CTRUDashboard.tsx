@@ -104,7 +104,7 @@ export const CTRUDashboard: React.FC = () => {
       })),
     );
     const ultimoMes = historialGastos[historialGastos.length - 1];
-    const gastoFijoMes = ultimoMes ? ultimoMes.GA + ultimoMes.GO : 0;
+    const gastoFijoMes = ultimoMes ? ultimoMes.periodoAdministrativo + ultimoMes.periodoOperativo : 0;
     const utilidad = calcularUtilidad3Cajas(ventasCaja, gastoFijoMes);
 
     const esRezagado = (f: typeof filas[number]) => f.base > 0 && f.curva.pctRecuperado < 50;

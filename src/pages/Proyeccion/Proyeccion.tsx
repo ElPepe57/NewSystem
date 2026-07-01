@@ -1,690 +1,689 @@
-// @ts-nocheck — coupled to proyeccion360.service (also @ts-nocheck); pending type sync en sesión dedicada
+/**
+ * Proyección 360 · Hub de FORECAST DEL RESULTADO (grupo Análisis · indigo).
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Responde "¿hacia dónde voy?": P&L y margen PROYECTADO en 3 cajas
+ * (Producto · Venta · Período) a 30/90 días — lo único que ninguna otra
+ * sección entrega (Reportes = pasado · Contabilidad = formal · Finanzas = caja).
+ *
+ * CONSUME los motores existentes (canon no-redundancia):
+ *  - Inventario → Motor de Reorden (productoIntelStore) · cross-link a /inventario
+ *  - Costos → detalle por SKU vive en Cost Intelligence (/intel-productos)
+ *  - Caja → vive en Finanzas (sin flujo sintético aquí)
+ *
+ * Redibujo Fase 2+4 (2026-07-01) · mockup: docs/mockups/proyeccion-hub-v1.html
+ */
 import React, { useEffect, useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
-  TrendingUp, AlertTriangle, BarChart3, DollarSign,
-  Package, RefreshCw, ShoppingCart,
-  Target, Wallet, AlertCircle, Layers
+  TrendingUp, BarChart3, DollarSign, Package, RefreshCw, ShoppingCart,
+  Target, AlertTriangle, AlertCircle, Sparkles, Layers, GitBranch, ArrowRight,
 } from 'lucide-react';
 import {
-  ComposedChart, BarChart, Bar, Line, Area,
-  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-  ReferenceLine, Cell, PieChart, Pie
+  ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip,
+  ResponsiveContainer, Cell,
 } from 'recharts';
-import { Card } from '../../components/common';
+import { HubShell, HubTopBar, HubHeader, HubKpiStrip, HubTabs, HubBody } from '../../design-system';
+import type { HubTab, HubKpi, HubMiniStat } from '../../design-system';
 import { LineaDropdown } from '../../components/common/LineaDropdown';
-import { PageShell, PageHeader, Toolbar, DataTable } from '../../design-system';
-import type { DataTableColumn } from '../../design-system';
 import { useCTRUStore } from '../../store/ctruStore';
-import { useTipoCambioStore } from '../../store/tipoCambioStore';
-import { useLineaFilter } from '../../hooks/useLineaFilter';
-import { formatCurrency } from '../../utils/format';
-import { calcularProyeccion360 } from '../../services/proyeccion360.service';
 import type { CTRUProductoDetalle } from '../../store/ctruStore';
+import { useTipoCambioStore } from '../../store/tipoCambioStore';
+import { useProductoIntelStore } from '../../store/productoIntelStore';
+import { useAuthStore } from '../../store/authStore';
+import { hasRole } from '../../types/auth.types';
+import { useLineaFilter } from '../../hooks/useLineaFilter';
+import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
+import { calcularProyeccion360 } from '../../services/proyeccion360.service';
 import type { Proyeccion360, Horizonte360 } from '../../types/proyeccion360.types';
+
+// ─── Formato ─────────────────────────────────────────────────────────────────
+
+const fmtPEN = (n: number) =>
+  `S/ ${n.toLocaleString('es-PE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+const fmtK = (n: number) => (Math.abs(n) >= 1000 ? `${(n / 1000).toFixed(1)}` : n.toFixed(0));
+const sufK = (n: number) => (Math.abs(n) >= 1000 ? 'k' : '');
 
 // ============================================
 // COMPONENTE PRINCIPAL
 // ============================================
 
 export const Proyeccion: React.FC = () => {
-  const { productosDetalle, historialMensual, historialGastos, resumen, loading: ctruLoading, fetchAll } = useCTRUStore();
+  const navigate = useNavigate();
+  const { productosDetalle, historialMensual, historialGastos, loading: ctruLoading, error: ctruError, fetchAll } = useCTRUStore();
   const { getTCDelDia } = useTipoCambioStore();
+  const sugerenciasReposicion = useProductoIntelStore(s => s.sugerenciasReposicion);
+  const cargarIntel = useProductoIntelStore(s => s.cargarDatos);
+  const userProfile = useAuthStore(s => s.userProfile);
+  const esAdmin = hasRole(userProfile, 'admin');
+
   const productos = productosDetalle || [];
   const productosLN = useLineaFilter(productos, (p: CTRUProductoDetalle) => p.lineaNegocioId);
+  const lineaActiva = useLineaNegocioStore(s => s.lineaFiltroGlobal);
 
   const [horizonte, setHorizonte] = useState<Horizonte360>(30);
-  const [tabActiva, setTabActiva] = useState<string>('ejecutiva');
+  const [tab, setTab] = useState('resumen');
   const [tcActual, setTcActual] = useState(3.50);
 
   useEffect(() => {
     if (!productos.length && !ctruLoading) fetchAll();
   }, [productos.length, ctruLoading, fetchAll]);
 
+  // TC del día PRIMERO y recién entonces el Motor de Reorden (fuente única de
+  // reorden · canon no-redundancia) — si el motor cargara antes, sus sugerencias
+  // quedarían calculadas con el TC default (3.50) en vez del real.
   useEffect(() => {
-    getTCDelDia().then(tc => { if (tc?.venta) setTcActual(tc.venta); });
-  }, [getTCDelDia]);
+    getTCDelDia().then(tc => {
+      const tcVenta = tc?.venta || 3.50;
+      if (tc?.venta) setTcActual(tc.venta);
+      if (!sugerenciasReposicion.length) cargarIntel(tcVenta);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Cálculo 360 en memoria
   const proy = useMemo((): Proyeccion360 | null => {
     if (!productosLN.length) return null;
-    return calcularProyeccion360(productosLN, historialMensual || [], historialGastos || [], horizonte, tcActual);
-  }, [productosLN, historialMensual, historialGastos, horizonte, tcActual]);
+    return calcularProyeccion360(
+      productosLN, historialMensual || [], historialGastos || [],
+      horizonte, tcActual, sugerenciasReposicion,
+    );
+  }, [productosLN, historialMensual, historialGastos, horizonte, tcActual, sugerenciasReposicion]);
 
-  if (ctruLoading) {
-    return (
-      <PageShell>
-        <PageHeader title="Proyeccion 360" subtitle="Ventas · Costos · Margen · Inventario · Flujo de Caja" icon={TrendingUp}
-        titleExtra={<LineaDropdown />} />
-        <Toolbar />
-        <Hero horizonte={horizonte} setHorizonte={setHorizonte} />
-        <div className="flex items-center justify-center h-64">
-          <RefreshCw className="w-8 h-8 text-teal-500 animate-spin" />
-          <span className="ml-3 text-slate-500">Cargando datos del sistema...</span>
+  // ─── Shell común (top-bar + header + toggle horizonte) ───
+  const tabs: HubTab[] = [
+    { id: 'resumen', label: 'Resumen', icon: BarChart3 },
+    { id: 'ventas', label: 'Ventas', icon: ShoppingCart },
+    { id: 'inventario', label: 'Inventario', icon: Package },
+    { id: 'costos', label: 'Costos', icon: DollarSign },
+    { id: 'margen', label: 'Margen', icon: Target },
+  ];
+
+  const headerShell = (body: React.ReactNode, opts?: { kpis?: HubKpi[]; miniStats?: HubMiniStat[] }) => (
+    <div className="max-w-6xl mx-auto px-3 sm:px-4 md:px-6 py-6">
+      <HubShell>
+        <HubTopBar
+          grupo="analisis"
+          modulo="Proyección"
+          leaf={tab === 'resumen' ? null : tabs.find(t => t.id === tab)?.label ?? null}
+          esAdmin={esAdmin}
+          onInicio={() => navigate('/')}
+          onModulo={() => setTab('resumen')}
+        />
+        <HubHeader
+          grupo="analisis"
+          icon={TrendingUp}
+          titulo="Proyección 360"
+          subtitulo={`Hacia dónde va el resultado · próximos ${horizonte} días`}
+          extraActions={
+            <div className="flex items-center gap-2">
+              <LineaDropdown />
+              <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-0.5">
+                {([30, 90] as Horizonte360[]).map(h => (
+                  <button
+                    key={h}
+                    type="button"
+                    onClick={() => setHorizonte(h)}
+                    className={`px-3 py-1 rounded-md text-[11px] font-semibold transition-colors ${
+                      horizonte === h ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-500'
+                    }`}
+                  >
+                    {h}d
+                  </button>
+                ))}
+              </div>
+            </div>
+          }
+          acciones={[{ label: 'Recalcular', icon: RefreshCw, tier: 'neutral', onClick: () => fetchAll() }]}
+        />
+        {opts?.kpis && <HubKpiStrip kpis={opts.kpis} miniStats={opts.miniStats} cols={5} />}
+        <HubTabs grupo="analisis" tabs={tabs} activa={tab} onChange={setTab} />
+        <HubBody>{body}</HubBody>
+      </HubShell>
+    </div>
+  );
+
+  // ─── Estados ───
+  if (ctruLoading && !productos.length) {
+    return headerShell(
+      <div className="space-y-3">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+          {[...Array(5)].map((_, i) => <div key={i} className="h-20 bg-slate-100 rounded-2xl animate-pulse" />)}
         </div>
-      </PageShell>
+        <div className="h-56 bg-slate-100 rounded-2xl animate-pulse flex items-center justify-center">
+          <RefreshCw className="w-6 h-6 text-indigo-400 animate-spin" />
+        </div>
+      </div>
+    );
+  }
+
+  if (ctruError) {
+    return headerShell(
+      <div className="bg-white border border-slate-200 rounded-2xl p-10 text-center">
+        <div className="w-14 h-14 bg-rose-50 rounded-2xl flex items-center justify-center mx-auto mb-3">
+          <AlertTriangle className="w-7 h-7 text-rose-400" />
+        </div>
+        <div className="text-[15px] font-bold text-slate-900">No se pudo calcular la proyección</div>
+        <p className="text-[12px] text-slate-500 mt-1 max-w-sm mx-auto">
+          Falló la carga de datos del sistema (CTRU / gastos). Reintenta o revisa tus permisos.
+        </p>
+        <div className="flex items-center justify-center gap-2 mt-4">
+          <button
+            type="button"
+            onClick={() => fetchAll()}
+            className="bg-indigo-600 hover:bg-indigo-700 text-white text-[12px] font-bold px-3.5 py-2 rounded-lg flex items-center gap-1.5"
+          >
+            <RefreshCw className="w-3.5 h-3.5" /> Reintentar
+          </button>
+        </div>
+      </div>
     );
   }
 
   if (!proy) {
-    return (
-      <PageShell>
-        <PageHeader title="Proyeccion 360" subtitle="Ventas · Costos · Margen · Inventario · Flujo de Caja" icon={TrendingUp}
-        titleExtra={<LineaDropdown />} />
-        <Toolbar />
-        <Hero horizonte={horizonte} setHorizonte={setHorizonte} />
-        <Card className="p-8 text-center text-slate-500">
-          No hay datos suficientes. Necesitas al menos 1 producto con historial.
-        </Card>
-      </PageShell>
+    return headerShell(
+      <div className="bg-white border border-slate-200 rounded-2xl p-10 text-center">
+        <div className="w-14 h-14 bg-indigo-50 rounded-2xl flex items-center justify-center mx-auto mb-3">
+          <TrendingUp className="w-7 h-7 text-indigo-300" />
+        </div>
+        <div className="text-[15px] font-bold text-slate-900">Aún no hay suficiente historial</div>
+        <p className="text-[12px] text-slate-500 mt-1 max-w-sm mx-auto">
+          La proyección necesita al menos <b>1 producto con historial de ventas</b>.
+          Registra ventas o ajusta el filtro de línea de negocio.
+        </p>
+        <div className="flex items-center justify-center gap-2 mt-4">
+          <button
+            type="button"
+            onClick={() => navigate('/productos')}
+            className="bg-indigo-600 hover:bg-indigo-700 text-white text-[12px] font-bold px-3.5 py-2 rounded-lg"
+          >
+            Ir a Productos
+          </button>
+        </div>
+      </div>
     );
   }
 
-  const tabs = [
-    { id: 'ejecutiva', label: 'Vista Ejecutiva', icon: <BarChart3 className="w-4 h-4" /> },
-    { id: 'ventas', label: 'Ventas', icon: <ShoppingCart className="w-4 h-4" /> },
-    { id: 'inventario', label: 'Inventario', icon: <Package className="w-4 h-4" /> },
-    { id: 'costos', label: 'Costos', icon: <DollarSign className="w-4 h-4" /> },
-    { id: 'margen', label: 'Margen', icon: <Target className="w-4 h-4" /> },
-    { id: 'caja', label: 'Flujo de Caja', icon: <Wallet className="w-4 h-4" /> },
+  // ─── KPI strip (semántico) + mini-stats de confianza ───
+  const alertasCriticas = proy.alertas.filter(a => a.severidad === 'danger').length;
+  const kpis: HubKpi[] = [
+    {
+      label: 'Ingresos', tono: 'emerald', icon: ShoppingCart,
+      valor: `S/ ${fmtK(proy.ingresosProyectados)}`, sufijo: sufK(proy.ingresosProyectados),
+      delta: (
+        <span className="flex items-center gap-1">
+          <TrendingUp className="w-3 h-3" />
+          {proy.ventas.crecimientoPct >= 0 ? '+' : ''}{proy.ventas.crecimientoPct.toFixed(1)}% vs mes ant.
+        </span>
+      ),
+    },
+    {
+      label: 'Costos', tono: 'amber', icon: DollarSign,
+      valor: `S/ ${fmtK(proy.costosProyectados)}`, sufijo: sufK(proy.costosProyectados),
+      delta: <span>CTRU + venta + período</span>,
+    },
+    {
+      label: 'Utilidad', tono: proy.utilidadProyectada >= 0 ? 'emerald' : 'rose', icon: TrendingUp,
+      valor: `S/ ${fmtK(proy.utilidadProyectada)}`, sufijo: sufK(proy.utilidadProyectada),
+      delta: <span>operativa proyectada</span>,
+    },
+    {
+      label: 'Margen', tono: proy.margenNetoProyectado >= 20 ? 'emerald' : proy.margenNetoProyectado >= 0 ? 'amber' : 'rose', icon: Target,
+      valor: proy.margenNetoProyectado.toFixed(1), sufijo: '%',
+      delta: <span>{proy.margenNetoProyectado >= 20 ? 'saludable (≥20%)' : 'bajo el objetivo (20%)'}</span>,
+    },
+    {
+      label: 'Alertas', tono: alertasCriticas > 0 ? 'rose' : 'slate', icon: AlertTriangle,
+      valor: String(proy.alertas.length),
+      delta: <span>{alertasCriticas > 0 ? `${alertasCriticas} crítica${alertasCriticas > 1 ? 's' : ''}` : 'sin críticas'}</span>,
+    },
+  ];
+  const miniStats: HubMiniStat[] = [
+    { label: <>Confianza de la proyección: <strong className={proy.confianza === 'alta' ? 'text-emerald-600' : proy.confianza === 'media' ? 'text-amber-600' : 'text-rose-600'}>{proy.confianza}</strong></> },
+    { label: <>{proy.mesesHistorial} meses de historial</> },
+    { label: <>Horizonte: {horizonte} días</> },
+    { label: <>TC S/ {tcActual.toFixed(2)}</> },
   ];
 
-  return (
-    <PageShell>
-      <PageHeader title="Proyeccion 360" subtitle="Ventas · Costos · Margen · Inventario · Flujo de Caja" icon={TrendingUp}
-        titleExtra={<LineaDropdown />} />
-
-      {/* Filtro de línea de negocio */}
-      <Toolbar />
-      <Hero horizonte={horizonte} setHorizonte={setHorizonte} />
-
-      {/* KPIs EJECUTIVOS — siempre visibles */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-        <KPI icon={<ShoppingCart className="w-4 h-4" />} label="Ingresos"
-          valor={fc(proy.ingresosProyectados)} trend={proy.ventas.crecimientoPct} />
-        <KPI icon={<DollarSign className="w-4 h-4" />} label="Costos"
-          valor={fc(proy.costosProyectados)} invertColor />
-        <KPI icon={<TrendingUp className="w-4 h-4" />} label="Utilidad"
-          valor={fc(proy.utilidadProyectada)}
-          color={proy.utilidadProyectada >= 0 ? 'green' : 'red'} />
-        <KPI icon={<Target className="w-4 h-4" />} label="Margen Neto"
-          valor={`${proy.margenNetoProyectado.toFixed(1)}%`}
-          color={proy.margenNetoProyectado >= 20 ? 'green' : proy.margenNetoProyectado >= 10 ? 'amber' : 'red'} />
-        <KPI icon={<AlertTriangle className="w-4 h-4" />} label="Alertas"
-          valor={`${proy.alertas.length}`}
-          sub={`${proy.alertas.filter(a => a.severidad === 'danger').length} críticas`}
-          color={proy.alertas.some(a => a.severidad === 'danger') ? 'red' : 'green'} />
-      </div>
-
-      {/* TABS */}
-      <div className="flex gap-1 overflow-x-auto pb-1 border-b">
-        {tabs.map(t => (
-          <button key={t.id} onClick={() => setTabActiva(t.id)}
-            className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-t-lg whitespace-nowrap transition-colors ${
-              tabActiva === t.id
-                ? 'bg-white text-teal-700 border border-b-white -mb-px'
-                : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
-            }`}>
-            {t.icon} {t.label}
-          </button>
-        ))}
-      </div>
-
-      {/* CONTENIDO DEL TAB */}
-      <div className="min-h-[400px]">
-        {tabActiva === 'ejecutiva' && <TabEjecutiva proy={proy} />}
-        {tabActiva === 'ventas' && <TabVentas proy={proy} />}
-        {tabActiva === 'inventario' && <TabInventario proy={proy} />}
-        {tabActiva === 'costos' && <TabCostos proy={proy} />}
-        {tabActiva === 'margen' && <TabMargen proy={proy} />}
-        {tabActiva === 'caja' && <TabFlujoCaja proy={proy} />}
-      </div>
-
-      {/* CONFIANZA */}
-      <div className="text-center text-xs text-slate-400 pb-2">
-        Basado en {proy.mesesHistorial} meses de historial |
-        Confianza: <span className={`font-medium ${
-          proy.confianza === 'alta' ? 'text-emerald-600' : proy.confianza === 'media' ? 'text-amber-600' : 'text-slate-500'
-        }`}>{proy.confianza}</span> |
-        Horizonte: {proy.horizonte} días |
-        {proy.fechaGeneracion.toLocaleTimeString('es-PE')}
-      </div>
-    </PageShell>
+  return headerShell(
+    <>
+      {tab === 'resumen' && <TabResumen proy={proy} lineaActiva={lineaActiva} />}
+      {tab === 'ventas' && <TabVentas proy={proy} />}
+      {tab === 'inventario' && <TabInventario proy={proy} onVerInventario={() => navigate('/inventario')} />}
+      {tab === 'costos' && <TabCostos proy={proy} onVerCostIntel={() => navigate('/intel-productos')} />}
+      {tab === 'margen' && <TabMargen proy={proy} />}
+    </>,
+    { kpis, miniStats },
   );
 };
 
 // ============================================
-// TAB: VISTA EJECUTIVA
+// TAB · RESUMEN (§A banner → §B timeline → §C P&L + escenarios → §F alertas)
 // ============================================
 
-const TabEjecutiva: React.FC<{ proy: Proyeccion360 }> = ({ proy }) => (
-  <div className="space-y-4">
-    {/* TIMELINE: Ingresos vs Costos vs Utilidad */}
-    <Card className="p-4">
-      <h3 className="font-semibold text-sm text-slate-900 mb-3 flex items-center gap-2">
-        <Layers className="w-4 h-4 text-teal-600" /> Evolución y Proyección del Negocio
-      </h3>
-      <div className="h-72">
-        <ResponsiveContainer width="100%" height="100%">
-          <ComposedChart data={proy.timeline} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
-            <defs>
-              <linearGradient id="gradUtilidad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#22c55e" stopOpacity={0.3} />
-                <stop offset="100%" stopColor="#22c55e" stopOpacity={0.05} />
-              </linearGradient>
-            </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-            <XAxis dataKey="label" fontSize={11} />
-            <YAxis fontSize={11} tickFormatter={v => `S/${Math.round(v / 1000)}k`} />
-            <Tooltip formatter={(v: number) => fc(v)} />
-            <Area dataKey="bandaSup" stroke="none" fill="#e0e7ff" fillOpacity={0.4} connectNulls={false} />
-            <Area dataKey="bandaInf" stroke="none" fill="white" connectNulls={false} />
-            <Bar dataKey="ingresos" name="Ingresos" fill="#3b82f6" fillOpacity={0.7} radius={[4, 4, 0, 0]} barSize={20} />
-            <Bar dataKey="costos" name="Costos" fill="#f97316" fillOpacity={0.6} radius={[4, 4, 0, 0]} barSize={20} />
-            <Line dataKey="utilidad" name="Utilidad" stroke="#22c55e" strokeWidth={2.5} dot={{ r: 3 }} />
-            <Legend />
-          </ComposedChart>
-        </ResponsiveContainer>
-      </div>
-    </Card>
-
-    {/* P&L SIMPLIFICADO */}
-    <Card className="p-4">
-      <h3 className="font-semibold text-sm text-slate-900 mb-3">P&L Proyectado ({proy.horizonte} días)</h3>
-      <div className="space-y-1">
-        <PYLRow label="Ingresos por ventas" valor={proy.margen.ingresosBrutos} bold />
-        <PYLRow label="(-) Costo de ventas (CTRU)" valor={-proy.margen.costoVentas} negative />
-        <PYLRow label="= Utilidad bruta" valor={proy.margen.utilidadBruta} bold
-          pct={proy.margen.margenBruto} color={proy.margen.margenBruto >= 30 ? 'green' : 'amber'} />
-        <PYLRow label="(-) Gastos operativos (GA/GO/GV/GD)" valor={-proy.margen.gastosOperativos} negative />
-        <div className="border-t-2 border-slate-300 pt-1 mt-1">
-          <PYLRow label="= Utilidad neta" valor={proy.margen.utilidadNeta} bold
-            pct={proy.margen.margenNeto}
-            color={proy.margen.margenNeto >= 20 ? 'green' : proy.margen.margenNeto >= 10 ? 'amber' : 'red'} />
-        </div>
-      </div>
-    </Card>
-
-    {/* ALERTAS */}
-    {proy.alertas.length > 0 && (
-      <Card className="p-4">
-        <h3 className="font-semibold text-sm text-slate-900 mb-3 flex items-center gap-2">
-          <AlertTriangle className="w-4 h-4 text-red-500" /> Alertas ({proy.alertas.length})
-        </h3>
-        <div className="space-y-2">
-          {proy.alertas.slice(0, 6).map((a, i) => (
-            <div key={i} className={`flex items-start gap-3 p-2.5 rounded-lg text-sm ${
-              a.severidad === 'danger' ? 'bg-red-50 border border-red-200' :
-              a.severidad === 'warning' ? 'bg-amber-50 border border-amber-200' :
-              'bg-sky-50 border border-sky-200'
-            }`}>
-              <AlertCircle className={`w-4 h-4 mt-0.5 flex-shrink-0 ${
-                a.severidad === 'danger' ? 'text-red-500' : a.severidad === 'warning' ? 'text-amber-500' : 'text-sky-500'
-              }`} />
-              <div>
-                <div className="font-medium">{a.mensaje}</div>
-                {a.accion && <div className="text-xs text-slate-500 mt-0.5">{a.accion}</div>}
-              </div>
-            </div>
-          ))}
-        </div>
-      </Card>
-    )}
-
-    {/* ESCENARIOS */}
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-      {proy.escenarios.map(e => (
-        <Card key={e.nombre} className={`p-4 border-l-4 ${
-          e.nombre === 'optimista' ? 'border-emerald-500' : e.nombre === 'pesimista' ? 'border-red-500' : 'border-sky-500'
-        }`}>
-          <div className="flex items-center justify-between mb-2">
-            <span className="font-bold text-sm capitalize">{e.nombre}</span>
-            <span className="text-xs text-slate-400">{(e.probabilidad * 100).toFixed(0)}%</span>
-          </div>
-          <div className="text-lg font-bold mb-1">{fc(e.utilidad)}</div>
-          <div className="h-1.5 bg-slate-200 rounded-full overflow-hidden mb-2">
-            <div className={`h-full rounded-full ${
-              e.margen >= 20 ? 'bg-emerald-500' : e.margen >= 10 ? 'bg-amber-400' : 'bg-red-500'
-            }`} style={{ width: `${Math.max(0, Math.min(e.margen * 2.5, 100))}%` }} />
-          </div>
-          <div className="flex justify-between text-xs text-slate-500">
-            <span>Margen: {e.margen.toFixed(1)}%</span>
-            <span>Ingresos: {fc(e.ingresos)}</span>
-          </div>
-        </Card>
-      ))}
-    </div>
-  </div>
-);
-
-// ============================================
-// TAB: VENTAS
-// ============================================
-
-const TabVentas: React.FC<{ proy: Proyeccion360 }> = ({ proy }) => (
-  <div className="space-y-4">
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-      <MiniKPI label="Unidades proyectadas" valor={`${proy.ventas.totalUnidades}`} />
-      <MiniKPI label="Monto proyectado" valor={fc(proy.ventas.totalMontoPEN)} />
-      <MiniKPI label="Ticket promedio" valor={fc(proy.ventas.ticketPromedio)} />
-      <MiniKPI label="Crecimiento" valor={`${proy.ventas.crecimientoPct.toFixed(1)}%`}
-        color={proy.ventas.crecimientoPct >= 0 ? 'green' : 'red'} />
-    </div>
-
-    {/* Tabla por producto */}
-    {(() => {
-      type ProductoVenta = typeof proy.ventas.productos[number];
-      const colsVentas: DataTableColumn<ProductoVenta>[] = [
-        {
-          key: 'nombre',
-          header: 'Producto',
-          render: (p) => <span className="font-medium">{p.nombre}</span>,
-        },
-        {
-          key: 'ventasMensuales',
-          header: 'Vel. venta/mes',
-          align: 'right',
-          hideOnMobile: true,
-          render: (p) => p.ventasMensuales.toFixed(1),
-        },
-        {
-          key: 'stock',
-          header: 'Stock',
-          align: 'right',
-          hideOnMobile: true,
-          render: (p) => Math.round(p.unidadesProyectadas + (p.limitadoPorStock ? 0 : 0)),
-        },
-        {
-          key: 'diasHastaStockout',
-          header: 'Días stock',
-          align: 'right',
-          render: (p) => (
-            <span className={`font-mono ${p.diasHastaStockout < 30 ? 'text-red-600 font-bold' : ''}`}>
-              {p.diasHastaStockout === Infinity ? '∞' : `${p.diasHastaStockout}d`}
-            </span>
-          ),
-        },
-        {
-          key: 'unidadesProyectadas',
-          header: 'Uds. vendibles',
-          align: 'right',
-          hideOnMobile: true,
-          render: (p) => p.unidadesProyectadas,
-        },
-        {
-          key: 'ingresosProyectados',
-          header: 'Ingreso proy.',
-          align: 'right',
-          render: (p) => <span className="font-medium">{fc(p.ingresosProyectados)}</span>,
-        },
-        {
-          key: 'estado',
-          header: 'Estado',
-          align: 'center',
-          render: (p) => p.limitadoPorStock ? (
-            <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 font-medium">Stock limita</span>
-          ) : (
-            <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-medium">OK</span>
-          ),
-        },
-      ];
-      const sortedProducts = [...proy.ventas.productos].sort((a, b) => b.ingresosProyectados - a.ingresosProyectados);
-      return (
-        <Card className="p-4">
-          <h3 className="font-semibold text-sm mb-3">Ventas Proyectadas por Producto</h3>
-          <DataTable
-            data={sortedProducts}
-            columns={colsVentas}
-            keyExtractor={(p) => p.productoId}
-            compact
-          />
-        </Card>
-      );
-    })()}
-  </div>
-);
-
-// ============================================
-// TAB: INVENTARIO
-// ============================================
-
-const TabInventario: React.FC<{ proy: Proyeccion360 }> = ({ proy }) => (
-  <div className="space-y-4">
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-      <MiniKPI label="Disponibles" valor={`${proy.inventario.totalDisponibles} uds`} />
-      <MiniKPI label="Valor inventario" valor={fc(proy.inventario.valorInventarioPEN)} />
-      <MiniKPI label="Productos en riesgo" valor={`${proy.inventario.productosEnRiesgo}`}
-        color={proy.inventario.productosEnRiesgo > 0 ? 'red' : 'green'} />
-      <MiniKPI label="Costo recompra total" valor={fc(proy.inventario.costoTotalRecompraPEN)} />
-    </div>
-
-    <Card className="p-4">
-      <h3 className="font-semibold text-sm mb-3">Estado del Inventario Proyectado</h3>
-      {/* Barra visual de días por producto */}
-      <div className="space-y-3">
-        {proy.inventario.productos.sort((a, b) => a.diasStock - b.diasStock).map(p => (
-          <div key={p.productoId}>
-            <div className="flex items-center justify-between text-sm mb-1">
-              <span className="font-medium">{p.nombre}</span>
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-slate-500">{p.disponibles} uds</span>
-                <span className={`text-xs font-bold ${
-                  p.estado === 'critico' ? 'text-red-600' : p.estado === 'atencion' ? 'text-amber-600' : 'text-emerald-600'
-                }`}>{p.diasStock === Infinity ? '∞' : `${p.diasStock}d`}</span>
-              </div>
-            </div>
-            <div className="h-3 bg-slate-100 rounded-full overflow-hidden">
-              <div className={`h-full rounded-full transition-all ${
-                p.estado === 'critico' ? 'bg-red-500' : p.estado === 'atencion' ? 'bg-amber-400' : 'bg-emerald-500'
-              }`} style={{ width: `${Math.min((p.diasStock / 90) * 100, 100)}%` }} />
-            </div>
-            {p.necesitaRecompra && (
-              <div className="text-[10px] text-slate-400 mt-0.5">
-                Comprar {p.cantidadSugerida} uds antes del {p.fechaLimiteCompra.toLocaleDateString('es-PE')} — {fc(p.costoRecompraPEN)}
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
-    </Card>
-  </div>
-);
-
-// ============================================
-// TAB: COSTOS
-// ============================================
-
-const TabCostos: React.FC<{ proy: Proyeccion360 }> = ({ proy }) => {
-  const data = [
-    { nombre: 'Costo ventas (CTRU)', valor: proy.costos.costoVentasTotal, color: '#3b82f6' },
-    { nombre: 'GA (Admin)', valor: proy.costos.gaProyectado, color: '#8b5cf6' },
-    { nombre: 'GO (Operativo)', valor: proy.costos.goProyectado, color: '#f59e0b' },
-    { nombre: 'GV/GD (Venta)', valor: proy.costos.gvgdProyectado, color: '#06b6d4' },
-  ].filter(d => d.valor > 0);
+const TabResumen: React.FC<{ proy: Proyeccion360; lineaActiva: string | null }> = ({ proy, lineaActiva }) => {
+  const m = proy.margen;
+  const sano = m.utilidadOperativa >= 0 && m.margenOperativo >= 20;
+  const criticas = proy.alertas.filter(a => a.severidad === 'danger').length;
 
   return (
     <div className="space-y-4">
+      {/* §A banner estado */}
+      <div className="bg-gradient-to-r from-indigo-50 to-indigo-100/30 ring-1 ring-indigo-200/60 rounded-2xl p-4 flex items-start gap-3">
+        <div className="w-9 h-9 bg-indigo-100 rounded-lg flex items-center justify-center flex-shrink-0">
+          <Sparkles className="w-4 h-4 text-indigo-700" />
+        </div>
+        <div>
+          <div className="text-[13px] font-bold text-slate-900">
+            {sano ? 'Negocio en crecimiento' : m.utilidadOperativa >= 0 ? 'Resultado positivo con margen ajustado' : 'Proyección en rojo'}
+            {' · '}utilidad operativa proyectada {fmtPEN(m.utilidadOperativa)}
+          </div>
+          <div className="text-[12px] text-slate-600 leading-snug">
+            Con el ritmo actual de ventas y los costos de hoy, los próximos {proy.horizonte} días cierran con
+            margen {m.margenOperativo.toFixed(1)}%.
+            {criticas > 0 ? ` Hay ${criticas} alerta${criticas > 1 ? 's' : ''} crítica${criticas > 1 ? 's' : ''} que conviene atender.` : ' Sin alertas críticas.'}
+          </div>
+        </div>
+      </div>
+
+      {/* Caveat honesto: los gastos (cajas 2-3) son globales, no por línea */}
+      {lineaActiva && (
+        <div className="bg-amber-50 ring-1 ring-amber-200/60 rounded-xl px-4 py-2.5 flex items-start gap-2 text-[12px] text-amber-800">
+          <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0 text-amber-500" />
+          <span>
+            Filtro de línea activo: ventas y CTRU son de la línea, pero los <b>gastos de venta/período son
+            globales</b> (aún no se atribuyen por línea) — el margen operativo por línea es referencial.
+          </span>
+        </div>
+      )}
+
+      {/* §B visualización · timeline real + proyectado */}
+      <div className="bg-white border border-slate-200 rounded-2xl p-4">
+        <h3 className="text-[14px] font-semibold text-slate-900 mb-3 flex items-center gap-2">
+          <Layers className="w-4 h-4 text-indigo-600" /> Evolución y proyección del negocio
+        </h3>
+        <div className="h-56">
+          <ResponsiveContainer width="100%" height="100%">
+            <ComposedChart data={proy.timeline}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+              <XAxis dataKey="label" tick={{ fontSize: 10 }} />
+              <YAxis tick={{ fontSize: 10 }} tickFormatter={(v: number) => `${(v / 1000).toFixed(0)}k`} />
+              <Tooltip formatter={(v: number) => fmtPEN(v)} />
+              <Bar dataKey="ingresos" name="Ingresos" radius={[3, 3, 0, 0]}>
+                {proy.timeline.map((p, i) => (
+                  <Cell key={i} fill={p.tipo === 'real' ? 'rgba(59,130,246,0.7)' : 'rgba(59,130,246,0.35)'} />
+                ))}
+              </Bar>
+              <Bar dataKey="costos" name="Costos" radius={[3, 3, 0, 0]}>
+                {proy.timeline.map((p, i) => (
+                  <Cell key={i} fill={p.tipo === 'real' ? 'rgba(251,146,60,0.6)' : 'rgba(251,146,60,0.3)'} />
+                ))}
+              </Bar>
+              <Line dataKey="utilidad" name="Utilidad" stroke="#10b981" strokeWidth={2} dot={{ r: 2 }} />
+            </ComposedChart>
+          </ResponsiveContainer>
+        </div>
+        <div className="flex items-center justify-between mt-2">
+          <div className="flex items-center gap-3 text-[10px] text-slate-500">
+            <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 bg-blue-500/70 rounded-sm" /> Ingresos</span>
+            <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 bg-orange-400/60 rounded-sm" /> Costos</span>
+            <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 bg-emerald-500 rounded-sm" /> Utilidad</span>
+          </div>
+          <span className="text-[10px] text-slate-400">tono atenuado = proyectado</span>
+        </div>
+      </div>
+
+      {/* §C insights · P&L 3 cajas + escenarios de utilidad */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="bg-white border border-slate-200 rounded-2xl p-4">
+          <h3 className="text-[14px] font-semibold text-slate-900 mb-3">
+            P&amp;L proyectado ({proy.horizonte} días) <span className="text-[11px] font-normal text-slate-400">· 3 cajas</span>
+          </h3>
+          <div className="space-y-1 text-[13px]">
+            <PYLRow label="Ingresos por ventas" valor={m.ingresosBrutos} bold />
+            <PYLRow label="(−) Costo de ventas · CTRU" caja="Caja 1 · Producto" valor={-m.costoVentas} negativo />
+            <PYLRow label="= Utilidad bruta" valor={m.utilidadBruta} pct={m.margenBruto} bold sep />
+            <PYLRow label="(−) Gastos de venta" caja="Caja 2 · Venta" valor={-m.gastoVenta} negativo />
+            <PYLRow label="= Utilidad de contribución" valor={m.utilidadContribucion} pct={m.margenContribucion} bold sep />
+            <PYLRow label="(−) Gastos de período (fijos)" caja="Caja 3 · Período" valor={-m.gastoPeriodo} negativo />
+            <PYLRow label="= Utilidad operativa" valor={m.utilidadOperativa} pct={m.margenOperativo} final />
+          </div>
+        </div>
+
+        <div className="bg-white border border-slate-200 rounded-2xl p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <h3 className="text-[14px] font-semibold text-slate-900">Escenarios de utilidad</h3>
+            <span className="text-[10px] text-slate-400 bg-slate-100 rounded-full px-2 py-0.5">±% ventas/TC/gastos</span>
+          </div>
+          <div className="space-y-2.5">
+            {proy.escenarios.map(e => {
+              const maxUtil = Math.max(...proy.escenarios.map(x => Math.abs(x.utilidad)), 1);
+              const borde = e.nombre === 'optimista' ? 'border-emerald-500' : e.nombre === 'base' ? 'border-sky-500' : 'border-rose-500';
+              const barra = e.utilidad >= 0 ? (e.margen >= 20 ? 'bg-emerald-500' : 'bg-amber-400') : 'bg-rose-500';
+              return (
+                <div key={e.nombre} className={`border-l-4 ${borde} bg-slate-50/60 rounded-r-lg p-2.5`}>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[12px] font-bold text-slate-700 capitalize">
+                      {e.nombre} <span className="text-slate-400 font-normal">· {(e.probabilidad * 100).toFixed(0)}%</span>
+                    </span>
+                    <span className="text-[15px] font-bold tabular-nums text-slate-900">S/ {fmtK(e.utilidad)}{sufK(e.utilidad)}</span>
+                  </div>
+                  <div className="h-1.5 bg-slate-200 rounded-full overflow-hidden mt-1.5">
+                    <div className={`h-full ${barra} rounded-full`} style={{ width: `${Math.min(Math.abs(e.utilidad) / maxUtil * 100, 100)}%` }} />
+                  </div>
+                  <div className="text-[10px] text-slate-500 mt-1">
+                    Margen {e.margen.toFixed(1)}% · ingresos S/ {fmtK(e.ingresos)}{sufK(e.ingresos)}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* §F alertas */}
+      <div className="bg-white border border-slate-200 rounded-2xl p-4">
+        <h3 className="text-[14px] font-semibold text-slate-900 mb-3 flex items-center gap-2">
+          <AlertTriangle className="w-4 h-4 text-rose-500" /> Alertas ({proy.alertas.length})
+        </h3>
+        {proy.alertas.length === 0 ? (
+          <div className="text-[12px] text-slate-400">Sin alertas para este horizonte.</div>
+        ) : (
+          <div className="space-y-2">
+            {proy.alertas.map((a, i) => {
+              const theme = a.severidad === 'danger'
+                ? 'bg-rose-50 border-rose-200 text-rose-500'
+                : a.severidad === 'warning'
+                  ? 'bg-amber-50 border-amber-200 text-amber-500'
+                  : 'bg-sky-50 border-sky-200 text-sky-500';
+              const [bg, border, iconColor] = theme.split(' ');
+              return (
+                <div key={i} className={`flex items-start gap-3 p-2.5 rounded-lg ${bg} border ${border} text-[13px]`}>
+                  <AlertCircle className={`w-4 h-4 mt-0.5 flex-shrink-0 ${iconColor}`} />
+                  <div>
+                    <div className="font-medium text-slate-900">{a.mensaje}</div>
+                    <div className="text-[11px] text-slate-500 mt-0.5">{a.accion}</div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const PYLRow: React.FC<{
+  label: string; valor: number; caja?: string; pct?: number;
+  bold?: boolean; negativo?: boolean; sep?: boolean; final?: boolean;
+}> = ({ label, valor, caja, pct, bold, negativo, sep, final }) => (
+  <div className={`flex items-center justify-between py-1 ${bold ? 'font-semibold' : ''} ${sep ? 'border-t border-slate-100 pt-1' : ''} ${final ? 'font-bold border-t-2 border-slate-300 mt-1 py-1.5' : ''}`}>
+    <span className={negativo ? 'text-slate-500' : ''}>
+      {label}{' '}
+      {caja && <span className="text-[10px] text-indigo-400 font-semibold">{caja}</span>}
+    </span>
+    <span className="flex items-center gap-2">
+      <span className={`tabular-nums ${negativo ? 'text-rose-500' : ''}`}>{fmtPEN(negativo ? Math.abs(valor) : valor)}</span>
+      {pct !== undefined && (
+        <span className={`text-[11px] font-bold tabular-nums ${valor >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>{pct.toFixed(1)}%</span>
+      )}
+    </span>
+  </div>
+);
+
+// ============================================
+// TAB · VENTAS
+// ============================================
+
+const TabVentas: React.FC<{ proy: Proyeccion360 }> = ({ proy }) => {
+  const v = proy.ventas;
+  const top = [...v.productos].sort((a, b) => b.ingresosProyectados - a.ingresosProyectados).slice(0, 15);
+  return (
+    <div className="space-y-4">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <MiniKPI label="Costo total" valor={fc(proy.costos.costoTotal)} />
-        <MiniKPI label="CTRU promedio" valor={fc(proy.costos.ctruPromedioProyectado)} />
-        <MiniKPI label="GA/GO mensual" valor={fc((proy.costos.gaProyectado + proy.costos.goProyectado) / (proy.horizonte / 30))} />
-        <MiniKPI label="Impacto TC +5%" valor={fc(proy.costos.impactoTC5Pct)} color="red" />
+        <MiniKpi label="Unidades" valor={v.totalUnidades.toLocaleString('es-PE')} />
+        <MiniKpi label="Monto proyectado" valor={fmtPEN(v.totalMontoPEN)} />
+        <MiniKpi label="Ticket promedio" valor={fmtPEN(v.ticketPromedio)} />
+        <MiniKpi label="Crecimiento" valor={`${v.crecimientoPct >= 0 ? '+' : ''}${v.crecimientoPct.toFixed(1)}%`} tono={v.crecimientoPct >= 0 ? 'emerald' : 'rose'} />
+      </div>
+      <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+        <div className="px-4 py-3 border-b border-slate-200">
+          <h3 className="text-[14px] font-semibold text-slate-900">Ventas proyectadas por producto</h3>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="min-w-full text-[12px]">
+            <thead className="bg-slate-50">
+              <tr>
+                <th className="px-4 py-2 text-left font-medium text-slate-500">Producto</th>
+                <th className="px-4 py-2 text-right font-medium text-slate-500">Ritmo/mes</th>
+                <th className="px-4 py-2 text-right font-medium text-slate-500">Uds. proy.</th>
+                <th className="px-4 py-2 text-right font-medium text-slate-500">Ingresos proy.</th>
+                <th className="px-4 py-2 text-right font-medium text-slate-500">Stock</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {top.map(p => (
+                <tr key={p.productoId} className="hover:bg-slate-50">
+                  <td className="px-4 py-2">
+                    <div className="font-medium text-slate-900 truncate max-w-[220px]">{p.nombre}</div>
+                    <div className="text-slate-400 font-mono text-[10px]">{p.sku}</div>
+                  </td>
+                  <td className="px-4 py-2 text-right tabular-nums">{p.ventasMensuales.toFixed(1)} u</td>
+                  <td className="px-4 py-2 text-right tabular-nums font-medium">{p.unidadesProyectadas}</td>
+                  <td className="px-4 py-2 text-right tabular-nums font-medium">{fmtPEN(p.ingresosProyectados)}</td>
+                  <td className="px-4 py-2 text-right">
+                    {p.limitadoPorStock ? (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-50 text-rose-700">
+                        limita · {p.diasHastaStockout}d
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700">ok</span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ============================================
+// TAB · INVENTARIO (consume Motor de Reorden)
+// ============================================
+
+const TabInventario: React.FC<{ proy: Proyeccion360; onVerInventario: () => void }> = ({ proy, onVerInventario }) => {
+  const inv = proy.inventario;
+  const lista = [...inv.productos].sort((a, b) => a.diasStock - b.diasStock).slice(0, 12);
+  const maxDias = 90;
+  return (
+    <div className="space-y-4">
+      {/* Consumidor · el reorden viene del Motor de Reorden (canon no-redundancia) */}
+      <div className="bg-gradient-to-r from-indigo-50 to-indigo-100/30 ring-1 ring-indigo-200/60 rounded-xl px-4 py-2.5 flex items-center justify-between gap-2 flex-wrap">
+        <span className="text-[12px] text-slate-700 flex items-center gap-2">
+          <GitBranch className="w-4 h-4 text-indigo-500" />
+          Reorden y días de stock vienen del <b>Motor de Reorden</b> · aquí se ven en tu horizonte.
+          {!inv.desdeMotorReorden && <span className="text-amber-700 font-semibold">(motor sin datos · mostrando cobertura estimada)</span>}
+        </span>
+        <button type="button" onClick={onVerInventario} className="text-[12px] font-bold text-indigo-700 hover:underline whitespace-nowrap flex items-center gap-1">
+          Ver Inventario <ArrowRight className="w-3.5 h-3.5" />
+        </button>
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <MiniKpi label="Disponibles" valor={`${inv.totalDisponibles.toLocaleString('es-PE')} uds`} />
+        <MiniKpi label="Valor inventario" valor={fmtPEN(inv.valorInventarioPEN)} />
+        <MiniKpi label="Productos en riesgo" valor={String(inv.productosEnRiesgo)} tono={inv.productosEnRiesgo > 0 ? 'rose' : 'emerald'} />
+        <MiniKpi label="Costo recompra total" valor={fmtPEN(inv.costoTotalRecompraPEN)} />
+      </div>
+
+      <div className="bg-white border border-slate-200 rounded-2xl p-4">
+        <h3 className="text-[14px] font-semibold text-slate-900 mb-3">Estado del inventario al horizonte</h3>
+        <div className="space-y-3">
+          {lista.map(p => {
+            const barra = p.estado === 'critico' ? 'bg-rose-500' : p.estado === 'atencion' ? 'bg-amber-400' : 'bg-emerald-500';
+            const diasColor = p.estado === 'critico' ? 'text-rose-600' : p.estado === 'atencion' ? 'text-amber-600' : 'text-emerald-600';
+            return (
+              <div key={p.productoId}>
+                <div className="flex items-center justify-between text-[13px] mb-1">
+                  <span className="font-medium">{p.nombre}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[11px] text-slate-500">{p.disponibles} uds</span>
+                    <span className={`text-[11px] font-bold ${diasColor}`}>{p.diasStock >= 9999 ? '∞' : `${p.diasStock}d`}</span>
+                  </div>
+                </div>
+                <div className="h-3 bg-slate-100 rounded-full overflow-hidden">
+                  <div className={`h-full ${barra} rounded-full`} style={{ width: `${Math.min(Math.max(p.diasStock / maxDias * 100, 3), 100)}%` }} />
+                </div>
+                {p.necesitaRecompra && (
+                  <div className="text-[10px] text-slate-400 mt-0.5">
+                    Comprar {p.cantidadSugerida} uds — {fmtPEN(p.costoRecompraPEN)}
+                    {p.puntoReorden !== undefined && ` · punto de reorden ${p.puntoReorden} uds`}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ============================================
+// TAB · COSTOS (3 cajas · detalle SKU en Cost Intelligence)
+// ============================================
+
+const TabCostos: React.FC<{ proy: Proyeccion360; onVerCostIntel: () => void }> = ({ proy, onVerCostIntel }) => {
+  const c = proy.costos;
+  const total = c.costoTotal || 1;
+  const pctProducto = (c.costoVentasTotal / total) * 100;
+  const pctVenta = (c.gastoVentaProyectado / total) * 100;
+  const pctPeriodo = (c.gastoPeriodoProyectado / total) * 100;
+  return (
+    <div className="space-y-4">
+      {/* Consumidor · el detalle por SKU vive en Cost Intelligence */}
+      <div className="bg-gradient-to-r from-indigo-50 to-indigo-100/30 ring-1 ring-indigo-200/60 rounded-xl px-4 py-2.5 flex items-center justify-between gap-2 flex-wrap">
+        <span className="text-[12px] text-slate-700 flex items-center gap-2">
+          <GitBranch className="w-4 h-4 text-indigo-500" />
+          Costo consolidado por caja (proyectado). El detalle por SKU + variance vive en <b>Cost Intelligence</b>.
+        </span>
+        <button type="button" onClick={onVerCostIntel} className="text-[12px] font-bold text-indigo-700 hover:underline whitespace-nowrap flex items-center gap-1">
+          Ver Cost Intelligence <ArrowRight className="w-3.5 h-3.5" />
+        </button>
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <MiniKpi label="Costo total" valor={fmtPEN(c.costoTotal)} />
+        <MiniKpi label="CTRU promedio" valor={fmtPEN(c.ctruPromedioProyectado)} />
+        <MiniKpi label="Gastos período" valor={fmtPEN(c.gastoPeriodoProyectado)} />
+        <MiniKpi label="Impacto TC +5%" valor={fmtPEN(c.impactoTC5Pct)} tono="rose" />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Pie chart de distribución */}
-        <Card className="p-4">
-          <h3 className="font-semibold text-sm mb-3">Distribución de Costos</h3>
-          <div className="h-48">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie data={data} dataKey="valor" nameKey="nombre" cx="50%" cy="50%"
-                  outerRadius={70} innerRadius={35} paddingAngle={2} label={({ nombre, percent }) => `${(percent * 100).toFixed(0)}%`}
-                  labelLine={false} fontSize={10}>
-                  {data.map((d, i) => <Cell key={i} fill={d.color} />)}
-                </Pie>
-                <Tooltip formatter={(v: number) => fc(v)} />
-                <Legend fontSize={11} />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-        </Card>
-
-        {/* Tabla desglose */}
-        <Card className="p-4">
-          <h3 className="font-semibold text-sm mb-3">Desglose</h3>
-          <div className="space-y-2">
-            {data.map(d => (
-              <div key={d.nombre} className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: d.color }} />
-                  <span className="text-sm">{d.nombre}</span>
-                </div>
-                <div className="text-right">
-                  <span className="font-mono font-medium text-sm">{fc(d.valor)}</span>
-                  <span className="text-xs text-slate-400 ml-2">
-                    {proy.costos.costoTotal > 0 ? `${((d.valor / proy.costos.costoTotal) * 100).toFixed(0)}%` : ''}
-                  </span>
-                </div>
+        <div className="bg-white border border-slate-200 rounded-2xl p-4">
+          <h3 className="text-[14px] font-semibold text-slate-900 mb-3">
+            Distribución de costos <span className="text-[11px] font-normal text-slate-400">· 3 cajas</span>
+          </h3>
+          <div className="flex items-center justify-center h-48">
+            <div
+              className="w-36 h-36 rounded-full"
+              style={{
+                background: `conic-gradient(#3b82f6 0% ${pctProducto}%, #a855f7 ${pctProducto}% ${pctProducto + pctVenta}%, #f59e0b ${pctProducto + pctVenta}% 100%)`,
+              }}
+            >
+              <div className="w-20 h-20 bg-white rounded-full m-8 flex items-center justify-center text-[11px] font-bold text-slate-600 tabular-nums">
+                S/{fmtK(c.costoTotal)}{sufK(c.costoTotal)}
               </div>
-            ))}
-            <div className="border-t pt-2 flex justify-between font-bold text-sm">
-              <span>Total</span>
-              <span>{fc(proy.costos.costoTotal)}</span>
             </div>
           </div>
-        </Card>
+        </div>
+        <div className="bg-white border border-slate-200 rounded-2xl p-4">
+          <h3 className="text-[14px] font-semibold text-slate-900 mb-3">Desglose por caja</h3>
+          <div className="space-y-2 text-[13px]">
+            <CajaRow color="bg-blue-500" label="Producto · CTRU" caja="Caja 1" monto={c.costoVentasTotal} pct={pctProducto} />
+            <CajaRow color="bg-purple-500" label="Venta" caja="Caja 2" monto={c.gastoVentaProyectado} pct={pctVenta} />
+            <CajaRow color="bg-amber-500" label="Período (fijos)" caja="Caja 3" monto={c.gastoPeriodoProyectado} pct={pctPeriodo} />
+            <div className="border-t border-slate-200 pt-2 flex justify-between font-bold">
+              <span>Total</span><span className="tabular-nums">{fmtPEN(c.costoTotal)}</span>
+            </div>
+            {c.costoRecompras > 0 && (
+              <div className="text-[11px] text-slate-400 pt-1">
+                + Recompra sugerida (motor de reorden): {fmtPEN(c.costoRecompras)} — no incluida en el P&L del horizonte.
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
 };
 
+const CajaRow: React.FC<{ color: string; label: string; caja: string; monto: number; pct: number }> = ({ color, label, caja, monto, pct }) => (
+  <div className="flex items-center justify-between">
+    <span className="flex items-center gap-2">
+      <span className={`w-3 h-3 rounded-full ${color}`} /> {label} <span className="text-[10px] text-slate-400">{caja}</span>
+    </span>
+    <span className="tabular-nums font-medium">
+      {fmtPEN(monto)} <span className="text-slate-400 text-[11px]">{pct.toFixed(0)}%</span>
+    </span>
+  </div>
+);
+
 // ============================================
-// TAB: MARGEN
+// TAB · MARGEN (cascada 5 barras por caja)
 // ============================================
 
 const TabMargen: React.FC<{ proy: Proyeccion360 }> = ({ proy }) => {
-  // Datos para waterfall
-  const waterfall = [
-    { nombre: 'Ingresos', valor: proy.margen.ingresosBrutos, color: '#22c55e', acumulado: proy.margen.ingresosBrutos },
-    { nombre: 'CTRU', valor: -proy.margen.costoVentas, color: '#ef4444', acumulado: proy.margen.utilidadBruta },
-    { nombre: 'GA/GO/GV/GD', valor: -proy.margen.gastosOperativos, color: '#f97316', acumulado: proy.margen.utilidadNeta },
-    { nombre: 'Utilidad', valor: proy.margen.utilidadNeta, color: proy.margen.utilidadNeta >= 0 ? '#3b82f6' : '#ef4444', acumulado: proy.margen.utilidadNeta },
-  ];
-
+  const m = proy.margen;
+  const maxV = Math.max(m.ingresosBrutos, 1);
+  const h = (v: number) => `${Math.min(Math.max(Math.abs(v) / maxV * 88, 2), 88)}%`;
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <MiniKPI label="Margen bruto" valor={`${proy.margen.margenBruto.toFixed(1)}%`}
-          color={proy.margen.margenBruto >= 30 ? 'green' : 'amber'} />
-        <MiniKPI label="Margen neto" valor={`${proy.margen.margenNeto.toFixed(1)}%`}
-          color={proy.margen.margenNeto >= 20 ? 'green' : proy.margen.margenNeto >= 10 ? 'amber' : 'red'} />
-        <MiniKPI label="Break-even" valor={`${proy.margen.unidadesBreakEven} uds`} />
-        <MiniKPI label="Productos riesgo" valor={`${proy.margen.productosMargenNegativo + proy.margen.productosMargenBajo}`}
-          color={proy.margen.productosMargenNegativo > 0 ? 'red' : 'green'} />
+        <MiniKpi label="Margen bruto" valor={`${m.margenBruto.toFixed(1)}%`} tono="emerald" />
+        <MiniKpi label="Margen operativo" valor={`${m.margenOperativo.toFixed(1)}%`} tono={m.margenOperativo >= 20 ? 'emerald' : m.margenOperativo >= 0 ? 'amber' : 'rose'} />
+        <MiniKpi label="Break-even" valor={m.unidadesBreakEven > 0 ? `${m.unidadesBreakEven} uds` : '—'} />
+        <MiniKpi label="Productos riesgo" valor={String(m.productosMargenNegativo + m.productosMargenBajo)} tono={m.productosMargenNegativo > 0 ? 'rose' : 'amber'} />
       </div>
-
-      {/* Waterfall */}
-      <Card className="p-4">
-        <h3 className="font-semibold text-sm mb-3">Cascada: De Ingresos a Utilidad</h3>
-        <div className="h-64">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={waterfall} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-              <XAxis dataKey="nombre" fontSize={11} />
-              <YAxis fontSize={11} tickFormatter={v => `S/${Math.round(v / 1000)}k`} />
-              <Tooltip formatter={(v: number) => fc(Math.abs(v))} />
-              <Bar dataKey="acumulado" radius={[4, 4, 0, 0]} barSize={40}>
-                {waterfall.map((d, i) => <Cell key={i} fill={d.color} fillOpacity={0.8} />)}
-              </Bar>
-              <ReferenceLine y={0} stroke="#9ca3af" />
-            </BarChart>
-          </ResponsiveContainer>
+      <div className="bg-white border border-slate-200 rounded-2xl p-4">
+        <h3 className="text-[14px] font-semibold text-slate-900 mb-3">
+          Cascada: de ingresos a utilidad <span className="text-[11px] font-normal text-slate-400">· por caja</span>
+        </h3>
+        <div className="h-56 flex items-end justify-around gap-2 px-2 border-l border-b border-slate-200">
+          <CascadaBar color="bg-emerald-500/80" label="Ingresos" valor={m.ingresosBrutos} height={h(m.ingresosBrutos)} />
+          <CascadaBar color="bg-blue-500/80" label="(−) CTRU" valor={-m.costoVentas} height={h(m.costoVentas)} />
+          <CascadaBar color="bg-purple-500/80" label="(−) Venta" valor={-m.gastoVenta} height={h(m.gastoVenta)} />
+          <CascadaBar color="bg-amber-500/80" label="(−) Período" valor={-m.gastoPeriodo} height={h(m.gastoPeriodo)} />
+          <CascadaBar color="bg-emerald-600/80" label="Utilidad" valor={m.utilidadOperativa} height={h(m.utilidadOperativa)} />
         </div>
-      </Card>
+      </div>
     </div>
   );
 };
 
-// ============================================
-// TAB: FLUJO DE CAJA
-// ============================================
-
-const TabFlujoCaja: React.FC<{ proy: Proyeccion360 }> = ({ proy }) => (
-  <div className="space-y-4">
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-      <MiniKPI label="Total cobros" valor={fc(proy.flujoCaja.totalCobros)} color="green" />
-      <MiniKPI label="Total egresos" valor={fc(proy.flujoCaja.totalEgresos)} color="red" />
-      <MiniKPI label="Saldo final" valor={fc(proy.flujoCaja.saldoFinal)}
-        color={proy.flujoCaja.saldoFinal >= 0 ? 'green' : 'red'} />
-      {proy.flujoCaja.necesitaFinanciamiento && (
-        <MiniKPI label="Financiamiento" valor={fc(proy.flujoCaja.montoFinanciamiento)} color="red" />
-      )}
-    </div>
-
-    {/* Gráfica de flujo semanal */}
-    <Card className="p-4">
-      <h3 className="font-semibold text-sm mb-3">Flujo de Caja Semanal</h3>
-      {proy.flujoCaja.necesitaFinanciamiento && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-3 text-sm text-red-700 flex items-center gap-2">
-          <AlertTriangle className="w-4 h-4" />
-          Déficit de caja proyectado. Se necesita inyección de {fc(proy.flujoCaja.montoFinanciamiento)}.
-        </div>
-      )}
-      <div className="h-64">
-        <ResponsiveContainer width="100%" height="100%">
-          <ComposedChart data={proy.flujoCaja.semanas} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-            <XAxis dataKey="label" fontSize={11} />
-            <YAxis fontSize={11} tickFormatter={v => `S/${Math.round(v / 1000)}k`} />
-            <Tooltip formatter={(v: number) => fc(v)} />
-            <Bar dataKey="totalCobros" name="Cobros" fill="#22c55e" fillOpacity={0.6} radius={[4, 4, 0, 0]} barSize={16} />
-            <Bar dataKey="totalEgresos" name="Egresos" fill="#ef4444" fillOpacity={0.6} radius={[4, 4, 0, 0]} barSize={16} />
-            <Line dataKey="saldoAcumulado" name="Saldo" stroke="#3b82f6" strokeWidth={2.5} dot={{ r: 3 }} />
-            <ReferenceLine y={0} stroke="#9ca3af" strokeDasharray="3 3" />
-            <Legend />
-          </ComposedChart>
-        </ResponsiveContainer>
-      </div>
-    </Card>
-
-    {/* Tabla semanal */}
-    {(() => {
-      type SemanaCaja = typeof proy.flujoCaja.semanas[number];
-      const colsSemanas: DataTableColumn<SemanaCaja>[] = [
-        {
-          key: 'label',
-          header: 'Semana',
-          render: (s) => <span className="font-medium">{s.label}</span>,
-        },
-        {
-          key: 'totalCobros',
-          header: 'Cobros',
-          align: 'right',
-          render: (s) => <span className="text-emerald-600">{fc(s.totalCobros)}</span>,
-        },
-        {
-          key: 'egresosGastos',
-          header: 'Gastos',
-          align: 'right',
-          render: (s) => <span className="text-red-600">{fc(s.egresosGastos)}</span>,
-        },
-        {
-          key: 'egresosRecompras',
-          header: 'Recompras',
-          align: 'right',
-          hideOnMobile: true,
-          render: (s) => s.egresosRecompras > 0 ? fc(s.egresosRecompras) : '-',
-        },
-        {
-          key: 'flujoNeto',
-          header: 'Flujo neto',
-          align: 'right',
-          render: (s) => <span className="font-medium">{fc(s.flujoNeto)}</span>,
-        },
-        {
-          key: 'saldoAcumulado',
-          header: 'Saldo',
-          align: 'right',
-          render: (s) => (
-            <span className={`font-bold ${s.saldoAcumulado < 0 ? 'text-red-600' : 'text-emerald-600'}`}>
-              {fc(s.saldoAcumulado)}
-            </span>
-          ),
-        },
-      ];
-      return (
-        <Card className="p-4">
-          <DataTable
-            data={proy.flujoCaja.semanas}
-            columns={colsSemanas}
-            keyExtractor={(s) => String(s.semana)}
-            compact
-          />
-        </Card>
-      );
-    })()}
+const CascadaBar: React.FC<{ color: string; label: string; valor: number; height: string }> = ({ color, label, valor, height }) => (
+  <div className="flex flex-col items-center gap-1 flex-1">
+    <div className={`w-full max-w-[64px] ${color} rounded-t`} style={{ height }} />
+    <span className="text-[10px] text-slate-500">{label}</span>
+    <span className="text-[10px] tabular-nums font-bold text-slate-700">
+      {valor < 0 ? '−' : ''}{fmtK(Math.abs(valor))}{sufK(Math.abs(valor))}
+    </span>
   </div>
 );
 
 // ============================================
-// SUB-COMPONENTES COMPARTIDOS
+// Shared · Mini KPI
 // ============================================
 
-function fc(n: number): string { return formatCurrency(n); }
-
-const Hero: React.FC<{ horizonte: Horizonte360; setHorizonte: (h: Horizonte360) => void }> = ({ horizonte, setHorizonte }) => (
-  <div className="bg-teal-700 rounded-xl p-6 text-white mb-2">
-    <div className="flex items-center justify-between">
-      <div>
-        <div className="flex items-center gap-3 mb-1">
-          <TrendingUp className="w-8 h-8 opacity-80" />
-          <h1 className="text-xl md:text-2xl font-bold">Proyeccion 360</h1>
-        </div>
-        <p className="text-violet-200 text-sm">Ventas · Costos · Margen · Inventario · Flujo de Caja</p>
-      </div>
-      <div className="flex items-center gap-1 bg-white/15 rounded-lg p-1">
-        {([30, 90] as const).map(h => (
-          <button key={h} onClick={() => setHorizonte(h)}
-            className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
-              horizonte === h ? 'bg-white text-violet-700 shadow' : 'text-slate-600 hover:text-slate-900'
-            }`}>{h} días</button>
-        ))}
-      </div>
+const MiniKpi: React.FC<{ label: string; valor: string; tono?: 'emerald' | 'rose' | 'amber' }> = ({ label, valor, tono }) => {
+  const color = tono === 'emerald' ? 'text-emerald-600' : tono === 'rose' ? 'text-rose-600' : tono === 'amber' ? 'text-amber-600' : 'text-slate-900';
+  return (
+    <div className="bg-white border border-slate-200 rounded-xl p-3">
+      <div className="text-[10px] uppercase tracking-wider text-slate-400 font-bold">{label}</div>
+      <div className={`text-lg font-bold tabular-nums mt-0.5 ${color}`}>{valor}</div>
     </div>
-  </div>
-);
-
-const KPI: React.FC<{
-  icon: React.ReactNode; label: string; valor: string; sub?: string;
-  trend?: number; color?: 'green' | 'red' | 'amber'; invertColor?: boolean;
-}> = ({ icon, label, valor, sub, trend, color }) => (
-  <Card className="p-3">
-    <div className="flex items-center gap-1.5 mb-1">
-      <span className="text-slate-400">{icon}</span>
-      <span className="text-[11px] text-slate-500">{label}</span>
-    </div>
-    <div className={`text-lg font-bold ${
-      color === 'green' ? 'text-emerald-600' : color === 'red' ? 'text-red-600' :
-      color === 'amber' ? 'text-amber-600' : 'text-slate-900'
-    }`}>{valor}</div>
-    {(sub || trend !== undefined) && (
-      <div className="flex items-center gap-2 mt-0.5">
-        {sub && <span className="text-[10px] text-slate-400">{sub}</span>}
-        {trend !== undefined && (
-          <span className={`text-[10px] font-bold ${trend >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
-            {trend > 0 ? '+' : ''}{trend.toFixed(1)}%
-          </span>
-        )}
-      </div>
-    )}
-  </Card>
-);
-
-const MiniKPI: React.FC<{ label: string; valor: string; color?: 'green' | 'red' | 'amber' }> = ({ label, valor, color }) => (
-  <div className="bg-slate-50 rounded-lg p-3">
-    <div className="text-[10px] text-slate-400 mb-0.5">{label}</div>
-    <div className={`text-sm font-bold ${
-      color === 'green' ? 'text-emerald-600' : color === 'red' ? 'text-red-600' :
-      color === 'amber' ? 'text-amber-600' : 'text-slate-900'
-    }`}>{valor}</div>
-  </div>
-);
-
-const PYLRow: React.FC<{
-  label: string; valor: number; bold?: boolean; negative?: boolean;
-  pct?: number; color?: 'green' | 'amber' | 'red';
-}> = ({ label, valor, bold, negative, pct, color }) => (
-  <div className={`flex items-center justify-between py-1 ${bold ? 'font-semibold' : ''}`}>
-    <span className={`text-sm ${negative ? 'text-slate-500' : ''}`}>{label}</span>
-    <div className="flex items-center gap-2">
-      <span className={`text-sm font-mono ${negative ? 'text-red-500' : ''}`}>
-        {fc(Math.abs(valor))}
-      </span>
-      {pct !== undefined && (
-        <span className={`text-xs font-bold ${
-          color === 'green' ? 'text-emerald-600' : color === 'amber' ? 'text-amber-600' : 'text-red-600'
-        }`}>{pct.toFixed(1)}%</span>
-      )}
-    </div>
-  </div>
-);
+  );
+};
