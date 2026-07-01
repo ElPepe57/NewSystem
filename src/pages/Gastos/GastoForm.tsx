@@ -535,6 +535,9 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
     enabled: !isEditing, // solo create-mode
     buildResumen,
     buildMonto,
+    // FIX "banner pegado": gasto VACÍO (sin descripción ni monto) → no autoguardar
+    // (evita el draft fantasma que reaparece tras descartar · mismo bug que OCWizardV3).
+    isEmpty: (s) => !s.formData.descripcion?.trim() && s.formData.montoOriginal <= 0,
   });
 
   // chk5.C-FIX · canon F-Borradores · pre-carga del borrador al montar

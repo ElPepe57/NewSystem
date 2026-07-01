@@ -67,6 +67,8 @@ export const WizardGPage: React.FC<WizardGPageProps> = ({
       const total = selectTotalCostosPEN(state);
       return total > 0 ? total : undefined;
     },
+    // FIX "banner pegado": sin devolución seleccionada → wizard vacío → no autoguardar draft fantasma.
+    isEmpty: (s) => !s.devolucionId,
   });
 
   const canProceed = useMemo((): boolean => {

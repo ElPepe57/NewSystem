@@ -282,6 +282,8 @@ export const WizardProductoV2: React.FC<WizardProductoV2Props> = ({
       if (s.contenidoValor) partes.push(`${s.contenidoValor} ${s.contenidoUnidad}`);
       return partes.length > 0 ? partes.join(' · ') : undefined;
     },
+    // FIX "banner pegado": producto VACÍO (sin marca/nombre/contenido) → no autoguardar draft fantasma.
+    isEmpty: (s: typeof wizardStateSnapshot) => !s.marca && !s.nombreComercial && !s.contenidoValor,
   });
 
   // Modal "salida con cambios sin guardar"

@@ -71,6 +71,8 @@ export const WizardFPage: React.FC<WizardFPageProps> = ({
       const total = selectTotalCostosPEN(state);
       return total > 0 ? total : undefined;
     },
+    // FIX "banner pegado": sin venta seleccionada → wizard vacío → no autoguardar draft fantasma.
+    isEmpty: (s) => !s.ventaId,
   });
 
   const productos = useProductoStore((s) => s.productos);
