@@ -221,10 +221,6 @@ export interface Unidad {
   // Cada componente es inmutable (frozen-at-tx) y lleva su ámbito (envío/etapa).
   componentesCosto?: ComponenteCostoUnidad[];
 
-  // @deprecated — eliminados en reingenieria (Acuerdo 3: GA/GO no tocan CTRU)
-  costoGAAsignado?: number;
-  costoGOAsignado?: number;
-
   // Trazabilidad OC
   ordenCompraId: string;         // OC que generó esta unidad
   ordenCompraNumero: string;     // Desnormalizado

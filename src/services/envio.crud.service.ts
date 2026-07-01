@@ -1702,13 +1702,10 @@ export const envioCrudService = {
           const updateData: Record<string, unknown> = {
             costoFleteUSD: unidad.costoFleteUSD,
             ctruInicial: nuevoCtruInicial,
+            ctruDinamico: nuevoCtruInicial,   // GA/GO ya no tocan el CTRU (Acuerdo 3)
             actualizadoPor: userId,
             fechaActualizacion: Timestamp.now(),
           };
-          const gagoAsignado = (unidadData.costoGAAsignado || 0) + (unidadData.costoGOAsignado || 0);
-          if (gagoAsignado === 0) {
-            updateData.ctruDinamico = nuevoCtruInicial;
-          }
           batch.update(unidadRef, updateData);
         }
         batchCount++;

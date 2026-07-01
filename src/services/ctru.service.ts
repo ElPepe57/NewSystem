@@ -49,9 +49,6 @@ export const ctruService = {
             ctruDinamico: ctruLimpio,
             ctruContable: ctruLimpio,
             ctruGerencial: ctruLimpio,
-            costoGAGOAsignado: 0,
-            costoGAAsignado: 0,
-            costoGOAsignado: 0,
           };
 
           // Corregir ctruInicial SOLO hacia arriba y contra el CTRU REAL completo

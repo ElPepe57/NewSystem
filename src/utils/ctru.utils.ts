@@ -23,7 +23,7 @@ export function sumarComponentesCosto(componentes?: ComponenteCostoUnidad[] | nu
  * al cálculo por escalares de abajo SIN cambios — backward-compat obligatorio
  * porque ningún doc histórico tiene componentesCosto todavía.
  */
-export function getCTRU(unidad: Pick<Unidad, 'ctruDinamico' | 'ctruInicial' | 'costoUnitarioUSD' | 'costoFleteUSD' | 'tcPago' | 'tcCompra' | 'componentesCosto'> & { costoGAGOAsignado?: number; costosLandedPEN?: number }): number {
+export function getCTRU(unidad: Pick<Unidad, 'ctruDinamico' | 'ctruInicial' | 'costoUnitarioUSD' | 'costoFleteUSD' | 'tcPago' | 'tcCompra' | 'componentesCosto'> & { costosLandedPEN?: number }): number {
   // Prioridad 0: modelo adaptativo — si hay componentes congelados, el CTRU es su suma neta.
   if (unidad.componentesCosto && unidad.componentesCosto.length > 0) {
     return sumarComponentesCosto(unidad.componentesCosto);
@@ -39,21 +39,18 @@ export function getCTRU(unidad: Pick<Unidad, 'ctruDinamico' | 'ctruInicial' | 'c
   // Prioridad 2: costoFleteUSD del modelo legacy (transferencia)
   const costoFleteUSD = unidad.costoFleteUSD || 0;
   if (costoFleteUSD > 0) {
-    const costoBase = getCostoBasePEN(unidad);
-    // REINGENIERIA: NO sumar costoGAGOAsignado — GA/GO no tocan CTRU
-    return costoBase;
+    // GA/GO no tocan el CTRU (Acuerdo 3 reingeniería)
+    return getCostoBasePEN(unidad);
   }
 
   // Prioridad 3: valores almacenados
-  // NOTA: ctruDinamico legacy puede incluir GA/GO. Preferir ctruInicial que es limpio.
+  // NOTA: preferir ctruInicial (limpio) sobre ctruDinamico.
   if (unidad.ctruInicial && unidad.ctruInicial > 0) {
     return unidad.ctruInicial;
   }
 
   if (unidad.ctruDinamico && unidad.ctruDinamico > 0) {
-    // Restar GA/GO si estaban incluidos en ctruDinamico
-    const gagoIncluido = unidad.costoGAGOAsignado || 0;
-    return unidad.ctruDinamico - gagoIncluido;
+    return unidad.ctruDinamico;
   }
 
   // Fallback: calculo manual
@@ -164,15 +161,3 @@ export function getCTRU_Real(
   return costoUSD * tcpa + (unidad.costosLandedPEN || 0);
 }
 
-/**
- * @deprecated GA/GO ya no se prorratean al CTRU (Acuerdo 3 reingenieria).
- * Se mantiene temporalmente para backward compat en ctruStore analytics.
- * Siempre retorna 0.
- */
-export function calcularGAGOProporcional(
-  _costoBaseUnidad: number,
-  _costoBaseTotalVendidas: number,
-  _totalGAGO: number
-): number {
-  return 0;
-}

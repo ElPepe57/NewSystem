@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getCTRU, getTC, getCostoBasePEN, getCTRU_Real, calcularGAGOProporcional, resumirLandedOC } from './ctru.utils';
+import { getCTRU, getTC, getCostoBasePEN, getCTRU_Real, resumirLandedOC } from './ctru.utils';
 import type { ComponenteCostoUnidad } from '../types/ctru.types';
 import type { Unidad } from '../types/unidad.types';
 
@@ -179,7 +179,7 @@ describe('getCTRU', () => {
     expect(getCTRU(unidad)).toBeCloseTo(380);
   });
 
-  it('con flete: retorna costoBase e IGNORA costoGAGOAsignado (Acuerdo 3)', () => {
+  it('con flete: CTRU = costoBase, ignora ctruDinamico legacy (Acuerdo 3)', () => {
     const unidad = {
       ctruDinamico: 500,
       ctruInicial: 400,
@@ -187,24 +187,9 @@ describe('getCTRU', () => {
       costoFleteUSD: 20,
       tcPago: 3.80,
       tcCompra: undefined as number | undefined,
-      costoGAGOAsignado: 30,
     };
     // Reingeniería: con flete, CTRU = costoBase = (100 + 20) × 3.80 = 456.
     // GA/GO NO toca el CTRU; el ctruDinamico legacy se ignora.
-    expect(getCTRU(unidad)).toBeCloseTo(456);
-  });
-
-  it('con flete: el CTRU no incluye GA/GO aunque costoGAGOAsignado sea alto', () => {
-    const unidad = {
-      ctruDinamico: 420,
-      ctruInicial: 380,
-      costoUnitarioUSD: 100,
-      costoFleteUSD: 20,
-      tcPago: 3.80,
-      tcCompra: undefined as number | undefined,
-      costoGAGOAsignado: 50,
-    };
-    // costoBase = (100 + 20) × 3.80 = 456 ; el GAGO de 50 se ignora (Acuerdo 3)
     expect(getCTRU(unidad)).toBeCloseTo(456);
   });
 
@@ -242,9 +227,8 @@ describe('getCTRU_Real', () => {
     const unidad = {
       costoUnitarioUSD: 100,
       costoFleteUSD: 20,
-      costoGAGOAsignado: 30,
     };
-    // (100 + 20) × 3.90 = 468 ; el GAGO ya NO se suma al CTRU Real
+    // (100 + 20) × 3.90 = 468 ; GA/GO ya NO se suma al CTRU Real
     expect(getCTRU_Real(unidad, 3.90)).toBeCloseTo(468);
   });
 
@@ -252,7 +236,6 @@ describe('getCTRU_Real', () => {
     const unidad = {
       costoUnitarioUSD: 100,
       costoFleteUSD: 20,
-      costoGAGOAsignado: 30,
     };
     expect(getCTRU_Real(unidad, 0)).toBe(0);
   });
@@ -280,40 +263,6 @@ describe('getCTRU_Real', () => {
       costoFleteUSD: 0,
     };
     expect(getCTRU_Real(unidad, 3.85)).toBeCloseTo(0);
-  });
-});
-
-// ---------------------------------------------------------------------------
-// calcularGAGOProporcional
-// ---------------------------------------------------------------------------
-describe('calcularGAGOProporcional', () => {
-  it('@deprecated: siempre retorna 0 — GA/GO no se prorratea al CTRU (Acuerdo 3)', () => {
-    expect(calcularGAGOProporcional(250, 1000, 400)).toBe(0);
-  });
-
-  it('retorna 0 cuando el costo base total es 0', () => {
-    expect(calcularGAGOProporcional(250, 0, 400)).toBe(0);
-  });
-
-  it('retorna 0 cuando el totalGAGO es 0', () => {
-    expect(calcularGAGOProporcional(250, 1000, 0)).toBe(0);
-  });
-
-  it('retorna 0 cuando el costo base total es negativo', () => {
-    expect(calcularGAGOProporcional(250, -500, 400)).toBe(0);
-  });
-
-  it('@deprecated: retorna 0 incluso si la unidad tiene el 100% del costo', () => {
-    expect(calcularGAGOProporcional(500, 500, 200)).toBe(0);
-  });
-
-  it('@deprecated: retorna 0 con cualquier proporción', () => {
-    const resultado = calcularGAGOProporcional(100, 300, 90);
-    expect(resultado).toBe(0);
-  });
-
-  it('no hay GAGO si la unidad tiene costo base 0', () => {
-    expect(calcularGAGOProporcional(0, 1000, 400)).toBe(0);
   });
 });
 
