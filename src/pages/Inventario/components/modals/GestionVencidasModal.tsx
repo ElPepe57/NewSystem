@@ -10,6 +10,7 @@ import {
 import { Badge } from '../../../../components/common';
 import { FormModalV2 } from '../../../../design-system';
 import { bajaInventarioService } from '../../../../services/bajaInventario.service';
+import { getCTRU } from '../../../../utils/ctru.utils';
 import { useToastStore } from '../../../../store/toastStore';
 import { useAuthStore } from '../../../../store/authStore';
 import type { DisposicionVencida } from '../../../../types/unidad.types';
@@ -107,8 +108,8 @@ export const GestionVencidasModal: React.FC<GestionVencidasModalProps> = ({
           sku: u.sku,
           disposicion: decisiones[u.id].disposicion!,
           motivo: decisiones[u.id].motivo || 'Producto vencido',
-          costoUnidadPEN: u.ctruInicial?.costoBasePEN || u.costoBasePEN || 0,
-          costoUnidadUSD: u.costoBaseUSD || u.costoUnitarioUSD || 0,
+          costoUnidadPEN: getCTRU(u),
+          costoUnidadUSD: u.costoUnitarioUSD || 0,
           destinatarioDonacion: decisiones[u.id].destinatario,
         }));
 
@@ -246,9 +247,9 @@ export const GestionVencidasModal: React.FC<GestionVencidasModalProps> = ({
                       <Badge variant="danger">Vencida</Badge>
                     </div>
                   </div>
-                  {u.costoBasePEN > 0 && (
+                  {getCTRU(u) > 0 && (
                     <p className="text-xs text-slate-500 mt-1">
-                      Costo: S/{(u.ctruInicial?.costoBasePEN || u.costoBasePEN || 0).toFixed(2)}
+                      Costo: S/{getCTRU(u).toFixed(2)}
                     </p>
                   )}
                 </div>
@@ -343,7 +344,7 @@ export const GestionVencidasModal: React.FC<GestionVencidasModalProps> = ({
                     <span className="font-medium">{opcion?.label}</span>
                     {decision?.disposicion === 'baja_definitiva' && (
                       <span className="text-red-600">
-                        (gasto: S/{(u.ctruInicial?.costoBasePEN || u.costoBasePEN || 0).toFixed(2)})
+                        (gasto: S/{getCTRU(u).toFixed(2)})
                       </span>
                     )}
                   </li>

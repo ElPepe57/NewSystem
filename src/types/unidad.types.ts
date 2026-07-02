@@ -202,23 +202,18 @@ export interface Unidad {
   tcCompra?: number;             // TC al momento de registrar la OC
   tcPago?: number;               // TC al momento del pago (más relevante)
 
-  // CTRU (Costo Total Real por Unidad) — Modelo 4 capas
-  ctruInicial?: number;          // C1+C2: costoAdquisición*TC + flete prorrateado (inmutable post-recepción)
-  ctruDinamico?: number;         // CTRU legacy = ctruContable (backward compat)
-  ctruContable?: number;         // C1+C2+C3 + GA/GO solo entre vendidas (para P&L)
-  ctruGerencial?: number;        // C1+C2+C3 + GA/GO entre todas las unidades (para cotizar)
-
   // C3 — Costo de recojo en Perú (prorrateado por recepción parcial de transferencia)
   costoRecojoPEN?: number;       // En soles — monto variable por recepción
   transferenciaRecojoId?: string; // ID de la transferencia/recepción que generó el C3
 
-  // Costos landed prorrateados (del Envio)
-  costosLandedPEN?: number;      // Suma de costos landed prorrateados a esta unidad
-
-  // Componentes de costo congelados (fundación 2026-06-16 · modelo adaptativo).
-  // getCTRU = Σ componentesCosto[].montoPEN cuando existen; si no, fallback a los
-  // escalares de arriba (costoUnitarioUSD/costoFleteUSD/costosLandedPEN/ctru*).
-  // Cada componente es inmutable (frozen-at-tx) y lleva su ámbito (envío/etapa).
+  // Componentes de costo congelados (fundación 2026-06-16) — FUENTE ÚNICA del CTRU.
+  // Unidad RECIBIDA: getCTRU = Σ componentesCosto[].montoPEN (lista congelada en la
+  // recepción · construirComponentesUnidad). Unidad NO recibida (pedida/en tránsito):
+  // aún no tiene componentes → su costo es un ESTIMADO desde los inputs escalares
+  // (costoUnitarioUSD + costoFleteUSD) × TC. Cada componente es inmutable
+  // (frozen-at-tx) y lleva su ámbito (envío/etapa).
+  // Limpieza 2026-07: los escalares derivados ctruInicial/ctruDinamico/ctruContable/
+  // ctruGerencial/costosLandedPEN fueron ELIMINADOS (BD fresh-start · sin unidades legacy).
   componentesCosto?: ComponenteCostoUnidad[];
 
   // Trazabilidad OC

@@ -14,48 +14,27 @@ export function sumarComponentesCosto(componentes?: ComponenteCostoUnidad[] | nu
  * Obtener el CTRU (Costo Total Real por Unidad) de una unidad.
  * Fuente unica de verdad para el calculo de CTRU.
  *
- * REINGENIERIA: CTRU = precio producto (de OC) + costos landed (de Envio)
- * GA/GO ya NO se incluyen en el CTRU (Acuerdo 3).
- * Los gastos del periodo se ven en el P&L como "Gastos Fijos del Mes".
+ * MODELO (limpieza 2026-07 · componentesCosto = fuente única · BD fresh-start,
+ * ya sin unidades legacy con escalares ctru*):
  *
- * MODELO ADAPTATIVO (fundación 2026-06-16): si la unidad tiene componentesCosto[]
- * congelados, el CTRU es su SUMA. Si no (unidades legacy sin componentes), se cae
- * al cálculo por escalares de abajo SIN cambios — backward-compat obligatorio
- * porque ningún doc histórico tiene componentesCosto todavía.
+ *  (a) Unidad RECIBIDA → tiene componentesCosto[] CONGELADOS en la recepción
+ *      (construirComponentesUnidad) → CTRU = Σ componentes (suma neta: los
+ *      descuentos entran con montoPEN negativo).
+ *  (b) Unidad NO recibida (pedida / en tránsito) → aún no tiene componentes →
+ *      el costo es un ESTIMADO pre-recepción desde los inputs escalares:
+ *      (costoUnitarioUSD + costoFleteUSD) × TC (getCostoBasePEN).
+ *
+ * GA/GO NO se incluyen en el CTRU (Acuerdo 3): los gastos del período se ven
+ * en el P&L como "Gastos Fijos del Mes".
  */
-export function getCTRU(unidad: Pick<Unidad, 'ctruDinamico' | 'ctruInicial' | 'costoUnitarioUSD' | 'costoFleteUSD' | 'tcPago' | 'tcCompra' | 'componentesCosto'> & { costosLandedPEN?: number }): number {
-  // Prioridad 0: modelo adaptativo — si hay componentes congelados, el CTRU es su suma neta.
+export function getCTRU(unidad: Pick<Unidad, 'costoUnitarioUSD' | 'costoFleteUSD' | 'tcPago' | 'tcCompra' | 'componentesCosto'> & { costoRecojoPEN?: number }): number {
+  // (a) Recibida: componentes congelados → el CTRU es su suma neta.
   if (unidad.componentesCosto && unidad.componentesCosto.length > 0) {
     return sumarComponentesCosto(unidad.componentesCosto);
   }
 
-  // Prioridad 1: Si hay costosLanded del nuevo modelo (Envio), usarlos
-  if (unidad.costosLandedPEN && unidad.costosLandedPEN > 0) {
-    const tc = getTC(unidad);
-    const costoProductoPEN = (unidad.costoUnitarioUSD || 0) * tc;
-    return costoProductoPEN + unidad.costosLandedPEN;
-  }
-
-  // Prioridad 2: costoFleteUSD del modelo legacy (transferencia)
-  const costoFleteUSD = unidad.costoFleteUSD || 0;
-  if (costoFleteUSD > 0) {
-    // GA/GO no tocan el CTRU (Acuerdo 3 reingeniería)
-    return getCostoBasePEN(unidad);
-  }
-
-  // Prioridad 3: valores almacenados
-  // NOTA: preferir ctruInicial (limpio) sobre ctruDinamico.
-  if (unidad.ctruInicial && unidad.ctruInicial > 0) {
-    return unidad.ctruInicial;
-  }
-
-  if (unidad.ctruDinamico && unidad.ctruDinamico > 0) {
-    return unidad.ctruDinamico;
-  }
-
-  // Fallback: calculo manual
-  const tc = getTC(unidad);
-  return (unidad.costoUnitarioUSD || 0) * tc;
+  // (b) No recibida: estimado pre-recepción por escalares.
+  return getCostoBasePEN(unidad);
 }
 
 /**
@@ -108,48 +87,38 @@ export function getTC(unidad: Pick<Unidad, 'tcPago' | 'tcCompra'>): number {
 
 /**
  * Calcular el costo base (precio + flete, sin GA/GO) de una unidad en PEN.
- * Formula: (costoUnitarioUSD + costoFleteUSD) x TC + costoRecojoPEN
  *
- * MODELO ADAPTATIVO: si hay componentesCosto[], el costo base ES su suma (igual
- * que getCTRU — no hay componente de overhead, así getCTRU===getCostoBasePEN y
- * desaparece la divergencia BUG-3/BUG-5). Si no, cálculo por escalares (legacy).
+ * - Con componentesCosto[] (unidad recibida): el costo base ES su suma (igual
+ *   que getCTRU — no hay componente de overhead, así getCTRU===getCostoBasePEN).
+ * - Sin componentes (unidad no recibida): ESTIMADO pre-recepción por escalares:
+ *   (costoUnitarioUSD + costoFleteUSD) × TC + costoRecojoPEN.
  */
-export function getCostoBasePEN(unidad: Pick<Unidad, 'ctruInicial' | 'costoUnitarioUSD' | 'costoFleteUSD' | 'tcPago' | 'tcCompra' | 'componentesCosto'> & { costoRecojoPEN?: number }): number {
-  // Prioridad 0: modelo adaptativo — base = suma de componentes congelados.
+export function getCostoBasePEN(unidad: Pick<Unidad, 'costoUnitarioUSD' | 'costoFleteUSD' | 'tcPago' | 'tcCompra' | 'componentesCosto'> & { costoRecojoPEN?: number }): number {
+  // Recibida: base = suma de componentes congelados.
   if (unidad.componentesCosto && unidad.componentesCosto.length > 0) {
     return sumarComponentesCosto(unidad.componentesCosto);
   }
 
+  // No recibida: estimado por escalares.
   const tc = getTC(unidad);
-  const costoFleteUSD = unidad.costoFleteUSD || 0;
-  const costoRecojo = unidad.costoRecojoPEN || 0;
-  const costoCalculado = ((unidad.costoUnitarioUSD || 0) + costoFleteUSD) * tc + costoRecojo;
-
-  if (costoFleteUSD > 0 || costoRecojo > 0) {
-    return costoCalculado;
-  }
-
-  if (unidad.ctruInicial && unidad.ctruInicial > 0) {
-    return unidad.ctruInicial;
-  }
-
-  return costoCalculado;
+  return ((unidad.costoUnitarioUSD || 0) + (unidad.costoFleteUSD || 0)) * tc + (unidad.costoRecojoPEN || 0);
 }
 
 /**
  * Calcular CTRU Real usando TCPA (del Pool USD) en lugar del TC historico.
  * REINGENIERIA: sin costoGAGOAsignado — GA/GO no tocan CTRU.
  *
- * MODELO ADAPTATIVO: si hay componentesCosto[], se revalúan al TCPA los que
- * nacieron en USD (montoOrigenUSD); los que ya están en PEN se mantienen.
+ * - Con componentesCosto[] (unidad recibida): se revalúan al TCPA los que
+ *   nacieron en USD (montoOrigenUSD); los que ya están en PEN se mantienen.
+ * - Sin componentes (unidad no recibida): estimado (producto + flete) × TCPA.
  */
 export function getCTRU_Real(
-  unidad: Pick<Unidad, 'costoUnitarioUSD' | 'costoFleteUSD' | 'componentesCosto'> & { costosLandedPEN?: number },
+  unidad: Pick<Unidad, 'costoUnitarioUSD' | 'costoFleteUSD' | 'componentesCosto'>,
   tcpa: number
 ): number {
   if (tcpa <= 0) return 0;
 
-  // Prioridad 0: revaluar componentes congelados al TCPA gerencial.
+  // Recibida: revaluar componentes congelados al TCPA gerencial.
   if (unidad.componentesCosto && unidad.componentesCosto.length > 0) {
     return unidad.componentesCosto.reduce((sum, c) => {
       if (c?.montoOrigenUSD != null) return sum + c.montoOrigenUSD * tcpa;
@@ -157,7 +126,7 @@ export function getCTRU_Real(
     }, 0);
   }
 
-  const costoUSD = (unidad.costoUnitarioUSD || 0) + (unidad.costoFleteUSD || 0);
-  return costoUSD * tcpa + (unidad.costosLandedPEN || 0);
+  // No recibida: estimado pre-recepción al TCPA.
+  return ((unidad.costoUnitarioUSD || 0) + (unidad.costoFleteUSD || 0)) * tcpa;
 }
 

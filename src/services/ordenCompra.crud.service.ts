@@ -1488,7 +1488,6 @@ async function aplicarRecojoEnOrigen(
   const { buildProductosInfoFromOC } = await import('../utils/prorrateoLanded');
   const { buildUnidadesPorTanda, prorratearLandedAComponentes, construirComponentesUnidad } =
     await import('../utils/costoComponentes.builder');
-  const { sumarComponentesCosto } = await import('../utils/ctru.utils');
   const now = Timestamp.now();
 
   // 1. Obtener nombre de la casilla para desnormalizar en unidades
@@ -1500,7 +1499,7 @@ async function aplicarRecojoEnOrigen(
   //    de la OC (impuestos, cargos, descuentos) ya fueron heredados al Envio T1
   //    via `heredarCargos` durante confirmarOC. Aquí replicamos la lógica que
   //    hace `envio.recepcion.service.registrarRecepcion` para que el CTRU final
-  //    incluya esos prorrateos (antes de S53.6 quedaba en 0 el campo ctruInicial).
+  //    (componentesCosto[] congelados) incluya esos prorrateos.
   const enviosDeOC = await envioCrudService.getByOrdenCompra(orden.id);
   const productosInfo = buildProductosInfoFromOC(orden.productos);
   const tcCompra = orden.tcReferencial || orden.tcCompra || 0;
@@ -1531,9 +1530,8 @@ async function aplicarRecojoEnOrigen(
   // S53.5 FIX — el tipo Unidad define el campo desnormalizado como `casillaNombre`
   // (sin "Actual"). Antes se escribía `casillaActualNombre` que la UI de /unidades
   // no lee, resultando en "🇺🇸 -" en vez de "🇺🇸 Casa - Angie".
-  // S53.6 FIX — calcular ctruInicial/Dinamico/Contable/Gerencial + costosLandedPEN
-  // por cada unidad. Antes quedaba en 0/undefined porque se saltaba el flujo de
-  // recepción normal.
+  // S53.6 FIX — congelar componentesCosto[] por cada unidad (fuente única del CTRU).
+  // Antes quedaba sin costo porque se saltaba el flujo de recepción normal.
   const unidadesBatch = writeBatch(db);
   for (const uid of unidadIds) {
     // Resolver el costoUnitarioUSD del producto desde la OC (vía el productoId que
@@ -1563,11 +1561,10 @@ async function aplicarRecojoEnOrigen(
     if (tcCompra > 0) {
       const landedComps = landedComponentesPorUnidad.get(uid) || [];
       const componentes = construirComponentesUnidad({ costoUnitarioUSD, tcCompra }, landedComps, now);
-      const costosLandedPEN = sumarComponentesCosto(landedComps);
 
       updateData.componentesCosto = componentes;
-      if (costosLandedPEN > 0) updateData.costosLandedPEN = costosLandedPEN;
-      // Fase B3 · sin doble-escritura escalar (CTRU = componentesCosto[] · getCTRU prioridad 0).
+      // Limpieza 2026-07 · componentesCosto[] es la FUENTE ÚNICA del CTRU: no se
+      // escribe ningún escalar derivado (costosLandedPEN/ctru* eliminados del tipo).
     }
 
     unidadesBatch.update(doc(db, 'unidades', uid), updateData);

@@ -2,7 +2,6 @@ import { create } from 'zustand';
 import { collection, getDocs, query, where, doc, getDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { COLLECTIONS } from '../config/collections';
-import { ctruService } from '../services/ctru.service';
 import { categoriaCostoService } from '../services/categoriaCosto.service';
 import { esGastoDelBloque, esGastoDeVenta, esGastoDePeriodo, esGastoDistribucion, esGastoAdministrativo, type ArbolCategorias } from '../utils/gasto.bloque';
 import { envioCrudService } from '../services/envio.crud.service';
@@ -242,11 +241,6 @@ interface CTRUState {
   error: string | null;
 
   fetchAll: () => Promise<void>;
-  recalcularCTRU: () => Promise<{
-    unidadesActualizadas: number;
-    gastosAplicados: number;
-    impactoPorUnidad: number;
-  }>;
 }
 
 // ============================================
@@ -1130,21 +1124,7 @@ export const useCTRUStore = create<CTRUState>((set, get) => ({
     } finally {
       _fetchAllInProgress = false;
     }
-  },
-
-  recalcularCTRU: async () => {
-    _lastFetchAt = 0; // Force re-fetch after recalculation
-    try {
-      const resultado = await ctruService.recalcularCTRUDinamicoSafe();
-      await get().fetchAll();
-      if (!resultado) {
-        return { unidadesActualizadas: 0, gastosAplicados: 0, impactoPorUnidad: 0 };
-      }
-      return resultado;
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'Error desconocido';
-      set({ error: message });
-      throw error;
-    }
   }
+  // recalcularCTRU ELIMINADO (limpieza 2026-07): el CTRU no se recalcula — vive
+  // congelado en componentesCosto[] de cada unidad y se lee con getCTRU.
 }));

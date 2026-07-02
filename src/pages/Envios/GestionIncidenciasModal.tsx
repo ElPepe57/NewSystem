@@ -9,7 +9,7 @@
  *  - ADUANA: abre LiberarAduanaModal o permite descartar como pérdida
  *
  * Fixes incorporados (bugs pre-existentes del GestionDanadasModal):
- *  - DATA-001: el costo se lee del doc Unidad (ctruDinamico) vía fallback en el service
+ *  - DATA-001: el costo se lee del doc Unidad (getCTRU) vía fallback en el service
  *  - EDGE-002: procesarBajasLote usa Promise.allSettled
  *  - DATA-003/004/005: gasto generado via gastoService.create (categoría GV válida)
  */
@@ -195,7 +195,7 @@ export const GestionIncidenciasModal: React.FC<GestionIncidenciasModalProps> = (
           disposicion: decision.disposicion!,
           motivo: decision.motivo || 'Sin motivo adicional',
           responsable: decision.responsable,
-          costoUnidadPEN: 0,  // S40: el service usa ctruDinamico del doc Unidad como fallback
+          costoUnidadPEN: 0,  // S40: el service deriva el costo con getCTRU del doc Unidad
           costoUnidadUSD: 0,
           evidenciaURL: inc.evidenciaURL,
         };
@@ -280,7 +280,7 @@ export const GestionIncidenciasModal: React.FC<GestionIncidenciasModalProps> = (
           disposicion: 'baja_definitiva' as DisposicionDanada,
           motivo: 'Pérdida en tránsito — descartada sin reclamo',
           responsable: 'sin_responsable' as ResponsableDano,
-          costoUnidadPEN: 0,  // Service leerá ctruDinamico
+          costoUnidadPEN: 0,  // Service deriva el costo con getCTRU
           costoUnidadUSD: 0,
         };
       });

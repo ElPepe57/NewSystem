@@ -800,19 +800,8 @@ export const entregaService = {
         }
       }
 
-      // B8. Trigger CTRU recalc (fire-and-forget con lock)
-      import('./ctru.service').then(({ ctruService }) => {
-        ctruService.recalcularCTRUDinamicoSafe()
-          .then(result => {
-            if (result) {
-              logger.log(`[CTRU] Auto-recalculo post-entrega: ${result.unidadesActualizadas} unidades`);
-            }
-          })
-          .catch(error => {
-            logger.error('[CTRU] Error en auto-recalculo post-entrega:', error);
-            logBackgroundError('ctru.recalcPostEntrega', error, 'critical', { entregaId: entrega.id, entregaCodigo: entrega.codigo });
-          });
-      });
+      // B8 eliminado (limpieza 2026-07): sin trigger de recálculo CTRU post-entrega —
+      // el CTRU vive congelado en componentesCosto[] y la entrega no lo altera.
 
       // Registrar errores secundarios si hubo alguno
       if (secondaryErrors.length > 0) {

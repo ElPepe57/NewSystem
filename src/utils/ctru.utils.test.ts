@@ -76,23 +76,11 @@ describe('getTC', () => {
 });
 
 // ---------------------------------------------------------------------------
-// getCostoBasePEN
+// getCostoBasePEN · estimado pre-recepción (sin componentesCosto)
 // ---------------------------------------------------------------------------
 describe('getCostoBasePEN', () => {
-  it('usa ctruInicial cuando no hay flete y ctruInicial existe', () => {
-    const unidad = {
-      ctruInicial: 400,
-      costoUnitarioUSD: 100,
-      costoFleteUSD: 0,
-      tcPago: 3.80,
-      tcCompra: undefined as number | undefined,
-    };
-    expect(getCostoBasePEN(unidad)).toBe(400);
-  });
-
   it('calcula (costoUSD + flete) × TC cuando hay flete', () => {
     const unidad = {
-      ctruInicial: 300,     // valor obsoleto, pre-flete
       costoUnitarioUSD: 100,
       costoFleteUSD: 20,
       tcPago: 3.80,
@@ -102,9 +90,8 @@ describe('getCostoBasePEN', () => {
     expect(getCostoBasePEN(unidad)).toBeCloseTo(456);
   });
 
-  it('calcula costoUSD × TC cuando no hay flete ni ctruInicial', () => {
+  it('calcula costoUSD × TC cuando no hay flete', () => {
     const unidad = {
-      ctruInicial: undefined as number | undefined,
       costoUnitarioUSD: 100,
       costoFleteUSD: 0,
       tcPago: 3.80,
@@ -113,9 +100,20 @@ describe('getCostoBasePEN', () => {
     expect(getCostoBasePEN(unidad)).toBeCloseTo(380);
   });
 
+  it('suma costoRecojoPEN al estimado escalar', () => {
+    const unidad = {
+      costoUnitarioUSD: 100,
+      costoFleteUSD: 0,
+      tcPago: 3.80,
+      tcCompra: undefined as number | undefined,
+      costoRecojoPEN: 15,
+    };
+    // 100 × 3.80 + 15 = 395
+    expect(getCostoBasePEN(unidad)).toBeCloseTo(395);
+  });
+
   it('retorna 0 cuando no hay TC ni costo', () => {
     const unidad = {
-      ctruInicial: undefined as number | undefined,
       costoUnitarioUSD: 0,
       costoFleteUSD: 0,
       tcPago: undefined as number | undefined,
@@ -123,93 +121,47 @@ describe('getCostoBasePEN', () => {
     };
     expect(getCostoBasePEN(unidad)).toBe(0);
   });
-
-  it('ignora ctruInicial = 0 (tratado como ausente)', () => {
-    const unidad = {
-      ctruInicial: 0,
-      costoUnitarioUSD: 50,
-      costoFleteUSD: 0,
-      tcPago: 3.80,
-      tcCompra: undefined as number | undefined,
-    };
-    // ctruInicial es 0, cae al cálculo manual
-    expect(getCostoBasePEN(unidad)).toBeCloseTo(190);
-  });
 });
 
 // ---------------------------------------------------------------------------
-// getCTRU
+// getCTRU · contrato limpio (2026-07): componentes congelados o estimado
 // ---------------------------------------------------------------------------
 describe('getCTRU', () => {
-  it('prefiere ctruInicial sobre ctruDinamico (ctruInicial es el limpio)', () => {
+  it('CONTRATO: unidad NO recibida (solo costoUnitarioUSD + tcCompra) → estimado = USD × TC', () => {
     const unidad = {
-      ctruDinamico: 450,
-      ctruInicial: 400,
       costoUnitarioUSD: 100,
-      costoFleteUSD: 0,
-      tcPago: 3.80,
-      tcCompra: undefined as number | undefined,
+      costoFleteUSD: undefined as number | undefined,
+      tcPago: undefined as number | undefined,
+      tcCompra: 3.70,
+      componentesCosto: undefined,
     };
-    // Acuerdo 3: ctruInicial (sin GA/GO) tiene prioridad sobre ctruDinamico legacy
-    expect(getCTRU(unidad)).toBe(400);
+    // Pedida/en tránsito: sin componentes congelados → 100 × 3.70 = 370
+    expect(getCTRU(unidad)).toBeCloseTo(370);
   });
 
-  it('retorna ctruInicial cuando ctruDinamico es 0 o undefined, sin flete', () => {
+  it('sin componentes y con flete: estimado = (producto + flete) × TC', () => {
     const unidad = {
-      ctruDinamico: 0,
-      ctruInicial: 400,
-      costoUnitarioUSD: 100,
-      costoFleteUSD: 0,
-      tcPago: 3.80,
-      tcCompra: undefined as number | undefined,
-    };
-    expect(getCTRU(unidad)).toBe(400);
-  });
-
-  it('calcula fallback manual cuando no hay ctruDinamico ni ctruInicial, sin flete', () => {
-    const unidad = {
-      ctruDinamico: 0,
-      ctruInicial: 0,
-      costoUnitarioUSD: 100,
-      costoFleteUSD: 0,
-      tcPago: 3.80,
-      tcCompra: undefined as number | undefined,
-    };
-    // 100 × 3.80 = 380
-    expect(getCTRU(unidad)).toBeCloseTo(380);
-  });
-
-  it('con flete: CTRU = costoBase, ignora ctruDinamico legacy (Acuerdo 3)', () => {
-    const unidad = {
-      ctruDinamico: 500,
-      ctruInicial: 400,
       costoUnitarioUSD: 100,
       costoFleteUSD: 20,
       tcPago: 3.80,
       tcCompra: undefined as number | undefined,
     };
-    // Reingeniería: con flete, CTRU = costoBase = (100 + 20) × 3.80 = 456.
-    // GA/GO NO toca el CTRU; el ctruDinamico legacy se ignora.
+    // (100 + 20) × 3.80 = 456
     expect(getCTRU(unidad)).toBeCloseTo(456);
   });
 
-  it('con flete y sin ctruDinamico: retorna costoBase', () => {
+  it('prefiere tcPago sobre tcCompra en el estimado', () => {
     const unidad = {
-      ctruDinamico: 0,
-      ctruInicial: 0,
       costoUnitarioUSD: 100,
-      costoFleteUSD: 20,
-      tcPago: 3.80,
-      tcCompra: undefined as number | undefined,
+      costoFleteUSD: 0,
+      tcPago: 3.85,
+      tcCompra: 3.70,
     };
-    // costoBase = (100 + 20) × 3.80 = 456
-    expect(getCTRU(unidad)).toBeCloseTo(456);
+    expect(getCTRU(unidad)).toBeCloseTo(385);
   });
 
   it('retorna 0 cuando no hay datos y no hay TC', () => {
     const unidad = {
-      ctruDinamico: 0,
-      ctruInicial: 0,
       costoUnitarioUSD: 0,
       costoFleteUSD: 0,
       tcPago: undefined as number | undefined,
@@ -277,15 +229,12 @@ describe('getCTRU · componentesCosto (modelo adaptativo)', () => {
     { categoria: 'recojo', concepto: 'Recojo etapa 2', montoPEN: 10, fuente: 'recepcion', ambito: 'etapa', recepcionId: 'REC-2' },
   ];
 
-  it('getCTRU suma los componentes y IGNORA los escalares legacy (Prioridad-0)', () => {
+  it('getCTRU suma los componentes e IGNORA los inputs escalares (congelado manda)', () => {
     const unidad = {
       componentesCosto: componentes,
-      // escalares presentes pero que NO deben influir cuando hay componentes
-      ctruInicial: 999,
-      ctruDinamico: 999,
+      // inputs escalares presentes pero que NO deben influir cuando hay componentes
       costoUnitarioUSD: 500,
       costoFleteUSD: 50,
-      costosLandedPEN: 300,
       tcPago: 3.8,
       tcCompra: undefined as number | undefined,
     };
@@ -295,7 +244,6 @@ describe('getCTRU · componentesCosto (modelo adaptativo)', () => {
   it('INVARIANTE DE PARIDAD: getCTRU === getCostoBasePEN cuando hay componentes', () => {
     const unidad = {
       componentesCosto: componentes,
-      ctruInicial: 0,
       costoUnitarioUSD: 0,
       costoFleteUSD: 0,
       tcPago: 3.8,
@@ -319,17 +267,15 @@ describe('getCTRU · componentesCosto (modelo adaptativo)', () => {
     expect(getCTRU(unidad)).toBeCloseTo(150); // 178 - 28
   });
 
-  it('lista VACÍA cae al fallback de escalares (no rompe unidades legacy)', () => {
+  it('lista VACÍA cae al estimado base por escalares (pre-recepción)', () => {
     const unidad = {
       componentesCosto: [] as ComponenteCostoUnidad[],
-      ctruDinamico: 0,
-      ctruInicial: 400,
       costoUnitarioUSD: 100,
       costoFleteUSD: 0,
       tcPago: 3.8,
       tcCompra: undefined as number | undefined,
     };
-    expect(getCTRU(unidad)).toBe(400); // usa ctruInicial (fallback legacy)
+    expect(getCTRU(unidad)).toBeCloseTo(380); // estimado = 100 × 3.8
   });
 
   it('getCTRU_Real revalúa al TCPA solo los componentes nacidos en USD', () => {

@@ -6,7 +6,6 @@ import { getReservaPara } from './reserva.helper';
 import { logger } from '../lib/logger';
 import { COLLECTIONS } from '../config/collections';
 import { envioCrudService } from './envio.crud.service';
-import { sumarComponentesCosto } from '../utils/ctru.utils';
 import { type ProductoInfo } from '../utils/prorrateoLanded';
 import {
   buildUnidadesPorTanda,
@@ -218,12 +217,10 @@ export const envioRecepcionService = {
               }]
             : landedComps;
           const componentes = construirComponentesUnidad(unidadData, compsLandedEtapa, now);
-          const costosLandedPEN = sumarComponentesCosto(compsLandedEtapa);
 
           updateData.componentesCosto = componentes;
-          if (costosLandedPEN > 0) updateData.costosLandedPEN = costosLandedPEN;
-          // Fase B3 · sin doble-escritura escalar: el CTRU vive en componentesCosto[] (getCTRU
-          // prioridad 0). Los escalares ctru* quedan solo como fallback para unidades legacy.
+          // Limpieza 2026-07 · componentesCosto[] es la FUENTE ÚNICA del CTRU: no se
+          // escribe ningún escalar derivado (costosLandedPEN/ctru* eliminados del tipo).
 
           // Fecha de vencimiento
           if (ur.fechaVencimiento) {

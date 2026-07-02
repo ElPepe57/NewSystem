@@ -1597,8 +1597,8 @@ export const envioCrudService = {
   /**
    * Actualiza el flete de un envio.
    * Distribuye el costo de flete entre las unidades por producto.
-   * Si el envio ya fue recibido, propaga el costoFleteUSD a las unidades
-   * individuales en Firestore y recalcula su ctruInicial.
+   * Si el envio ya fue recibido, materializa el flete como ComponenteCostoUnidad
+   * (append-only · idempotente) en las unidades congeladas.
    */
   async actualizarFleteEnvio(
     envioId: string,
@@ -1646,15 +1646,14 @@ export const envioCrudService = {
 
     // Si el envio ya fue recibido, propagar flete a las unidades CONGELADAS en Firestore.
     // Cambio 5 (2026-06-17): el flete tardío es otro write-path de costo post-congelación.
-    // ANTES escribía SOLO los escalares ctruInicial/ctruDinamico, que getCTRU (prioridad 0)
-    // IGNORA cuando la unidad tiene componentesCosto[] → fuga de costo idéntica a la del
-    // landed tardío. AHORA materializa un ComponenteCostoUnidad categoria='flete' por
-    // backfill APPEND-ONLY + IDEMPOTENTE. La llave de idempotencia es estable por envío
-    // (`FLETE-ENVIO-{envioId}`) → si el usuario re-edita el flete, la unidad YA congelada
-    // NO se reescribe (lo congelado es sagrado · el primer flete materializado manda; un
-    // cambio de monto exige reabrir/auditar, no mutar el componente). Incluye 'danada'
-    // (antes solo 'recibida'). Las unidades legacy SIN componentesCosto[] mantienen el
-    // fallback escalar (backward-compat).
+    // Materializa un ComponenteCostoUnidad categoria='flete' por backfill APPEND-ONLY +
+    // IDEMPOTENTE. La llave de idempotencia es estable por envío (`FLETE-ENVIO-{envioId}`)
+    // → si el usuario re-edita el flete, la unidad YA congelada NO se reescribe (lo
+    // congelado es sagrado · el primer flete materializado manda; un cambio de monto exige
+    // reabrir/auditar, no mutar el componente). Incluye 'danada' (antes solo 'recibida').
+    // Limpieza 2026-07: si la unidad (excepcionalmente) no tiene componentesCosto[], solo
+    // se escribe el INPUT costoFleteUSD — los escalares derivados ctruInicial/ctruDinamico
+    // fueron eliminados (getCTRU estima (producto+flete)×TC para unidades no congeladas).
     const yaRecibida = envio.estado === 'recibida_completa' || envio.estado === 'recibida_parcial';
     if (yaRecibida) {
       const fleteLandedId = `FLETE-ENVIO-${envioId}`;
@@ -1696,13 +1695,11 @@ export const envioCrudService = {
             fechaActualizacion: Timestamp.now(),
           });
         } else {
-          // LEGACY (sin componentesCosto[]): fallback escalar como antes.
-          const costoBasePEN = (unidadData.costoUnitarioUSD || 0) * tc;
-          const nuevoCtruInicial = costoBasePEN + costoFletePEN;
+          // Sin componentesCosto[] (unidad aún no congelada): solo se persiste el INPUT
+          // costoFleteUSD — getCTRU la estima como (producto+flete)×TC (limpieza 2026-07:
+          // ya no se escriben los escalares derivados ctruInicial/ctruDinamico).
           const updateData: Record<string, unknown> = {
             costoFleteUSD: unidad.costoFleteUSD,
-            ctruInicial: nuevoCtruInicial,
-            ctruDinamico: nuevoCtruInicial,   // GA/GO ya no tocan el CTRU (Acuerdo 3)
             actualizadoPor: userId,
             fechaActualizacion: Timestamp.now(),
           };
@@ -1718,14 +1715,6 @@ export const envioCrudService = {
       }
 
       if (batchCount > 0) await batch.commit();
-
-      // Trigger recalculo CTRU dinamico si aplica (solo afecta a unidades legacy por escalares).
-      try {
-        const ctruService = await import('./ctru.service');
-        await ctruService.ctruService.recalcularCTRUDinamicoSafe();
-      } catch (e) {
-        logger.warn('No se pudo recalcular CTRU tras actualizar flete:', e);
-      }
     }
 
     logger.success(`Flete actualizado para envio ${envio.numeroEnvio}: $${costoFleteTotal.toFixed(2)}`);

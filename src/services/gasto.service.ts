@@ -23,7 +23,6 @@ import type {
   GastoStats,
   PagoGasto
 } from '../types/gasto.types';
-import { ctruService } from './ctru.service';
 import { categoriaCostoService } from './categoriaCosto.service';
 import { esGastoDePeriodo, resolverCategoriaCostoIdParaTipo, type ArbolCategorias } from '../utils/gasto.bloque';
 import { tesoreriaService } from './tesoreria.service';
@@ -34,7 +33,6 @@ import { actividadService } from './actividad.service';
 import { notificarCambioContable } from './contabilidadCache';
 import { COLLECTIONS } from '../config/collections';
 import { getNextSequenceNumber } from '../lib/sequenceGenerator';
-import { logBackgroundError } from '../lib/logger';
 import { logger } from '../lib/logger';
 import { requiereAutorizacionSocio, type ResultadoAutorizacionCF } from './autorizacionEgreso.helper';
 import { userService } from './user.service';
@@ -242,24 +240,9 @@ export const gastoService = {
         // Registrarlo aquí causaba DOBLE REGISTRO en Pool USD.
       }
 
-      // Auto-recálculo de CTRU cuando se crea un gasto del bloque 'periodo' prorrateable
-      // (chk5.A6 · canon · esGastoDePeriodo resuelve categoriaCostoId o fallback a categoria legacy)
-      // Se ejecuta en background (no bloquea la creación del gasto)
-      const arbolBloqueCheck = await categoriaCostoService.getArbol().catch(() => null) as ArbolCategorias | null;
-      if (data.esProrrateable && esGastoDePeriodo(data, arbolBloqueCheck)) {
-        ctruService.recalcularCTRUDinamicoSafe()
-          .then(result => {
-            if (result) {
-              logger.log(`[CTRU] Auto-recálculo completado: ${result.unidadesActualizadas} unidades actualizadas, ${result.gastosAplicados} gastos aplicados`);
-            } else {
-              logger.log('[CTRU] Auto-recálculo encolado (otro en ejecución)');
-            }
-          })
-          .catch(error => {
-            logger.error('[CTRU] Error en auto-recálculo (no bloqueante):', error);
-            logBackgroundError('ctru.recalcPostGasto', error, 'critical', { gastoTipo: data.tipo, gastoCategoriaCostoId: data.categoriaCostoId, esProrrateable: data.esProrrateable });
-          });
-      }
+      // Los gastos YA no tocan el CTRU (Acuerdo 3 · limpieza 2026-07): el antiguo
+      // trigger recalcularCTRUDinamico post-gasto fue eliminado — el CTRU vive
+      // congelado en componentesCosto[] de cada unidad.
 
       // Broadcast actividad (fire-and-forget)
       actividadService.registrar({

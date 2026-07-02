@@ -248,8 +248,8 @@ export const ReclamoPanel: React.FC<ReclamoPanelProps> = ({
   // Estrategia (en orden de preferencia):
   //   1. `incidencia.montoReclamoPEN` — si ya fue calculado en el flujo de
   //      Dañadas (bajaInventarioService lo escribe al procesar devolucion).
-  //   2. Sumar `Unidad.ctruDinamico` (preferido) o `ctruInicial` (fallback)
-  //      de las unidades afectadas, fetch directo a Firestore.
+  //   2. Sumar `getCTRU(unidad)` (componentesCosto congelados o estimado
+  //      (producto+flete)×TC) de las unidades afectadas, fetch directo a Firestore.
   //
   // Solo se auto-carga mientras el usuario NO haya tipeado manualmente.
   // Una vez que toca el campo, queda libre.
@@ -308,8 +308,7 @@ export const ReclamoPanel: React.FC<ReclamoPanelProps> = ({
         const sumFromUnidades = snaps.reduce((s, snap) => {
           if (!snap.exists()) return s;
           const u = snap.data() as Unidad;
-          // CTRU vivo en PEN (getCTRU · 3-cajas) en vez del escalar crudo, que
-          // podía arrastrar GA/GO legacy en ctruDinamico.
+          // CTRU vivo en PEN (getCTRU · componentesCosto congelados o estimado).
           return s + getCTRU(u);
         }, 0);
 

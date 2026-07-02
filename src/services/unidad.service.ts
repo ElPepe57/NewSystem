@@ -16,7 +16,6 @@ import { db } from '../lib/firebase';
 import { COLLECTIONS } from '../config/collections';
 import { auditoriaService } from './auditoria.service';
 import { inventarioService } from './inventario.service';
-import { tipoCambioService } from './tipoCambio.service';
 import type {
   Unidad,
   UnidadFormData,
@@ -34,7 +33,6 @@ import { ESTADOS_EN_ORIGEN } from '../types/unidad.types';
 import { calcularVigenciaReservaMs, getReservaPara, resolverEstadoLiberacion } from './reserva.helper';
 import { TIPOS_ENVIO_INTERNACIONAL as TIPOS_TRANSFERENCIA_INTERNACIONAL } from '../types/envio.types';
 import { esEstadoEnOrigen, esEstadoEnTransitoOrigen, esPaisOrigen } from '../utils/multiOrigen.helpers';
-import { logBackgroundError } from '../lib/logger';
 import { logger } from '../lib/logger';
 
 const COLLECTION_NAME = COLLECTIONS.UNIDADES;
@@ -847,23 +845,8 @@ export const unidadService = {
       }
     }
 
-    // Trigger redistribución GA/GO post-venta (fire-and-forget, no bloqueante)
-    if (exitos > 0) {
-      import('./ctru.service').then(({ ctruService }) => {
-        ctruService.recalcularCTRUDinamicoSafe()
-          .then(result => {
-            if (result) {
-              logger.log(`[CTRU] Auto-recalculo post-venta: ${result.unidadesActualizadas} vendidas actualizadas`);
-            } else {
-              logger.log('[CTRU] Auto-recalculo post-venta encolado (otro en ejecución)');
-            }
-          })
-          .catch(error => {
-            logger.error('[CTRU] Error en auto-recalculo post-venta (no bloqueante):', error);
-            logBackgroundError('ctru.recalcPostVenta', error, 'critical', { unidadIds, exitos });
-          });
-      });
-    }
+    // Limpieza 2026-07: sin trigger de recálculo CTRU post-venta — el CTRU vive
+    // congelado en componentesCosto[] de cada unidad y la venta no lo altera.
 
     return { exitos, errores };
   },
@@ -931,95 +914,8 @@ export const unidadService = {
     return { exitos, errores };
   },
 
-  /**
-   * Obtiene diagnóstico de costos para una unidad específica
-   * Útil para debugging de discrepancias
-   */
-  async getDiagnosticoCostos(unidadId: string): Promise<{
-    unidad: Unidad | null;
-    costoUnitarioUSD: number;
-    costoFleteUSD: number;
-    tcCompra: number | null;
-    tcPago: number | null;
-    ctruDinamico: number | null;
-    transferencia: {
-      numero: string;
-      costoFleteRegistrado: number;
-    } | null;
-    ctruCalculado: {
-      sinFlete: number;
-      conFlete: number;
-      tc: number;
-    };
-  }> {
-    const unidad = await this.getById(unidadId);
-    if (!unidad) {
-      return {
-        unidad: null,
-        costoUnitarioUSD: 0,
-        costoFleteUSD: 0,
-        tcCompra: null,
-        tcPago: null,
-        ctruDinamico: null,
-        transferencia: null,
-        ctruCalculado: { sinFlete: 0, conFlete: 0, tc: 0 }
-      };
-    }
-
-    const unidadExtendida = unidad as any;
-
-    // Buscar transferencia que trajo esta unidad
-    let transferenciaInfo: { numero: string; costoFleteRegistrado: number } | null = null;
-    try {
-      const transferenciasSnapshot = await getDocs(
-        query(
-          collection(db, COLLECTIONS.TRANSFERENCIAS),
-          where('tipo', 'in', TIPOS_TRANSFERENCIA_INTERNACIONAL)
-        )
-      );
-
-      for (const docSnap of transferenciasSnapshot.docs) {
-        const transferencia = docSnap.data();
-        if (transferencia.unidades) {
-          const unidadEnTransf = transferencia.unidades.find(
-            (u: any) => u.unidadId === unidadId
-          );
-          if (unidadEnTransf) {
-            transferenciaInfo = {
-              numero: transferencia.numeroTransferencia,
-              costoFleteRegistrado: unidadEnTransf.costoFleteUSD || 0
-            };
-            break;
-          }
-        }
-      }
-    } catch (e) {
-      logger.error('Error buscando transferencia:', e);
-    }
-
-    // Calcular CTRU con diferentes escenarios
-    // Preferir TC histórico de la unidad; si no existe, usar TC centralizado
-    let tc = unidadExtendida.tcPago || unidadExtendida.tcCompra || 0;
-    if (!tc) {
-      tc = await tipoCambioService.resolverTCVenta();
-    }
-    const costoFleteUSD = unidadExtendida.costoFleteUSD || 0;
-
-    return {
-      unidad,
-      costoUnitarioUSD: unidad.costoUnitarioUSD,
-      costoFleteUSD,
-      tcCompra: unidadExtendida.tcCompra || null,
-      tcPago: unidadExtendida.tcPago || null,
-      ctruDinamico: unidadExtendida.ctruDinamico || null,
-      transferencia: transferenciaInfo,
-      ctruCalculado: {
-        sinFlete: unidad.costoUnitarioUSD * tc,
-        conFlete: (unidad.costoUnitarioUSD + costoFleteUSD) * tc,
-        tc
-      }
-    };
-  },
+  // getDiagnosticoCostos ELIMINADO (limpieza 2026-07): método muerto (0 consumidores)
+  // que leía el escalar ctruDinamico eliminado. El costo se lee con getCTRU.
 
   /**
    * Actualizar fechas de vencimiento de múltiples unidades (por lote)

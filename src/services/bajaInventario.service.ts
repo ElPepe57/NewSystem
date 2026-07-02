@@ -5,6 +5,7 @@ import { COLLECTIONS } from '../config/collections';
 import { gastoService } from './gasto.service';
 import { categoriaCostoService } from './categoriaCosto.service';
 import { resolverCategoriaCostoIdParaTipo, type ArbolCategorias } from '../utils/gasto.bloque';
+import { getCTRU } from '../utils/ctru.utils';
 import type { DisposicionDanada, ResponsableDano, IncidenciaEnvio } from '../types/envio.types';
 import type { EstadoUnidad, DisposicionVencida, Unidad } from '../types/unidad.types';
 import type { TipoGasto } from '../types/gasto.types';
@@ -22,7 +23,7 @@ export interface BajaDanoData {
   disposicion: DisposicionDanada;
   motivo: string;
   responsable: ResponsableDano;
-  costoUnidadPEN: number;  // ctruInicial o costoBase de la unidad
+  costoUnidadPEN: number;  // getCTRU de la unidad (componentesCosto o estimado)
   costoUnidadUSD?: number;
   evidenciaURL?: string;
 }
@@ -51,7 +52,7 @@ export const bajaInventarioService = {
    * - Si disposición = devolucion_proveedor → reclamoGenerado=true (el caller abre ReclamoPanel)
    *
    * S40 Bloque C — fixes:
-   *  - DATA-001: si `costoUnidadPEN` viene 0/undefined, lee `ctruDinamico` del doc Unidad.
+   *  - DATA-001: si `costoUnidadPEN` viene 0/undefined, deriva el costo con `getCTRU` del doc Unidad.
    *  - DATA-003/004/005: usa `gastoService.create` (categoría GV válida), no addDoc directo.
    */
   async registrarBajaPorDano(
@@ -122,9 +123,6 @@ export const bajaInventarioService = {
       }
 
       const costoFleteUSD = envioUnidad?.costoFleteUSD || 0;
-      const ctruInicial = tcCompra > 0
-        ? (costoProductoUSD + costoFleteUSD) * tcCompra
-        : 0;
 
       const unidadMinima: Partial<Unidad> & { id: string } = {
         id: data.unidadId,
@@ -137,13 +135,12 @@ export const bajaInventarioService = {
         casillaNombre: envioData.destinoCasillaNombre || envioData.nombreAlmacenDestino || '',
         pais: envioData.destinoCasillaPais || 'Peru',
         estado: 'danada',
+        // Solo INPUTS de costo — getCTRU deriva (producto+flete)×TC como estimado
+        // mientras la unidad no tenga componentesCosto[] congelados (limpieza 2026-07:
+        // sin escalares derivados ctru*).
         costoUnitarioUSD: costoProductoUSD,
         costoFleteUSD,
         tcCompra,
-        ctruInicial,
-        ctruDinamico: ctruInicial,
-        ctruContable: ctruInicial,
-        ctruGerencial: ctruInicial,
         ordenCompraId: envioData.ordenCompraId || '',
         ordenCompraNumero: envioData.ordenCompraNumero || '',
         fechaRecepcion: now,
@@ -168,10 +165,11 @@ export const bajaInventarioService = {
 
     unidadDoc = unidadSnap.data() as Unidad;
 
-    // Costo efectivo: prefiere el que pasa el caller; si viene 0 usa ctruDinamico del doc.
+    // Costo efectivo: prefiere el que pasa el caller; si viene 0 lo deriva getCTRU
+    // del doc (componentesCosto congelados o estimado (producto+flete)×TC).
     const costoEfectivoPEN = (data.costoUnidadPEN && data.costoUnidadPEN > 0)
       ? data.costoUnidadPEN
-      : (unidadDoc.ctruDinamico || unidadDoc.ctruInicial || 0);
+      : getCTRU(unidadDoc);
 
     // 1. Determinar nuevo estado según disposición
     switch (data.disposicion) {
@@ -201,7 +199,7 @@ export const bajaInventarioService = {
     if (data.disposicion === 'baja_definitiva' ||
         (data.disposicion === 'devolucion_proveedor' && data.responsable === 'sin_responsable')) {
       if (costoEfectivoPEN <= 0) {
-        logger.warn(`Baja unidad ${data.sku}: costo 0, gasto NO generado. Revisar ctruDinamico de la unidad.`);
+        logger.warn(`Baja unidad ${data.sku}: costo 0, gasto NO generado. Revisar costos de la unidad (componentesCosto / costoUnitarioUSD+TC).`);
       } else {
         try {
           const tipoGasto: TipoGasto = 'merma_transferencia';

@@ -21,7 +21,6 @@ import { useBandejaSignal } from '../../store/bandejaSignalStore';
 import { useGastoStore } from '../../store/gastoStore';
 import { useAuthStore } from '../../store/authStore';
 import { hasRole, getUserRoles } from '../../types/auth.types';
-import { ctruService } from '../../services/ctru.service';
 import { GastoForm } from './GastoForm';
 import { PagoUnificadoForm } from '../../components/modules/pagos/PagoUnificadoForm';
 import type { PagoUnificadoResult } from '../../components/modules/pagos/PagoUnificadoForm';
@@ -567,32 +566,8 @@ export const Gastos: React.FC = () => {
   // (solo los usaba el `gastosColumns` legacy también eliminado).
 
 
-  const handleRecalcularCTRU = async () => {
-    const confirmed = await confirm({
-      title: 'Recalcular CTRU Dinamico',
-      message: '¿Desea recalcular el CTRU dinamico con los gastos pendientes? Esto actualizara el costo de todas las unidades disponibles.',
-      confirmText: 'Recalcular',
-      variant: 'warning'
-    });
-    if (!confirmed) return;
-
-    try {
-      const resultado = await ctruService.recalcularCTRUDinamicoSafe();
-      if (resultado) {
-        toast.success(
-          `${resultado.unidadesActualizadas} unidades actualizadas, ${resultado.gastosAplicados} gastos aplicados. Impacto: ${formatCurrency(resultado.impactoPorUnidad)}/unidad`,
-          'CTRU Recalculado'
-        );
-      } else {
-        toast.info('Recálculo CTRU encolado (otro en ejecución)', 'CTRU');
-      }
-
-      await reloadCurrentView();
-      await fetchStats();
-    } catch (error: any) {
-      toast.error(error.message, 'Error al recalcular CTRU');
-    }
-  };
+  // handleRecalcularCTRU ELIMINADO (limpieza 2026-07): los gastos ya no tocan el
+  // CTRU (Acuerdo 3) — el CTRU vive congelado en componentesCosto[] de cada unidad.
 
   const handleEliminarGasto = async (gasto: Gasto) => {
     const confirmed = await confirm({
