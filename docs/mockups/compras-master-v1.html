@@ -191,7 +191,7 @@
         </div>
         <!-- §B pipeline -->
         <div class="bg-white border border-slate-200 rounded-xl p-4">
-          <div class="flex items-center justify-between mb-3"><span class="stcap text-slate-500">Pipeline de abastecimiento</span><span class="text-[11px] text-slate-400">18 OCs</span></div>
+          <div class="flex items-center justify-between mb-3"><span class="stcap text-slate-500">Flujo de abastecimiento</span><span class="text-[11px] text-slate-400">18 OCs</span></div>
           <div class="grid grid-cols-4 gap-2 text-center">
             <div class="rounded-lg bg-slate-50 border border-slate-200 p-2"><div class="text-xl font-bold tabular-nums text-slate-700">3</div><div class="text-[10px] text-slate-500">Borrador</div></div>
             <div class="rounded-lg bg-blue-50 border border-blue-200 p-2"><div class="text-xl font-bold tabular-nums text-blue-700">6</div><div class="text-[10px] text-blue-600">Confirmadas</div></div>
@@ -274,24 +274,14 @@
   <div class="flex items-center gap-3">
     <span class="w-8 h-8 rounded-lg bg-blue-600 text-white text-[13px] font-bold flex items-center justify-center flex-shrink-0">3</span>
     <div>
-      <div class="text-[17px] font-bold text-slate-900">Tab Órdenes · listado + pipeline <span class="badge bg-emerald-50 text-emerald-700 border border-emerald-200 ml-1"><i data-lucide="check-circle-2" class="w-2.5 h-2.5"></i> Construido</span></div>
-      <div class="text-[12px] text-slate-500">Toggle Lista/Pipeline · FiltrosBar componible · BulkActionsToolbar · CompraCard con sub-órdenes anidadas · acciones contextuales por estado</div>
+      <div class="text-[17px] font-bold text-slate-900">Tab Órdenes · listado <span class="badge bg-emerald-50 text-emerald-700 border border-emerald-200 ml-1"><i data-lucide="check-circle-2" class="w-2.5 h-2.5"></i> Construido</span></div>
+      <div class="text-[12px] text-slate-500">FiltrosBar componible · BulkActionsToolbar · CompraCard con sub-órdenes anidadas · acciones contextuales por estado</div>
     </div>
   </div>
   <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 frame">
 
     <!-- (1) TOOLBAR -->
     <div class="flex flex-col lg:flex-row lg:items-center gap-3 mb-4">
-      <!-- toggle Lista/Pipeline (segmented) -->
-      <div class="inline-flex items-center bg-slate-100 rounded-lg p-0.5 flex-shrink-0">
-        <button class="flex items-center gap-1.5 bg-white text-blue-700 text-[12px] font-semibold px-3 py-1.5 rounded-md shadow-sm">
-          <i data-lucide="list" class="w-3.5 h-3.5"></i> Lista
-        </button>
-        <button class="flex items-center gap-1.5 text-slate-500 text-[12px] font-semibold px-3 py-1.5 rounded-md">
-          <i data-lucide="git-branch" class="w-3.5 h-3.5"></i> Pipeline
-        </button>
-      </div>
-
       <!-- FiltrosBar: buscador -->
       <div class="relative flex-1 min-w-0">
         <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
@@ -314,7 +304,7 @@
         <i data-lucide="wallet" class="w-3.5 h-3.5"></i> Pago: Pendiente <i data-lucide="x" class="w-3 h-3"></i>
       </button>
       <button class="flex items-center gap-1.5 bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 text-[12px] font-medium px-2.5 py-1.5 rounded-lg whitespace-nowrap flex-shrink-0">
-        <i data-lucide="git-branch" class="w-3.5 h-3.5 text-slate-400"></i> Estado pipeline <i data-lucide="chevron-down" class="w-3 h-3 text-slate-400"></i>
+        <i data-lucide="git-branch" class="w-3.5 h-3.5 text-slate-400"></i> Estado <i data-lucide="chevron-down" class="w-3 h-3 text-slate-400"></i>
       </button>
       <button class="flex items-center gap-1.5 bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 text-[12px] font-medium px-2.5 py-1.5 rounded-lg whitespace-nowrap flex-shrink-0">
         <i data-lucide="calendar" class="w-3.5 h-3.5 text-slate-400"></i> Últimos 90 días <i data-lucide="chevron-down" class="w-3 h-3 text-slate-400"></i>
@@ -1781,9 +1771,12 @@
                 <div class="text-[13px] font-bold text-sky-900">Mercadería en tránsito · recepción parcial pendiente</div>
                 <div class="text-[12px] text-sky-700 mt-0.5">1 de 2 sub-órdenes recepcionada. La sub-orden B (220 uds) llega estimado 05 jul. Próximo paso operativo:</div>
               </div>
-              <button class="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[12px] font-semibold px-3.5 py-2 rounded-lg shadow-sm flex-shrink-0 self-center">
-                <i data-lucide="package-check" class="w-4 h-4"></i> Registrar recepción
-              </button>
+              <div class="flex flex-col items-end gap-1 flex-shrink-0 self-center">
+                <span class="flex items-center gap-1.5 bg-blue-50 text-blue-700 border border-blue-200 text-[11px] font-semibold px-3 py-1.5 rounded-full whitespace-nowrap">
+                  <i data-lucide="truck" class="w-3.5 h-3.5"></i> Recepción vía envío EN-1180
+                </span>
+                <span class="text-[11px] tabular-nums font-semibold text-sky-700">420/640 uds · 220 faltan</span>
+              </div>
             </div>
           </div>
         </div>
@@ -1863,11 +1856,11 @@
         <div>
           <span class="stcap text-slate-500">§D · Acciones rápidas · según estado «En tránsito»</span>
           <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-2">
-            <button class="bg-white border border-slate-200 rounded-lg p-3 hover:border-sky-300 hover:bg-sky-50/30 text-left transition-colors">
-              <i data-lucide="package-check" class="w-4 h-4 text-sky-600 mb-1.5"></i>
-              <div class="text-[11px] font-bold text-slate-900">Registrar recepción</div>
-              <div class="text-[10px] text-slate-500">sub-orden B · 220 uds</div>
-            </button>
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 text-left">
+              <i data-lucide="truck" class="w-4 h-4 text-blue-700 mb-1.5"></i>
+              <div class="text-[11px] font-bold text-blue-700">Recepción vía envío EN-1180</div>
+              <div class="text-[10px] text-blue-600 tabular-nums">sub-orden B · 0/220 uds</div>
+            </div>
             <button class="bg-white border border-slate-200 rounded-lg p-3 hover:border-emerald-300 hover:bg-emerald-50/30 text-left transition-colors">
               <i data-lucide="wallet" class="w-4 h-4 text-emerald-600 mb-1.5"></i>
               <div class="text-[11px] font-bold text-slate-900">Registrar pago</div>
@@ -1953,7 +1946,7 @@
                 <th class="text-right px-4 py-2.5">Cant</th>
                 <th class="text-right px-4 py-2.5">Precio USD</th>
                 <th class="text-right px-4 py-2.5">Total USD</th>
-                <th class="text-right px-4 py-2.5">CTRU S/</th>
+                <th class="text-right px-4 py-2.5">CTRU S/<span class="block text-[10px] text-slate-400 font-medium normal-case tracking-normal">congelado al recibir · estimado antes</span></th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
@@ -2646,28 +2639,89 @@
             <span class="badge bg-amber-50 text-amber-700 border border-amber-200 ml-auto"><i data-lucide="calculator" class="w-2.5 h-2.5"></i> Prorrateo</span>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div class="space-y-1.5">
-              <span class="stcap text-slate-500 text-[10px] font-bold uppercase tracking-wider">Flete internacional</span>
-              <div class="flex items-center gap-2 bg-white border border-slate-200 rounded-lg px-3 py-2">
-                <span class="text-slate-400 text-[13px]">$</span>
-                <input class="flex-1 bg-transparent text-[13px] text-slate-900 outline-none tabular-nums" value="185.00" />
-              </div>
+          <!-- Cargos · filas dinámicas (DynamicChargesSection kind="cargo") -->
+          <div class="space-y-2">
+            <div class="flex items-center gap-2">
+              <span class="badge bg-sky-50 text-sky-700 border border-sky-200">Cargo</span>
+              <span class="stcap text-slate-500 text-[10px] font-bold uppercase tracking-wider">Cargos · se suman</span>
+              <span class="text-[11px] tabular-nums font-semibold text-slate-700 ml-auto">+$227.00</span>
             </div>
-            <div class="space-y-1.5">
-              <span class="stcap text-slate-500 text-[10px] font-bold uppercase tracking-wider">Handling casilla</span>
-              <div class="flex items-center gap-2 bg-white border border-slate-200 rounded-lg px-3 py-2">
-                <span class="text-slate-400 text-[13px]">$</span>
-                <input class="flex-1 bg-transparent text-[13px] text-slate-900 outline-none tabular-nums" value="42.00" />
+            <div class="flex items-start gap-2">
+              <div class="flex-1 min-w-0">
+                <input class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-[12px] text-slate-900" value="Shipping internacional" />
+                <div class="text-[10px] text-slate-400 mt-0.5 pl-1">prorrateo por peso</div>
               </div>
-            </div>
-            <div class="space-y-1.5">
-              <span class="stcap text-slate-500 text-[10px] font-bold uppercase tracking-wider">Impuestos / aduana</span>
-              <div class="flex items-center gap-2 bg-white border border-slate-200 rounded-lg px-3 py-2">
-                <span class="text-slate-400 text-[13px]">$</span>
-                <input class="flex-1 bg-transparent text-[13px] text-slate-900 outline-none tabular-nums" value="96.50" />
+              <div class="flex items-center gap-1.5 bg-white border border-slate-200 rounded-lg px-2.5 py-2 w-24 flex-shrink-0">
+                <span class="text-slate-400 text-[12px]">$</span>
+                <input class="w-full bg-transparent text-[12px] text-right text-slate-900 outline-none tabular-nums" value="185.00" />
               </div>
+              <i data-lucide="trash-2" class="w-3.5 h-3.5 text-slate-300 hover:text-rose-500 cursor-pointer flex-shrink-0 mt-2.5"></i>
             </div>
+            <div class="flex items-start gap-2">
+              <div class="flex-1 min-w-0">
+                <input class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-[12px] text-slate-900" value="Handling fee" />
+                <div class="text-[10px] text-slate-400 mt-0.5 pl-1">prorrateo por valor</div>
+              </div>
+              <div class="flex items-center gap-1.5 bg-white border border-slate-200 rounded-lg px-2.5 py-2 w-24 flex-shrink-0">
+                <span class="text-slate-400 text-[12px]">$</span>
+                <input class="w-full bg-transparent text-[12px] text-right text-slate-900 outline-none tabular-nums" value="42.00" />
+              </div>
+              <i data-lucide="trash-2" class="w-3.5 h-3.5 text-slate-300 hover:text-rose-500 cursor-pointer flex-shrink-0 mt-2.5"></i>
+            </div>
+            <button class="w-full flex items-center justify-center gap-1.5 border border-dashed border-slate-300 hover:border-sky-300 hover:bg-sky-50/30 text-slate-500 hover:text-sky-700 text-[12px] font-medium px-3 py-2 rounded-lg">
+              <i data-lucide="plus" class="w-3.5 h-3.5"></i> Agregar cargo
+            </button>
+          </div>
+
+          <!-- Descuentos · filas dinámicas (kind="descuento") -->
+          <div class="space-y-2">
+            <div class="flex items-center gap-2">
+              <span class="badge bg-emerald-50 text-emerald-700 border border-emerald-200">Desc.</span>
+              <span class="stcap text-slate-500 text-[10px] font-bold uppercase tracking-wider">Descuentos · se restan</span>
+              <span class="text-[11px] tabular-nums font-semibold text-emerald-700 ml-auto">−$120.00</span>
+            </div>
+            <div class="flex items-start gap-2">
+              <div class="flex-1 min-w-0">
+                <input class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-[12px] text-slate-900" value="Subscribe &amp; Save" />
+                <div class="text-[10px] text-slate-400 mt-0.5 pl-1">prorrateo por valor</div>
+              </div>
+              <div class="flex items-center gap-1.5 bg-white border border-emerald-200 rounded-lg px-2.5 py-2 w-24 flex-shrink-0">
+                <span class="text-emerald-600 text-[12px]">−$</span>
+                <input class="w-full bg-transparent text-[12px] text-right text-emerald-700 outline-none tabular-nums" value="120.00" />
+              </div>
+              <i data-lucide="trash-2" class="w-3.5 h-3.5 text-slate-300 hover:text-rose-500 cursor-pointer flex-shrink-0 mt-2.5"></i>
+            </div>
+            <button class="w-full flex items-center justify-center gap-1.5 border border-dashed border-slate-300 hover:border-emerald-300 hover:bg-emerald-50/30 text-slate-500 hover:text-emerald-700 text-[12px] font-medium px-3 py-2 rounded-lg">
+              <i data-lucide="plus" class="w-3.5 h-3.5"></i> Agregar descuento
+            </button>
+          </div>
+
+          <!-- Impuestos · filas dinámicas (kind="impuesto" · modo % o $) -->
+          <div class="space-y-2">
+            <div class="flex items-center gap-2">
+              <span class="badge bg-purple-50 text-purple-700 border border-purple-200">Imp.</span>
+              <span class="stcap text-slate-500 text-[10px] font-bold uppercase tracking-wider">Impuestos · % o $</span>
+              <span class="text-[11px] tabular-nums font-semibold text-slate-700 ml-auto">+$236.84</span>
+            </div>
+            <div class="flex items-start gap-2">
+              <div class="flex-1 min-w-0">
+                <input class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-[12px] text-slate-900" value="Sales Tax CA" />
+                <div class="text-[10px] text-slate-400 mt-0.5 pl-1">base gravable $2,493.00 · subtotal + cargos − descuentos</div>
+              </div>
+              <div class="inline-flex items-center bg-slate-100 rounded-lg p-0.5 flex-shrink-0 mt-1">
+                <button class="bg-white text-purple-700 text-[10px] font-bold px-2 py-1 rounded-md shadow-sm">%</button>
+                <button class="text-slate-400 text-[10px] font-bold px-2 py-1 rounded-md">$</button>
+              </div>
+              <div class="flex items-center gap-1 bg-white border border-slate-200 rounded-lg px-2.5 py-2 w-16 flex-shrink-0">
+                <input class="w-full bg-transparent text-[12px] text-right text-slate-900 outline-none tabular-nums" value="9.5" />
+                <span class="text-slate-400 text-[12px]">%</span>
+              </div>
+              <span class="text-[12px] tabular-nums text-slate-500 flex-shrink-0 mt-2">= $236.84</span>
+              <i data-lucide="trash-2" class="w-3.5 h-3.5 text-slate-300 hover:text-rose-500 cursor-pointer flex-shrink-0 mt-2.5"></i>
+            </div>
+            <button class="w-full flex items-center justify-center gap-1.5 border border-dashed border-slate-300 hover:border-purple-300 hover:bg-purple-50/30 text-slate-500 hover:text-purple-700 text-[12px] font-medium px-3 py-2 rounded-lg">
+              <i data-lucide="plus" class="w-3.5 h-3.5"></i> Agregar impuesto
+            </button>
           </div>
 
           <div class="bg-slate-50 border border-slate-200 rounded-lg p-3 space-y-1.5">
@@ -2676,12 +2730,20 @@
               <span class="tabular-nums font-semibold text-slate-700">$2,386.00</span>
             </div>
             <div class="flex items-center justify-between text-[12px]">
-              <span class="text-slate-500">+ Cargos (flete + handling + imp.)</span>
-              <span class="tabular-nums font-semibold text-slate-700">$323.50</span>
+              <span class="text-slate-500">+ Cargos</span>
+              <span class="tabular-nums font-semibold text-slate-700">+$227.00</span>
+            </div>
+            <div class="flex items-center justify-between text-[12px]">
+              <span class="text-slate-500">− Descuentos</span>
+              <span class="tabular-nums font-semibold text-emerald-700">−$120.00</span>
+            </div>
+            <div class="flex items-center justify-between text-[12px]">
+              <span class="text-slate-500">+ Impuestos</span>
+              <span class="tabular-nums font-semibold text-slate-700">+$236.84</span>
             </div>
             <div class="flex items-center justify-between text-[13px] pt-1.5 border-t border-slate-200">
               <span class="font-bold text-slate-900">Total landed</span>
-              <span class="tabular-nums font-bold text-blue-700">$2,709.50</span>
+              <span class="tabular-nums font-bold text-blue-700">$2,729.84</span>
             </div>
             <div class="text-[11px] text-slate-400 flex items-center gap-1.5 pt-0.5">
               <i data-lucide="info" class="w-3 h-3"></i> Los cargos se prorratean por peso/valor para el costo landed unitario de cada SKU.
@@ -2697,7 +2759,7 @@
             <span class="badge bg-emerald-50 text-emerald-700 border border-emerald-200 ml-auto"><i data-lucide="shield-check" class="w-2.5 h-2.5"></i> Revisión final</span>
           </div>
 
-          <!-- Card Salud de la compra (✅ construido) -->
+          <!-- Card Salud de la compra (construido) -->
           <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-4">
             <div class="flex items-center justify-between mb-3">
               <span class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold flex items-center gap-1.5"><i data-lucide="activity" class="w-3.5 h-3.5"></i> Salud de la compra</span>
@@ -2824,11 +2886,11 @@
               </div>
               <div class="border-t border-slate-100 pt-2 flex items-center justify-between">
                 <span class="text-slate-500">Total landed</span>
-                <span class="font-bold text-blue-700 tabular-nums">$2,709.50</span>
+                <span class="font-bold text-blue-700 tabular-nums">$2,729.84</span>
               </div>
               <div class="flex items-center justify-between">
                 <span class="text-slate-500">≈ Soles</span>
-                <span class="font-bold text-slate-900 tabular-nums">S/ 10,079.34</span>
+                <span class="font-bold text-slate-900 tabular-nums">S/ 10,155.00</span>
               </div>
             </div>
           </div>
