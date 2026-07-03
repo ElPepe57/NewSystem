@@ -788,7 +788,7 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
             <button
               type="button"
               onClick={onEliminarOC}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-lg transition-colors"
             >
               <Trash2 className="w-3.5 h-3.5" />
               Eliminar
@@ -1190,7 +1190,8 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
       {tab === 'subordenes' && orden.estado !== 'borrador' && orden.subOrdenes && orden.subOrdenes.length > 0 && (
         <div className="space-y-3">
           <h4 className="font-semibold text-slate-900 flex items-center gap-2 text-sm">
-            <Layers className="h-4 w-4 text-purple-600" />
+            {/* F3 · chrome del módulo Comercial = blue (master Acto 9 header sub-órdenes · blue-600) */}
+            <Layers className="h-4 w-4 text-blue-600" />
             Sub-ordenes ({orden.subOrdenes.length})
           </h4>
           {orden.subOrdenes.map((sub, idx) => (
@@ -1345,17 +1346,46 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
           Fuente de verdad automática:
           - Si OC tiene sub-órdenes → se agregan desde cada sub-orden (realidad)
           - Si no → se leen de la OC padre (borrador = realidad)
-          Un badge indica de dónde vienen los números. */}
+          Un badge indica de dónde vienen los números.
+
+          F3 — Desglose ITEMIZADO por concepto (master Acto 9 · L1992-2058):
+          fila por concepto con chip de clase (Cargo=sky · Desc.=emerald · Imp.=purple),
+          nota de prorrateo y "Total ajustes". El itemizado sale SIEMPRE de los arrays
+          PROPIOS del padre (orden.cargosOC[] / descuentosOC[] / impuestosOC[] · las
+          sub-órdenes solo guardan escalares shipping/descuento/impuesto · no conceptos ·
+          no se inventa). Si la OC no tiene conceptos (OC simple) la sección itemizada
+          NO se renderiza y quedan solo las filas de totales. Cuando el itemizado existe,
+          las filas agregadas (+Cargos/−Desc/+Imp) del card de totales se omiten
+          (canon no-redundancia · el itemizado las reemplaza con más detalle). */}
       {(() => {
         const efectivos = getCargosEfectivosOC(orden);
         const tcRef = orden.tcReferencial || orden.tcCompra || 0;
+        // Itemizado por concepto · arrays v2 del padre (snapshot inmutable de la intención).
+        const cargosItems = orden.cargosOC ?? [];
+        const descuentosItems = orden.descuentosOC ?? [];
+        const impuestosItems = orden.impuestosOC ?? [];
+        const hayItemizado = cargosItems.length + descuentosItems.length + impuestosItems.length > 0;
+        const sumCargosIt = cargosItems.reduce((s, c) => s + (c.montoUSD || 0), 0);
+        const sumDescIt = descuentosItems.reduce((s, d) => s + (d.montoUSD || 0), 0);
+        const sumImpIt = impuestosItems.reduce((s, i) => s + (i.montoUSD || 0), 0);
+        // Base gravable de los impuestos % (regla del modelo): subtotal + cargos − descuentos.
+        const baseGravable = (orden.subtotalUSD ?? 0) + sumCargosIt - sumDescIt;
+        const totalAjustes = sumCargosIt - sumDescIt + sumImpIt;
+        const fmtUSD = (n: number) =>
+          n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const PRORRATEO_LABEL: Record<string, string> = {
+          por_valor: 'prorrateo por valor',
+          por_cantidad: 'prorrateo por cantidad',
+          por_peso: 'prorrateo por peso',
+          proporcional: 'prorrateo proporcional',
+        };
         return (
           <div>
             <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-2 flex items-center gap-2 flex-wrap">
               <span>
-                Cargos comerciales{' '}
+                Ajustes comerciales{' '}
                 <span className="normal-case font-normal text-slate-400">
-                  (asignados por el proveedor a esta OC)
+                  (landed cost · cargos − descuentos + impuestos)
                 </span>
               </span>
               {efectivos.fuente === 'subOrdenes' && (
@@ -1367,6 +1397,84 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
                 </span>
               )}
             </div>
+            {hayItemizado && (
+              <div className="bg-white border border-slate-200 rounded-xl p-4 mb-3">
+                {efectivos.fuente === 'subOrdenes' && (
+                  <div className="text-[10px] text-slate-400 mb-2">
+                    desglose por concepto del borrador padre · los totales de abajo se agregan desde las sub-órdenes
+                  </div>
+                )}
+                <div className="space-y-2.5 text-[12px]">
+                  {cargosItems.map((c) => (
+                    <div key={c.id} className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide border bg-sky-50 text-sky-700 border-sky-200">
+                          Cargo
+                        </span>
+                        <div className="min-w-0">
+                          <div className="text-slate-600">{c.concepto}</div>
+                          <div className="text-[10px] text-slate-400">
+                            {PRORRATEO_LABEL[c.metodoProrrateo] ?? c.metodoProrrateo}
+                          </div>
+                        </div>
+                      </div>
+                      <span className="tabular-nums font-semibold text-slate-900">
+                        USD {fmtUSD(c.montoUSD || 0)}
+                      </span>
+                    </div>
+                  ))}
+                  {descuentosItems.map((d) => (
+                    <div key={d.id} className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide border bg-emerald-50 text-emerald-700 border-emerald-200">
+                          Desc.
+                        </span>
+                        <div className="min-w-0">
+                          <div className="text-slate-600">{d.concepto}</div>
+                          <div className="text-[10px] text-slate-400">
+                            {PRORRATEO_LABEL[d.metodoProrrateo] ?? d.metodoProrrateo}
+                          </div>
+                        </div>
+                      </div>
+                      <span className="tabular-nums font-semibold text-emerald-700">
+                        −USD {fmtUSD(d.montoUSD || 0)}
+                      </span>
+                    </div>
+                  ))}
+                  {impuestosItems.map((imp) => (
+                    <div key={imp.id} className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide border bg-purple-50 text-purple-700 border-purple-200">
+                          Imp.
+                        </span>
+                        <div className="min-w-0">
+                          <div className="text-slate-600">
+                            {imp.concepto}
+                            {imp.modo === 'porcentaje' && imp.porcentaje != null && (
+                              <span className="text-slate-400"> · {imp.porcentaje}% s/ base</span>
+                            )}
+                          </div>
+                          <div className="text-[10px] text-slate-400">
+                            {imp.modo === 'porcentaje'
+                              ? `base gravable USD ${fmtUSD(baseGravable)} · subtotal + cargos − descuentos`
+                              : 'monto fijo'}
+                          </div>
+                        </div>
+                      </div>
+                      <span className="tabular-nums font-semibold text-slate-900">
+                        USD {fmtUSD(imp.montoUSD || 0)}
+                      </span>
+                    </div>
+                  ))}
+                  <div className="flex items-center justify-between border-t border-slate-100 pt-2">
+                    <span className="text-slate-500">Total ajustes</span>
+                    <span className="tabular-nums font-semibold text-slate-700">
+                      {totalAjustes >= 0 ? '+' : '−'}USD {fmtUSD(Math.abs(totalAjustes))}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
             <div className="bg-slate-50 rounded-xl p-4 space-y-2 text-sm">
               <div className="flex items-center justify-between">
                 <span className="text-slate-700">Subtotal productos</span>
@@ -1374,7 +1482,7 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
                   ${efectivos.subtotalProductos.toFixed(2)}
                 </span>
               </div>
-              {efectivos.cargos > 0 && (
+              {!hayItemizado && efectivos.cargos > 0 && (
                 <div className="flex items-center justify-between">
                   <span className="text-slate-700">+ Cargos (shipping/otros)</span>
                   <span className="tabular-nums text-slate-900">
@@ -1382,7 +1490,7 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
                   </span>
                 </div>
               )}
-              {efectivos.descuentos > 0 && (
+              {!hayItemizado && efectivos.descuentos > 0 && (
                 <div className="flex items-center justify-between">
                   <span className="text-slate-700">− Descuento</span>
                   <span className="tabular-nums text-emerald-700">
@@ -1390,7 +1498,7 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
                   </span>
                 </div>
               )}
-              {efectivos.impuestos > 0 && (
+              {!hayItemizado && efectivos.impuestos > 0 && (
                 <div className="flex items-center justify-between">
                   <span className="text-slate-700">+ Impuestos</span>
                   <span className="tabular-nums text-slate-900">
@@ -1500,7 +1608,7 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
               <div className="text-[10px] font-semibold uppercase text-slate-500">Pendiente</div>
               <div className={cn(
                 'text-lg font-bold tabular-nums',
-                orden.estadoPago === 'pagado' ? 'text-slate-400' : 'text-red-600'
+                orden.estadoPago === 'pagado' ? 'text-slate-400' : 'text-rose-600'
               )}>
                 ${Math.max(0, orden.totalUSD - totalPagadoUSD).toFixed(2)}
               </div>
@@ -1674,7 +1782,7 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
           <button
             type="button"
             onClick={onCancelarOC}
-            className="ml-auto inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg transition-colors"
+            className="ml-auto inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-lg transition-colors"
           >
             <Ban className="w-3.5 h-3.5" />
             Cancelar OC
