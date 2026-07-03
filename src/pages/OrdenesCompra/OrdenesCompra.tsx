@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import { Plus, Package, DollarSign, AlertCircle, Download, ExternalLink, FileText, Truck, CheckCircle, CreditCard, Building2, ShoppingCart, LayoutDashboard, ClipboardList, BrainCircuit, PlaneLanding, Filter, X, List, Kanban } from 'lucide-react';
+import { Plus, Package, DollarSign, AlertCircle, Download, ExternalLink, FileText, Truck, CheckCircle, CreditCard, Building2, ShoppingCart, LayoutDashboard, ClipboardList, BrainCircuit, PlaneLanding, Filter, X } from 'lucide-react';
 import { Modal, useConfirmDialog, ConfirmDialog, useActionModal, ActionModal } from '../../components/common';
 // Control GLOBAL de línea de negocio (canon · va en el chrome del header · OC-POB-4)
 import { LineaDropdown } from '../../components/common/LineaDropdown';
@@ -15,7 +15,6 @@ import { OrdenCompraCard } from '../../components/modules/ordenCompra/OrdenCompr
 import { CancelarOCModal } from '../../components/modules/ordenCompra/CancelarOCModal';
 import { OCWizardV3 } from '../../components/modules/ordenCompra/OCWizardV3/OCWizardV3';
 import { CompraCard } from '../../components/modules/ordenCompra/CompraCard';
-import type { EstadoPipelineCompras, PipelineComprasStage } from '../../components/modules/ordenCompra/PipelineCompras.types';
 import { SubOrdenDetailModal } from '../../components/modules/ordenCompra/SubOrdenDetailModal';
 import { TabResumenCompras } from './components/TabResumenCompras';
 import { TabPendientesCompras } from './components/TabPendientesCompras';
@@ -49,6 +48,19 @@ import { useLineaFilter } from '../../hooks/useLineaFilter';
 // S55 Fase 2 — pagos viven en CC; hook reactivo lee desde movimientosCC
 import { usePagosOC } from '../../hooks/usePagosOC';
 import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
+
+// Etapas agrupadas del filtro por estado (Opción B · Borrador → Confirmada → En Despacho → Completada).
+// Ex-PipelineCompras.types · la vista Pipeline/Kanban fue retirada (decisión titular · canon F11) ·
+// el agrupamiento sobrevive SOLO como filtro por estado del listado.
+type EtapaEstadoOC = 'borrador' | 'confirmada' | 'en_despacho' | 'completada';
+
+// Mapeo etapa agrupada → estados internos (para filtrado del listado)
+const estadoFilterMapOpcionB: Record<EtapaEstadoOC, string[]> = {
+  borrador: ['borrador'],
+  confirmada: ['confirmada', 'enviada', 'pagada'],
+  en_despacho: ['en_proceso', 'despachada', 'en_transito', 'recibida_parcial'],
+  completada: ['completada', 'recibida'],
+};
 
 // Interface para datos de requerimiento que viene del navigation state
 interface RequerimientoData {
@@ -195,8 +207,6 @@ export const OrdenesCompra: React.FC = () => {
   const [tabActiva, setTabActiva] = useState<'resumen' | 'ordenes' | 'pendientes' | 'proveedores' | 'inteligencia' | 'llegadas'>('resumen');
   const [isOCBuilderOpen, setIsOCBuilderOpen] = useState(false);
   const [ocBuilderReqs, setOcBuilderReqs] = useState<Requerimiento[]>([]);
-  // ACTO 3 (B6) · toggle Lista/Pipeline DENTRO de la tab Órdenes (misma data · canon HUB toggle).
-  const [vistaOrdenes, setVistaOrdenes] = useState<'lista' | 'pipeline'>('lista');
   // Incidencias cross-OC (listAll) · fetch ÚNICO en el padre (NO por-tab · perf) · alimenta los tabs
   // Proveedores (scorecard SLA) e Inteligencia (incidencias agregadas). El radar (useRadarAtrasados)
   // tiene su propio fetch para su teaser · acá es la fuente compartida de los desgloses de sección.
@@ -279,40 +289,16 @@ export const OrdenesCompra: React.FC = () => {
     }
   };
 
-  // Pipeline stages para filtrado visual
-  // S41 — Pipeline Opción B: 4 estados (Borrador → Confirmada → En Despacho → Completada)
-  // Se deriva de los estados internos agrupándolos.
-  const pipelineComprasStages: PipelineComprasStage[] = useMemo(() => {
-    const countEstado = (estados: string[]) =>
-      ordenesLN.filter((o) => estados.includes(o.estado)).length;
-
-    return [
-      { id: 'borrador', label: 'Borrador', count: countEstado(['borrador']) },
-      {
-        id: 'confirmada',
-        label: 'Confirmada',
-        count: countEstado(['confirmada', 'enviada', 'pagada']),
-      },
-      {
-        id: 'en_despacho',
-        label: 'En Despacho',
-        count: countEstado(['en_proceso', 'despachada', 'en_transito', 'recibida_parcial']),
-      },
-      {
-        id: 'completada',
-        label: 'Completada',
-        count: countEstado(['completada', 'recibida']),
-      },
-    ];
+  // Conteo por etapa agrupada (Opción B) · alimenta los counts de los chips del filtro por estado.
+  const conteoPorEtapa = useMemo(() => {
+    const counts: Record<EtapaEstadoOC, number> = { borrador: 0, confirmada: 0, en_despacho: 0, completada: 0 };
+    for (const o of ordenesLN) {
+      (Object.keys(estadoFilterMapOpcionB) as EtapaEstadoOC[]).forEach((etapa) => {
+        if (estadoFilterMapOpcionB[etapa].includes(o.estado)) counts[etapa]++;
+      });
+    }
+    return counts;
   }, [ordenesLN]);
-
-  // Mapeo pipeline Opción B → estados internos (para filtrado)
-  const estadoFilterMapOpcionB: Record<EstadoPipelineCompras, string[]> = {
-    borrador: ['borrador'],
-    confirmada: ['confirmada', 'enviada', 'pagada'],
-    en_despacho: ['en_proceso', 'despachada', 'en_transito', 'recibida_parcial'],
-    completada: ['completada', 'recibida'],
-  };
 
   // S42 Tanda 10 — Stats derivados para KPIs enriquecidos (mockup s40 líneas 128-178)
   const statsExtra = useMemo(() => {
@@ -387,14 +373,14 @@ export const OrdenesCompra: React.FC = () => {
     };
   }, [ordenesLN, envios]);
 
-  // Órdenes filtradas — aplica pipeline + pills + dropdowns + búsqueda global
+  // Órdenes filtradas — aplica etapa + pills + dropdowns + búsqueda global
   const ordenesFiltradas = useMemo(() => {
     let lista = ordenesLN;
 
-    // Pipeline stage (si activo)
+    // Etapa agrupada (si activa)
     if (filtroEstado) {
       const estadosValidos =
-        estadoFilterMapOpcionB[filtroEstado as EstadoPipelineCompras] || [filtroEstado];
+        estadoFilterMapOpcionB[filtroEstado as EtapaEstadoOC] || [filtroEstado];
       lista = lista.filter((o) => estadosValidos.includes(o.estado));
     }
 
@@ -481,20 +467,6 @@ export const OrdenesCompra: React.FC = () => {
     setFiltroEstadoPago('');
     setBusquedaGlobal('');
   };
-
-  // ACTO 3 (B6) · MISMAS ordenesFiltradas agrupadas por etapa del pipeline Opción B (Kanban).
-  const ordenesPorEtapa = useMemo(() => {
-    const grupos: Record<EstadoPipelineCompras, OrdenCompra[]> = {
-      borrador: [], confirmada: [], en_despacho: [], completada: [],
-    };
-    for (const o of ordenesFiltradas) {
-      if (o.estado === 'cancelada') continue;
-      (Object.keys(estadoFilterMapOpcionB) as EstadoPipelineCompras[]).forEach((etapa) => {
-        if (estadoFilterMapOpcionB[etapa].includes(o.estado)) grupos[etapa].push(o);
-      });
-    }
-    return grupos;
-  }, [ordenesFiltradas]);
 
   // Reset paginación cuando cambian filtros (incl. línea · OC-POB-1)
   useEffect(() => {
@@ -1148,10 +1120,10 @@ export const OrdenesCompra: React.FC = () => {
                 key: 'etapa',
                 label: 'Etapa',
                 options: [
-                  { value: 'borrador', label: 'Borrador', variant: 'slate', count: pipelineComprasStages.find((s) => s.id === 'borrador')?.count },
-                  { value: 'confirmada', label: 'Confirmada', variant: 'sky', count: pipelineComprasStages.find((s) => s.id === 'confirmada')?.count },
-                  { value: 'en_despacho', label: 'En Despacho', variant: 'amber', count: pipelineComprasStages.find((s) => s.id === 'en_despacho')?.count },
-                  { value: 'completada', label: 'Completada', variant: 'emerald', count: pipelineComprasStages.find((s) => s.id === 'completada')?.count },
+                  { value: 'borrador', label: 'Borrador', variant: 'slate', count: conteoPorEtapa.borrador },
+                  { value: 'confirmada', label: 'Confirmada', variant: 'sky', count: conteoPorEtapa.confirmada },
+                  { value: 'en_despacho', label: 'En Despacho', variant: 'amber', count: conteoPorEtapa.en_despacho },
+                  { value: 'completada', label: 'Completada', variant: 'emerald', count: conteoPorEtapa.completada },
                 ],
               },
               {
@@ -1192,29 +1164,20 @@ export const OrdenesCompra: React.FC = () => {
             }}
           />
 
-          {/* ACTO 3 (B3 + B6) · barra-resumen del subconjunto filtrado (solo con filtro activo) + toggle Lista/Pipeline */}
-          <div className="flex items-center gap-3 flex-wrap">
-            {hayFiltroOrdenes ? (
-              <div className="flex-1 min-w-0 bg-blue-50 border border-blue-200 rounded-xl px-4 py-2.5 flex items-center justify-between gap-3 flex-wrap">
-                <div className="flex items-center gap-2 text-[12px] flex-wrap">
-                  <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full bg-blue-100 text-blue-700"><Filter className="w-2.5 h-2.5" /> Filtro: {filtroOrdenesLabel}</span>
-                  <span className="text-slate-700"><b className="tabular-nums text-slate-900">{resumenFiltrado.count} OC{resumenFiltrado.count === 1 ? '' : 's'}</b></span>
-                  <span className="text-slate-300">·</span>
-                  <span className="text-slate-700">total <b className="tabular-nums text-amber-700">${resumenFiltrado.total.toLocaleString('en-US', { maximumFractionDigits: 0 })}</b></span>
-                  <span className="text-slate-300">·</span>
-                  <span className="text-slate-700"><b className="tabular-nums text-rose-700">${resumenFiltrado.porPagar.toLocaleString('en-US', { maximumFractionDigits: 0 })}</b> por pagar</span>
-                </div>
-                <button type="button" onClick={limpiarFiltrosOrdenes} className="text-[11px] font-semibold text-blue-700 hover:underline flex items-center gap-1"><X className="w-3 h-3" /> Limpiar filtro</button>
+          {/* ACTO 3 (B3) · barra-resumen del subconjunto filtrado (solo con filtro activo) */}
+          {hayFiltroOrdenes && (
+            <div className="bg-blue-50 border border-blue-200 rounded-xl px-4 py-2.5 flex items-center justify-between gap-3 flex-wrap">
+              <div className="flex items-center gap-2 text-[12px] flex-wrap">
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full bg-blue-100 text-blue-700"><Filter className="w-2.5 h-2.5" /> Filtro: {filtroOrdenesLabel}</span>
+                <span className="text-slate-700"><b className="tabular-nums text-slate-900">{resumenFiltrado.count} OC{resumenFiltrado.count === 1 ? '' : 's'}</b></span>
+                <span className="text-slate-300">·</span>
+                <span className="text-slate-700">total <b className="tabular-nums text-amber-700">${resumenFiltrado.total.toLocaleString('en-US', { maximumFractionDigits: 0 })}</b></span>
+                <span className="text-slate-300">·</span>
+                <span className="text-slate-700"><b className="tabular-nums text-rose-700">${resumenFiltrado.porPagar.toLocaleString('en-US', { maximumFractionDigits: 0 })}</b> por pagar</span>
               </div>
-            ) : (
-              <div className="flex-1" />
-            )}
-            {/* TOGGLE Lista/Pipeline · DENTRO del tab (B6 · misma data · canon HUB toggle) */}
-            <div className="flex items-center gap-0.5 bg-slate-100 rounded-lg p-0.5 flex-shrink-0">
-              <button type="button" onClick={() => setVistaOrdenes('lista')} className={`flex items-center gap-1 text-[11px] px-2.5 py-1.5 rounded-md ${vistaOrdenes === 'lista' ? 'bg-white text-blue-700 shadow-sm font-semibold' : 'text-slate-500 hover:text-slate-700 font-medium'}`}><List className="w-3.5 h-3.5" /> Lista</button>
-              <button type="button" onClick={() => setVistaOrdenes('pipeline')} className={`flex items-center gap-1 text-[11px] px-2.5 py-1.5 rounded-md ${vistaOrdenes === 'pipeline' ? 'bg-white text-blue-700 shadow-sm font-semibold' : 'text-slate-500 hover:text-slate-700 font-medium'}`}><Kanban className="w-3.5 h-3.5" /> Pipeline</button>
+              <button type="button" onClick={limpiarFiltrosOrdenes} className="text-[11px] font-semibold text-blue-700 hover:underline flex items-center gap-1"><X className="w-3 h-3" /> Limpiar filtro</button>
             </div>
-          </div>
+          )}
 
           {/* Selección masiva (canon F3 · decisión 3 · aparece al seleccionar) */}
           <BulkActionsToolbar
@@ -1269,7 +1232,7 @@ export const OrdenesCompra: React.FC = () => {
                 <p className="text-sm font-medium text-slate-700">Sin resultados</p>
                 <p className="text-xs text-slate-500 mt-1">No hay OCs que coincidan con los filtros.</p>
               </div>
-            ) : vistaOrdenes === 'lista' ? (
+            ) : (
               <>
                 {ordenesFiltradas.slice(0, itemsVisibles).map((orden) => (
                   <CompraCard
@@ -1311,43 +1274,6 @@ export const OrdenesCompra: React.FC = () => {
                   </div>
                 )}
               </>
-            ) : (
-              /* ACTO 3 (B6) · VISTA PIPELINE/KANBAN · las MISMAS ordenesFiltradas agrupadas por etapa */
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
-                {([
-                  { id: 'borrador' as EstadoPipelineCompras, label: 'Borrador', wrap: 'bg-slate-50 border-slate-200', head: 'text-slate-600', pill: 'border-slate-200 text-slate-500' },
-                  { id: 'confirmada' as EstadoPipelineCompras, label: 'Confirmada', wrap: 'bg-blue-50 border-blue-200', head: 'text-blue-700', pill: 'border-blue-200 text-blue-600' },
-                  { id: 'en_despacho' as EstadoPipelineCompras, label: 'En Despacho', wrap: 'bg-amber-50 border-amber-200', head: 'text-amber-700', pill: 'border-amber-200 text-amber-600' },
-                  { id: 'completada' as EstadoPipelineCompras, label: 'Completada', wrap: 'bg-emerald-50 border-emerald-200', head: 'text-emerald-700', pill: 'border-emerald-200 text-emerald-600' },
-                ]).map((col) => {
-                  const items = ordenesPorEtapa[col.id];
-                  return (
-                    <div key={col.id} className={`border rounded-lg p-2.5 ${col.wrap}`}>
-                      <div className="flex items-center justify-between mb-2">
-                        <span className={`text-[10px] font-bold uppercase tracking-wider ${col.head}`}>{col.label}</span>
-                        <span className={`text-[10px] tabular-nums bg-white border px-1.5 rounded-full font-bold ${col.pill}`}>{items.length}</span>
-                      </div>
-                      <div className="space-y-1.5">
-                        {items.length === 0 ? (
-                          <div className="text-[10px] text-slate-400 text-center py-3">— sin OCs —</div>
-                        ) : (
-                          items.map((orden) => (
-                            <button
-                              type="button"
-                              key={orden.id}
-                              onClick={() => handleViewDetails(orden)}
-                              className="w-full text-left bg-white border border-slate-200 rounded p-2 text-[11px] hover:border-blue-300 transition-colors"
-                            >
-                              <div className="font-semibold text-slate-800 tabular-nums truncate">{orden.numeroOrden}</div>
-                              <div className="text-slate-500 tabular-nums truncate">{orden.nombreProveedor || '—'} · ${(orden.totalUSD || 0).toLocaleString('en-US', { maximumFractionDigits: 0 })}</div>
-                            </button>
-                          ))
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
             )}
           </div>
         </div>
