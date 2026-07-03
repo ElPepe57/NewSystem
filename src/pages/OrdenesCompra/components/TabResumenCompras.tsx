@@ -36,7 +36,7 @@ interface TabResumenComprasProps {
   radar: RadarAtrasadosResult;
   esSocio: boolean;
   onNuevaOC: () => void;
-  onIrTab: (tab: 'ordenes' | 'pendientes' | 'proveedores' | 'inteligencia') => void;
+  onIrTab: (tab: 'ordenes' | 'pendientes' | 'inteligencia') => void;
   onFiltrarEstado: (estado: string) => void;
   onFiltrarProveedor: (proveedorId: string) => void;
   onVerOC: (oc: OrdenCompra) => void;
@@ -537,7 +537,8 @@ export const TabResumenCompras: React.FC<TabResumenComprasProps> = ({
                     </button>
                   ))}
                   {porProveedor.otrosCount > 0 && (
-                    <button onClick={() => onIrTab('proveedores')} className="w-full flex items-center justify-between hover:bg-slate-50 rounded px-1 py-0.5">
+                    // El directorio/scorecard de proveedores vive en MAESTROS (decisión del titular)
+                    <button onClick={() => navigate('/maestros')} className="w-full flex items-center justify-between hover:bg-slate-50 rounded px-1 py-0.5">
                       <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-slate-400" /> Otros ({porProveedor.otrosCount})</span>
                       <span className="tabular-nums font-semibold text-slate-700">{Math.round(porProveedor.otrosPct)}%</span>
                     </button>
@@ -666,10 +667,11 @@ export const TabResumenCompras: React.FC<TabResumenComprasProps> = ({
               ) : (
                 <>
                   <div className="text-2xl font-bold tabular-nums text-slate-300">—</div>
-                  <div className="text-[11px] text-slate-500 leading-snug mb-2">aún sin proveedores evaluados · clasificá en Proveedores para ver el riesgo del gasto</div>
+                  <div className="text-[11px] text-slate-500 leading-snug mb-2">aún sin proveedores evaluados · clasificá en Maestros para ver el riesgo del gasto</div>
                 </>
               )}
-              <button onClick={() => onIrTab('proveedores')} className="mt-2 inline-flex items-center gap-1 text-[11px] font-bold text-rose-700 hover:underline">Ver desglose en Proveedores <ArrowRight className="w-3 h-3" /></button>
+              {/* El directorio/scorecard SRM vive en MAESTROS (decisión del titular · 2026-07-03) */}
+              <button onClick={() => navigate('/maestros')} className="mt-2 inline-flex items-center gap-1 text-[11px] font-bold text-rose-700 hover:underline">Ver proveedores en Maestros <ArrowRight className="w-3 h-3" /></button>
             </div>
             {/* MIX apuesta/restock/comprometida · de Requerimiento.origen vía requerimientoId */}
             <div className="bg-white border border-slate-200 rounded-xl p-4">

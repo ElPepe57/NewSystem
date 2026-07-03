@@ -18,7 +18,6 @@ import { CompraCard } from '../../components/modules/ordenCompra/CompraCard';
 import { SubOrdenDetailModal } from '../../components/modules/ordenCompra/SubOrdenDetailModal';
 import { TabResumenCompras } from './components/TabResumenCompras';
 import { TabPendientesCompras } from './components/TabPendientesCompras';
-import { TabProveedoresCompras } from './components/TabProveedoresCompras';
 import { TabInteligenciaCompras } from './components/TabInteligenciaCompras';
 import { TabLlegadas } from './components/TabLlegadas';
 import { useRadarAtrasados } from './useRadarAtrasados';
@@ -204,7 +203,7 @@ export const OrdenesCompra: React.FC = () => {
   const [filtroEstado, setFiltroEstado] = useState<string | null>(null);
   // chk5.COMERCIALES-F1 · tab activa del hub · default 'ordenes' hasta que la Fase 1b construya el Resumen §A→§F
   // COMERCIALES · Fase 1 (Llegadas) · 6ª tab agregada.
-  const [tabActiva, setTabActiva] = useState<'resumen' | 'ordenes' | 'pendientes' | 'proveedores' | 'inteligencia' | 'llegadas'>('resumen');
+  const [tabActiva, setTabActiva] = useState<'resumen' | 'ordenes' | 'pendientes' | 'inteligencia' | 'llegadas'>('resumen');
   const [isOCBuilderOpen, setIsOCBuilderOpen] = useState(false);
   const [ocBuilderReqs, setOcBuilderReqs] = useState<Requerimiento[]>([]);
   // Incidencias cross-OC (listAll) · fetch ÚNICO en el padre (NO por-tab · perf) · alimenta los tabs
@@ -1051,7 +1050,6 @@ export const OrdenesCompra: React.FC = () => {
     { id: 'resumen', label: 'Resumen', icon: LayoutDashboard },
     { id: 'ordenes', label: 'Órdenes', icon: Package },
     { id: 'pendientes', label: 'Pendientes', icon: ClipboardList },
-    { id: 'proveedores', label: 'Proveedores', icon: Building2 },
     { id: 'inteligencia', label: 'Inteligencia', icon: BrainCircuit },
     // 6ª tab · badge = atrasados severo+crítico (los que demandan acción · resumen.badge).
     { id: 'llegadas', label: 'Llegadas', icon: PlaneLanding, badge: radar.resumen.badge || undefined },
@@ -1317,17 +1315,6 @@ export const OrdenesCompra: React.FC = () => {
           />
         )}
 
-        {/* ═══ TAB PROVEEDORES · evaluación SRM agregada (gasto/OCs en vivo + métricas) ═══ */}
-        {tabActiva === 'proveedores' && (
-          <TabProveedoresCompras
-            proveedores={proveedoresActivos}
-            ordenes={ordenesLN}
-            envios={envios}
-            incidencias={incidencias}
-            incidenciasError={incidenciasError}
-            navigate={navigate}
-          />
-        )}
 
         {/* ═══ TAB INTELIGENCIA · vista agregada de compra (ranking SKU · precios · competitividad) ═══ */}
         {tabActiva === 'inteligencia' && (
