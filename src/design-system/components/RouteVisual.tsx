@@ -137,20 +137,19 @@ const NodeDisplay: React.FC<{ node: RouteNode; size: 'sm' | 'md' | 'lg'; accent:
           stateClasses
         )}
       >
-        {node.flag ? (
-          <span className={sizeMap.flag}>{node.flag}</span>
-        ) : (
-          icon
-        )}
+        {/* Post-F8 el flag es código ISO (texto): el BOX muestra el ícono del tipo
+             (hermanos consistentes) y el ISO baja a la meta-línea junto al código.
+             Fallback: sin ícono (tipo custom) se muestra el flag como antes. */}
+        {icon ?? (node.flag ? <span className={sizeMap.flag}>{node.flag}</span> : null)}
       </div>
       {node.nombre && (
         <div className={cn('font-semibold text-slate-900 truncate max-w-[8rem]', sizeMap.label)}>
           {node.nombre}
         </div>
       )}
-      {node.codigo && (
+      {(node.flag || node.codigo) && (
         <div className={cn('font-mono', ROUTE_ACCENTS[accent].codigo, sizeMap.sub)}>
-          {node.codigo}
+          {[node.flag, node.codigo].filter(Boolean).join(' · ')}
         </div>
       )}
       {node.subtexto && (

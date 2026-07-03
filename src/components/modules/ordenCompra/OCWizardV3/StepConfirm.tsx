@@ -93,34 +93,39 @@ export const StepConfirm: React.FC<StepConfirmProps> = ({
   // tenga un default llegadaPeru='viajero' puesto en S42ae.
   const esDDP = cfg.llegadaPeru === 'ddp_directo';
 
+  // Presentación (UAT 2026-07-03): nombre COMPLETO en el nodo (sin duplicarlo en el
+  // subtexto) · el subtexto dice el ROL · el país ISO va como meta junto al código.
   const rutaNodes: React.ComponentProps<typeof RouteVisual>['nodes'] = esDDP
     ? [
         {
           flag: getFlag(cfg.paisOrigen),
-          nombre: cfg.proveedorNombre.split(' ')[0] || 'Proveedor',
+          nombre: cfg.proveedorNombre || 'Proveedor',
           tipo: 'proveedor',
+          subtexto: 'Proveedor',
           state: 'done',
         },
         {
           flag: 'PE',
-          nombre: 'Perú',
+          nombre: cfg.casillaDestinoNombre || 'Perú',
           tipo: 'destino',
-          subtexto: cfg.casillaDestinoNombre || 'Almacén',
+          subtexto: 'Destino final',
           state: 'done',
         },
       ]
     : [
         {
           flag: getFlag(cfg.paisOrigen),
-          nombre: cfg.proveedorNombre.split(' ')[0] || 'Proveedor',
+          nombre: cfg.proveedorNombre || 'Proveedor',
           tipo: 'proveedor',
+          subtexto: 'Proveedor',
           state: 'done',
         },
         {
           tipo: 'casilla',
+          flag: cfg.casillaDestinoPais ? getFlag(cfg.casillaDestinoPais) : undefined,
           codigo: cfg.casillaDestinoCodigo || undefined,
-          nombre: cfg.casillaDestinoNombre?.split(' ')[0] || 'Casilla',
-          subtexto: cfg.casillaDestinoNombre,
+          nombre: cfg.casillaDestinoNombre || 'Casilla',
+          subtexto: 'Casilla destino',
           state: 'done',
         },
       ];
@@ -197,14 +202,9 @@ export const StepConfirm: React.FC<StepConfirmProps> = ({
         </div>
       </div>
 
-      {/* Ruta */}
+      {/* Ruta · sin header "proveedor · país" (el nodo del visual ya lo dice · no-redundancia) */}
       <Section icon={<MapPin className="w-4 h-4" />} title="Ruta logística">
         <div className="space-y-3">
-          <div className="flex items-center gap-3">
-            <div className="text-sm font-semibold text-slate-800">{cfg.proveedorNombre}</div>
-            <span className="text-xs text-slate-400">{cfg.paisOrigen}</span>
-          </div>
-
           {/* accent blue · canon alineación (chrome de ruta en color del grupo Comercial) */}
           <RouteVisual size="md" accent="blue" nodes={rutaNodes} segments={rutaSegments} />
 
