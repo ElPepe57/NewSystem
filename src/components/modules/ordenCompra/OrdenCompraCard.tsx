@@ -375,6 +375,13 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
   const tieneSubs = subOrdenesCount > 0;
   const totalPendienteUSD = Math.max(0, orden.totalUSD - totalPagadoUSD);
 
+  // Guard anti tab-huérfana: 'subordenes' es condicional — si la OC deja de tener
+  // sub-órdenes (refresh/cambio de orden) con esa tab activa, el botón desaparece
+  // de la barra y el body quedaría vacío sin salida → volver a Resumen.
+  useEffect(() => {
+    if (tab === 'subordenes' && !tieneSubs) setTab('resumen');
+  }, [tab, tieneSubs]);
+
   // ═══════════════════════════════════════════════════════════════════════
   // F1 · Tab Resumen — datos reales (master Acto 8)
   // ═══════════════════════════════════════════════════════════════════════
@@ -2000,7 +2007,9 @@ const PlanVsRealOC: React.FC<{ orden: OrdenCompra }> = ({ orden }) => {
   // Desglose derivable del snapshot (TC · precio producto · flete/aduana) — solo si comparable.
   const tcReal = orden.tcPago || orden.tcCompra || 0;
   const filasDesvio: Array<{ dot: string; label: string; monto: number }> = [];
-  if (desvio !== null) {
+  // Guard: sin capa producto real (>0) el desglose daría números incoherentes
+  // (dPrecio enorme negativo) — se muestra solo el desvío total, honesto.
+  if (desvio !== null && resumen.capas.producto > 0) {
     const realNonProd = resumen.capas.impuesto + resumen.capas.flete + resumen.capas.otros;
     if (plan.tcCongelado > 0 && tcReal > 0) {
       const dTC = plan.productoUSD * (tcReal - plan.tcCongelado);

@@ -183,19 +183,25 @@ export const EmpujarLogisticaModal: React.FC<EmpujarLogisticaModalProps> = ({
       return;
     }
 
-    // Deep-link Opción A · se abre ANTES del await (dentro del gesto del click · evita popup-blocker).
+    // Deep-link Opción A · BITÁCORA PRIMERO: si Firestore falla, NO se abre el canal
+    // (evita comunicar sin registro). Para no perder el gesto del click (popup-blocker),
+    // se pre-abre una ventana en blanco SÍNCRONA y recién tras el write se navega;
+    // si el write falla, se cierra sin comunicar. mailto no necesita popup (navegación).
     const cuerpo = mensaje.trim();
+    let winWhatsApp: Window | null = null;
     if (canal === 'WhatsApp' && destinatario.telefono) {
-      window.open(
-        `https://wa.me/${telefonoWhatsApp(destinatario.telefono)}?text=${encodeURIComponent(cuerpo)}`,
-        '_blank',
-      );
-    } else if (canal === 'Email') {
-      const asunto = `Empuje logístico · ${fila.orden.numeroOrden} · atraso ${fila.diasEnVuelo}/${fila.leadTimeEsperado}d`;
-      window.open(
-        `mailto:${destinatario.email}?subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(cuerpo)}`,
-      );
+      winWhatsApp = window.open('', '_blank');
     }
+    const abrirCanal = () => {
+      if (canal === 'WhatsApp' && destinatario.telefono) {
+        const url = `https://wa.me/${telefonoWhatsApp(destinatario.telefono)}?text=${encodeURIComponent(cuerpo)}`;
+        if (winWhatsApp) winWhatsApp.location.href = url;
+        else window.open(url, '_blank'); // fallback si el blocker impidió la pre-apertura
+      } else if (canal === 'Email') {
+        const asunto = `Empuje logístico · ${fila.orden.numeroOrden} · atraso ${fila.diasEnVuelo}/${fila.leadTimeEsperado}d`;
+        window.location.href = `mailto:${destinatario.email}?subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(cuerpo)}`;
+      }
+    };
 
     setGuardando(true);
     try {
@@ -223,12 +229,16 @@ export const EmpujarLogisticaModal: React.FC<EmpujarLogisticaModalProps> = ({
         comentariosInternos: arrayUnion(comentario),
       });
 
+      // Bitácora registrada → recién ahora se abre el canal de comunicación.
+      abrirCanal();
       toast.success('Comunicado interno registrado · quedó en el historial de la OC', 'Empuje registrado');
       onRegistrado?.();
       onClose();
     } catch (e: unknown) {
+      // El write falló → NO se comunica (se cierra la ventana pre-abierta).
+      winWhatsApp?.close();
       const msg = e instanceof Error ? e.message : 'No se pudo registrar el seguimiento';
-      toast.error(msg, 'Error');
+      toast.error(`${msg} · el canal NO se abrió (sin registro no hay comunicado)`, 'Error');
     } finally {
       setGuardando(false);
     }
