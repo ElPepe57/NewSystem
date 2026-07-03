@@ -272,7 +272,8 @@ export const StepCargos: React.FC<StepCargosProps> = ({
       </div>
 
       {/* Totales consolidados */}
-      <div className="bg-gradient-to-br from-blue-50 to-emerald-50 border border-blue-200 rounded-xl p-4">
+      {/* Chrome azul Comercial (canon alineación) · el emerald queda solo en datos (descuentos) */}
+      <div className="bg-gradient-to-br from-blue-50 to-blue-100/40 border border-blue-200 rounded-xl p-4">
         <div className="text-xs font-semibold text-blue-900 uppercase tracking-wide mb-3">
           Cálculo del total OC
         </div>
