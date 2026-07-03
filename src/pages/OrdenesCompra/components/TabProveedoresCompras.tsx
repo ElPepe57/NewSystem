@@ -61,8 +61,12 @@ export const TabProveedoresCompras: React.FC<Props> = ({ proveedores, ordenes, e
     return proveedores
       .map((p) => {
         const calc = porProveedor.get(p.id) || { gasto: 0, ocs: 0 };
-        const gasto = calc.gasto || p.metricas?.montoTotalUSD || 0;
-        const ocs = calc.ocs || p.metricas?.ordenesCompra || 0;
+        // SOLO la verdad viva (OCs reales). El fallback a proveedor.metricas se quitó
+        // (UAT 2026-07-03): es un ACUMULADOR incremental que nunca se recalcula y
+        // sobrevivió al fresh-start — mostraba "2 OCs · $706" fantasma sin ninguna
+        // OC en el sistema. Su saneamiento integral va con Maestros (scorecard SRM).
+        const gasto = calc.gasto;
+        const ocs = calc.ocs;
         return {
           p,
           gasto,
