@@ -16,13 +16,16 @@ export interface WizardStep {
 /** Acento de color del wizard (chrome: paso activo del stepper + botón primary). Default teal. */
 export type WizardAccent = 'teal' | 'blue' | 'violet' | 'orange' | 'indigo' | 'slate';
 
-const ACCENT_STYLES: Record<WizardAccent, { stepActive: string; primary: string }> = {
-  teal: { stepActive: 'bg-teal-600 text-white scale-105 ring-4 ring-teal-100', primary: 'bg-teal-600 hover:bg-teal-700' },
-  blue: { stepActive: 'bg-blue-600 text-white scale-105 ring-4 ring-blue-100', primary: 'bg-blue-600 hover:bg-blue-700' },
-  violet: { stepActive: 'bg-violet-600 text-white scale-105 ring-4 ring-violet-100', primary: 'bg-violet-600 hover:bg-violet-700' },
-  orange: { stepActive: 'bg-orange-600 text-white scale-105 ring-4 ring-orange-100', primary: 'bg-orange-600 hover:bg-orange-700' },
-  indigo: { stepActive: 'bg-indigo-600 text-white scale-105 ring-4 ring-indigo-100', primary: 'bg-indigo-600 hover:bg-indigo-700' },
-  slate: { stepActive: 'bg-slate-700 text-white scale-105 ring-4 ring-slate-200', primary: 'bg-slate-700 hover:bg-slate-800' },
+// Canon de alineación de color (2026-07-01): los estados del wizard (actual Y
+// completado) van en el color del GRUPO del módulo — el completado ya no es
+// verde universal (era chrome fuera de paleta · el check ✓ ya comunica "hecho").
+const ACCENT_STYLES: Record<WizardAccent, { stepActive: string; primary: string; stepDone: string; stepDoneHover: string; stepDoneLabel: string; stepDoneLine: string }> = {
+  teal: { stepActive: 'bg-teal-600 text-white scale-105 ring-4 ring-teal-100', primary: 'bg-teal-600 hover:bg-teal-700', stepDone: 'bg-teal-500 text-white', stepDoneHover: 'group-hover:bg-teal-600', stepDoneLabel: 'text-teal-700', stepDoneLine: 'bg-teal-500' },
+  blue: { stepActive: 'bg-blue-600 text-white scale-105 ring-4 ring-blue-100', primary: 'bg-blue-600 hover:bg-blue-700', stepDone: 'bg-blue-500 text-white', stepDoneHover: 'group-hover:bg-blue-600', stepDoneLabel: 'text-blue-700', stepDoneLine: 'bg-blue-500' },
+  violet: { stepActive: 'bg-violet-600 text-white scale-105 ring-4 ring-violet-100', primary: 'bg-violet-600 hover:bg-violet-700', stepDone: 'bg-violet-500 text-white', stepDoneHover: 'group-hover:bg-violet-600', stepDoneLabel: 'text-violet-700', stepDoneLine: 'bg-violet-500' },
+  orange: { stepActive: 'bg-orange-600 text-white scale-105 ring-4 ring-orange-100', primary: 'bg-orange-600 hover:bg-orange-700', stepDone: 'bg-orange-500 text-white', stepDoneHover: 'group-hover:bg-orange-600', stepDoneLabel: 'text-orange-700', stepDoneLine: 'bg-orange-500' },
+  indigo: { stepActive: 'bg-indigo-600 text-white scale-105 ring-4 ring-indigo-100', primary: 'bg-indigo-600 hover:bg-indigo-700', stepDone: 'bg-indigo-500 text-white', stepDoneHover: 'group-hover:bg-indigo-600', stepDoneLabel: 'text-indigo-700', stepDoneLine: 'bg-indigo-500' },
+  slate: { stepActive: 'bg-slate-700 text-white scale-105 ring-4 ring-slate-200', primary: 'bg-slate-700 hover:bg-slate-800', stepDone: 'bg-slate-600 text-white', stepDoneHover: 'group-hover:bg-slate-700', stepDoneLabel: 'text-slate-700', stepDoneLine: 'bg-slate-500' },
 };
 
 interface WizardShellProps {
@@ -109,9 +112,9 @@ const Stepper: React.FC<{
                 className={cn(
                   'w-9 h-9 rounded-full flex items-center justify-center text-xs font-semibold transition-all duration-200',
                   isActive && ACCENT_STYLES[accent].stepActive,
-                  isDone && 'bg-emerald-500 text-white',
+                  isDone && ACCENT_STYLES[accent].stepDone,
                   isPending && 'bg-slate-200 text-slate-500',
-                  isClickable && isDone && 'group-hover:bg-emerald-600'
+                  isClickable && isDone && ACCENT_STYLES[accent].stepDoneHover
                 )}
               >
                 {isDone ? <Check className="w-4 h-4" /> : index + 1}
@@ -121,7 +124,7 @@ const Stepper: React.FC<{
                   className={cn(
                     'text-xs font-medium transition-colors',
                     isActive && 'text-slate-900',
-                    isDone && 'text-emerald-700',
+                    isDone && ACCENT_STYLES[accent].stepDoneLabel,
                     isPending && 'text-slate-400'
                   )}
                 >
@@ -138,7 +141,7 @@ const Stepper: React.FC<{
               <div
                 className={cn(
                   'flex-1 h-0.5 mx-2 transition-colors',
-                  isDone ? 'bg-emerald-500' : 'bg-slate-200'
+                  isDone ? ACCENT_STYLES[accent].stepDoneLine : 'bg-slate-200'
                 )}
               />
             )}

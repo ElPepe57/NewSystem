@@ -31,11 +31,13 @@ import { analizarPrecio } from '../../../../utils/precioInteligencia.helper';
 // F3 · semáforo de precio inline (componente compartido · DRY con OCBuilder)
 import { SemaforoPrecioInline, type ReferenciaPrecio } from '../SemaforoPrecioInline';
 
-// Ícono tonal por línea (reemplaza el emoji · canon F8 · espejo de ProductoDisplay)
+// Ícono tonal por línea (canon F8 sin emoji + canon de alineación de color:
+// el avatar es CHROME → azul Comercial para TODOS los hermanos · el tipo de
+// producto se distingue por la FORMA del ícono, no por color).
 function iconoDeProducto(p: { atributosSkincare?: unknown; presentacion?: string; dosaje?: string; lineaNegocio?: string }) {
-  if (p.atributosSkincare) return { Icon: Sparkles, bg: 'bg-pink-50', text: 'text-pink-600' };
-  if (p.presentacion || p.dosaje || p.lineaNegocio === 'SUP') return { Icon: Pill, bg: 'bg-teal-50', text: 'text-teal-600' };
-  return { Icon: Package, bg: 'bg-slate-100', text: 'text-slate-500' };
+  if (p.atributosSkincare) return { Icon: Sparkles, bg: 'bg-blue-50', text: 'text-blue-600' };
+  if (p.presentacion || p.dosaje || p.lineaNegocio === 'SUP') return { Icon: Pill, bg: 'bg-blue-50', text: 'text-blue-600' };
+  return { Icon: Package, bg: 'bg-blue-50', text: 'text-blue-600' };
 }
 
 // ════════════════════════════════════════════════════════════════════════════
