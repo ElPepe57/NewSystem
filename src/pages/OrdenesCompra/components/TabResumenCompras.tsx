@@ -7,7 +7,6 @@ import {
 } from 'lucide-react';
 import type { OrdenCompra, OrdenCompraStats, Proveedor } from '../../../types/ordenCompra.types';
 import type { Requerimiento } from '../../../types/requerimiento.types';
-import { EmptyDashboardSkeleton } from '../../../design-system';
 import { useProductoIntelStore } from '../../../store/productoIntelStore';
 import { calcularPendientesCompra, resumenPendientes } from '../../../components/modules/ordenCompra/pendientesCompra.helper';
 import { UMBRAL_AUTORIZACION_SOCIO_USD } from '../../../services/autorizacionEgreso.helper';
@@ -353,26 +352,36 @@ export const TabResumenCompras: React.FC<TabResumenComprasProps> = ({
 
   const sinDatos = activas.length === 0;
 
-  // ════════════════════ EMPTY STATE · esqueleto estructural (sin OCs) ════════════════════
+  // ════════════════════ EMPTY STATE · modelo estándar (sin OCs) ════════════════════
+  // (El esqueleto fantasma de la anatomía fue retirado a pedido del titular · 2026-07-03)
   if (sinDatos) {
     return (
       <div className="bg-slate-50/30 p-4 sm:p-6">
-        <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8">
-          <EmptyDashboardSkeleton
-            color="blue"
-            icon={ShoppingCart}
-            titulo="Aún no hay órdenes de compra"
-            subtitulo="Vista previa · así se verá cuando registres tu primera OC"
-            cta={{ label: 'Nueva orden de compra', icon: Plus, onClick: onNuevaOC }}
-            ctaSecundario={{ label: 'Ver pendientes', icon: ClipboardList, onClick: () => onIrTab('pendientes') }}
-            bloques={[
-              { tipo: 'banner', label: 'Salud de compras' },
-              { tipo: 'charts', items: [{ label: 'Gasto por proveedor', forma: 'donut' }, { label: 'Tendencia de compras · 6 meses', forma: 'bars' }] },
-              { tipo: 'stats', label: 'Insights del mes', items: ['Lead time', 'Concentración', 'Cumplim. pago', 'FX acumulado'] },
-              { tipo: 'links', label: 'Conecta con · 360', items: ['Envíos', 'Inventario', 'Finanzas', 'Requerimientos'] },
-              { tipo: 'list', label: 'Alertas', filas: 2 },
-            ]}
-          />
+        <div className="bg-white border border-slate-200 rounded-2xl p-10 text-center">
+          <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-3">
+            <ShoppingCart className="w-7 h-7 text-blue-300" />
+          </div>
+          <div className="text-[15px] font-bold text-slate-900">Aún no hay órdenes de compra</div>
+          <p className="text-[12px] text-slate-500 mt-1 max-w-sm mx-auto">
+            El resumen ejecutivo — salud de compras, gasto por proveedor, tendencia e insights —
+            cobra vida cuando registres tu primera OC.
+          </p>
+          <div className="flex items-center justify-center gap-2 mt-4 flex-wrap">
+            <button
+              type="button"
+              onClick={onNuevaOC}
+              className="bg-blue-600 hover:bg-blue-700 text-white text-[12px] font-bold px-3.5 py-2 rounded-lg flex items-center gap-1.5"
+            >
+              <Plus className="w-3.5 h-3.5" /> Nueva orden de compra
+            </button>
+            <button
+              type="button"
+              onClick={() => onIrTab('pendientes')}
+              className="bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 text-[12px] font-semibold px-3.5 py-2 rounded-lg flex items-center gap-1.5"
+            >
+              <ClipboardList className="w-3.5 h-3.5" /> Ver pendientes
+            </button>
+          </div>
         </div>
       </div>
     );

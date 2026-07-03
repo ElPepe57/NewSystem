@@ -94,8 +94,6 @@ export { BorradorBanner } from './components/BorradorBanner';
 export { SeccionColapsable } from './components/SeccionColapsable';
 
 // chk5.COMERCIALES · Empty-state de dashboards · esqueleto estructural (patrón reutilizable del ERP)
-export { EmptyDashboardSkeleton } from './components/EmptyDashboardSkeleton';
-export type { PreviewBloque } from './components/EmptyDashboardSkeleton';
 
 // S3.6 M1 chk3 · FiltrosBar componible (canon F3 v7.0 · de Productos)
 export * from './components/filters';

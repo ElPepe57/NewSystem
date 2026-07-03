@@ -2,7 +2,6 @@ import React, { useMemo } from 'react';
 import { BrainCircuit, TrendingUp, TrendingDown, Package, ArrowUpRight, BarChart3, Tag, Trophy, Minus, AlertTriangle } from 'lucide-react';
 import type { OrdenCompra, Proveedor } from '../../../types/ordenCompra.types';
 import type { IncidenciaOC, TipoIncidenciaOC } from '../../../types/incidenciaOC.types';
-import { EmptyDashboardSkeleton } from '../../../design-system';
 
 // chk5.COMERCIALES-F3c · Tab Inteligencia del hub de Compras · vista AGREGADA de compra.
 // Eleva sin duplicar el Resumen (que da concentración por proveedor + FX). Aquí:
@@ -214,20 +213,28 @@ export const TabInteligenciaCompras: React.FC<Props> = ({ ordenes, proveedores, 
       <div className="bg-slate-50/30 p-4 sm:p-6 space-y-4">
         {/* A6 · si hay incidencias, se muestran aunque no haya detalle de SKUs para analizar */}
         {incid && incid.total > 0 && incidenciasBlock}
-        <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8">
-          <EmptyDashboardSkeleton
-            color="blue"
-            icon={BrainCircuit}
-            titulo={hayOCs ? 'Sin detalle de productos para analizar' : 'Aún no hay inteligencia de compra'}
-            subtitulo={hayOCs ? 'Vista previa · tus OCs aún no tienen líneas con precio para agregar' : 'Vista previa · así se verá cuando registres tu primera OC'}
-            cta={{ label: 'Ir a Cost Intelligence', icon: ArrowUpRight, onClick: () => navigate('/intel-productos') }}
-            bloques={[
-              { tipo: 'stats', items: ['SKUs comprados', 'Total comprado', 'Con histórico de precio'] },
-              { tipo: 'charts', items: [{ label: 'Top SKUs por gasto', forma: 'bars' }, { label: 'Movimientos de precio', forma: 'bars' }] },
-              { tipo: 'list', label: 'Competitividad de precios · proveedores', filas: 3 },
-              { tipo: 'links', label: 'Análisis profundo', items: ['Cost Intelligence', 'Price Advisor'] },
-            ]}
-          />
+        {/* Empty estándar (el esqueleto fantasma fue retirado a pedido del titular · 2026-07-03) */}
+        <div className="bg-white border border-slate-200 rounded-2xl p-10 text-center">
+          <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-3">
+            <BrainCircuit className="w-7 h-7 text-blue-300" />
+          </div>
+          <div className="text-[15px] font-bold text-slate-900">
+            {hayOCs ? 'Sin detalle de productos para analizar' : 'Aún no hay inteligencia de compra'}
+          </div>
+          <p className="text-[12px] text-slate-500 mt-1 max-w-sm mx-auto">
+            {hayOCs
+              ? 'Tus OCs aún no tienen líneas con precio para agregar al análisis.'
+              : 'Los indicadores de compra — SKUs, gasto, histórico de precios y competitividad — cobran vida con tu primera OC.'}
+          </p>
+          <div className="flex items-center justify-center gap-2 mt-4">
+            <button
+              type="button"
+              onClick={() => navigate('/intel-productos')}
+              className="bg-blue-600 hover:bg-blue-700 text-white text-[12px] font-bold px-3.5 py-2 rounded-lg flex items-center gap-1.5"
+            >
+              <ArrowUpRight className="w-3.5 h-3.5" /> Ir a Cost Intelligence
+            </button>
+          </div>
         </div>
       </div>
     );
