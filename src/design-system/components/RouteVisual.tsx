@@ -53,19 +53,28 @@ export interface RouteSegment {
 export type RouteVisualAccent = 'teal' | 'blue';
 
 const ROUTE_ACCENTS: Record<RouteVisualAccent, {
-  nodeActive: string; codigo: string; lineActive: string; lineDone: string;
+  nodeActive: string; nodeDone: string; nodePending: string; nodeEmpty: string;
+  codigo: string; lineActive: string; lineDone: string;
   arrowActive: string; arrowDone: string;
 }> = {
+  // 'teal' = look histórico de Envíos (caja blanca border-2) · intacto hasta su barrido.
   teal: {
-    nodeActive: 'bg-teal-50 border-teal-400 text-teal-900 ring-2 ring-teal-100',
+    nodeActive: 'border-2 bg-teal-50 border-teal-400 text-teal-900 ring-2 ring-teal-100',
+    nodeDone: 'border-2 bg-white border-slate-300 text-slate-800',
+    nodePending: 'border-2 bg-slate-100 border-slate-200 text-slate-400',
+    nodeEmpty: 'border-2 border-dashed bg-slate-50 border-slate-300 text-slate-400',
     codigo: 'text-teal-600',
     lineActive: 'bg-teal-500',
     lineDone: 'bg-emerald-500',
     arrowActive: 'text-teal-500',
     arrowDone: 'text-emerald-500',
   },
+  // 'blue' = look DS canon (avatar tonal · como OCRutaVerticalSidebar/StepRuta).
   blue: {
-    nodeActive: 'bg-blue-50 border-blue-400 text-blue-900 ring-2 ring-blue-100',
+    nodeActive: 'border bg-blue-50 border-blue-400 text-blue-700 ring-2 ring-blue-500/25',
+    nodeDone: 'border bg-blue-50 border-blue-200 text-blue-600',
+    nodePending: 'border bg-slate-50 border-slate-200 text-slate-400',
+    nodeEmpty: 'border border-dashed bg-slate-50 border-slate-300 text-slate-400',
     codigo: 'text-blue-600',
     lineActive: 'bg-blue-500',
     lineDone: 'bg-blue-500',
@@ -116,24 +125,27 @@ const NodeDisplay: React.FC<{ node: RouteNode; size: 'sm' | 'md' | 'lg'; accent:
   const icon = node.icon ?? tipoIcon;
 
   const sizeMap = {
-    sm: { box: 'w-12 h-12', flag: 'text-xl', label: 'text-xs', sub: 'text-[10px]' },
-    md: { box: 'w-16 h-16', flag: 'text-2xl', label: 'text-sm', sub: 'text-xs' },
-    lg: { box: 'w-20 h-20', flag: 'text-3xl', label: 'text-sm', sub: 'text-xs' },
+    // `icon`: escala el lucide interno en proporción al box (antes quedaba w-4 fijo
+    // perdido en un box de 64px · alineación al avatar tonal del DS).
+    sm: { box: 'w-12 h-12', flag: 'text-xl', label: 'text-xs', sub: 'text-[10px]', icon: '[&_svg]:w-4 [&_svg]:h-4' },
+    md: { box: 'w-16 h-16', flag: 'text-2xl', label: 'text-sm', sub: 'text-xs', icon: '[&_svg]:w-5 [&_svg]:h-5' },
+    lg: { box: 'w-20 h-20', flag: 'text-3xl', label: 'text-sm', sub: 'text-xs', icon: '[&_svg]:w-6 [&_svg]:h-6' },
   }[size];
 
   const stateClasses = {
-    pending: 'bg-slate-100 border-slate-200 text-slate-400',
+    pending: ROUTE_ACCENTS[accent].nodePending,
     active: ROUTE_ACCENTS[accent].nodeActive,
-    done: 'bg-white border-slate-300 text-slate-800',
-    empty: 'bg-slate-50 border-dashed border-slate-300 text-slate-400',
+    done: ROUTE_ACCENTS[accent].nodeDone,
+    empty: ROUTE_ACCENTS[accent].nodeEmpty,
   }[state];
 
   return (
     <div className="flex flex-col items-center gap-1.5 flex-shrink-0 min-w-0 text-center">
       <div
         className={cn(
-          'rounded-xl border-2 flex items-center justify-center transition-colors',
+          'rounded-xl flex items-center justify-center transition-colors',
           sizeMap.box,
+          sizeMap.icon,
           stateClasses
         )}
       >
