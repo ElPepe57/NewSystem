@@ -1336,6 +1336,12 @@ export async function confirmarOC(
           // (por_valor/por_peso/por_cantidad). Default total_por_valor para
           // sub-órdenes consolidadas, impuestos y 'proporcional'.
           metodoProrrateo: metodoProrrateoMap[item.metodoProrrateo ?? ''] ?? 'total_por_valor',
+          // Fix 2026-07-03 (money-path · Caja 1): los cargos/descuentos/impuestos
+          // capturados en el wizard son la FACTURA del proveedor — al confirmar la
+          // OC son montos FIRMES → nacen 'confirmado' (precedente Cambio 6: aduana).
+          // Antes nacían 'estimado' (default) y la recepción solo congela confirmados
+          // → el dinero de la OC NUNCA llegaba al CTRU salvo confirmación manual.
+          estado: 'confirmado',
           pagado: false,
         },
         userId
@@ -1510,10 +1516,18 @@ async function aplicarRecojoEnOrigen(
   const landedComponentesPorUnidad = new Map<string, ComponenteCostoUnidad[]>();
   for (const envio of enviosDeOC) {
     if (!envio.costosLanded || envio.costosLanded.length === 0) continue;
+    // Fix 2026-07-03: solo se congelan costos CONFIRMADOS (mismo filtro que
+    // registrarRecepcion · inmutabilidad: un estimado puede cambiar al confirmarse
+    // y se materializa después vía confirmarCostoLanded → backfill idempotente).
+    // Los heredados de la OC ya nacen 'confirmado' (factura firme del proveedor).
+    const costosConfirmados = envio.costosLanded.filter(
+      c => (c.estado ?? 'estimado') === 'confirmado'
+    );
+    if (costosConfirmados.length === 0) continue;
     const todasUnidades = envio.unidades || [];
     const unidadesPorTanda = buildUnidadesPorTanda(envio.subEnvios, todasUnidades);
     const comps = prorratearLandedAComponentes(
-      envio.costosLanded,
+      costosConfirmados,
       todasUnidades,
       unidadesPorTanda,
       productosInfo,
