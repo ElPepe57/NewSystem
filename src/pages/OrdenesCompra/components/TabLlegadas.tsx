@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import type { RadarAtrasadosResult, FilaRadarLlegada } from '../useRadarAtrasados';
 import { GRAVEDAD_META, barWidthPct, CULPABLE_META, LEAD_FUENTE_LABEL } from '../radarLlegadas.ui';
-import { EmpujarProveedorModal } from './EmpujarProveedorModal';
+import { EmpujarLogisticaModal } from './EmpujarLogisticaModal';
 
 interface TabLlegadasProps {
   radar: RadarAtrasadosResult;
@@ -291,8 +291,8 @@ export const TabLlegadas: React.FC<TabLlegadasProps> = ({ radar, navigate }) => 
         </aside>
       </div>
 
-      {/* Modal "Empujar proveedor" · la única acción de captura propia */}
-      <EmpujarProveedorModal fila={empujar} onClose={() => setEmpujar(null)} />
+      {/* Modal "Empujar logística" · comunicado INTERNO (F2 · Opción A) · la única acción de captura propia */}
+      <EmpujarLogisticaModal fila={empujar} onClose={() => setEmpujar(null)} />
 
       {/* nota de ownership · cierra la regla (cross-link vs operable) */}
       <div className="text-[10px] text-slate-400 flex items-start gap-1.5">
