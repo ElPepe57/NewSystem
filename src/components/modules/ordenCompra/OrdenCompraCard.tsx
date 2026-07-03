@@ -6,9 +6,9 @@
  * El marcador "NO MODIFICAR" quedó DEROGADO. En rework hacia drill full-page + tab Resumen
  * §A-F + FormModalV2 + lucide (sin emojis) + color Comercial (blue). Validar contra mockup antes de tocar.
  */
-import React, { useMemo, useState, useCallback } from 'react';
+import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import { formatFecha as formatDate } from '../../../utils/dateFormatters';
-import { Package, Truck, CreditCard, ChevronLeft, ChevronRight, Layers, Send, Plane, PersonStanding, PackageOpen, Receipt, TriangleAlert, Brain, History, FolderOpen, PenLine, ShieldAlert } from 'lucide-react';
+import { Package, Truck, CreditCard, ChevronLeft, ChevronRight, Layers, Send, Plane, PersonStanding, PackageOpen, TriangleAlert, Brain, History, PenLine, ShieldAlert, LayoutDashboard, GitBranch, ExternalLink, PackageCheck, Wallet, MapPin, AlertOctagon, ShieldCheck, CheckCircle2, Boxes, Split, Flag, Clock, Info, TrendingUp, X } from 'lucide-react';
 import { requiereAutorizacionSocio } from '../../../services/autorizacionEgreso.helper';
 import { Button } from '../../common';
 import { StatusBadge, cn } from '../../../design-system';
@@ -34,6 +34,12 @@ import { usePagosOC } from '../../../hooks/usePagosOC';
 import { Trash2, Edit3, Ban } from 'lucide-react';
 import { SubOrdenCard } from './SubOrdenCard';
 import { EnviosDeOC } from './EnviosDeOC';
+// F1 · Tab Resumen — envíos reales de la OC (CTA "Recibir envío EN-XXXX" + pill §A + contadores §B)
+import { envioCrudService } from '../../../services/envio.crud.service';
+import type { Envio } from '../../../types/envio.types';
+// F1 · §C Plan vs Real — landed real desde las unidades de la OC (misma fuente que OCLandedCard)
+import { unidadService } from '../../../services/unidad.service';
+import { resumirLandedOC, type ResumenLandedOC } from '../../../utils/ctru.utils';
 import { ConfirmarOCModal } from './ConfirmarOCModal';
 import { IncidenciasOCPanel } from './IncidenciasOCPanel';
 import { InteligenciaOCPanel } from './InteligenciaOCPanel';
@@ -86,17 +92,18 @@ const estadoPagoLabels: Record<EstadoPagoOC, { label: string; variant: 'success'
   pagado: { label: 'Pagada', variant: 'success' }
 };
 
-/** S54 — Tabs del detalle de OC (Tanda 1: migración a tabs). */
+/** F1 rework detalle OC — tabs según master compras-master-v1.html · Acto 8 (7 tabs).
+ *  'resumen' es el default (dashboard ejecutivo §A→§F) · 'productos' fusiona el legacy
+ *  Productos + Cargos & Totales ("Productos & Costos") · Documentos y Timeline salieron
+ *  de la barra (Timeline vive como drawer flotante · botón Historial en el header). */
 type TabOC =
+  | 'resumen'
   | 'productos'
-  | 'cargos'
   | 'pagos'
   | 'subordenes'
   | 'envios'
   | 'incidencias'
-  | 'documentos'
-  | 'inteligencia'
-  | 'timeline';
+  | 'inteligencia';
 
 /** S54 — Meta del divider "PROGRESO" en RouteCardV2: "Creada 23 abr · Completada 23 abr". */
 function buildPipelineMeta(
@@ -134,8 +141,8 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
   const [vistaInterna, setVistaInterna] = useState<'detalle' | 'confirmar'>('detalle');
   // Submit flag para pasarlo al embedded ConfirmarOCModal
   const [confirmandoSubs, setConfirmandoSubs] = useState(false);
-  // S54 — Tab activo dentro del detalle (Tanda 1). Default 'productos'.
-  const [tab, setTab] = useState<TabOC>('productos');
+  // F1 — Tab activo del detalle. Default 'resumen' (master Acto 8 · dashboard ejecutivo §A→§F).
+  const [tab, setTab] = useState<TabOC>('resumen');
   // S54 — Fade dinámico para scroll horizontal de la barra de tabs (V1).
   // Expone scrollPrev/scrollNext + flags para flechas que solo aparecen cuando
   // hay overflow en esa dirección.
@@ -365,6 +372,151 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
   // El array `pagos` reemplaza el legacy `orden.historialPagos`.
   const { pagos: pagosCC, totalPagadoUSD } = usePagosOC(orden.id);
   const subOrdenesCount = orden.subOrdenes?.length ?? 0;
+  const tieneSubs = subOrdenesCount > 0;
+  const totalPendienteUSD = Math.max(0, orden.totalUSD - totalPagadoUSD);
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // F1 · Tab Resumen — datos reales (master Acto 8)
+  // ═══════════════════════════════════════════════════════════════════════
+
+  // Envíos reales de la OC · fetch dirigido (mismo servicio que EnviosDeOC · no clobbea stores).
+  const [enviosOC, setEnviosOC] = useState<Envio[]>([]);
+  useEffect(() => {
+    if (orden.estado === 'borrador' || orden.estado === 'cancelada') {
+      setEnviosOC([]);
+      return;
+    }
+    let cancelled = false;
+    envioCrudService
+      .getByFiltros({ ordenCompraId: orden.id })
+      .then((list) => {
+        if (!cancelled) setEnviosOC(list);
+      })
+      .catch(() => {
+        if (!cancelled) setEnviosOC([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [orden.id, orden.estado]);
+
+  const enviosActivos = useMemo(() => enviosOC.filter((e) => e.estado !== 'cancelada'), [enviosOC]);
+  // Envío "no recibido" → destino del CTA "Recibir envío EN-XXXX" del header y de la pill §A.
+  const envioPendiente = useMemo(
+    () =>
+      enviosActivos.find(
+        (e) => e.estado !== 'recibida_completa' && e.estado !== 'entregada' && e.estado !== 'perdida_total'
+      ) ?? null,
+    [enviosActivos]
+  );
+
+  // §B · contadores de recepción — recibidas = Σ cantidadRecibida de la OC (fuente autoritativa) ·
+  // en tránsito = unidades asignadas a envíos activos aún no recepcionadas · faltante = resto.
+  const recepcion = useMemo(() => {
+    const recibidas = totalRecibido;
+    const enTransito = enviosActivos.reduce(
+      (s, e) => s + Math.max(0, (e.totalUnidades || 0) - (e.totalUnidadesRecibidas || 0)),
+      0
+    );
+    const faltante = Math.max(0, totalOrdenado - recibidas - enTransito);
+    const pct = totalOrdenado > 0 ? Math.round((recibidas / totalOrdenado) * 100) : 0;
+    return { recibidas, enTransito, faltante, pct, total: totalOrdenado };
+  }, [enviosActivos, totalOrdenado, totalRecibido]);
+
+  // §A · banner de estado del ciclo — tono + textos por estado (master muestra la variante
+  // "en tránsito" en sky · el resto de estados usa el mismo patrón con su tono semántico).
+  const ciclo = useMemo(() => {
+    const TONOS = {
+      amber: { grad: 'from-amber-50 to-amber-100/30', ring: 'ring-amber-200/60', iconBg: 'bg-amber-100', icon: 'text-amber-700', titulo: 'text-amber-900', texto: 'text-amber-700' },
+      sky: { grad: 'from-sky-50 to-sky-100/30', ring: 'ring-sky-200/60', iconBg: 'bg-sky-100', icon: 'text-sky-700', titulo: 'text-sky-900', texto: 'text-sky-700' },
+      emerald: { grad: 'from-emerald-50 to-emerald-100/30', ring: 'ring-emerald-200/60', iconBg: 'bg-emerald-100', icon: 'text-emerald-700', titulo: 'text-emerald-900', texto: 'text-emerald-700' },
+      rose: { grad: 'from-rose-50 to-rose-100/30', ring: 'ring-rose-200/60', iconBg: 'bg-rose-100', icon: 'text-rose-700', titulo: 'text-rose-900', texto: 'text-rose-700' },
+    } as const;
+    const e = orden.estado;
+    if (e === 'cancelada') {
+      return { ...TONOS.rose, Icon: Ban, tituloTexto: 'OC cancelada', descTexto: 'El ciclo se cerró sin completar la recepción. El detalle queda como registro histórico.' };
+    }
+    if (e === 'completada' || e === 'recibida') {
+      return { ...TONOS.emerald, Icon: CheckCircle2, tituloTexto: 'Ciclo completo · mercadería recibida', descTexto: `${recepcion.recibidas} de ${recepcion.total} unidades recepcionadas · el costo por unidad quedó congelado (CTRU).` };
+    }
+    if (e === 'borrador') {
+      return { ...TONOS.amber, Icon: Edit3, tituloTexto: 'Borrador sin confirmar', descTexto: 'Confirma la OC para crear las unidades pedidas y el envío de recepción.' };
+    }
+    if (e === 'confirmada' || e === 'enviada') {
+      return { ...TONOS.sky, Icon: Send, tituloTexto: 'OC confirmada · unidades pedidas al proveedor', descTexto: `${recepcion.recibidas} de ${recepcion.total} unidades recepcionadas.${envioPendiente ? ' La recepción se registra sobre el envío vinculado. Próximo paso operativo:' : ''}` };
+    }
+    // en_proceso / despachada / en_transito / recibida_parcial
+    const etaTxt = envioPendiente?.fechaLlegadaEstimada ? ` El envío ${envioPendiente.numeroEnvio} llega estimado ${formatDate(envioPendiente.fechaLlegadaEstimada)}.` : '';
+    return {
+      ...TONOS.sky,
+      Icon: Truck,
+      tituloTexto: recepcion.recibidas > 0 ? 'Mercadería en tránsito · recepción parcial pendiente' : 'Mercadería en tránsito · recepción pendiente',
+      descTexto: `${recepcion.recibidas} de ${recepcion.total} unidades recepcionadas.${etaTxt}${envioPendiente ? ' Próximo paso operativo:' : ''}`,
+    };
+  }, [orden.estado, recepcion, envioPendiente]);
+
+  // §A · origen — requerimiento(s) real(es) de la OC (singular legacy o multi-req consolidada).
+  const reqNumero = orden.requerimientoNumero || orden.requerimientoNumeros?.[0];
+  const reqExtra = Math.max(0, (orden.requerimientoNumeros?.length ?? (orden.requerimientoNumero ? 1 : 0)) - 1);
+
+  // §D · ¿el pago puede registrarse directo? (mismo gating que el CTA del tab Pagos ·
+  // si requiere firma de socio, el card enruta al tab Pagos donde vive la autorización).
+  const puedeRegistrarPagoDirecto =
+    !!onRegistrarPago &&
+    orden.estadoPago !== 'pagado' &&
+    orden.estado !== 'borrador' &&
+    orden.estado !== 'cancelada' &&
+    !necesitaAutorizacion;
+
+  // §E · autorización de socio — SOLO si la OC tiene el dato real (orden.autorizacion).
+  const autorizacionBanda = useMemo(() => {
+    const a = orden.autorizacion;
+    if (!a) return null;
+    if (a.estado === 'aprobado') {
+      const firmasTxt = (a.firmas || [])
+        .map((f) => `${f.nombre || 'Socio'} (${formatDate(f.fecha)})`)
+        .join(' · ');
+      return {
+        grad: 'from-emerald-50 to-emerald-100/30', ring: 'ring-emerald-200/60', iconBg: 'bg-emerald-100', icon: 'text-emerald-700', titulo: 'text-emerald-900', texto: 'text-emerald-700',
+        badge: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+        Icon: ShieldCheck, BadgeIcon: CheckCircle2,
+        tituloTexto: 'Doble firma completa', badgeTexto: 'Autorizada',
+        descTexto: `Firmada por ${firmasTxt || 'los socios'} · monto sobre el umbral requería doble firma.`,
+      };
+    }
+    if (a.estado === 'rechazado') {
+      return {
+        grad: 'from-rose-50 to-rose-100/30', ring: 'ring-rose-200/60', iconBg: 'bg-rose-100', icon: 'text-rose-700', titulo: 'text-rose-900', texto: 'text-rose-700',
+        badge: 'bg-rose-50 text-rose-700 border-rose-200',
+        Icon: ShieldAlert, BadgeIcon: X,
+        tituloTexto: 'Autorización rechazada', badgeTexto: 'Rechazada',
+        descTexto: a.motivoRechazo ? `Motivo: ${a.motivoRechazo}` : 'El egreso fue rechazado por un socio · el pago queda bloqueado.',
+      };
+    }
+    return {
+      grad: 'from-violet-50 to-violet-100/30', ring: 'ring-violet-200/60', iconBg: 'bg-violet-100', icon: 'text-violet-700', titulo: 'text-violet-900', texto: 'text-violet-700',
+      badge: 'bg-violet-50 text-violet-700 border-violet-200',
+      Icon: ShieldAlert, BadgeIcon: PenLine,
+      tituloTexto: 'Autorización de socios pendiente', badgeTexto: 'Pendiente',
+      descTexto: `${(a.firmas || []).length} de 2 firmas registradas · el pago queda bloqueado hasta completar la doble firma.`,
+    };
+  }, [orden.autorizacion]);
+
+  // §F · mini-stats — próximo hito + ETA (del envío pendiente real · '—' honesto si no hay ETA).
+  const { proximoHito, etaTexto } = useMemo(() => {
+    const raw: any = envioPendiente?.fechaLlegadaEstimada;
+    const etaDate: Date | null = raw ? (typeof raw.toDate === 'function' ? raw.toDate() : new Date(raw)) : null;
+    const etaDias = etaDate ? Math.ceil((etaDate.getTime() - Date.now()) / 86400000) : null;
+    const eta = etaDias === null ? '—' : etaDias >= 0 ? `${etaDias} día${etaDias === 1 ? '' : 's'}` : `vencida hace ${-etaDias}d`;
+    const hito = envioPendiente
+      ? `recepción ${envioPendiente.numeroEnvio}${etaDate ? ` · ${formatDate(etaDate)}` : ''}`
+      : orden.estado === 'borrador'
+        ? 'confirmar OC'
+        : orden.estadoPago !== 'pagado' && orden.estado !== 'cancelada'
+          ? 'pago del saldo'
+          : 'ciclo cerrado';
+    return { proximoHito: hito, etaTexto: eta };
+  }, [envioPendiente, orden.estado, orden.estadoPago]);
 
   // S54 — Tarjeta de ruta V2: proveedor → almacén PE (2 nodos) con pill de
   // modalidad arriba (courier/viajero/DDP/recojo). Datos derivados de la OC.
@@ -617,32 +769,48 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
             toneBg={rutaV2.toneBg}
           />
         </div>
-        {/* S53.9 — Botones Editar / Eliminar OC (solo en estado borrador).
-             Reemplaza los iconos inline de la tabla legacy (OrdenCompraTable). */}
-        {orden.estado === 'borrador' && (onEditarOC || onEliminarOC) && (
-          <div className="flex items-center justify-end gap-2 mt-3">
-            {onEditarOC && (
-              <button
-                type="button"
-                onClick={onEditarOC}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg transition-colors"
-              >
-                <Edit3 className="w-3.5 h-3.5" />
-                Editar OC
-              </button>
-            )}
-            {onEliminarOC && (
-              <button
-                type="button"
-                onClick={onEliminarOC}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg transition-colors"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-                Eliminar
-              </button>
-            )}
-          </div>
-        )}
+        {/* S53.9 — Botones Editar / Eliminar OC (solo en estado borrador) · F1 — se suman
+             el botón Historial (Timeline como drawer flotante · ya no es tab) y el CTA
+             primary "Recibir envío EN-XXXX" (master Acto 8 · la recepción se registra
+             sobre el ENVÍO · el CTA solo enruta al tab Envíos). */}
+        <div className="flex items-center justify-end gap-2 mt-3 flex-wrap">
+          {orden.estado === 'borrador' && onEditarOC && (
+            <button
+              type="button"
+              onClick={onEditarOC}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg transition-colors"
+            >
+              <Edit3 className="w-3.5 h-3.5" />
+              Editar OC
+            </button>
+          )}
+          {orden.estado === 'borrador' && onEliminarOC && (
+            <button
+              type="button"
+              onClick={onEliminarOC}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg transition-colors"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              Eliminar
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => setShowHistory(true)}
+            className="flex items-center gap-1.5 bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 text-[12px] font-semibold px-3.5 py-2 rounded-lg"
+          >
+            <History className="w-4 h-4" /> Historial
+          </button>
+          {envioPendiente && (
+            <button
+              type="button"
+              onClick={() => setTab('envios')}
+              className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[12px] font-semibold px-3.5 py-2 rounded-lg shadow-sm"
+            >
+              <PackageCheck className="w-4 h-4" /> Recibir envío {envioPendiente.numeroEnvio}
+            </button>
+          )}
+        </div>
       </div>
 
       {/* S54 · V-C — <EntityPipeline> separado ELIMINADO.
@@ -735,116 +903,286 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
           obsoleta post-refactor S52. Se elimina en cleanup siguiente. */}
 
       {/* ════════════════════════════════════════════════════════════════════
-          S54 · Tanda 1 — BARRA DE TABS
-          Reorganiza el detalle de OC en pestañas consistentes con Envío.
-          Tabs condicionales: Sub-órdenes solo si existen.
+          F1 — BARRA DE TABS reestructurada al master Acto 8 (L1739-1750).
+          7 tabs · Resumen default · "Productos & Costos" fusiona el legacy
+          Productos + Cargos · Documentos fuera (era placeholder) · Timeline →
+          drawer flotante (botón Historial en el header). Sub-órdenes solo si
+          existen (dato condicional). Sticky + flechas de scroll preservados
+          (funcionales dentro del Modal · paridad con EnvioDetailModal).
           ════════════════════════════════════════════════════════════════════ */}
-      {(() => {
-        const tieneSubs = !!(orden.subOrdenes && orden.subOrdenes.length > 0);
-        const totalPendienteUSD = Math.max(0, orden.totalUSD - totalPagadoUSD);
-        const badgePagos =
-          estadoPagoInfo.variant === 'success'
-            ? undefined
-            : `$${totalPendienteUSD.toFixed(0)}`;
-        return (
-          // S54.x — sticky top-0 para que los tabs sigan visibles mientras el
-          // usuario scrollea el contenido del Modal (paridad con EnvioDetailModal).
-          <div className="relative border-b border-slate-200 sticky top-0 z-10 bg-white -mx-6 px-6">
-            {/* Flecha izquierda (aparece solo si hay scroll ocultable a la izquierda) */}
-            {tabsCanLeft && (
-              <button
-                type="button"
-                onClick={tabsScrollPrev}
-                aria-label="Desplazar tabs a la izquierda"
-                className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 flex items-center justify-center bg-white border border-slate-200 rounded-full shadow-sm hover:bg-slate-50 hover:border-slate-300 text-slate-600 transition-colors"
-              >
-                <ChevronLeft className="w-3.5 h-3.5" />
-              </button>
-            )}
-            {/* Flecha derecha (aparece solo si hay scroll oculto a la derecha) */}
-            {tabsCanRight && (
-              <button
-                type="button"
-                onClick={tabsScrollNext}
-                aria-label="Desplazar tabs a la derecha"
-                className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 flex items-center justify-center bg-white border border-slate-200 rounded-full shadow-sm hover:bg-slate-50 hover:border-slate-300 text-slate-600 transition-colors"
-              >
-                <ChevronRight className="w-3.5 h-3.5" />
-              </button>
-            )}
-            <div
-              ref={tabsRef}
-              className={cn(
-                'flex gap-0 overflow-x-auto scrollbar-hide',
-                tabsFade
-              )}
-            >
+      <div className="relative border-b border-slate-200 sticky top-0 z-10 bg-white -mx-6 px-6">
+        {/* Flecha izquierda (aparece solo si hay scroll ocultable a la izquierda) */}
+        {tabsCanLeft && (
+          <button
+            type="button"
+            onClick={tabsScrollPrev}
+            aria-label="Desplazar tabs a la izquierda"
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 flex items-center justify-center bg-white border border-slate-200 rounded-full shadow-sm hover:bg-slate-50 hover:border-slate-300 text-slate-600 transition-colors"
+          >
+            <ChevronLeft className="w-3.5 h-3.5" />
+          </button>
+        )}
+        {/* Flecha derecha (aparece solo si hay scroll oculto a la derecha) */}
+        {tabsCanRight && (
+          <button
+            type="button"
+            onClick={tabsScrollNext}
+            aria-label="Desplazar tabs a la derecha"
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 flex items-center justify-center bg-white border border-slate-200 rounded-full shadow-sm hover:bg-slate-50 hover:border-slate-300 text-slate-600 transition-colors"
+          >
+            <ChevronRight className="w-3.5 h-3.5" />
+          </button>
+        )}
+        <div
+          ref={tabsRef}
+          className={cn(
+            'flex gap-1 overflow-x-auto scrollbar-hide',
+            tabsFade
+          )}
+        >
+          <TabButtonOC
+            active={tab === 'resumen'}
+            onClick={() => setTab('resumen')}
+            icon={<LayoutDashboard className="w-3.5 h-3.5" />}
+            label="Resumen"
+          />
+          <TabButtonOC
+            active={tab === 'productos'}
+            onClick={() => setTab('productos')}
+            icon={<Package className="w-3.5 h-3.5" />}
+            label="Productos & Costos"
+          />
+          <TabButtonOC
+            active={tab === 'pagos'}
+            onClick={() => setTab('pagos')}
+            icon={<CreditCard className="w-3.5 h-3.5" />}
+            label="Pagos"
+          />
+          {tieneSubs && (
             <TabButtonOC
-              active={tab === 'productos'}
-              onClick={() => setTab('productos')}
-              icon={<Package className="w-3.5 h-3.5" />}
-              label="Productos"
-              badge={orden.productos.length}
-              badgeColor="slate"
+              active={tab === 'subordenes'}
+              onClick={() => setTab('subordenes')}
+              icon={<Layers className="w-3.5 h-3.5" />}
+              label="Sub-órdenes"
             />
-            <TabButtonOC
-              active={tab === 'cargos'}
-              onClick={() => setTab('cargos')}
-              icon={<Receipt className="w-3.5 h-3.5" />}
-              label="Cargos & Totales"
-            />
-            <TabButtonOC
-              active={tab === 'pagos'}
-              onClick={() => setTab('pagos')}
-              icon={<CreditCard className="w-3.5 h-3.5" />}
-              label="Pagos"
-              badge={badgePagos}
-              badgeColor={estadoPagoInfo.variant === 'warning' ? 'amber' : 'red'}
-            />
-            {tieneSubs && (
-              <TabButtonOC
-                active={tab === 'subordenes'}
-                onClick={() => setTab('subordenes')}
-                icon={<Layers className="w-3.5 h-3.5" />}
-                label="Sub-órdenes"
-                badge={orden.subOrdenes!.length}
-                badgeColor="blue"
-              />
-            )}
-            <TabButtonOC
-              active={tab === 'envios'}
-              onClick={() => setTab('envios')}
-              icon={<Send className="w-3.5 h-3.5" />}
-              label="Envíos"
-            />
-            <TabButtonOC
-              active={tab === 'incidencias'}
-              onClick={() => setTab('incidencias')}
-              icon={<TriangleAlert className="w-3.5 h-3.5" />}
-              label="Incidencias"
-            />
-            <TabButtonOC
-              active={tab === 'documentos'}
-              onClick={() => setTab('documentos')}
-              icon={<FolderOpen className="w-3.5 h-3.5" />}
-              label="Documentos"
-            />
-            <TabButtonOC
-              active={tab === 'inteligencia'}
-              onClick={() => setTab('inteligencia')}
-              icon={<Brain className="w-3.5 h-3.5" />}
-              label="Inteligencia"
-            />
-            <TabButtonOC
-              active={tab === 'timeline'}
-              onClick={() => setTab('timeline')}
-              icon={<History className="w-3.5 h-3.5" />}
-              label="Timeline"
-            />
+          )}
+          <TabButtonOC
+            active={tab === 'envios'}
+            onClick={() => setTab('envios')}
+            icon={<Send className="w-3.5 h-3.5" />}
+            label="Envíos"
+          />
+          <TabButtonOC
+            active={tab === 'incidencias'}
+            onClick={() => setTab('incidencias')}
+            icon={<TriangleAlert className="w-3.5 h-3.5" />}
+            label="Incidencias"
+          />
+          <TabButtonOC
+            active={tab === 'inteligencia'}
+            onClick={() => setTab('inteligencia')}
+            icon={<Brain className="w-3.5 h-3.5" />}
+            label="Inteligencia"
+          />
+        </div>
+      </div>
+
+      {/* ════════════════════════════════════════════════════════════════════
+          TAB · RESUMEN (F1 · default) — dashboard ejecutivo §A→§F del detalle.
+          Pixel del master docs/mockups/compras-master-v1.html · Acto 8 (L1752-1908).
+          Datos 100% reales: envíos (envioCrudService) · contadores de recepción de
+          la propia OC · Plan vs Real = forecastSnapshot (Lente 2 · expectativa
+          congelada al comprar · decisión del titular: NO presupuesto de REQ) vs
+          landed real (resumirLandedOC sobre las unidades de la OC).
+          ════════════════════════════════════════════════════════════════════ */}
+      {tab === 'resumen' && (
+        <div className="space-y-4">
+          {/* §A · Origen + banner estado con next-action */}
+          <div>
+            <span className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">§A · Origen &amp; estado del ciclo</span>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 mt-2">
+              {/* origen */}
+              <div className="bg-white border border-slate-200 rounded-xl p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <GitBranch className="w-3.5 h-3.5 text-purple-600" />
+                  <span className="text-[11px] font-bold text-slate-700">Originada por</span>
+                </div>
+                {reqNumero ? (
+                  <>
+                    <Link
+                      to="/requerimientos"
+                      className="flex items-center gap-1.5 text-[13px] font-bold text-purple-700 hover:underline"
+                    >
+                      {reqNumero}
+                      {reqExtra > 0 && <span className="text-[11px] font-semibold text-purple-400">+{reqExtra}</span>}
+                      <ExternalLink className="w-3 h-3" />
+                    </Link>
+                    <div className="text-[12px] text-slate-500 mt-0.5">
+                      {reqExtra > 0 ? `OC consolidada · ${reqExtra + 1} requerimientos de origen` : 'Requerimiento de origen'}
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="text-[13px] font-bold text-slate-700">Compra directa</div>
+                    <div className="text-[12px] text-slate-500 mt-0.5">Sin requerimiento de origen</div>
+                  </>
+                )}
+                <div className="text-[11px] text-slate-400 mt-1.5">Creada {formatDate(orden.fechaCreacion)}</div>
+              </div>
+              {/* banner estado ciclo next-action */}
+              <div className={`lg:col-span-2 flex items-start gap-3 bg-gradient-to-r ${ciclo.grad} ring-1 ${ciclo.ring} rounded-2xl p-4`}>
+                <div className={`w-10 h-10 rounded-xl ${ciclo.iconBg} flex items-center justify-center flex-shrink-0`}>
+                  <ciclo.Icon className={`w-5 h-5 ${ciclo.icon}`} />
+                </div>
+                <div className="flex-1">
+                  <div className={`text-[13px] font-bold ${ciclo.titulo}`}>{ciclo.tituloTexto}</div>
+                  <div className={`text-[12px] ${ciclo.texto} mt-0.5`}>{ciclo.descTexto}</div>
+                </div>
+                {envioPendiente && (
+                  <div className="flex flex-col items-end gap-1 flex-shrink-0 self-center">
+                    <span className="flex items-center gap-1.5 bg-blue-50 text-blue-700 border border-blue-200 text-[11px] font-semibold px-3 py-1.5 rounded-full whitespace-nowrap">
+                      <Truck className="w-3.5 h-3.5" /> Recepción vía envío {envioPendiente.numeroEnvio}
+                    </span>
+                    <span className={`text-[11px] tabular-nums font-semibold ${ciclo.texto}`}>
+                      {recepcion.recibidas}/{recepcion.total} uds · {Math.max(0, recepcion.total - recepcion.recibidas)} faltan
+                    </span>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-        );
-      })()}
+
+          {/* §B · progreso de recepción */}
+          <div>
+            <span className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">§B · Progreso de recepción</span>
+            <div className="bg-white border border-slate-200 rounded-xl p-4 mt-2">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[12px] font-semibold text-slate-700">Unidades recepcionadas</span>
+                <span className="text-[12px] tabular-nums text-slate-900">
+                  <b className="text-sky-700">{recepcion.recibidas}</b> / {recepcion.total} uds <span className="text-slate-400">· {recepcion.pct}%</span>
+                </span>
+              </div>
+              <div className="h-3 w-full bg-slate-100 rounded-full overflow-hidden">
+                <div className="h-3 bg-sky-500 rounded-full" style={{ width: `${Math.min(100, recepcion.pct)}%` }} />
+              </div>
+              <div className="grid grid-cols-3 gap-3 mt-3 text-center">
+                <div className="rounded-lg bg-emerald-50 ring-1 ring-emerald-200/50 py-2">
+                  <div className="text-[15px] font-bold tabular-nums text-emerald-900">{recepcion.recibidas}</div>
+                  <div className="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">Recibidas</div>
+                </div>
+                <div className="rounded-lg bg-sky-50 ring-1 ring-sky-200/50 py-2">
+                  <div className="text-[15px] font-bold tabular-nums text-sky-900">{recepcion.enTransito}</div>
+                  <div className="text-[10px] uppercase tracking-wider text-sky-700 font-bold">En tránsito</div>
+                </div>
+                <div className="rounded-lg bg-slate-50 ring-1 ring-slate-200/60 py-2">
+                  <div className="text-[15px] font-bold tabular-nums text-slate-700">{recepcion.faltante}</div>
+                  <div className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Faltante</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* §C · Plan vs Real — expectativa congelada al comprar (forecastSnapshot · Lente 2)
+              vs landed real. Decisión del titular: el "plan" NO es presupuesto de REQ. */}
+          <div>
+            <span className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">§C · Plan vs Real · expectativa congelada vs landed real</span>
+            <PlanVsRealOC orden={orden} />
+          </div>
+
+          {/* §D · grid de acciones rápidas */}
+          <div>
+            <span className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">§D · Acciones rápidas</span>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-2">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-left">
+                <Truck className="w-4 h-4 text-blue-700 mb-1.5" />
+                <div className="text-[11px] font-bold text-blue-700">
+                  {envioPendiente ? `Recepción vía envío ${envioPendiente.numeroEnvio}` : 'Sin recepciones pendientes'}
+                </div>
+                <div className="text-[10px] text-blue-600 tabular-nums">
+                  {envioPendiente
+                    ? `${Math.max(0, recepcion.total - recepcion.recibidas)} uds por recibir`
+                    : orden.estado === 'borrador'
+                      ? 'el envío nace al confirmar la OC'
+                      : 'sin envíos activos'}
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  if (puedeRegistrarPagoDirecto && onRegistrarPago) onRegistrarPago();
+                  else setTab('pagos');
+                }}
+                disabled={orden.estadoPago === 'pagado'}
+                className="bg-white border border-slate-200 rounded-lg p-3 hover:border-emerald-300 hover:bg-emerald-50/30 text-left transition-colors disabled:opacity-60 disabled:hover:border-slate-200 disabled:hover:bg-white"
+              >
+                <Wallet className="w-4 h-4 text-emerald-600 mb-1.5" />
+                <div className="text-[11px] font-bold text-slate-900">Registrar pago</div>
+                <div className="text-[10px] text-slate-500 tabular-nums">
+                  {orden.estadoPago === 'pagado' ? 'sin saldo pendiente' : `saldo US$ ${totalPendienteUSD.toFixed(0)}`}
+                </div>
+              </button>
+              <button
+                type="button"
+                onClick={() => setTab('envios')}
+                className="bg-white border border-slate-200 rounded-lg p-3 hover:border-purple-300 hover:bg-purple-50/30 text-left transition-colors"
+              >
+                <MapPin className="w-4 h-4 text-purple-600 mb-1.5" />
+                <div className="text-[11px] font-bold text-slate-900">Ver envíos</div>
+                <div className="text-[10px] text-slate-500">
+                  {envioPendiente ? `envío ${envioPendiente.numeroEnvio}` : 'tracking y recepciones'}
+                </div>
+              </button>
+              <button
+                type="button"
+                onClick={() => setTab('incidencias')}
+                className="bg-white border border-slate-200 rounded-lg p-3 hover:border-rose-300 hover:bg-rose-50/30 text-left transition-colors"
+              >
+                <AlertOctagon className="w-4 h-4 text-rose-600 mb-1.5" />
+                <div className="text-[11px] font-bold text-slate-900">Reportar incidencia</div>
+                <div className="text-[10px] text-slate-500">faltante / daño</div>
+              </button>
+            </div>
+          </div>
+
+          {/* §E · banner autorización de socio — SOLO si la OC tiene el dato real */}
+          {autorizacionBanda && (
+            <div>
+              <span className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">§E · Autorización de socio</span>
+              <div className={`flex items-start gap-3 bg-gradient-to-r ${autorizacionBanda.grad} ring-1 ${autorizacionBanda.ring} rounded-2xl p-4 mt-2`}>
+                <div className={`w-10 h-10 rounded-xl ${autorizacionBanda.iconBg} flex items-center justify-center flex-shrink-0`}>
+                  <autorizacionBanda.Icon className={`w-5 h-5 ${autorizacionBanda.icon}`} />
+                </div>
+                <div className="flex-1">
+                  <div className={`text-[13px] font-bold ${autorizacionBanda.titulo} flex items-center gap-2`}>
+                    {autorizacionBanda.tituloTexto}
+                    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide border ${autorizacionBanda.badge}`}>
+                      <autorizacionBanda.BadgeIcon className="w-2.5 h-2.5" /> {autorizacionBanda.badgeTexto}
+                    </span>
+                  </div>
+                  <div className={`text-[12px] ${autorizacionBanda.texto} mt-0.5`}>{autorizacionBanda.descTexto}</div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* §F · mini-stats footer */}
+          <div className="bg-slate-50/50 border border-slate-200 rounded-xl px-4 py-2.5 flex items-center gap-4 text-[11px] flex-wrap">
+            <span className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Mini-stats:</span>
+            <span className="flex items-center gap-1.5 text-slate-600">
+              <Boxes className="w-3.5 h-3.5 text-slate-400" /> <b className="tabular-nums text-slate-800">{totalSKUs}</b> SKUs
+            </span>
+            <span className="flex items-center gap-1.5 text-slate-600">
+              <Split className="w-3.5 h-3.5 text-slate-400" /> <b className="tabular-nums text-slate-800">{subOrdenesCount}</b> sub-órdenes
+            </span>
+            <span className="flex items-center gap-1.5 text-slate-600">
+              <Flag className="w-3.5 h-3.5 text-slate-400" /> Próximo hito: <b className="text-slate-800">{proximoHito}</b>
+            </span>
+            <span className="flex items-center gap-1.5 text-slate-600">
+              <Clock className="w-3.5 h-3.5 text-slate-400" /> ETA restante: <b className="tabular-nums text-slate-800">{etaTexto}</b>
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* ════════════════════════════════════════════════════════════════════
           TAB · SUB-ÓRDENES (condicional)
@@ -997,13 +1335,11 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
         </Link>
       )}
 
-      </>)}
-      {/* Fin tab 'productos' */}
-
-      {/* ════════════════════════════════════════════════════════════════════
-          TAB · CARGOS & TOTALES
-          ════════════════════════════════════════════════════════════════════ */}
-      {tab === 'cargos' && (<>
+      {/* ──────────────────────────────────────────────────────────────────
+          F1 · Sub-sección "Costos" del tab fusionado "Productos & Costos"
+          (master Acto 8 consolida Productos + Cargos & Totales en una sola
+          tab · las secciones se apilan: tabla de productos ↑ · cargos ↓).
+          ────────────────────────────────────────────────────────────────── */}
 
       {/* S42az — Cargos comerciales usando getCargosEfectivosOC.
           Fuente de verdad automática:
@@ -1143,7 +1479,7 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
       )}
 
       </>)}
-      {/* Fin tab 'cargos' */}
+      {/* Fin tab 'productos' (Productos & Costos fusionado) */}
 
       {/* ════════════════════════════════════════════════════════════════════
           TAB · PAGOS
@@ -1302,26 +1638,16 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
           ════════════════════════════════════════════════════════════════════ */}
       {tab === 'incidencias' && <IncidenciasOCPanel orden={orden} />}
 
-      {/* ════════════════════════════════════════════════════════════════════
-          TAB · DOCUMENTOS (placeholder)
-          ════════════════════════════════════════════════════════════════════ */}
-      {tab === 'documentos' && (
-        <TabPlaceholderOC
-          icon={FolderOpen}
-          titulo="Documentos"
-          descripcion="Repositorio de facturas, packing lists, certificados de origen y cualquier documento vinculado a esta OC."
-        />
-      )}
+      {/* F1 — Tab Documentos ELIMINADA (era placeholder "Próximamente" · el master
+          Acto 8 racionaliza la barra a 7 tabs y no la incluye). */}
 
       {/* ════════════════════════════════════════════════════════════════════
           TAB · INTELIGENCIA (S54 · Tanda 3)
           ════════════════════════════════════════════════════════════════════ */}
       {tab === 'inteligencia' && <InteligenciaOCPanel orden={orden} />}
 
-      {/* ════════════════════════════════════════════════════════════════════
-          TAB · TIMELINE (S54 · Tanda 3)
-          ════════════════════════════════════════════════════════════════════ */}
-      {tab === 'timeline' && <TimelineOCPanel orden={orden} />}
+      {/* F1 — Tab Timeline ELIMINADA · el TimelineOCPanel ahora vive en el drawer
+          flotante (botón "Historial" del header · ver al final del componente). */}
 
       </>)}
       {/* S42aw — Fin del cuerpo dinámico (detalle vs confirmar) */}
@@ -1363,70 +1689,315 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
             La recepción canónica se hace desde el Envío asociado (ver EnviosDeOC arriba).
             La reversión, si se requiere, se hace vía scripts administrativos. */}
       </div>
+
+      {/* ════════════════════════════════════════════════════════════════════
+          F1 — TIMELINE COMO DRAWER FLOTANTE (panel lateral derecho + overlay).
+          Renderiza el TimelineOCPanel EXISTENTE sin tocarlo por dentro. Se abre
+          con el botón "Historial" del header. z-[60] > z-50 del Modal padre.
+          ════════════════════════════════════════════════════════════════════ */}
+      {showHistory && (
+        <div className="fixed inset-0 z-[60]" role="dialog" aria-modal="true" aria-label={`Timeline de ${orden.numeroOrden}`}>
+          <div className="absolute inset-0 bg-slate-900/40" onClick={() => setShowHistory(false)} />
+          <div className="absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-2xl flex flex-col">
+            <div className="flex items-center justify-between px-4 sm:px-6 py-3 border-b border-slate-200">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
+                  <History className="w-4 h-4 text-blue-700" />
+                </div>
+                <div>
+                  <div className="text-[13px] font-bold text-slate-900">Timeline</div>
+                  <div className="text-[11px] text-slate-500">{orden.numeroOrden}</div>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowHistory(false)}
+                aria-label="Cerrar timeline"
+                className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+              <TimelineOCPanel orden={orden} />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
 // ════════════════════════════════════════════════════════════════════════════
-// S54 · Tanda 1 — Placeholder para tabs con contenido pendiente (T2/T3).
-// ════════════════════════════════════════════════════════════════════════════
-const TabPlaceholderOC: React.FC<{
-  icon: React.ComponentType<{ className?: string }>;
-  titulo: string;
-  descripcion: string;
-}> = ({ icon: Icon, titulo, descripcion }) => (
-  <div className="flex flex-col items-center justify-center py-12 px-6 border-2 border-dashed border-slate-200 rounded-xl bg-slate-50/50 text-center">
-    <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mb-3">
-      <Icon className="w-6 h-6 text-slate-400" />
-    </div>
-    <h3 className="text-sm font-semibold text-slate-700 mb-1">{titulo}</h3>
-    <p className="text-xs text-slate-500 max-w-md">{descripcion}</p>
-    <div className="mt-3 text-[10px] text-slate-400 italic">Próximamente</div>
-  </div>
-);
-
-// ════════════════════════════════════════════════════════════════════════════
-// S54 · Tanda 1 — TabButton privado para el detalle de OC.
-// Mismo patrón visual que EnvioDetailModal (consistencia cross-entidades).
+// F1 — TabButton del detalle de OC · clases literales del master Acto 8 (L1742-1748):
+// activo = text-[13px] font-semibold text-blue-700 border-b-2 border-blue-600 + icono ·
+// inactivo = text-[13px] text-slate-500 hover:text-slate-700 (sin icono ni badge · el
+// master muestra el icono solo en la tab activa y no lleva badges en esta barra).
 // ════════════════════════════════════════════════════════════════════════════
 const TabButtonOC: React.FC<{
   active: boolean;
   onClick: () => void;
   icon: React.ReactNode;
   label: string;
-  badge?: number | string;
-  badgeColor?: 'red' | 'amber' | 'slate' | 'blue';
-}> = ({ active, onClick, icon, label, badge, badgeColor = 'slate' }) => (
+}> = ({ active, onClick, icon, label }) => (
   <button
     type="button"
     onClick={onClick}
-    className={cn(
-      'px-3 py-2 text-sm font-medium flex items-center gap-1.5 transition-colors whitespace-nowrap border-b-2',
+    className={
       active
-        ? 'text-blue-700 border-blue-600'
-        : 'text-slate-500 hover:text-slate-700 border-transparent'
-    )}
+        ? 'whitespace-nowrap text-[13px] font-semibold text-blue-700 border-b-2 border-blue-600 px-3 py-2.5 flex items-center gap-1.5'
+        : 'whitespace-nowrap text-[13px] text-slate-500 hover:text-slate-700 px-3 py-2.5'
+    }
   >
-    {icon}
+    {active && icon}
     {label}
-    {badge !== undefined && badge !== 0 && badge !== '' && (
-      <span
-        className={cn(
-          'ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-semibold',
-          badgeColor === 'red'
-            ? 'bg-red-100 text-red-700'
-            : badgeColor === 'amber'
-              ? 'bg-amber-100 text-amber-700'
-              : badgeColor === 'blue'
-                ? 'bg-blue-100 text-blue-700'
-                : 'bg-slate-100 text-slate-600'
-        )}
-      >
-        {badge}
-      </span>
-    )}
   </button>
 );
+
+// ════════════════════════════════════════════════════════════════════════════
+// F1 · §C — PLAN vs REAL del Tab Resumen (master Acto 8 · L1816-1857).
+//
+// DECISIÓN DEL TITULAR: el "plan" NO es el presupuesto del REQ — es la
+// EXPECTATIVA CONGELADA AL COMPRAR (ProductoOrden.forecastSnapshot · Lente 2 ·
+// ctruEstimado = landed/unidad estimado en PEN al TC congelado). El "real" es
+// el landed aterrizado (resumirLandedOC sobre las unidades de la OC · misma
+// fuente que OCLandedCard = cero "dos números"). Todo en PEN (la moneda real
+// de ambas fuentes · el master ilustraba en USD).
+//
+// Desglose del desvío (solo cuando TODA la OC aterrizó y TODOS los SKUs tienen
+// snapshot · si no, comparar sería apples-to-oranges):
+//   · Tipo de cambio  = Σ(costoUSD×cant) × (tcReal − tcCongelado)
+//   · Precio producto = capa producto real − Σ(costoUSD×cant) × tcReal
+//   · Flete/aduana    = capas no-producto reales − (esperado − producto al TC congelado)
+//     → si el snapshot no reservó nada para flete, se rotula
+//       "no estimado en la expectativa" (honestidad del desvío).
+//   Invariante: las 3 filas suman exactamente (landed real − esperado).
+//
+// Estados honestos: sin snapshots → "Sin expectativa congelada (OC previa al
+// Lente 2)" · recepción parcial → badge "en curso" (sin % de desvío).
+// ════════════════════════════════════════════════════════════════════════════
+const fmtPENPlan = (n: number) => `S/ ${n.toLocaleString('es-PE', { maximumFractionDigits: 0 })}`;
+
+const PlanVsRealOC: React.FC<{ orden: OrdenCompra }> = ({ orden }) => {
+  const plan = useMemo(() => {
+    const conSnapshot = orden.productos.filter(
+      (p) => p.forecastSnapshot?.ctruEstimado != null && p.forecastSnapshot.ctruEstimado > 0
+    );
+    const esperadoPEN = conSnapshot.reduce(
+      (s, p) => s + (p.forecastSnapshot!.ctruEstimado! * (p.cantidad || 0)),
+      0
+    );
+    const productoUSD = conSnapshot.reduce((s, p) => s + (p.costoUnitario || 0) * (p.cantidad || 0), 0);
+    const tcCongelado =
+      conSnapshot.find((p) => (p.forecastSnapshot!.tcCongelado || 0) > 0)?.forecastSnapshot!.tcCongelado || 0;
+    return {
+      skus: conSnapshot.length,
+      totalSkus: orden.productos.length,
+      coberturaTotal: conSnapshot.length === orden.productos.length && conSnapshot.length > 0,
+      esperadoPEN,
+      productoUSD,
+      tcCongelado,
+    };
+  }, [orden.productos]);
+
+  const puedeCargarLanded = plan.skus > 0 && orden.estado !== 'borrador' && orden.estado !== 'cancelada';
+  const [estado, setEstado] = useState<'loading' | 'ok' | 'error'>('loading');
+  const [resumen, setResumen] = useState<ResumenLandedOC | null>(null);
+
+  useEffect(() => {
+    if (!puedeCargarLanded) return;
+    let cancelado = false;
+    setEstado('loading');
+    unidadService
+      .buscar({ ordenCompraId: orden.id })
+      .then((unidades) => {
+        if (cancelado) return;
+        setResumen(resumirLandedOC(unidades));
+        setEstado('ok');
+      })
+      .catch(() => {
+        if (!cancelado) setEstado('error');
+      });
+    return () => {
+      cancelado = true;
+    };
+  }, [orden.id, puedeCargarLanded]);
+
+  // Estado honesto: sin expectativa congelada (OC previa al Lente 2 · no se inventa línea base).
+  if (plan.skus === 0) {
+    return (
+      <div className="bg-white border border-slate-200 rounded-xl p-4 mt-2">
+        <div className="flex items-start gap-2 text-[12px] text-slate-500">
+          <Info className="w-3.5 h-3.5 flex-shrink-0 mt-px text-slate-400" />
+          <span>
+            <b className="text-slate-600">Sin expectativa congelada</b> · esta OC es previa al Lente 2 (no guardó
+            forecast al comprar) · no hay línea base para comparar el landed real.
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  // Borrador/cancelada: hay expectativa pero aún no hay unidades → solo el plan.
+  if (!puedeCargarLanded) {
+    return (
+      <div className="bg-white border border-slate-200 rounded-xl p-4 mt-2">
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <div className="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-0.5">Expectativa al comprar</div>
+            <div className="text-[17px] font-bold tabular-nums text-slate-700">{fmtPENPlan(plan.esperadoPEN)}</div>
+            {!plan.coberturaTotal && (
+              <div className="text-[10px] text-slate-400 mt-0.5">cubre {plan.skus} de {plan.totalSkus} SKUs</div>
+            )}
+          </div>
+          <div>
+            <div className="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-0.5">Landed real</div>
+            <div className="text-[17px] font-bold tabular-nums text-slate-400">—</div>
+            <div className="text-[10px] text-slate-400 mt-0.5">
+              {orden.estado === 'cancelada' ? 'OC cancelada · sin recepción' : 'disponible al confirmar y recibir'}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (estado === 'loading') {
+    return (
+      <div className="bg-white border border-slate-200 rounded-xl p-4 mt-2 space-y-2">
+        <div className="h-3 w-32 bg-slate-100 rounded animate-pulse" />
+        <div className="h-7 w-44 bg-slate-100 rounded animate-pulse" />
+        <div className="h-2.5 w-full bg-slate-100 rounded-full animate-pulse" />
+      </div>
+    );
+  }
+
+  if (estado === 'error' || !resumen) {
+    return (
+      <div className="bg-white border border-slate-200 rounded-xl p-4 mt-2">
+        <div className="flex items-start gap-2 text-[12px] text-rose-700">
+          <TriangleAlert className="w-3.5 h-3.5 flex-shrink-0 mt-px" />
+          <span>No se pudo calcular el landed real de esta OC.</span>
+        </div>
+      </div>
+    );
+  }
+
+  const landedPEN = resumen.landedTotalPEN;
+  const fullyLanded = resumen.unidadesTotal > 0 && resumen.unidadesConCosto === resumen.unidadesTotal;
+  const comparable = fullyLanded && plan.coberturaTotal && plan.esperadoPEN > 0;
+  const desvio = comparable ? landedPEN - plan.esperadoPEN : null;
+  const desvioPct = desvio !== null ? (desvio / plan.esperadoPEN) * 100 : null;
+
+  // Desglose derivable del snapshot (TC · precio producto · flete/aduana) — solo si comparable.
+  const tcReal = orden.tcPago || orden.tcCompra || 0;
+  const filasDesvio: Array<{ dot: string; label: string; monto: number }> = [];
+  if (desvio !== null) {
+    const realNonProd = resumen.capas.impuesto + resumen.capas.flete + resumen.capas.otros;
+    if (plan.tcCongelado > 0 && tcReal > 0) {
+      const dTC = plan.productoUSD * (tcReal - plan.tcCongelado);
+      const dPrecio = resumen.capas.producto - plan.productoUSD * tcReal;
+      const planNonProd = plan.esperadoPEN - plan.productoUSD * plan.tcCongelado;
+      const dFlete = realNonProd - planNonProd;
+      filasDesvio.push({ dot: 'bg-blue-500', label: 'Precio producto', monto: dPrecio });
+      filasDesvio.push({
+        dot: 'bg-indigo-500',
+        label: `Tipo de cambio (${plan.tcCongelado.toFixed(2)} → ${tcReal.toFixed(2)})`,
+        monto: dTC,
+      });
+      filasDesvio.push({
+        dot: 'bg-amber-500',
+        label: planNonProd < 1 ? 'Flete/aduana · no estimado en la expectativa' : 'Flete & aduana',
+        monto: dFlete,
+      });
+    } else {
+      // Sin TC real conocido → no se puede aislar el efecto cambiario (honesto: 2 filas).
+      const dProducto = resumen.capas.producto - plan.productoUSD * plan.tcCongelado;
+      const planNonProd = plan.esperadoPEN - plan.productoUSD * plan.tcCongelado;
+      filasDesvio.push({ dot: 'bg-blue-500', label: 'Precio producto (incluye efecto TC)', monto: dProducto });
+      filasDesvio.push({
+        dot: 'bg-amber-500',
+        label: planNonProd < 1 ? 'Flete/aduana · no estimado en la expectativa' : 'Flete & aduana',
+        monto: realNonProd - planNonProd,
+      });
+    }
+  }
+
+  return (
+    <div className="bg-white border border-slate-200 rounded-xl p-4 mt-2">
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-baseline gap-2">
+          <span className="text-[13px] font-bold text-slate-900">Desvío del landed</span>
+          {desvioPct !== null && desvio !== null ? (
+            <span
+              className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide border ${
+                desvio >= 0
+                  ? 'bg-rose-50 text-rose-700 border-rose-200'
+                  : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+              }`}
+            >
+              <TrendingUp className="w-2.5 h-2.5" /> {desvio >= 0 ? '+' : ''}{desvioPct.toFixed(1)}%
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide border bg-sky-50 text-sky-700 border-sky-200">
+              en curso
+            </span>
+          )}
+        </div>
+        <span className="text-[11px] text-slate-400">vs expectativa congelada (Lente 2)</span>
+      </div>
+      <div className="grid grid-cols-2 gap-4 mb-4">
+        <div>
+          <div className="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-0.5">Expectativa al comprar</div>
+          <div className="text-[17px] font-bold tabular-nums text-slate-700">{fmtPENPlan(plan.esperadoPEN)}</div>
+          {!plan.coberturaTotal && (
+            <div className="text-[10px] text-slate-400 mt-0.5">cubre {plan.skus} de {plan.totalSkus} SKUs · desvío no comparable</div>
+          )}
+        </div>
+        <div>
+          <div className={`text-[10px] uppercase tracking-wider font-bold mb-0.5 ${desvio !== null && desvio >= 0 ? 'text-rose-700' : desvio !== null ? 'text-emerald-700' : 'text-slate-500'}`}>
+            Landed real
+          </div>
+          <div className={`text-[17px] font-bold tabular-nums ${desvio !== null && desvio >= 0 ? 'text-rose-900' : desvio !== null ? 'text-emerald-900' : 'text-slate-700'}`}>
+            {resumen.unidadesConCosto > 0 ? fmtPENPlan(landedPEN) : '—'}{' '}
+            {desvio !== null && (
+              <span className="text-[12px] font-semibold">({desvio >= 0 ? '+' : '−'}{fmtPENPlan(Math.abs(desvio)).replace('S/ ', '')})</span>
+            )}
+          </div>
+          {!fullyLanded && (
+            <div className="text-[10px] text-slate-400 mt-0.5">
+              {resumen.unidadesConCosto} de {resumen.unidadesTotal} uds aterrizadas · el desvío se consolida al completar la recepción
+            </div>
+          )}
+        </div>
+      </div>
+      {filasDesvio.length > 0 && (
+        <>
+          <div className="text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-1.5">Desglose del desvío</div>
+          <div className="space-y-1.5">
+            {filasDesvio.map((f, i) => (
+              <div key={i} className="flex items-center justify-between text-[12px]">
+                <span className="text-slate-600 flex items-center gap-1.5">
+                  <span className={`w-2 h-2 rounded-full ${f.dot}`} /> {f.label}
+                </span>
+                <span className={`tabular-nums font-semibold ${f.monto >= 0 ? 'text-rose-700' : 'text-emerald-700'}`}>
+                  {f.monto >= 0 ? '+' : '−'}{fmtPENPlan(Math.abs(f.monto))}
+                </span>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+      <div className="mt-3 pt-3 border-t border-slate-100 flex items-start gap-2 text-[11px] text-slate-400">
+        <Info className="w-3.5 h-3.5 flex-shrink-0 mt-px" />
+        <span>
+          <b className="text-slate-500">Plan = expectativa congelada al comprar</b> (forecast Lente 2 · NO el
+          presupuesto del REQ). El landed real suma los componentes de costo congelados en la recepción.
+        </span>
+      </div>
+    </div>
+  );
+};
 
 // ════════════════════════════════════════════════════════════════════════════
 // S52 — Componentes privados eliminados post-refactor a Capa 3:
