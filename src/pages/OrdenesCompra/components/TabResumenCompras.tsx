@@ -85,6 +85,11 @@ export const TabResumenCompras: React.FC<TabResumenComprasProps> = ({
   onNuevaOC, onIrTab, onFiltrarEstado, onFiltrarProveedor, onVerOC, navigate,
 }) => {
   const activas = useMemo(() => ordenes.filter((o) => o.estado !== 'cancelada'), [ordenes]);
+  // Semántica honesta (UAT 2026-07-03): los agregados de DINERO (gasto por proveedor ·
+  // tendencia) solo cuentan OCs COMPROMETIDAS (confirmada+) — un borrador no es compra
+  // (el débito en CC nace al confirmar). `activas` se mantiene para la cola de firmas
+  // (borradores sobre el umbral esperan autorización) y el pipeline (etapa Borradores explícita).
+  const comprometidas = useMemo(() => activas.filter((o) => o.estado !== 'borrador'), [activas]);
 
   // ── §A · Cola de firmas de socio · OCs con autorizacion.estado === 'pendiente' ──
   // El campo OrdenCompra.autorizacion ({estado, firmas[]...}) vive sobre las OCs sobre el umbral
@@ -99,7 +104,7 @@ export const TabResumenCompras: React.FC<TabResumenComprasProps> = ({
   const porProveedor = useMemo(() => {
     const map = new Map<string, { monto: number; proveedorId: string }>();
     let total = 0;
-    for (const o of activas) {
+    for (const o of comprometidas) {
       const monto = o.totalUSD || 0;
       if (monto <= 0) continue;
       const nombre = o.nombreProveedor || 'Sin proveedor';
@@ -136,7 +141,7 @@ export const TabResumenCompras: React.FC<TabResumenComprasProps> = ({
       return { label: NOMBRES_MES[d.getMonth()], key: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`, monto: 0, esActual: i === 0 };
     });
     const idx = new Map(meses.map((m, i) => [m.key, i]));
-    for (const o of activas) {
+    for (const o of comprometidas) {
       const f = toDate(o.fechaCreacion);
       if (!f) continue;
       const key = `${f.getFullYear()}-${String(f.getMonth() + 1).padStart(2, '0')}`;
@@ -163,7 +168,7 @@ export const TabResumenCompras: React.FC<TabResumenComprasProps> = ({
   // ── Lead time promedio · creación → recepción (§C · resiliente) ──
   const leadTime = useMemo(() => {
     const dias: number[] = [];
-    for (const o of activas) {
+    for (const o of comprometidas) {
       const fc = toDate(o.fechaCreacion);
       const fr = toDate(o.fechaRecibida);
       if (fc && fr && fr > fc) dias.push((fr.getTime() - fc.getTime()) / 86400000);
@@ -191,7 +196,7 @@ export const TabResumenCompras: React.FC<TabResumenComprasProps> = ({
   const fx = useMemo(() => {
     if (!tcHoy) return { impactoPEN: 0, hayTC: false };
     let impactoPEN = 0;
-    for (const o of activas) {
+    for (const o of comprometidas) {
       if (o.estadoPago === 'pagado') continue;
       const tcRef = o.tcReferencial || o.tcCompra;
       if (!tcRef) continue;
@@ -261,7 +266,7 @@ export const TabResumenCompras: React.FC<TabResumenComprasProps> = ({
     let gastoRiesgo = 0;
     let total = 0;
     let conClasif = 0;
-    for (const o of activas) {
+    for (const o of comprometidas) {
       const monto = o.totalUSD || 0;
       if (monto <= 0) continue;
       total += monto;
@@ -282,7 +287,7 @@ export const TabResumenCompras: React.FC<TabResumenComprasProps> = ({
     const reqById = new Map<string, Requerimiento>();
     for (const r of requerimientos) if (r.id) reqById.set(r.id, r);
     let restock = 0, apuesta = 0, comprometida = 0, otrosManual = 0, conOrigen = 0, total = 0;
-    for (const o of activas) {
+    for (const o of comprometidas) {
       const monto = o.totalUSD || 0;
       if (monto <= 0) continue;
       total += monto;

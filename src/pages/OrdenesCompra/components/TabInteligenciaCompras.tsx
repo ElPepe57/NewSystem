@@ -48,7 +48,12 @@ const toDate = (v: any): Date | null => {
 const fmtUSD = (n: number): string => (n >= 1000 ? `$${(n / 1000).toFixed(1)}k` : `$${n.toFixed(0)}`);
 
 export const TabInteligenciaCompras: React.FC<Props> = ({ ordenes, proveedores, incidencias, incidenciasError, onIrLlegadas, navigate }) => {
-  const activas = useMemo(() => ordenes.filter((o) => o.estado !== 'cancelada'), [ordenes]);
+  // Semántica honesta (UAT 2026-07-03): la inteligencia analiza compras EJECUTADAS —
+  // los borradores no son gasto ni histórico de precio (el débito nace al confirmar).
+  const activas = useMemo(
+    () => ordenes.filter((o) => o.estado !== 'cancelada' && o.estado !== 'borrador'),
+    [ordenes],
+  );
 
   // ── A6 · INCIDENCIAS AGREGADAS · # abiertas · $ en disputa · tasa · mix tipo/severidad ──
   // Todo de listAll (fetch único en el padre). "Abiertas" = estado ≠ resuelta. "$ en disputa" =

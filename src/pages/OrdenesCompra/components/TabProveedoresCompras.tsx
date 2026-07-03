@@ -42,10 +42,13 @@ export const TabProveedoresCompras: React.FC<Props> = ({ proveedores, ordenes, e
   const [searchTerm, setSearchTerm] = useState('');
 
   // gasto + # OCs en vivo desde las OCs (más confiable que metricas denormalizadas)
+  // Semántica honesta (UAT 2026-07-03): una OC en BORRADOR no es una compra — el
+  // débito en CC recién existe al confirmar → los borradores NO cuentan como
+  // gasto/relación comercial (el titular vio "2 OCs · $706" con solo drafts de prueba).
   const porProveedor = useMemo(() => {
     const map = new Map<string, { gasto: number; ocs: number }>();
     for (const o of ordenes) {
-      if (o.estado === 'cancelada' || !o.proveedorId) continue;
+      if (o.estado === 'cancelada' || o.estado === 'borrador' || !o.proveedorId) continue;
       const cur = map.get(o.proveedorId) || { gasto: 0, ocs: 0 };
       cur.gasto += o.totalUSD || 0;
       cur.ocs += 1;
@@ -155,7 +158,8 @@ export const TabProveedoresCompras: React.FC<Props> = ({ proveedores, ordenes, e
     for (const p of proveedores) clasifPorId.set(p.id, p.evaluacion?.clasificacion);
     let preferido = 0, aprobado = 0, condicional = 0, sinEvaluar = 0, total = 0, conClasif = 0;
     for (const o of ordenes) {
-      if (o.estado === 'cancelada') continue;
+      // Borradores fuera: no son gasto comprometido (misma semántica que porProveedor).
+      if (o.estado === 'cancelada' || o.estado === 'borrador') continue;
       const monto = o.totalUSD || 0;
       if (monto <= 0) continue;
       total += monto;
