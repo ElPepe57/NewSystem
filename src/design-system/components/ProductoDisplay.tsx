@@ -52,25 +52,24 @@ interface ProductoDisplayProps {
 // Helper: ícono según línea
 // ════════════════════════════════════════════════════════════════════════════
 
+// Canon de alineación de color (2026-07-01): el avatar del producto es CHROME →
+// azul (Comercial · único consumidor hoy: wizard de OC). El TIPO de producto se
+// distingue por la FORMA del ícono (Sparkles/Pill/Package), no por color.
 function getLineIcon(producto: ProductoDisplayData): React.ReactNode {
   // Si tiene atributos SKC, es skincare
   if (producto.atributosSkincare) {
-    return <Sparkles className="w-4 h-4 text-pink-600" />;
+    return <Sparkles className="w-4 h-4 text-blue-600" />;
   }
   // Si tiene presentacion o dosaje, es suplemento
   if (producto.presentacion || producto.dosaje || producto.lineaNegocio === 'SUP') {
-    return <Pill className="w-4 h-4 text-teal-600" />;
+    return <Pill className="w-4 h-4 text-blue-600" />;
   }
   // Fallback
-  return <Package className="w-4 h-4 text-slate-500" />;
+  return <Package className="w-4 h-4 text-blue-600" />;
 }
 
-function getLineBg(producto: ProductoDisplayData): string {
-  if (producto.atributosSkincare) return 'bg-pink-50';
-  if (producto.presentacion || producto.dosaje || producto.lineaNegocio === 'SUP') {
-    return 'bg-teal-50';
-  }
-  return 'bg-slate-50';
+function getLineBg(): string {
+  return 'bg-blue-50';
 }
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -105,7 +104,7 @@ export const ProductoDisplay: React.FC<ProductoDisplayProps> = ({
 }) => {
   const descripcion = hideDescripcion ? '' : getDescripcionProducto(producto);
   const icon = getLineIcon(producto);
-  const iconBg = getLineBg(producto);
+  const iconBg = getLineBg();
 
   const nombre = producto.nombreComercial ?? 'Producto sin nombre';
 
@@ -117,7 +116,7 @@ export const ProductoDisplay: React.FC<ProductoDisplayProps> = ({
         onClick={onClick}
       >
         {!hideSku && producto.sku && (
-          <span className="font-mono text-xs text-teal-600 mr-2">{producto.sku}</span>
+          <span className="font-mono text-xs text-blue-600 mr-2">{producto.sku}</span>
         )}
         <span className="font-medium">{nombre}</span>
         {descripcion && <span className="text-slate-500 ml-2">· {descripcion}</span>}
@@ -162,7 +161,7 @@ export const ProductoDisplay: React.FC<ProductoDisplayProps> = ({
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             {!hideSku && producto.sku && (
-              <span className="font-mono text-xs text-teal-600 flex-shrink-0">
+              <span className="font-mono text-xs text-blue-600 flex-shrink-0">
                 {producto.sku}
               </span>
             )}
@@ -194,7 +193,7 @@ export const ProductoDisplay: React.FC<ProductoDisplayProps> = ({
     <div
       className={cn(
         'bg-white border border-slate-200 rounded-xl p-4 flex items-start gap-3',
-        onClick && 'cursor-pointer hover:border-teal-300 hover:shadow-sm transition-all',
+        onClick && 'cursor-pointer hover:border-blue-300 hover:shadow-sm transition-all',
         className
       )}
       onClick={onClick}
@@ -210,7 +209,7 @@ export const ProductoDisplay: React.FC<ProductoDisplayProps> = ({
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap mb-1">
           {!hideSku && producto.sku && (
-            <span className="font-mono text-xs text-teal-600">{producto.sku}</span>
+            <span className="font-mono text-xs text-blue-600">{producto.sku}</span>
           )}
           {!hideMarca && producto.marca && showMetadata && (
             <span className="text-[10px] font-medium text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded">

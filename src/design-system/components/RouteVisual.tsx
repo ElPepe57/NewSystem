@@ -44,6 +44,36 @@ export interface RouteSegment {
   icon?: React.ReactNode;
 }
 
+/**
+ * Acento de color del chrome de la ruta (canon de alineación 2026-07-01: los
+ * estados active/done van en el color del GRUPO del módulo consumidor).
+ * 'teal' = look histórico (Envíos · active teal / done emerald) — default para
+ * no cambiar Envíos sin su propio barrido; Compras pasa 'blue'.
+ */
+export type RouteVisualAccent = 'teal' | 'blue';
+
+const ROUTE_ACCENTS: Record<RouteVisualAccent, {
+  nodeActive: string; codigo: string; lineActive: string; lineDone: string;
+  arrowActive: string; arrowDone: string;
+}> = {
+  teal: {
+    nodeActive: 'bg-teal-50 border-teal-400 text-teal-900 ring-2 ring-teal-100',
+    codigo: 'text-teal-600',
+    lineActive: 'bg-teal-500',
+    lineDone: 'bg-emerald-500',
+    arrowActive: 'text-teal-500',
+    arrowDone: 'text-emerald-500',
+  },
+  blue: {
+    nodeActive: 'bg-blue-50 border-blue-400 text-blue-900 ring-2 ring-blue-100',
+    codigo: 'text-blue-600',
+    lineActive: 'bg-blue-500',
+    lineDone: 'bg-blue-500',
+    arrowActive: 'text-blue-500',
+    arrowDone: 'text-blue-500',
+  },
+};
+
 interface RouteVisualProps {
   /** Nodos de la ruta (mínimo 2) */
   nodes: RouteNode[];
@@ -53,6 +83,8 @@ interface RouteVisualProps {
   orientation?: 'horizontal' | 'vertical';
   /** Tamaño de los nodos */
   size?: 'sm' | 'md' | 'lg';
+  /** Acento del chrome (color del grupo del módulo consumidor) · default 'teal' */
+  accent?: RouteVisualAccent;
   /** ClassName adicional */
   className?: string;
 }
@@ -74,9 +106,10 @@ const TYPE_ICONS: Record<RouteNodeType, React.ReactNode> = {
 // Node Component
 // ════════════════════════════════════════════════════════════════════════════
 
-const NodeDisplay: React.FC<{ node: RouteNode; size: 'sm' | 'md' | 'lg' }> = ({
+const NodeDisplay: React.FC<{ node: RouteNode; size: 'sm' | 'md' | 'lg'; accent: RouteVisualAccent }> = ({
   node,
   size,
+  accent,
 }) => {
   const state = node.state ?? 'done';
   const tipoIcon = node.tipo ? TYPE_ICONS[node.tipo] : null;
@@ -90,7 +123,7 @@ const NodeDisplay: React.FC<{ node: RouteNode; size: 'sm' | 'md' | 'lg' }> = ({
 
   const stateClasses = {
     pending: 'bg-slate-100 border-slate-200 text-slate-400',
-    active: 'bg-teal-50 border-teal-400 text-teal-900 ring-2 ring-teal-100',
+    active: ROUTE_ACCENTS[accent].nodeActive,
     done: 'bg-white border-slate-300 text-slate-800',
     empty: 'bg-slate-50 border-dashed border-slate-300 text-slate-400',
   }[state];
@@ -116,7 +149,7 @@ const NodeDisplay: React.FC<{ node: RouteNode; size: 'sm' | 'md' | 'lg' }> = ({
         </div>
       )}
       {node.codigo && (
-        <div className={cn('font-mono text-teal-600', sizeMap.sub)}>
+        <div className={cn('font-mono', ROUTE_ACCENTS[accent].codigo, sizeMap.sub)}>
           {node.codigo}
         </div>
       )}
@@ -136,13 +169,14 @@ const NodeDisplay: React.FC<{ node: RouteNode; size: 'sm' | 'md' | 'lg' }> = ({
 const SegmentDisplay: React.FC<{
   segment?: RouteSegment;
   orientation: 'horizontal' | 'vertical';
-}> = ({ segment, orientation }) => {
+  accent: RouteVisualAccent;
+}> = ({ segment, orientation, accent }) => {
   const state = segment?.state ?? 'done';
 
   const lineColor = {
     pending: 'bg-slate-200',
-    active: 'bg-teal-500',
-    done: 'bg-emerald-500',
+    active: ROUTE_ACCENTS[accent].lineActive,
+    done: ROUTE_ACCENTS[accent].lineDone,
     empty: 'bg-slate-200',
   }[state];
 
@@ -186,8 +220,8 @@ const SegmentDisplay: React.FC<{
         <ArrowRight
           className={cn(
             'w-4 h-4 -ml-2',
-            state === 'done' && 'text-emerald-500',
-            state === 'active' && 'text-teal-500',
+            state === 'done' && ROUTE_ACCENTS[accent].arrowDone,
+            state === 'active' && ROUTE_ACCENTS[accent].arrowActive,
             (state === 'pending' || state === 'empty') && 'text-slate-300'
           )}
         />
@@ -228,6 +262,7 @@ export const RouteVisual: React.FC<RouteVisualProps> = ({
   segments,
   orientation = 'horizontal',
   size = 'md',
+  accent = 'teal',
   className,
 }) => {
   if (nodes.length < 2) {
@@ -246,11 +281,12 @@ export const RouteVisual: React.FC<RouteVisualProps> = ({
     >
       {nodes.map((node, index) => (
         <React.Fragment key={index}>
-          <NodeDisplay node={node} size={size} />
+          <NodeDisplay node={node} size={size} accent={accent} />
           {index < nodes.length - 1 && (
             <SegmentDisplay
               segment={segments?.[index]}
               orientation={orientation}
+              accent={accent}
             />
           )}
         </React.Fragment>

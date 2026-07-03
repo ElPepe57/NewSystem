@@ -181,7 +181,7 @@ export const DynamicChargesSection: React.FC<DynamicChargesSectionProps> = ({
           <button
             type="button"
             onClick={handleAdd}
-            className="px-3 py-1.5 text-xs font-medium text-teal-700 hover:bg-teal-50 rounded-lg border border-teal-200 flex items-center gap-1.5 transition-colors flex-shrink-0"
+            className="px-3 py-1.5 text-xs font-medium text-blue-700 hover:bg-blue-50 rounded-lg border border-blue-200 flex items-center gap-1.5 transition-colors flex-shrink-0"
           >
             <Plus className="w-3.5 h-3.5" />
             {addLabel ?? config.addLabel}
@@ -303,7 +303,7 @@ const ItemRow: React.FC<ItemRowProps> = ({
           }}
           placeholder="Concepto..."
           disabled={disabled}
-          className="w-full px-2 py-1 text-sm border border-slate-200 rounded focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-100 disabled:bg-slate-50"
+          className="w-full px-2 py-1 text-sm border border-slate-200 rounded focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-100 disabled:bg-slate-50"
         />
         {showDropdown && !disabled && sugerenciasFiltradas.length > 0 && (
           <div className="absolute left-0 right-0 top-full mt-1 z-50 bg-white border border-slate-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
@@ -317,7 +317,7 @@ const ItemRow: React.FC<ItemRowProps> = ({
                   onUpdate(item.id, { concepto: sug });
                   setShowDropdown(false);
                 }}
-                className="w-full text-left px-3 py-1.5 text-sm text-slate-700 hover:bg-teal-50 hover:text-teal-900 transition-colors"
+                className="w-full text-left px-3 py-1.5 text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-900 transition-colors"
               >
                 {sug}
               </button>
@@ -334,7 +334,7 @@ const ItemRow: React.FC<ItemRowProps> = ({
             onClick={() => onUpdate(item.id, { modo: 'porcentaje' })}
             className={cn(
               'px-2 py-0.5 rounded text-xs font-medium transition-colors',
-              modo === 'porcentaje' ? 'bg-white text-teal-700 shadow-sm' : 'text-slate-500'
+              modo === 'porcentaje' ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-500'
             )}
           >
             <Percent className="w-3 h-3" />
@@ -344,7 +344,7 @@ const ItemRow: React.FC<ItemRowProps> = ({
             onClick={() => onUpdate(item.id, { modo: 'fijo' })}
             className={cn(
               'px-2 py-0.5 rounded text-xs font-medium transition-colors',
-              modo === 'fijo' ? 'bg-white text-teal-700 shadow-sm' : 'text-slate-500'
+              modo === 'fijo' ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-500'
             )}
           >
             <DollarSign className="w-3 h-3" />
@@ -364,7 +364,7 @@ const ItemRow: React.FC<ItemRowProps> = ({
             step="0.01"
             min="0"
             disabled={disabled}
-            className="w-16 px-1.5 py-1 text-sm text-right border border-slate-200 rounded focus:outline-none focus:border-teal-500 disabled:bg-slate-50 tabular-nums"
+            className="w-16 px-1.5 py-1 text-sm text-right border border-slate-200 rounded focus:outline-none focus:border-blue-500 disabled:bg-slate-50 tabular-nums"
           />
           <span className="text-xs text-slate-500">%</span>
         </div>
@@ -384,7 +384,7 @@ const ItemRow: React.FC<ItemRowProps> = ({
           readOnly={isImpuesto && modo === 'porcentaje'}
           disabled={disabled}
           className={cn(
-            'w-20 px-1.5 py-1 text-sm text-right border border-slate-200 rounded focus:outline-none focus:border-teal-500 tabular-nums',
+            'w-20 px-1.5 py-1 text-sm text-right border border-slate-200 rounded focus:outline-none focus:border-blue-500 tabular-nums',
             (isImpuesto && modo === 'porcentaje') || disabled
               ? 'bg-slate-50 text-slate-600'
               : ''

@@ -205,7 +205,8 @@ export const StepConfirm: React.FC<StepConfirmProps> = ({
             <span className="text-xs text-slate-400">{cfg.paisOrigen}</span>
           </div>
 
-          <RouteVisual size="md" nodes={rutaNodes} segments={rutaSegments} />
+          {/* accent blue · canon alineación (chrome de ruta en color del grupo Comercial) */}
+          <RouteVisual size="md" accent="blue" nodes={rutaNodes} segments={rutaSegments} />
 
           <div className="grid grid-cols-2 gap-3 text-xs pt-2 border-t border-slate-100">
             <Field
