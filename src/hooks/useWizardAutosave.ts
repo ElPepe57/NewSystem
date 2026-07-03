@@ -240,11 +240,12 @@ export function useWizardAutosave<TState>({
     } catch {
       /* silencioso */
     }
-    try {
-      await borradorWizardService.delete(userId, tipo);
-    } catch {
+    // Descarte OPTIMISTA: la capa local ya se borró — el delete remoto va en
+    // segundo plano (no bloquear la UI 0.3-3s por el round-trip a Firestore;
+    // mismo catch silencioso que antes, solo cambia el timing).
+    borradorWizardService.delete(userId, tipo).catch(() => {
       /* silencioso */
-    }
+    });
     setBorradorExistente(null);
     setIsDirty(false);
   }, [userId, lsKey, tipo]);
