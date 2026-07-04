@@ -81,6 +81,7 @@
     <a href="#acto13" class="idx bg-white border border-slate-200 rounded-xl px-3 py-2.5 hover:border-blue-300 flex items-center gap-2"><span class="w-6 h-6 rounded-lg bg-blue-600 text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0">13</span><span class="text-[12px] font-semibold text-slate-800">Forms + Banners</span><span class="ml-auto w-2 h-2 rounded-full bg-emerald-500"></span></a>
     <a href="#acto14" class="idx bg-white border border-slate-200 rounded-xl px-3 py-2.5 hover:border-blue-300 flex items-center gap-2"><span class="w-6 h-6 rounded-lg bg-blue-600 text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0">14</span><span class="text-[12px] font-semibold text-slate-800">Estados (empty/load/error)</span><span class="ml-auto w-2 h-2 rounded-full bg-emerald-500"></span></a>
     <a href="#acto15" class="idx bg-white border border-slate-200 rounded-xl px-3 py-2.5 hover:border-blue-300 flex items-center gap-2"><span class="w-6 h-6 rounded-lg bg-rose-600 text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0">15</span><span class="text-[12px] font-semibold text-slate-800">Mobile 375px</span><span class="ml-auto w-2 h-2 rounded-full bg-rose-500"></span></a>
+    <a href="#acto16" class="idx bg-white border border-slate-200 rounded-xl px-3 py-2.5 hover:border-blue-300 flex items-center gap-2"><span class="w-6 h-6 rounded-lg bg-rose-600 text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0">16</span><span class="text-[12px] font-semibold text-slate-800">Tab Impacto financiero</span><span class="ml-auto w-2 h-2 rounded-full bg-rose-500"></span></a>
   </nav>
 </header>
 
@@ -157,7 +158,7 @@
       <button class="px-3.5 py-3 text-[13px] font-semibold text-blue-700 border-b-2 border-blue-600 whitespace-nowrap flex items-center gap-1.5"><i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i> Resumen</button>
       <button class="px-3.5 py-3 text-[13px] font-medium text-slate-500 hover:text-slate-700 whitespace-nowrap flex items-center gap-1.5"><i data-lucide="list" class="w-3.5 h-3.5"></i> Órdenes <span class="text-[10px] bg-slate-100 text-slate-500 rounded-full px-1.5 py-0.5 font-bold tabular-nums">18</span></button>
       <button class="px-3.5 py-3 text-[13px] font-medium text-slate-500 hover:text-slate-700 whitespace-nowrap flex items-center gap-1.5"><i data-lucide="clipboard-list" class="w-3.5 h-3.5"></i> Pendientes <span class="text-[10px] bg-slate-100 text-slate-500 rounded-full px-1.5 py-0.5 font-bold tabular-nums">14</span></button>
-      <button class="px-3.5 py-3 text-[13px] font-medium text-slate-500 hover:text-slate-700 whitespace-nowrap flex items-center gap-1.5"><i data-lucide="building-2" class="w-3.5 h-3.5"></i> Proveedores</button>
+      <button class="px-3.5 py-3 text-[13px] font-medium text-slate-500 hover:text-slate-700 whitespace-nowrap flex items-center gap-1.5"><i data-lucide="coins" class="w-3.5 h-3.5"></i> Impacto financiero <span class="text-[9px] bg-rose-50 text-rose-600 border border-rose-200 rounded-full px-1.5 py-0.5 font-bold uppercase tracking-wide">Target</span></button>
       <button class="px-3.5 py-3 text-[13px] font-medium text-slate-500 hover:text-slate-700 whitespace-nowrap flex items-center gap-1.5"><i data-lucide="brain" class="w-3.5 h-3.5"></i> Inteligencia</button>
       <button class="px-3.5 py-3 text-[13px] font-medium text-slate-500 hover:text-slate-700 whitespace-nowrap flex items-center gap-1.5"><i data-lucide="plane-landing" class="w-3.5 h-3.5"></i> Llegadas <span class="text-[10px] bg-rose-100 text-rose-600 rounded-full px-1.5 py-0.5 font-bold tabular-nums">2</span></button>
     </div>
@@ -255,6 +256,12 @@
             <a class="flex items-center gap-2 text-slate-600 hover:text-blue-700"><i data-lucide="ship" class="w-3.5 h-3.5"></i> Envíos <i data-lucide="arrow-right" class="w-3 h-3 ml-auto"></i></a>
             <a class="flex items-center gap-2 text-slate-600 hover:text-blue-700"><i data-lucide="landmark" class="w-3.5 h-3.5"></i> Tesorería <i data-lucide="arrow-right" class="w-3 h-3 ml-auto"></i></a>
           </div>
+        </div>
+        <!-- teaser 1-línea · calendario de caja + FX migraron a Impacto financiero (adjudicación no-redundancia 3) -->
+        <div class="bg-white border border-slate-200 rounded-xl px-4 py-2.5 flex items-center gap-2 text-[11px] text-slate-600">
+          <i data-lucide="calendar-clock" class="w-3.5 h-3.5 text-amber-500 flex-shrink-0"></i>
+          <span class="truncate">Caja 7 días: <b class="tabular-nums text-slate-800">$9,300</b> · FX <b class="tabular-nums text-slate-800">+2.1%</b></span>
+          <a class="ml-auto flex items-center gap-1 text-blue-700 font-semibold whitespace-nowrap cursor-pointer">Impacto financiero <i data-lucide="arrow-right" class="w-3 h-3"></i></a>
         </div>
         <!-- §F alertas -->
         <div class="bg-gradient-to-br from-amber-50 to-amber-100/30 ring-1 ring-amber-200/60 rounded-xl p-4">
@@ -1316,8 +1323,10 @@
     <div class="flex items-center gap-5 border-b border-slate-200 -mx-4 sm:-mx-6 px-4 sm:px-6 overflow-x-auto">
       <button class="text-[13px] font-medium text-slate-500 pb-2.5 whitespace-nowrap">Resumen</button>
       <button class="text-[13px] font-medium text-slate-500 pb-2.5 whitespace-nowrap">Órdenes</button>
+      <button class="text-[13px] font-medium text-slate-500 pb-2.5 whitespace-nowrap">Pendientes</button>
+      <button class="text-[13px] font-medium text-slate-500 pb-2.5 whitespace-nowrap">Impacto financiero</button>
+      <button class="text-[13px] font-medium text-slate-500 pb-2.5 whitespace-nowrap">Inteligencia</button>
       <button class="text-[13px] font-semibold text-blue-700 border-b-2 border-blue-600 pb-2.5 whitespace-nowrap">Llegadas</button>
-      <button class="text-[13px] font-medium text-slate-500 pb-2.5 whitespace-nowrap">Análisis</button>
     </div>
 
     <!-- Nota honesta -->
@@ -4004,8 +4013,10 @@
               <div class="flex gap-1 overflow-x-auto px-2" style="scrollbar-width:none;">
                 <button class="whitespace-nowrap text-[12px] font-semibold text-blue-700 border-b-2 border-blue-600 px-3 py-2.5">Resumen</button>
                 <button class="whitespace-nowrap text-[12px] text-slate-500 px-3 py-2.5">Órdenes</button>
-                <button class="whitespace-nowrap text-[12px] text-slate-500 px-3 py-2.5">Pagos</button>
-                <button class="whitespace-nowrap text-[12px] text-slate-500 px-3 py-2.5">Análisis</button>
+                <button class="whitespace-nowrap text-[12px] text-slate-500 px-3 py-2.5">Pendientes</button>
+                <button class="whitespace-nowrap text-[12px] text-slate-500 px-3 py-2.5">Impacto financiero</button>
+                <button class="whitespace-nowrap text-[12px] text-slate-500 px-3 py-2.5">Inteligencia</button>
+                <button class="whitespace-nowrap text-[12px] text-slate-500 px-3 py-2.5">Llegadas</button>
               </div>
             </div>
             <!-- body preview -->
@@ -4257,6 +4268,468 @@
   </div>
 </section>
 
+<!-- ════════════════════════ ACTO 16 · TAB IMPACTO FINANCIERO ════════════════════════ -->
+<section id="acto16" class="space-y-4">
+  <div class="flex items-center gap-3">
+    <span class="w-8 h-8 rounded-lg bg-blue-600 text-white text-[13px] font-bold flex items-center justify-center flex-shrink-0">16</span>
+    <div>
+      <div class="text-[17px] font-bold text-slate-900">Tab Impacto financiero · lente de dinero (solo lectura) <span class="badge bg-rose-50 text-rose-700 border border-rose-200 ml-1"><i data-lucide="alert-triangle" class="w-2.5 h-2.5"></i> Target pendiente</span></div>
+      <div class="text-[12px] text-slate-500">6ª tab del hub (tras Pendientes) · idea del titular: "el dinero impacta así en caja · los borradores te consumirían tanto si los ejecutas · perdiste tanto por dañados/perdidos · el proveedor te debe tanto" · aprobada 2026-07-03</div>
+    </div>
+  </div>
+
+  <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 frame space-y-5">
+
+    <!-- Aviso · lente de solo-lectura -->
+    <div class="flex items-start gap-3 bg-gradient-to-r from-rose-50 to-rose-100/30 ring-1 ring-rose-200/60 rounded-2xl p-4">
+      <div class="w-10 h-10 rounded-xl bg-rose-100 flex items-center justify-center flex-shrink-0">
+        <i data-lucide="coins" class="w-5 h-5 text-rose-700"></i>
+      </div>
+      <div class="flex-1">
+        <div class="text-[13px] font-bold text-rose-900">Lente de SOLO-LECTURA · no re-implementa módulos</div>
+        <div class="text-[12px] text-rose-700 mt-0.5 leading-snug">Responde "¿cómo golpea Compras a la caja?" agregando lo que ya vive en otros módulos: deuda (Cuentas por pagar · Finanzas) · pérdidas (Gastos / Incidencias) · reclamos al proveedor. Aquí NO se paga ni se registra nada — cada bloque cross-linkea a su módulo dueño. <span class="font-semibold">La acción de pagar sigue en Finanzas/CC.</span></div>
+      </div>
+      <span class="badge bg-slate-50 text-slate-600 border border-slate-200 flex-shrink-0"><i data-lucide="eye" class="w-2.5 h-2.5"></i> Read-only</span>
+    </div>
+
+    <!-- Tabs del shell (contexto · 6 tabs · Impacto financiero activa) -->
+    <div class="flex items-center gap-5 border-b border-slate-200 -mx-4 sm:-mx-6 px-4 sm:px-6 overflow-x-auto scrollbar-none">
+      <button class="text-[13px] font-medium text-slate-500 pb-2.5 whitespace-nowrap">Resumen</button>
+      <button class="text-[13px] font-medium text-slate-500 pb-2.5 whitespace-nowrap">Órdenes</button>
+      <button class="text-[13px] font-medium text-slate-500 pb-2.5 whitespace-nowrap">Pendientes</button>
+      <button class="text-[13px] font-semibold text-blue-700 border-b-2 border-blue-600 pb-2.5 whitespace-nowrap">Impacto financiero</button>
+      <button class="text-[13px] font-medium text-slate-500 pb-2.5 whitespace-nowrap">Inteligencia</button>
+      <button class="text-[13px] font-medium text-slate-500 pb-2.5 whitespace-nowrap">Llegadas</button>
+    </div>
+
+    <!-- ============ §A · KPIs de dinero ============ -->
+    <div>
+      <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+        <span class="stcap text-slate-500">§A · El dinero de Compras hoy</span>
+        <span class="text-[11px] text-slate-400">fuentes: Cuentas por pagar · borradores · incidencias · reclamos</span>
+      </div>
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider text-amber-700 font-bold">Deuda viva</span><i data-lucide="wallet" class="w-3.5 h-3.5 text-amber-700"></i></div>
+          <div class="text-2xl font-bold tabular-nums text-amber-900">$38,900<span class="text-amber-400">.00</span></div>
+          <div class="text-[11px] text-amber-700 flex items-center gap-1 mt-1"><i data-lucide="hourglass" class="w-3 h-3"></i> 62% ya vencida · aging §B</div>
+        </div>
+        <div class="bg-gradient-to-br from-indigo-50 to-indigo-100/40 ring-1 ring-indigo-200/50 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider text-indigo-700 font-bold">Compromiso potencial</span><i data-lucide="file-clock" class="w-3.5 h-3.5 text-indigo-700"></i></div>
+          <div class="text-2xl font-bold tabular-nums text-indigo-900">$21,450<span class="text-indigo-400">.00</span></div>
+          <div class="text-[11px] text-indigo-700 flex items-center gap-1 mt-1"><i data-lucide="calculator" class="w-3 h-3"></i> 3 borradores · si los ejecutas</div>
+        </div>
+        <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider text-rose-700 font-bold">Pérdidas del período</span><i data-lucide="package-x" class="w-3.5 h-3.5 text-rose-700"></i></div>
+          <div class="text-2xl font-bold tabular-nums text-rose-900">$1,840<span class="text-rose-400">.00</span></div>
+          <div class="text-[11px] text-rose-700 flex items-center gap-1 mt-1"><i data-lucide="trending-down" class="w-3 h-3"></i> 26 uds · dañado + perdido + merma</div>
+        </div>
+        <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2"><span class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">Por cobrar al proveedor</span><i data-lucide="hand-coins" class="w-3.5 h-3.5 text-emerald-700"></i></div>
+          <div class="text-2xl font-bold tabular-nums text-emerald-900">$920<span class="text-emerald-400">.00</span></div>
+          <div class="text-[11px] text-emerald-700 flex items-center gap-1 mt-1"><i data-lucide="receipt" class="w-3 h-3"></i> 2 reclamos abiertos <span class="badge bg-rose-50 text-rose-700 border border-rose-200 ml-auto">Target</span></div>
+        </div>
+      </div>
+      <p class="mt-2 text-[11px] text-slate-400 flex items-center gap-1.5"><i data-lucide="shield-check" class="w-3.5 h-3.5"></i> La card Deuda viva NO clona el strip: abre el "Por pagar $38,900" en vencida/por-vencer y ancla el desglose §B (patrón strip=número · tab=desglose).</p>
+    </div>
+
+    <!-- ============ §B · Aging de deuda por proveedor ============ -->
+    <div class="bg-white border border-slate-200 rounded-xl p-4">
+      <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center">
+            <i data-lucide="hourglass" class="w-4 h-4 text-amber-600"></i>
+          </div>
+          <div>
+            <div class="text-[12px] font-bold text-slate-900">§B · Aging de deuda por proveedor</div>
+            <div class="text-[10px] text-slate-500">Desglose del "Por pagar $38,900" del strip · fuente: Cuentas por pagar</div>
+          </div>
+        </div>
+        <button class="flex items-center gap-1.5 bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 text-[12px] font-semibold px-3.5 py-2 rounded-lg">
+          <i data-lucide="landmark" class="w-4 h-4"></i> Pagar vive en Finanzas <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+        </button>
+      </div>
+
+      <!-- buckets -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center mb-4">
+        <div class="rounded-lg bg-sky-50 border border-sky-200 p-2"><div class="text-xl font-bold tabular-nums text-sky-700">$14,700</div><div class="text-[10px] text-sky-600">Por vencer</div></div>
+        <div class="rounded-lg bg-amber-50 border border-amber-200 p-2"><div class="text-xl font-bold tabular-nums text-amber-700">$13,600</div><div class="text-[10px] text-amber-600">Vencida 0-30d</div></div>
+        <div class="rounded-lg bg-rose-50 border border-rose-200 p-2"><div class="text-xl font-bold tabular-nums text-rose-700">$8,400</div><div class="text-[10px] text-rose-600">Vencida 31-60d</div></div>
+        <div class="rounded-lg bg-rose-100 border border-rose-300 p-2"><div class="text-xl font-bold tabular-nums text-rose-900">$2,200</div><div class="text-[10px] text-rose-700">Vencida +60d</div></div>
+      </div>
+
+      <!-- filas por proveedor · barra apilada por bucket -->
+      <div class="space-y-3">
+        <div>
+          <div class="flex items-center justify-between mb-1 text-[11px]">
+            <span class="font-semibold text-slate-700">COSRX</span>
+            <span class="font-bold tabular-nums text-slate-900">$16,400</span>
+          </div>
+          <div class="h-2 rounded-full bg-slate-100 overflow-hidden flex">
+            <div class="h-full bg-sky-400" style="width:32%"></div>
+            <div class="h-full bg-amber-400" style="width:52%"></div>
+            <div class="h-full bg-rose-400" style="width:16%"></div>
+          </div>
+          <div class="text-[10px] text-slate-400 mt-0.5 tabular-nums">por vencer $5,200 · 0-30d $8,600 · 31-60d $2,600</div>
+        </div>
+        <div>
+          <div class="flex items-center justify-between mb-1 text-[11px]">
+            <span class="font-semibold text-slate-700">Beauty of Joseon</span>
+            <span class="font-bold tabular-nums text-slate-900">$12,300</span>
+          </div>
+          <div class="h-2 rounded-full bg-slate-100 overflow-hidden flex">
+            <div class="h-full bg-sky-400" style="width:45%"></div>
+            <div class="h-full bg-amber-400" style="width:41%"></div>
+            <div class="h-full bg-rose-400" style="width:14%"></div>
+          </div>
+          <div class="text-[10px] text-slate-400 mt-0.5 tabular-nums">por vencer $5,500 · 0-30d $5,000 · 31-60d $1,800</div>
+        </div>
+        <div>
+          <div class="flex items-center justify-between mb-1 text-[11px]">
+            <span class="font-semibold text-slate-700">Anua</span>
+            <span class="font-bold tabular-nums text-slate-900">$10,200</span>
+          </div>
+          <div class="h-2 rounded-full bg-slate-100 overflow-hidden flex">
+            <div class="h-full bg-sky-400" style="width:39%"></div>
+            <div class="h-full bg-rose-400" style="width:39%"></div>
+            <div class="h-full bg-rose-600" style="width:22%"></div>
+          </div>
+          <div class="text-[10px] text-slate-400 mt-0.5 tabular-nums">por vencer $4,000 · 31-60d $4,000 · +60d $2,200</div>
+        </div>
+      </div>
+
+      <div class="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between flex-wrap gap-2 text-[11px]">
+        <span class="text-slate-500 flex items-center gap-1.5"><i data-lucide="alarm-clock" class="w-3.5 h-3.5 text-rose-500"></i> Vencen esta semana: <b class="text-slate-700 tabular-nums">OC-2418 cuota $5,400</b> · <b class="text-slate-700 tabular-nums">OC-2405 saldo $3,900</b></span>
+        <span class="text-slate-400 tabular-nums">Σ $38,900 · cuadra con el strip "Por pagar"</span>
+      </div>
+    </div>
+
+    <!-- ============ §C · Simulación de borradores ============ -->
+    <div class="bg-white border border-slate-200 rounded-xl p-4">
+      <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center">
+            <i data-lucide="calculator" class="w-4 h-4 text-indigo-600"></i>
+          </div>
+          <div>
+            <div class="text-[12px] font-bold text-slate-900">§C · Simulación de borradores · ¿y si los ejecutas?</div>
+            <div class="text-[10px] text-slate-500">Los borradores NO suman al strip (no son compra) · aquí ves su golpe ANTES de confirmar</div>
+          </div>
+        </div>
+        <span class="badge bg-rose-50 text-rose-700 border border-rose-200"><i data-lucide="alert-triangle" class="w-2.5 h-2.5"></i> Target · nuevo</span>
+      </div>
+
+      <div class="space-y-2">
+        <label class="flex items-center gap-3 bg-indigo-50/50 ring-1 ring-indigo-200/50 rounded-lg px-3 py-2 cursor-pointer">
+          <span class="w-4 h-4 rounded border-2 border-indigo-500 bg-indigo-500 flex items-center justify-center flex-shrink-0"><i data-lucide="check" class="w-3 h-3 text-white"></i></span>
+          <div class="flex-1 min-w-0">
+            <div class="text-[12px] font-semibold text-slate-800 truncate">OC-2422 · COSRX <span class="badge bg-slate-100 text-slate-500 border border-slate-200 ml-1">Borrador</span></div>
+            <div class="text-[10px] text-slate-500 tabular-nums">12 SKUs · 480 uds</div>
+          </div>
+          <span class="text-[13px] font-bold tabular-nums text-indigo-700 flex-shrink-0">$9,800</span>
+        </label>
+        <label class="flex items-center gap-3 bg-indigo-50/50 ring-1 ring-indigo-200/50 rounded-lg px-3 py-2 cursor-pointer">
+          <span class="w-4 h-4 rounded border-2 border-indigo-500 bg-indigo-500 flex items-center justify-center flex-shrink-0"><i data-lucide="check" class="w-3 h-3 text-white"></i></span>
+          <div class="flex-1 min-w-0">
+            <div class="text-[12px] font-semibold text-slate-800 truncate">OC-2423 · Anua <span class="badge bg-slate-100 text-slate-500 border border-slate-200 ml-1">Borrador</span></div>
+            <div class="text-[10px] text-slate-500 tabular-nums">8 SKUs · 310 uds</div>
+          </div>
+          <span class="text-[13px] font-bold tabular-nums text-indigo-700 flex-shrink-0">$6,450</span>
+        </label>
+        <label class="flex items-center gap-3 bg-indigo-50/50 ring-1 ring-indigo-200/50 rounded-lg px-3 py-2 cursor-pointer">
+          <span class="w-4 h-4 rounded border-2 border-indigo-500 bg-indigo-500 flex items-center justify-center flex-shrink-0"><i data-lucide="check" class="w-3 h-3 text-white"></i></span>
+          <div class="flex-1 min-w-0">
+            <div class="text-[12px] font-semibold text-slate-800 truncate">OC-2424 · Torriden <span class="badge bg-slate-100 text-slate-500 border border-slate-200 ml-1">Borrador</span></div>
+            <div class="text-[10px] text-slate-500 tabular-nums">5 SKUs · 190 uds</div>
+          </div>
+          <span class="text-[13px] font-bold tabular-nums text-indigo-700 flex-shrink-0">$5,200</span>
+        </label>
+      </div>
+
+      <!-- resultado de la simulación -->
+      <div class="mt-3 bg-gradient-to-r from-indigo-50 to-indigo-100/30 ring-1 ring-indigo-200/60 rounded-xl p-3">
+        <div class="flex items-center justify-between text-[11px] mb-1.5 flex-wrap gap-1">
+          <span class="text-indigo-700 font-semibold">Deuda viva si ejecutas los 3</span>
+          <span class="tabular-nums text-indigo-900 font-bold">$38,900 → $60,350 <span class="text-indigo-500">(+55%)</span></span>
+        </div>
+        <div class="h-2.5 rounded-full bg-white/70 overflow-hidden flex">
+          <div class="h-full bg-amber-400" style="width:64%"></div>
+          <div class="h-full bg-indigo-500" style="width:36%"></div>
+        </div>
+        <div class="mt-1.5 flex items-center gap-3 text-[10px] text-indigo-700 flex-wrap">
+          <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-amber-400"></span> deuda actual $38,900</span>
+          <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-indigo-500"></span> borradores $21,450</span>
+          <span class="ml-auto tabular-nums">Comprometido pasaría de $142,180 a $163,630</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ §D · Perdido vs por-recuperar ============ -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <!-- Perdido -->
+      <div class="bg-white border border-slate-200 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-lg bg-rose-50 flex items-center justify-center">
+              <i data-lucide="package-x" class="w-4 h-4 text-rose-600"></i>
+            </div>
+            <div>
+              <div class="text-[12px] font-bold text-slate-900">§D · Perdido del período</div>
+              <div class="text-[10px] text-slate-500">dañados · perdidos · merma de recepción</div>
+            </div>
+          </div>
+          <span class="text-[13px] font-bold tabular-nums text-rose-700">$1,840</span>
+        </div>
+        <div class="space-y-2">
+          <div class="flex items-center justify-between bg-rose-50/40 ring-1 ring-rose-200/40 rounded-lg px-3 py-2">
+            <div class="min-w-0">
+              <div class="text-[12px] font-semibold text-slate-800 truncate">Dañados en tránsito · EN-1174</div>
+              <div class="text-[10px] text-slate-500 tabular-nums">12 uds · COSRX Snail Essence</div>
+            </div>
+            <span class="text-[13px] font-bold tabular-nums text-rose-700 flex-shrink-0">$780</span>
+          </div>
+          <div class="flex items-center justify-between bg-rose-50/40 ring-1 ring-rose-200/40 rounded-lg px-3 py-2">
+            <div class="min-w-0">
+              <div class="text-[12px] font-semibold text-slate-800 truncate">Perdido en casilla · EN-1168</div>
+              <div class="text-[10px] text-slate-500 tabular-nums">8 uds · BoJ Relief Sun</div>
+            </div>
+            <span class="text-[13px] font-bold tabular-nums text-rose-700 flex-shrink-0">$640</span>
+          </div>
+          <div class="flex items-center justify-between bg-rose-50/40 ring-1 ring-rose-200/40 rounded-lg px-3 py-2">
+            <div class="min-w-0">
+              <div class="text-[12px] font-semibold text-slate-800 truncate">Merma en recepción · OC-2402</div>
+              <div class="text-[10px] text-slate-500 tabular-nums">6 uds · Anua Heartleaf Toner</div>
+            </div>
+            <span class="text-[13px] font-bold tabular-nums text-rose-700 flex-shrink-0">$420</span>
+          </div>
+        </div>
+        <div class="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px]">
+          <span class="text-slate-500">Ya registrado como gasto/merma</span>
+          <a class="flex items-center gap-1 text-blue-700 font-semibold cursor-pointer">Ver en Gastos <i data-lucide="arrow-right" class="w-3 h-3"></i></a>
+        </div>
+      </div>
+      <!-- Por recuperar -->
+      <div class="bg-white border border-slate-200 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center">
+              <i data-lucide="hand-coins" class="w-4 h-4 text-emerald-600"></i>
+            </div>
+            <div>
+              <div class="text-[12px] font-bold text-slate-900">Por recuperar · reclamos al proveedor</div>
+              <div class="text-[10px] text-slate-500">agregado de reclamos <span class="badge bg-rose-50 text-rose-700 border border-rose-200 ml-0.5">Target</span></div>
+            </div>
+          </div>
+          <span class="text-[13px] font-bold tabular-nums text-emerald-700">$920</span>
+        </div>
+        <div class="space-y-2">
+          <div class="flex items-center justify-between bg-emerald-50/40 ring-1 ring-emerald-200/40 rounded-lg px-3 py-2">
+            <div class="min-w-0">
+              <div class="text-[12px] font-semibold text-slate-800 truncate">Reclamo a COSRX · dañados EN-1174</div>
+              <div class="text-[10px] text-slate-500">aceptado · espera nota de crédito</div>
+            </div>
+            <span class="text-[13px] font-bold tabular-nums text-emerald-700 flex-shrink-0">$560</span>
+          </div>
+          <div class="flex items-center justify-between bg-emerald-50/40 ring-1 ring-emerald-200/40 rounded-lg px-3 py-2">
+            <div class="min-w-0">
+              <div class="text-[12px] font-semibold text-slate-800 truncate">Reclamo a Anua · faltantes OC-2402</div>
+              <div class="text-[10px] text-slate-500">en negociación</div>
+            </div>
+            <span class="text-[13px] font-bold tabular-nums text-emerald-700 flex-shrink-0">$360</span>
+          </div>
+        </div>
+        <div class="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px]">
+          <span class="text-slate-500">Cada reclamo nace de una incidencia</span>
+          <a class="flex items-center gap-1 text-blue-700 font-semibold cursor-pointer">Ver incidencias de la OC <i data-lucide="arrow-right" class="w-3 h-3"></i></a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ §E · Calendario de caja + Exposición FX ============ -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <!-- Calendario de caja -->
+      <div class="bg-white border border-slate-200 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center">
+              <i data-lucide="calendar-clock" class="w-4 h-4 text-amber-600"></i>
+            </div>
+            <div>
+              <div class="text-[12px] font-bold text-slate-900">§E · Calendario de caja</div>
+              <div class="text-[10px] text-slate-500">cuándo golpea la deuda · migrado del Resumen</div>
+            </div>
+          </div>
+          <span class="badge bg-slate-50 text-slate-600 border border-slate-200">CxP</span>
+        </div>
+        <div class="space-y-2.5 text-[12px]">
+          <div class="flex items-center justify-between">
+            <span class="flex items-center gap-2 text-slate-600"><span class="w-2 h-2 rounded-full bg-rose-500"></span> Vencido · pagar ya</span>
+            <span class="font-bold tabular-nums text-rose-700">$24,200</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="flex items-center gap-2 text-slate-600"><span class="w-2 h-2 rounded-full bg-amber-500"></span> Esta semana · 2 pagos</span>
+            <span class="font-bold tabular-nums text-amber-700">$9,300</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="flex items-center gap-2 text-slate-600"><span class="w-2 h-2 rounded-full bg-sky-500"></span> Próxima semana</span>
+            <span class="font-bold tabular-nums text-sky-700">$3,100</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="flex items-center gap-2 text-slate-600"><span class="w-2 h-2 rounded-full bg-slate-300"></span> Más adelante</span>
+            <span class="font-bold tabular-nums text-slate-600">$2,300</span>
+          </div>
+        </div>
+        <div class="mt-3 pt-3 border-t border-slate-100 text-[10px] text-slate-400 tabular-nums">Σ $38,900 · el strip da el total · aquí ves el CUÁNDO</div>
+      </div>
+      <!-- Exposición FX -->
+      <div class="bg-white border border-slate-200 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-lg bg-rose-50 flex items-center justify-center">
+              <i data-lucide="dollar-sign" class="w-4 h-4 text-rose-600"></i>
+            </div>
+            <div>
+              <div class="text-[12px] font-bold text-slate-900">Exposición FX de la deuda</div>
+              <div class="text-[10px] text-slate-500">89% de la deuda vive en USD · migrado del Resumen</div>
+            </div>
+          </div>
+          <span class="badge bg-rose-50 text-rose-700 border border-rose-200"><i data-lucide="trending-up" class="w-2.5 h-2.5"></i> TC +2.1%</span>
+        </div>
+        <div class="space-y-2 text-[12px]">
+          <div class="flex items-center justify-between"><span class="text-slate-600">Deuda en USD</span><span class="font-bold tabular-nums text-slate-900">USD 34,600</span></div>
+          <div class="flex items-center justify-between"><span class="text-slate-600">TC promedio pactado (al confirmar)</span><span class="font-bold tabular-nums text-slate-900">3.720</span></div>
+          <div class="flex items-center justify-between"><span class="text-slate-600">TC hoy</span><span class="font-bold tabular-nums text-rose-700">3.800 <span class="text-[10px] text-rose-500">(+2.1%)</span></span></div>
+        </div>
+        <div class="mt-3 bg-gradient-to-r from-rose-50 to-rose-100/30 ring-1 ring-rose-200/60 rounded-lg px-3 py-2 flex items-center justify-between text-[11px]">
+          <span class="text-rose-700 font-semibold">Si pagaras todo hoy</span>
+          <span class="font-bold tabular-nums text-rose-900">+S/ 2,768 sobre lo previsto</span>
+        </div>
+        <div class="mt-2 text-[10px] text-slate-400">3 pagos pendientes en USD · TC de referencia pactado en la OC-2418 · la misma alerta que ves en el Resumen §F</div>
+      </div>
+    </div>
+
+    <!-- ============ Canon no-redundancia · 3 adjudicaciones ============ -->
+    <div class="bg-gradient-to-r from-blue-50 to-blue-100/30 ring-1 ring-blue-200/60 rounded-2xl p-4">
+      <div class="flex items-center gap-2 mb-2">
+        <div class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
+          <i data-lucide="shield-check" class="w-4 h-4 text-blue-700"></i>
+        </div>
+        <span class="text-[12px] font-bold text-slate-900">Canon no-redundancia · 3 adjudicaciones ya decididas (2026-07-03)</span>
+      </div>
+      <ul class="space-y-1.5 text-[11px] text-slate-600 leading-relaxed">
+        <li class="flex items-start gap-2"><span class="w-4 h-4 rounded bg-blue-600 text-white text-[9px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">1</span><span><b>Strip = número · tab = desglose.</b> El strip del hub ya da "Por pagar $38,900" — esta tab NO clona esa card: la abre en aging por proveedor (§B) y calendario (§E). Patrón Contabilidad (strip Total Activos → tab Balance).</span></li>
+        <li class="flex items-start gap-2"><span class="w-4 h-4 rounded bg-blue-600 text-white text-[9px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">2</span><span><b>Inteligencia = operativo · Impacto = dinero.</b> Las mismas 31 incidencias (6.6% tasa) siguen en Inteligencia con su ángulo operativo (tasa · mix por tipo) — aquí solo entra su ángulo de DINERO: $1,840 perdido · $920 por cobrar (§D).</span></li>
+        <li class="flex items-start gap-2"><span class="w-4 h-4 rounded bg-blue-600 text-white text-[9px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">3</span><span><b>Calendario de caja + FX MIGRAN del Resumen.</b> Viven aquí como detalle (§E) · el Resumen queda con un teaser de 1 línea que enlaza a esta tab (ver Acto 2 · aside).</span></li>
+      </ul>
+    </div>
+
+    <!-- ============ Empty honesto + Mobile 375px ============ -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+      <!-- Empty state honesto -->
+      <div class="space-y-2">
+        <span class="stcap text-slate-500">Empty state · honesto</span>
+        <div class="bg-white border border-slate-200 rounded-xl p-4">
+          <div class="text-center py-10">
+            <i data-lucide="piggy-bank" class="w-12 h-12 text-slate-300 mx-auto mb-3"></i>
+            <div class="text-[13px] font-bold text-slate-900">Compras aún no golpea la caja</div>
+            <div class="text-[12px] text-slate-500 mt-1 max-w-[17rem] mx-auto">Sin OCs confirmadas no hay deuda, sin borradores no hay nada que simular y sin recepciones no hay pérdidas ni reclamos. Esta lente se enciende sola cuando confirmes tu primera OC.</div>
+            <div class="flex items-center justify-center gap-2 mt-4">
+              <button class="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[12px] font-semibold px-3.5 py-2 rounded-lg shadow-sm"><i data-lucide="plus" class="w-4 h-4"></i> Nueva OC</button>
+              <button class="flex items-center gap-1.5 bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 text-[12px] font-semibold px-3.5 py-2 rounded-lg"><i data-lucide="landmark" class="w-4 h-4"></i> Ver Cuentas por pagar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile 375px -->
+      <div class="space-y-2">
+        <span class="stcap text-slate-500">Mobile 375px · Impacto financiero</span>
+        <div class="w-[300px] bg-slate-900 rounded-[2rem] p-2 shadow-lg">
+          <div class="bg-slate-50 rounded-[1.5rem] overflow-hidden h-[560px] flex flex-col">
+            <!-- tabs scroll-x -->
+            <div class="border-b border-slate-200 bg-white">
+              <div class="flex gap-1 overflow-x-auto px-2" style="scrollbar-width:none;">
+                <button class="whitespace-nowrap text-[12px] text-slate-500 px-3 py-2.5">Pendientes</button>
+                <button class="whitespace-nowrap text-[12px] font-semibold text-blue-700 border-b-2 border-blue-600 px-3 py-2.5">Impacto financiero</button>
+                <button class="whitespace-nowrap text-[12px] text-slate-500 px-3 py-2.5">Inteligencia</button>
+              </div>
+            </div>
+            <!-- body scrolleable -->
+            <div class="flex-1 overflow-y-auto px-3 py-3 space-y-3 bg-slate-50/30" style="scrollbar-width:none;">
+              <!-- §A KPIs scroll-x -->
+              <div class="flex gap-2.5 overflow-x-auto pb-1 -mx-1 px-1" style="scrollbar-width:none;">
+                <div class="flex-shrink-0 w-[130px] bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-2xl p-3">
+                  <div class="text-[10px] uppercase tracking-wider text-amber-700 font-bold mb-1">Deuda viva</div>
+                  <div class="text-xl font-bold tabular-nums text-amber-900">$38,900</div>
+                  <div class="text-[10px] text-amber-700 flex items-center gap-1 mt-0.5"><i data-lucide="hourglass" class="w-3 h-3"></i> 62% vencida</div>
+                </div>
+                <div class="flex-shrink-0 w-[130px] bg-gradient-to-br from-indigo-50 to-indigo-100/40 ring-1 ring-indigo-200/50 rounded-2xl p-3">
+                  <div class="text-[10px] uppercase tracking-wider text-indigo-700 font-bold mb-1">Potencial</div>
+                  <div class="text-xl font-bold tabular-nums text-indigo-900">$21,450</div>
+                  <div class="text-[10px] text-indigo-700 flex items-center gap-1 mt-0.5"><i data-lucide="file-clock" class="w-3 h-3"></i> 3 borradores</div>
+                </div>
+                <div class="flex-shrink-0 w-[130px] bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-2xl p-3">
+                  <div class="text-[10px] uppercase tracking-wider text-rose-700 font-bold mb-1">Pérdidas</div>
+                  <div class="text-xl font-bold tabular-nums text-rose-900">$1,840</div>
+                  <div class="text-[10px] text-rose-700 flex items-center gap-1 mt-0.5"><i data-lucide="package-x" class="w-3 h-3"></i> 26 uds</div>
+                </div>
+              </div>
+              <!-- aging compacto -->
+              <div class="bg-white border border-slate-200 rounded-xl p-3">
+                <span class="stcap text-slate-500">Aging por proveedor</span>
+                <div class="mt-2 space-y-2">
+                  <div>
+                    <div class="flex items-center justify-between text-[11px] mb-0.5"><span class="text-slate-600">COSRX</span><span class="tabular-nums font-semibold text-slate-900">$16,400</span></div>
+                    <div class="h-1.5 rounded-full bg-slate-100 overflow-hidden flex">
+                      <div class="h-full bg-sky-400" style="width:32%"></div>
+                      <div class="h-full bg-amber-400" style="width:52%"></div>
+                      <div class="h-full bg-rose-400" style="width:16%"></div>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="flex items-center justify-between text-[11px] mb-0.5"><span class="text-slate-600">Beauty of Joseon</span><span class="tabular-nums font-semibold text-slate-900">$12,300</span></div>
+                    <div class="h-1.5 rounded-full bg-slate-100 overflow-hidden flex">
+                      <div class="h-full bg-sky-400" style="width:45%"></div>
+                      <div class="h-full bg-amber-400" style="width:41%"></div>
+                      <div class="h-full bg-rose-400" style="width:14%"></div>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="flex items-center justify-between text-[11px] mb-0.5"><span class="text-slate-600">Anua</span><span class="tabular-nums font-semibold text-slate-900">$10,200</span></div>
+                    <div class="h-1.5 rounded-full bg-slate-100 overflow-hidden flex">
+                      <div class="h-full bg-sky-400" style="width:39%"></div>
+                      <div class="h-full bg-rose-400" style="width:39%"></div>
+                      <div class="h-full bg-rose-600" style="width:22%"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- simulación compacta -->
+              <div class="bg-white border border-slate-200 rounded-xl p-3">
+                <div class="flex items-center justify-between"><span class="stcap text-slate-500">Si ejecutas 3 borradores</span><span class="badge bg-rose-50 text-rose-700 border border-rose-200">Target</span></div>
+                <div class="mt-2 text-[13px] font-bold tabular-nums text-indigo-900">$38,900 → $60,350 <span class="text-indigo-400 font-semibold">(+55%)</span></div>
+                <div class="mt-1.5 h-2 rounded-full bg-slate-100 overflow-hidden flex">
+                  <div class="h-full bg-amber-400" style="width:64%"></div>
+                  <div class="h-full bg-indigo-500" style="width:36%"></div>
+                </div>
+              </div>
+              <!-- CTA cross-link -->
+              <button class="w-full flex items-center justify-center gap-1.5 bg-white text-slate-600 border border-slate-200 text-[12px] font-semibold px-3.5 py-2.5 rounded-lg min-h-[44px]"><i data-lucide="landmark" class="w-4 h-4"></i> Pagar vive en Finanzas</button>
+            </div>
+          </div>
+        </div>
+        <div class="flex flex-wrap items-center gap-3 text-[11px] text-slate-500">
+          <span class="flex items-center gap-1"><i data-lucide="hand" class="w-3.5 h-3.5 text-slate-400"></i> Touch targets ≥44px</span>
+          <span class="flex items-center gap-1"><i data-lucide="move-horizontal" class="w-3.5 h-3.5 text-slate-400"></i> KPIs y tabs con scroll-x (N6)</span>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
 </main>
 
 <!-- ═══════════════════════════════ FOOTER ═══════════════════════════════ -->
@@ -4273,7 +4746,7 @@
         <div class="stcap text-slate-400 mb-2">Cobertura del master</div>
         <ul class="space-y-1.5 text-[12px] text-slate-300">
           <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i> Shell hub (top-bar + header + KPI strip + tabs)</li>
-          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i> 5 tabs del hub (Resumen §A-F · Órdenes · Pendientes · Inteligencia · Llegadas) · Proveedores vive en Maestros</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i> 6 tabs del hub (Resumen §A-F · Órdenes · Pendientes · Impacto financiero <span class="badge bg-rose-500/20 text-rose-300 border border-rose-500/40">Target</span> · Inteligencia · Llegadas) · Proveedores vive en Maestros</li>
           <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i> Detalle de OC (Resumen §A-F + 6 tabs + drawer Actividad)</li>
           <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i> Wizard creación (4 pasos) + OCBuilder (3 steps)</li>
           <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i> 8 modales internos + forms + banners</li>
@@ -4286,7 +4759,7 @@
         <ul class="space-y-1.5 text-[12px] text-slate-300">
           <li class="flex items-start gap-2"><span class="w-2 h-2 rounded-full bg-emerald-500 mt-1.5 flex-shrink-0"></span> <span><b>En línea:</b> hub + Resumen §A-F · Órdenes · Pendientes · Inteligencia · Llegadas · OCBuilder (color número azul) · Lente 2 "¿acertó?"</span></li>
           <li class="flex items-start gap-2"><span class="w-2 h-2 rounded-full bg-amber-500 mt-1.5 flex-shrink-0"></span> <span><b>Parcial:</b> Proveedores → rehome en Maestros (scorecard + SLA en vivo + saneo de metricas acumuladas) · Detalle demás tabs · Wizard (falta bloque snapshot visible en Confirmar)</span></li>
-          <li class="flex items-start gap-2"><span class="w-2 h-2 rounded-full bg-rose-500 mt-1.5 flex-shrink-0"></span> <span><b>Target pendiente:</b> Detalle de OC · Resumen §A-F (hoy legacy 9 tabs) · Mobile del detalle · Lentes 1 y 3 (diferidos por decisión)</span></li>
+          <li class="flex items-start gap-2"><span class="w-2 h-2 rounded-full bg-rose-500 mt-1.5 flex-shrink-0"></span> <span><b>Target pendiente:</b> Tab Impacto financiero (6ª tab · lente de dinero read-only · §A-§E · Acto 16) · Detalle de OC · Resumen §A-F (hoy legacy 9 tabs) · Mobile del detalle · Lentes 1 y 3 (diferidos por decisión)</span></li>
         </ul>
       </div>
     </div>
