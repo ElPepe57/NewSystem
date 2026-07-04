@@ -179,6 +179,12 @@ export const useEntregaStore = create<EntregaState>((set, get) => ({
   programarEntrega: async (data: ProgramarEntregaData, venta: Venta, userId: string) => {
     set({ loading: true, error: null });
     try {
+      // Guardia anti-doble-camino (A4): no programar por el legacy si la venta ya
+      // tiene un despacho F activo en el modelo único (módulo Envíos).
+      const { envioDespachoService } = await import('../services/envio.despacho.service');
+      if (await envioDespachoService.existeEnvioFActivo(venta.id)) {
+        throw new Error('Esta venta ya tiene un despacho activo en el flujo nuevo (Envíos).');
+      }
       const id = await entregaService.programar(data, venta, userId);
       await get().fetchPendientes();
       await get().fetchEntregas();

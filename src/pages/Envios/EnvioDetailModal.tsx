@@ -54,12 +54,22 @@ import {
   type RouteCardV2Pipeline,
   type RouteCardV2PipelineStep,
 } from '../../design-system';
-import { PersonStanding, PackageOpen, User as UserIcon, Warehouse, ChevronLeft, TrendingUp } from 'lucide-react';
+import { PersonStanding, PackageOpen, User as UserIcon, Warehouse, ChevronLeft, TrendingUp, HandCoins, CalendarClock, Store } from 'lucide-react';
 import { useHorizontalScrollFade } from '../../hooks/useHorizontalScrollFade';
 import { UserName } from './UserName';
 import { GestionIncidenciasModal } from './GestionIncidenciasModal';
 import { LiberarAduanaModal } from './LiberarAduanaModal';
 import { useToastStore } from '../../store/toastStore';
+import { esEstadoReparto } from '../../types/envio.types';
+// Perfil F (última milla · despacho de venta) — tabs + modales de acción
+import {
+  TabRepartoF,
+  TabCobroCODF,
+  ProgramarDespachoFModal,
+  DespacharEnCaminoFModal,
+  RegistrarEntregaFModal,
+  ReprogramarFalloFModal,
+} from './PerfilFDespacho';
 import { getEmojiPorProducto } from '../../components/modules/ordenCompra/OCWizardV3/productoEmoji';
 // S45 — Sub-envíos T1 (tandas del proveedor · D-3)
 import { SubEnviosTimeline, type SubEnviosTimelineProductoMeta } from './SubEnviosT1';
@@ -128,7 +138,7 @@ interface EnvioDetailModalProps {
 }
 
 // S45 — Tab 'tandas' solo visible para envíos T1 (casos A/B/D) cuando flag activa
-type TabActivo = 'productos' | 'recepciones' | 'costos' | 'pagos' | 'incidencias' | 'tandas' | 'documentos' | 'inteligencia' | 'timeline';
+type TabActivo = 'productos' | 'recepciones' | 'costos' | 'pagos' | 'incidencias' | 'tandas' | 'documentos' | 'inteligencia' | 'timeline' | 'reparto' | 'cobroCOD';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Main
@@ -161,6 +171,11 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
   const [showGestionIncidencias, setShowGestionIncidencias] = useState(false);
   const [showLiberarAduana, setShowLiberarAduana] = useState(false);
   const [liberandoAduana, setLiberandoAduana] = useState(false);
+  // Perfil F — modales de acción de la última milla
+  const [showProgramarF, setShowProgramarF] = useState(false);
+  const [showDespacharF, setShowDespacharF] = useState(false);
+  const [showEntregarF, setShowEntregarF] = useState(false);
+  const [showReprogramarF, setShowReprogramarF] = useState(false);
   const toast = useToastStore();
 
   // ─── Derivados ──────────────────────────────────────────────────────────
@@ -168,6 +183,10 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
   // S47 — Tipo ruta A-J derivado (reemplaza el chip "Entrega directa" aislado)
   const tipoRuta = deriveTipoRutaLogistica(envio);
   const infoRuta = tipoRuta ? INFO_TIPO_RUTA[tipoRuta] : null;
+  // Perfil "Despacho de venta F" (última milla): el detalle adapta tabs, KPIs,
+  // NextAction y pipeline al ciclo de reparto. Se activa por tipo de ruta F o
+  // por estar en un estado de reparto (programada/en_camino/entregada/fallida/…).
+  const esPerfilF = tipoRuta === 'F' || esEstadoReparto(envio.estado);
   const incidenciasArr = envio.incidencias || [];
   const incidenciasAbiertas = incidenciasArr.filter((i) => !i.resuelta);
   const tieneAduanaPendiente = incidenciasArr.some(
@@ -310,17 +329,28 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
     const destinoRecibido = envio.estado === 'recibida_completa';
     const destinoEnTransito =
       envio.estado === 'en_transito' || envio.estado === 'recibida_parcial';
-    const destinoBadge: RouteCardV2Node['badge'] = destinoRecibido
-      ? {
-          label: fechaLlegada ? `Recibido ${fechaLlegada}` : 'Recibido',
-          variant: 'emerald',
-        }
-      : destinoEnTransito
+    const destinoBadge: RouteCardV2Node['badge'] = esPerfilF
+      ? // Perfil F: el badge del destino (cliente) refleja el estado de reparto.
+        envio.estado === 'entregada'
+        ? { label: fechaLlegada ? `Entregado ${fechaLlegada}` : 'Entregado', variant: 'emerald' }
+        : envio.estado === 'en_camino'
+          ? { label: 'En camino', variant: 'sky' }
+          : envio.estado === 'fallida'
+            ? { label: 'Fallida', variant: 'amber' }
+            : envio.estado === 'programada' || envio.estado === 'reprogramada'
+              ? { label: envio.estado === 'reprogramada' ? 'Reprogramada' : 'Programada', variant: 'amber' }
+              : { label: 'Pendiente', variant: 'slate' }
+      : destinoRecibido
         ? {
-            label: envio.estado === 'recibida_parcial' ? 'Recepción parcial' : 'En tránsito',
-            variant: 'sky',
+            label: fechaLlegada ? `Recibido ${fechaLlegada}` : 'Recibido',
+            variant: 'emerald',
           }
-        : { label: 'Pendiente', variant: 'slate' };
+        : destinoEnTransito
+          ? {
+              label: envio.estado === 'recibida_parcial' ? 'Recepción parcial' : 'En tránsito',
+              variant: 'sky',
+            }
+          : { label: 'Pendiente', variant: 'slate' };
 
     let destino: RouteCardV2Node;
     if (envio.destinoTipo === 'cliente') {
@@ -370,6 +400,33 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
         ? new Intl.DateTimeFormat('es-PE', { day: '2-digit', month: 'short' }).format(ts.toDate())
         : '—';
 
+    let pasos: RouteCardV2PipelineStep[];
+    if (esPerfilF) {
+      // Perfil F · pipeline de reparto (última milla): Programada → En camino → Entregada.
+      // fallida/cancelada se reflejan con el status 'skipped' del paso final.
+      const idxF =
+        envio.estado === 'programada' || envio.estado === 'reprogramada' ? 0
+        : envio.estado === 'en_camino' ? 1
+        : envio.estado === 'entregada' ? 2
+        : -1; // borrador / fallida / cancelada
+      pasos = [
+        {
+          label: envio.estado === 'reprogramada' ? 'Reprogramada' : 'Programada',
+          fecha: formatDateOrDash(envio.fechaLlegadaEstimada),
+          status: idxF > 0 ? 'completed' : idxF === 0 ? 'current' : 'pending',
+        },
+        {
+          label: 'En camino',
+          fecha: formatDateOrDash(envio.fechaSalida),
+          status: idxF > 1 ? 'completed' : idxF === 1 ? 'current' : idxF < 0 ? 'skipped' : 'pending',
+        },
+        {
+          label: envio.estado === 'fallida' ? 'Fallida' : 'Entregada',
+          fecha: formatDateOrDash(envio.fechaLlegadaReal),
+          status: idxF === 2 ? 'completed' : envio.estado === 'fallida' ? 'skipped' : 'pending',
+        },
+      ];
+    } else {
     const indexEstado =
       envio.estado === 'borrador' ? 0
       : envio.estado === 'confirmado' ? 1
@@ -380,7 +437,7 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
       : envio.estado === 'perdida_total' ? -1
       : 0;
 
-    const pasos: RouteCardV2PipelineStep[] = [
+    pasos = [
       {
         label: 'Borrador',
         fecha: formatDateOrDash(envio.fechaCreacion),
@@ -402,6 +459,7 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
         status: indexEstado === 3 ? 'completed' : indexEstado === 2 && envio.estado === 'recibida_parcial' ? 'current' : indexEstado < 0 ? 'skipped' : 'pending',
       },
     ];
+    }
 
     const metaPartes: string[] = [];
     if (envio.fechaCreacion) metaPartes.push(`Creado ${formatDateOrDash(envio.fechaCreacion)}`);
@@ -437,6 +495,8 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
     envio.destinoClienteDistrito,
     envio.fechaSalida,
     envio.fechaLlegadaReal,
+    envio.fechaLlegadaEstimada,
+    esPerfilF,
   ]);
 
   // ─── Handlers ───────────────────────────────────────────────────────────
@@ -497,7 +557,7 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
   // ─── S45: Tab "Tandas" visible solo para envíos T1 (A/B/D) con flag activa ─
   const subenviosT1Flag = useMemo(() => isSubenviosT1Enabled(), []);
   const esEnvioT1 = envio.origenTipo === 'proveedor';
-  const mostrarTabTandas = subenviosT1Flag && esEnvioT1 && envio.estado !== 'cancelada';
+  const mostrarTabTandas = subenviosT1Flag && esEnvioT1 && envio.estado !== 'cancelada' && !esPerfilF;
 
   // Metadata de productos para el SubEnviosTimeline (desnormalizada del envío)
   const productosMetaTandas: Record<string, SubEnviosTimelineProductoMeta> = useMemo(() => {
@@ -578,6 +638,17 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
   } | null => {
     switch (envio.estado) {
       case 'borrador':
+        // Perfil F: un borrador de despacho de venta se PROGRAMA (no se "confirma").
+        if (esPerfilF) {
+          return {
+            icon: Store,
+            label: 'Programar despacho',
+            description: 'Asigná courier, fecha y cobro para salir a reparto',
+            buttonText: 'Programar',
+            onClick: () => setShowProgramarF(true),
+            variant: 'orange',
+          };
+        }
         return {
           icon: CheckCircle,
           label: 'Confirmar envío',
@@ -585,6 +656,37 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
           buttonText: 'Confirmar',
           onClick: () => onConfirmar(envio.id),
           variant: 'orange',
+        };
+      // ─── Perfil F · ciclo de reparto (última milla) ───
+      case 'programada':
+      case 'reprogramada':
+        return {
+          icon: Truck,
+          label: 'Despachar · salir a reparto',
+          description: 'El courier sale hacia el cliente (se registra el flete)',
+          buttonText: 'Despachar',
+          onClick: () => setShowDespacharF(true),
+          variant: 'sky',
+        };
+      case 'en_camino':
+        return {
+          icon: CheckCircle,
+          label: 'Registrar entrega + cobro',
+          description: envio.cobroPendiente
+            ? `Confirmá la entrega y cobrá el COD de S/ ${(envio.montoPorCobrar ?? 0).toFixed(2)}`
+            : 'Confirmá la entrega al cliente',
+          buttonText: 'Entregar',
+          onClick: () => setShowEntregarF(true),
+          variant: 'emerald',
+        };
+      case 'fallida':
+        return {
+          icon: CalendarClock,
+          label: 'Reintentar entrega',
+          description: 'Reprogramá el reparto para otro día',
+          buttonText: 'Reprogramar',
+          onClick: () => setShowReprogramarF(true),
+          variant: 'amber',
         };
       case 'confirmado':
         return {
@@ -649,10 +751,10 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
           variant: 'amber',
         };
       default:
-        // recibida_completa / cancelada / perdida_total — sin acción
+        // recibida_completa / cancelada / perdida_total / entregada — sin acción
         return null;
     }
-  }, [envio, onConfirmar, onEnviar, onIniciarRecepcion]);
+  }, [envio, esPerfilF, onConfirmar, onEnviar, onIniciarRecepcion]);
 
   // Handlers de costos landed (S46)
   const handleAgregarCosto = async (result: AgregarCostoLandedModalResult) => {
@@ -860,6 +962,18 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
                 />
               </div>
             )}
+            {/* Perfil F · acción secundaria durante el reparto: reprogramar / marcar fallo */}
+            {esPerfilF && envio.estado === 'en_camino' && (
+              <div className="mt-2 flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setShowReprogramarF(true)}
+                  className="text-xs font-medium text-amber-700 hover:text-amber-800 flex items-center gap-1"
+                >
+                  <CalendarClock className="w-3.5 h-3.5" /> Reprogramar / marcar fallo
+                </button>
+              </div>
+            )}
 
             {/* S52 — 5 KPIs migrados a <KpiRow> (Capa 3).
                 Preserva Unidades · OCs · Recibidas · Pendientes · Valor landed.
@@ -867,7 +981,32 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
             <div className="mt-4">
               <KpiRow
                 columns={5}
-                items={[
+                items={esPerfilF ? [
+                  { label: 'Unidades', value: String(totalUnidades), subtitle: 'a entregar' },
+                  {
+                    label: 'Venta',
+                    value: envio.ventaNumero ?? '—',
+                    subtitle: envio.ventaId ? 'ver venta ↗' : 'sin venta',
+                    onClick: envio.ventaId ? () => { window.location.href = `/ventas?venta=${envio.ventaId}`; } : undefined,
+                  },
+                  {
+                    label: 'Cobro COD',
+                    value: envio.cobroPendiente ? `S/ ${(envio.montoPorCobrar ?? 0).toFixed(0)}` : '—',
+                    subtitle: envio.cobroRealizado ? 'cobrado' : envio.cobroPendiente ? 'pendiente' : 'sin COD',
+                    tone: envio.cobroRealizado ? 'emerald' : envio.cobroPendiente ? 'red' : 'default',
+                  },
+                  {
+                    label: 'Flete',
+                    value: (envio.costoDeliveryPEN ?? 0) > 0 ? `S/ ${(envio.costoDeliveryPEN ?? 0).toFixed(0)}` : '—',
+                    subtitle: 'courier',
+                  },
+                  {
+                    label: 'Entregadas',
+                    value: `${envio.estado === 'entregada' ? totalUnidades : 0}/${totalUnidades}`,
+                    subtitle: envio.estado === 'entregada' ? 'completado' : 'en reparto',
+                    tone: envio.estado === 'entregada' ? 'emerald' : 'default',
+                  },
+                ] : [
                   {
                     label: 'Unidades',
                     value: String(totalUnidades),
@@ -962,22 +1101,45 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
               label="Productos"
               badge={badgesTab.productos}
             />
-            <TabButton
-              active={tab === 'recepciones'}
-              onClick={() => setTab('recepciones')}
-              icon={<PackageCheck className="w-3 h-3" />}
-              label="Recepciones"
-              badge={badgesTab.recepciones}
-            />
-            <TabButton
-              active={tab === 'costos'}
-              onClick={() => setTab('costos')}
-              icon={<DollarSign className="w-3 h-3" />}
-              label="Costos landed"
-              badge={badgesTab.costos}
-            />
+            {/* Perfil F · última milla — Cobro COD + Reparto (reemplazan Recepciones/Costos/Pagos/Tandas) */}
+            {esPerfilF && envio.cobroPendiente && (
+              <TabButton
+                active={tab === 'cobroCOD'}
+                onClick={() => setTab('cobroCOD')}
+                icon={<HandCoins className="w-3 h-3" />}
+                label="Cobro COD"
+                badge={0}
+              />
+            )}
+            {esPerfilF && (
+              <TabButton
+                active={tab === 'reparto'}
+                onClick={() => setTab('reparto')}
+                icon={<MapPin className="w-3 h-3" />}
+                label="Reparto"
+                badge={0}
+              />
+            )}
+            {!esPerfilF && (
+              <TabButton
+                active={tab === 'recepciones'}
+                onClick={() => setTab('recepciones')}
+                icon={<PackageCheck className="w-3 h-3" />}
+                label="Recepciones"
+                badge={badgesTab.recepciones}
+              />
+            )}
+            {!esPerfilF && (
+              <TabButton
+                active={tab === 'costos'}
+                onClick={() => setTab('costos')}
+                icon={<DollarSign className="w-3 h-3" />}
+                label="Costos landed"
+                badge={badgesTab.costos}
+              />
+            )}
             {/* S54 E1 — Tab Pagos dedicado (solo envíos internacionales con flete/colaborador) */}
-            {envio.tipo === 'internacional_peru' && (
+            {envio.tipo === 'internacional_peru' && !esPerfilF && (
               <TabButton
                 active={tab === 'pagos'}
                 onClick={() => setTab('pagos')}
@@ -1038,6 +1200,8 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
               {tab === 'productos' && (
                 <TabProductos envio={envio} productosMap={productosMap} />
               )}
+              {tab === 'cobroCOD' && <TabCobroCODF envio={envio} />}
+              {tab === 'reparto' && <TabRepartoF envio={envio} />}
               {tab === 'recepciones' && (
                 <TabRecepciones envio={envio} recepciones={recepciones} />
               )}
@@ -1121,6 +1285,40 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
           productosMap={productosMap}
           onClose={() => setShowLiberarAduana(false)}
           onConfirm={handleLiberarAduana}
+        />
+      )}
+
+      {/* Perfil F · última milla — modales de acción (cierran el detalle al terminar → el padre refresca) */}
+      {showProgramarF && (
+        <ProgramarDespachoFModal
+          envio={envio}
+          userId={userId}
+          onClose={() => setShowProgramarF(false)}
+          onDone={() => { setShowProgramarF(false); onClose(); }}
+        />
+      )}
+      {showDespacharF && (
+        <DespacharEnCaminoFModal
+          envio={envio}
+          userId={userId}
+          onClose={() => setShowDespacharF(false)}
+          onDone={() => { setShowDespacharF(false); onClose(); }}
+        />
+      )}
+      {showEntregarF && (
+        <RegistrarEntregaFModal
+          envio={envio}
+          userId={userId}
+          onClose={() => setShowEntregarF(false)}
+          onDone={() => { setShowEntregarF(false); onClose(); }}
+        />
+      )}
+      {showReprogramarF && (
+        <ReprogramarFalloFModal
+          envio={envio}
+          userId={userId}
+          onClose={() => setShowReprogramarF(false)}
+          onDone={() => { setShowReprogramarF(false); onClose(); }}
         />
       )}
     </>

@@ -34,6 +34,8 @@ import { ventaSociosService, MOTIVOS_VENTA_SOCIO } from '../../services/venta.so
 import type { ResumenVentasSocios, ResumenPorSocio } from '../../services/venta.socios.service';
 import { formatCurrencyPEN } from '../../utils/format';
 import type { ProgramarEntregaData } from '../../types/entrega.types';
+import { isWizardFEnabled } from '../../config/features';
+import { despacharVentaDesdeData, bloqueoDespachoF, bloqueoDespachoLegacy } from './despachoVentaF';
 
 export const Ventas: React.FC = () => {
   const user = useAuthStore(state => state.user);
@@ -676,13 +678,24 @@ export const Ventas: React.FC = () => {
     setIsEntregaModalOpen(true);
   };
 
-  // Programar entrega
+  // Programar entrega / despachar venta
+  // A4 · switch por flag WIZARD_F: ON → motor único (Envío Caso F) · OFF → legacy.
+  // Guardia anti-doble-camino ASIMÉTRICA: cada camino verifica que no haya un
+  // despacho ACTIVO en el otro (evita doble gasto/cobro sobre la misma venta).
   const handleProgramarEntrega = async (data: ProgramarEntregaData) => {
     if (!user || !selectedVenta) return;
 
     setIsSubmitting(true);
     try {
-      await programarEntrega(data, selectedVenta, user.uid);
+      if (isWizardFEnabled()) {
+        const bloqueo = await bloqueoDespachoF(selectedVenta.id);
+        if (bloqueo) { toast.error(bloqueo, 'No se puede despachar'); return; }
+        await despacharVentaDesdeData(data, selectedVenta, user.uid);
+      } else {
+        const bloqueo = await bloqueoDespachoLegacy(selectedVenta.id);
+        if (bloqueo) { toast.error(bloqueo, 'No se puede despachar'); return; }
+        await programarEntrega(data, selectedVenta, user.uid);
+      }
       setIsEntregaModalOpen(false);
       toast.success('Entrega programada correctamente');
 

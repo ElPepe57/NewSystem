@@ -178,6 +178,14 @@ function validarServicioDescontado(
 
 export const cajaRecaudadoraService = {
 
+  /**
+   * Devuelve el ProductoFinanciero si el id corresponde a una caja_recaudadora
+   * ACTIVA (o null si no existe / no es recaudadora). Expone el helper interno
+   * para que otros servicios detecten si una cuenta de cobro es recaudadora
+   * (ej. el COD de un despacho recaudado por un courier-recaudador).
+   */
+  getRecaudadora,
+
   // ════════════════════════════════════════════════════════════════════
   // CREAR EVENTOS
   // ════════════════════════════════════════════════════════════════════
