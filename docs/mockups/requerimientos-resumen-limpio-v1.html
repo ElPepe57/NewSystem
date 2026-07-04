@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Requerimientos · Resumen Realineado · Vita Skin ERP</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  * { font-family: 'Inter', system-ui, sans-serif; }
+  .tabular-nums { font-variant-numeric: tabular-nums; }
+  body { background: #f1f5f9; }
+  .frame { box-shadow: 0 1px 3px rgba(15,23,42,.08), 0 8px 24px rgba(15,23,42,.06); }
+  .acto-sep { letter-spacing: 0.10em; }
+  /* Animacion barra embudo */
+  .bar-fill { transition: height 0.3s ease; }
+</style>
+</head>
+<body class="text-slate-900">
+<div class="max-w-6xl mx-auto px-4 sm:px-6 py-10 space-y-14">
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- HERO -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<header class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 sm:p-8">
+  <div class="flex flex-wrap gap-2 mb-5">
+    <span class="text-[10px] font-bold uppercase tracking-wider text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-full">Grupo Comercial · blue</span>
+    <span class="text-[10px] font-bold uppercase tracking-wider text-orange-700 bg-orange-50 border border-orange-200 px-2.5 py-1 rounded-full">Resumen realineado · target de limpieza · §A→§F</span>
+    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-600 bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-full">v1 · 2026-06-26</span>
+    <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full">Cobertura total + mobile incluido</span>
+  </div>
+  <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 mb-2">Resumen de Requerimientos — Limpieza post-evolución</h1>
+  <p class="text-[13px] text-slate-600 max-w-3xl leading-relaxed mb-6">
+    Mockup TARGET del tab "Resumen" del hub de Requerimientos. Reorganiza el orden canónico §A→§F roto
+    por la evolución incremental, elimina la redundancia C1 vs. Inteligencia, unifica el punto de entrada
+    a "Generar compra" vía la tab Plan de compra, y añade los cross-links a las tabs nuevas (Bandeja y
+    Plan de compra) en §E y §F.
+  </p>
+
+  <!-- BEFORE / AFTER -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <!-- BEFORE -->
+    <div class="bg-rose-50 border border-rose-200 rounded-xl p-4">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-3 acto-sep">ANTES — problemas detectados</div>
+      <ul class="space-y-2 text-[12px] text-rose-800">
+        <li class="flex items-start gap-2">
+          <i data-lucide="x-circle" class="w-3.5 h-3.5 text-rose-500 mt-0.5 flex-shrink-0"></i>
+          <span><strong>Orden §A→§F roto:</strong> §A NextAction → D1[§B] → C1[§C] → embudo[§B] → Inteligencia[§C]. Los §B y §C quedan intercalados en lugar de contiguos.</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <i data-lucide="x-circle" class="w-3.5 h-3.5 text-rose-500 mt-0.5 flex-shrink-0"></i>
+          <span><strong>Redundancia C1 vs. Inteligencia:</strong> "Anticipación de quiebres" (widget suelto §C) duplica la señal que ya existe dentro del panel Inteligencia de demanda como "Alertas de stock".</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <i data-lucide="x-circle" class="w-3.5 h-3.5 text-rose-500 mt-0.5 flex-shrink-0"></i>
+          <span><strong>"Generar compra" triplicado:</strong> §A banner CTA + §D acción rápida + tab Plan de compra coexisten con el mismo punto de entrada sin jerarquía clara.</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <i data-lucide="x-circle" class="w-3.5 h-3.5 text-rose-500 mt-0.5 flex-shrink-0"></i>
+          <span><strong>No linkea tabs nuevas:</strong> §E cross-links no incluye Bandeja ni Plan de compra. La alerta "urgentes sin aprobar" en §F es texto suelto, no link.</span>
+        </li>
+      </ul>
+    </div>
+    <!-- AFTER -->
+    <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-3 acto-sep">DESPUÉS — target limpio</div>
+      <ul class="space-y-2 text-[12px] text-emerald-800">
+        <li class="flex items-start gap-2">
+          <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-500 mt-0.5 flex-shrink-0"></i>
+          <span><strong>Orden canónico restaurado:</strong> §A → §B(SaludCola + Embudo contiguos) → §C(Inteligencia consolidada) → §D(aside) → §E(aside) → §F(aside).</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-500 mt-0.5 flex-shrink-0"></i>
+          <span><strong>C1 absorbido en §C:</strong> "Quiebres críticos" sube como highlight del panel Inteligencia. El widget AnticipacionQuiebresWidget suelto desaparece.</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-500 mt-0.5 flex-shrink-0"></i>
+          <span><strong>§A redirige a Plan de compra:</strong> el banner dice "Ver Plan de compra" y navega a la tab, no dispara OC directo. §D conserva "Generar compra" como shortcut.</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-500 mt-0.5 flex-shrink-0"></i>
+          <span><strong>§E + §F linkean tabs nuevas:</strong> §E incluye Bandeja y Plan de compra. §F: "N urgentes sin aprobar" es un link a la tab Bandeja.</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+</header>
+
+<!-- INDICE -->
+<div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
+  <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4 acto-sep">Indice de actos</div>
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-[12px]">
+    <div class="flex items-start gap-3 bg-blue-50 border border-blue-200 rounded-xl px-3 py-2.5">
+      <span class="w-7 h-7 rounded-lg bg-blue-600 text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">1</span>
+      <div><div class="font-semibold text-blue-900">Acto 1 · Desktop completo</div><div class="text-blue-700 text-[11px]">Layout A · main §A§B§C + aside §D§E§F</div></div>
+    </div>
+    <div class="flex items-start gap-3 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5">
+      <span class="w-7 h-7 rounded-lg bg-slate-600 text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">2</span>
+      <div><div class="font-semibold text-slate-900">Acto 2 · Mobile 375px</div><div class="text-slate-600 text-[11px]">main apilado → aside · touch ≥44px</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 1 · DESKTOP · Layout A (md:col-span-2 main + md:col-span-1 aside) -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section>
+  <div class="text-[10px] font-bold uppercase tracking-wider text-blue-600 mb-4 acto-sep tracking-widest">ACTO 1 · DESKTOP · Resumen Realineado</div>
+
+  <!-- Hub shell simulado -->
+  <div class="bg-white border border-slate-200 rounded-2xl frame overflow-hidden">
+
+    <!-- Top-bar -->
+    <div class="border-b border-slate-200 px-5 py-2.5 bg-slate-50 flex items-center justify-between">
+      <div class="flex items-center gap-1.5 text-[12px] text-slate-500">
+        <span>Inicio</span>
+        <i data-lucide="chevron-right" class="w-3 h-3"></i>
+        <span class="text-slate-800 font-medium">Requerimientos</span>
+      </div>
+      <div class="flex items-center gap-1.5 bg-blue-50 border border-blue-200 rounded-full px-2.5 py-1">
+        <i data-lucide="shield" class="w-3 h-3 text-blue-600"></i>
+        <span class="text-[10px] font-bold text-blue-700">Vista ejecutiva · admin</span>
+      </div>
+    </div>
+
+    <!-- KPI strip (referencia · no se duplica en el Resumen) -->
+    <div class="border-b border-slate-100 px-5 py-3 bg-slate-50/50 flex gap-3 overflow-x-auto">
+      <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-xl p-3 min-w-[120px] flex-shrink-0">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pendientes</div>
+        <div class="text-xl font-bold tabular-nums text-amber-900">12</div>
+        <div class="text-[10px] text-amber-700 mt-0.5">sin aprobar</div>
+      </div>
+      <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-xl p-3 min-w-[120px] flex-shrink-0">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Aprobados</div>
+        <div class="text-xl font-bold tabular-nums text-emerald-900">5</div>
+        <div class="text-[10px] text-emerald-700 mt-0.5">listos para compra</div>
+      </div>
+      <div class="bg-gradient-to-br from-sky-50 to-sky-100/40 ring-1 ring-sky-200/50 rounded-xl p-3 min-w-[120px] flex-shrink-0">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-sky-700 mb-1">En proceso</div>
+        <div class="text-xl font-bold tabular-nums text-sky-900">8</div>
+        <div class="text-[10px] text-sky-700 mt-0.5">OC emitida</div>
+      </div>
+      <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-xl p-3 min-w-[120px] flex-shrink-0">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">Urgentes</div>
+        <div class="text-xl font-bold tabular-nums text-rose-900">3</div>
+        <div class="text-[10px] text-rose-700 mt-0.5">sin aprobar</div>
+      </div>
+      <div class="bg-gradient-to-br from-slate-50 to-slate-100/40 ring-1 ring-slate-200/50 rounded-xl p-3 min-w-[140px] flex-shrink-0">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1">Alertas stock</div>
+        <div class="text-xl font-bold tabular-nums text-slate-900">7</div>
+        <div class="text-[10px] text-slate-600 mt-0.5">bajo punto de reorden</div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="border-b border-slate-200 px-5 flex gap-0 overflow-x-auto" style="scrollbar-width:none;">
+      <button class="px-4 py-3 text-[13px] font-semibold text-blue-700 border-b-2 border-blue-600 whitespace-nowrap -mb-px">Resumen</button>
+      <button class="px-4 py-3 text-[13px] text-slate-500 whitespace-nowrap hover:text-slate-700">Bandeja</button>
+      <button class="px-4 py-3 text-[13px] text-slate-500 whitespace-nowrap hover:text-slate-700">Tablero</button>
+      <button class="px-4 py-3 text-[13px] text-slate-500 whitespace-nowrap hover:text-slate-700">Plan de compra</button>
+      <button class="px-4 py-3 text-[13px] text-slate-500 whitespace-nowrap hover:text-slate-700">Radar de apuestas</button>
+    </div>
+
+    <!-- Body · Layout A -->
+    <div class="p-4 sm:p-6">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+        <!-- MAIN · §A §B §C -->
+        <div class="md:col-span-2 space-y-4">
+
+          <!-- §A · NextAction · banner "Ver Plan de compra" (gateado: solo si hay aprobados) -->
+          <div class="bg-gradient-to-r from-blue-50 to-blue-100/30 ring-1 ring-blue-200/50 rounded-2xl p-4 flex items-center justify-between gap-3">
+            <div class="flex items-start gap-3">
+              <div class="w-9 h-9 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center flex-shrink-0">
+                <i data-lucide="sparkles" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <div class="text-[13px] font-semibold text-slate-900">5 requerimientos aprobados listos para comprar</div>
+                <div class="text-[12px] text-slate-500 mt-0.5">Revisa el portafolio, ajusta la waterline de caja y emite las OCs en una sola pasada.</div>
+              </div>
+            </div>
+            <!-- CTA navega a la TAB Plan de compra (no dispara OC directo) -->
+            <button type="button" class="flex items-center gap-1.5 text-[12px] font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg px-3 py-2 flex-shrink-0">
+              <i data-lucide="list-ordered" class="w-3.5 h-3.5"></i> Ver Plan de compra
+            </button>
+          </div>
+
+          <!-- §B · Salud de la cola (D1 · composición por origen + ratio + higiene) -->
+          <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+            <div class="px-4 py-3 border-b border-slate-100 flex items-center gap-2">
+              <i data-lucide="activity" class="w-4 h-4 text-blue-600"></i>
+              <span class="text-[13px] font-semibold text-slate-800">Salud de la cola — composición por origen</span>
+            </div>
+            <div class="px-4 py-3 space-y-3">
+              <!-- Barra apilada -->
+              <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Gasto en cola por tipo de req</div>
+              <div class="flex h-4 rounded-full overflow-hidden gap-px">
+                <div class="bg-emerald-500 flex-none" style="width:35%"></div>
+                <div class="bg-sky-400 flex-none" style="width:30%"></div>
+                <div class="bg-indigo-400 flex-none" style="width:20%"></div>
+                <div class="bg-slate-300 flex-none" style="width:15%"></div>
+              </div>
+              <div class="flex flex-wrap gap-3 text-[10px]">
+                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-emerald-500"></span><span class="text-slate-600">Demanda <strong class="tabular-nums">35%</strong> · S/ 18,200 · 5</span></span>
+                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-sky-400"></span><span class="text-slate-600">Restock <strong class="tabular-nums">30%</strong> · S/ 15,600 · 8</span></span>
+                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-indigo-400"></span><span class="text-slate-600">Apuesta <strong class="tabular-nums">20%</strong> · S/ 10,400 · 3</span></span>
+                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-slate-300"></span><span class="text-slate-600">Manual <strong class="tabular-nums">15%</strong> · S/ 7,800 · 2</span></span>
+              </div>
+              <!-- Ratio cola / caja -->
+              <div class="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 text-[12px] flex items-center gap-2 text-amber-800">
+                <i data-lucide="alert-triangle" class="w-3.5 h-3.5 flex-shrink-0"></i>
+                <span>Tu cola pendiente es <strong class="tabular-nums">1.8×</strong> tu caja libre · hay que priorizar o diferir</span>
+              </div>
+              <!-- Chips higiene -->
+              <div class="flex flex-wrap gap-1.5">
+                <span class="flex items-center gap-1 text-[10px] font-semibold bg-indigo-50 border border-indigo-200 text-indigo-700 px-2 py-1 rounded-full">
+                  <i data-lucide="alert-circle" class="w-3 h-3"></i> 2 apuestas sin tesis
+                </span>
+                <span class="flex items-center gap-1 text-[10px] font-semibold bg-slate-50 border border-slate-200 text-slate-600 px-2 py-1 rounded-full">
+                  <i data-lucide="minus-circle" class="w-3 h-3"></i> 1 manual sin driver
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- §B · Flujo de requerimientos (embudo por estado · §B contiguo al anterior) -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-4">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-[13px] font-semibold text-slate-800 flex items-center gap-2">
+                <i data-lucide="git-commit-horizontal" class="w-4 h-4 text-blue-600"></i>
+                Flujo de requerimientos
+              </h3>
+              <span class="text-[11px] text-slate-400">por estado</span>
+            </div>
+            <div class="flex items-end gap-2 h-28">
+              <!-- Pendiente -->
+              <div class="flex-1 flex flex-col items-center justify-end gap-1">
+                <span class="text-[12px] font-bold tabular-nums text-amber-700">12</span>
+                <div class="w-full rounded-t-lg bg-amber-400/80" style="height:100%"></div>
+                <span class="text-[10px] text-slate-500 text-center">Pendiente</span>
+              </div>
+              <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300 mb-6 flex-shrink-0"></i>
+              <!-- Aprobado -->
+              <div class="flex-1 flex flex-col items-center justify-end gap-1">
+                <span class="text-[12px] font-bold tabular-nums text-emerald-700">5</span>
+                <div class="w-full rounded-t-lg bg-emerald-400/80" style="height:42%"></div>
+                <span class="text-[10px] text-slate-500 text-center">Aprobado</span>
+              </div>
+              <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300 mb-6 flex-shrink-0"></i>
+              <!-- En proceso -->
+              <div class="flex-1 flex flex-col items-center justify-end gap-1">
+                <span class="text-[12px] font-bold tabular-nums text-sky-700">8</span>
+                <div class="w-full rounded-t-lg bg-sky-400/80" style="height:67%"></div>
+                <span class="text-[10px] text-slate-500 text-center">En proceso</span>
+              </div>
+              <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300 mb-6 flex-shrink-0"></i>
+              <!-- Completado -->
+              <div class="flex-1 flex flex-col items-center justify-end gap-1">
+                <span class="text-[12px] font-bold tabular-nums text-slate-700">14</span>
+                <div class="w-full rounded-t-lg bg-slate-300" style="height:100%; height:calc(14/14*100%)"></div>
+                <span class="text-[10px] text-slate-500 text-center">Completado</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- §C · Inteligencia de demanda CONSOLIDADA (ex-panel + ex-C1 fusionados) -->
+          <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+            <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
+              <h3 class="text-[13px] font-semibold text-slate-800 flex items-center gap-2">
+                <i data-lucide="radar" class="w-4 h-4 text-blue-600"></i>
+                Inteligencia de demanda
+              </h3>
+              <span class="text-[11px] text-slate-400">¿qué deberíamos pedir?</span>
+            </div>
+
+            <!-- (a) Quiebres críticos · ex-C1 · HIGHLIGHT · arriba del panel -->
+            <!-- Solo se muestra cuando hay productos en riesgo (condicional en código) -->
+            <div class="mx-4 mt-4 mb-3 bg-rose-50 border border-rose-200 rounded-xl overflow-hidden">
+              <div class="px-3 py-2.5 border-b border-rose-100 flex items-center gap-2">
+                <i data-lucide="package-x" class="w-4 h-4 text-rose-600"></i>
+                <span class="text-[12px] font-semibold text-rose-800">Quiebres críticos — se agotan antes de poder reponer</span>
+                <span class="ml-auto text-[9px] bg-rose-600 text-white px-1.5 py-0.5 rounded-full font-bold">3</span>
+              </div>
+              <div class="px-3 py-2.5 space-y-2">
+                <div class="text-[11px] text-rose-700 mb-1">Ya vas tarde aunque compres hoy · leadTime largo = margen de reacción mínimo</div>
+                <!-- Filas quiebre -->
+                <div class="flex items-center justify-between py-1 border-b border-rose-100">
+                  <div>
+                    <div class="text-[12px] font-semibold text-slate-800">Sérum Retinol 1% · Vitamin C Serum</div>
+                    <div class="text-[10px] text-slate-500">leadTime 45 días</div>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-[11px] font-bold tabular-nums text-rose-700">quiebra en 4 días</div>
+                    <div class="text-[10px] text-rose-500">41 días de brecha</div>
+                  </div>
+                </div>
+                <div class="flex items-center justify-between py-1 border-b border-rose-100">
+                  <div>
+                    <div class="text-[12px] font-semibold text-slate-800">Niacinamide 10% · Toner BHA</div>
+                    <div class="text-[10px] text-slate-500">leadTime 60 días</div>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-[11px] font-bold tabular-nums text-amber-700">quiebra en 18 días</div>
+                    <div class="text-[10px] text-amber-500">42 días de brecha</div>
+                  </div>
+                </div>
+                <div class="flex items-center justify-between py-1">
+                  <div>
+                    <div class="text-[12px] font-semibold text-slate-800">SPF 50+ Sunscreen · Daily UV</div>
+                    <div class="text-[10px] text-slate-500">leadTime 30 días</div>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-[11px] font-bold tabular-nums text-amber-700">quiebra en 22 días</div>
+                    <div class="text-[10px] text-amber-500">8 días de brecha</div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-1.5 pt-1 text-[11px] text-rose-600 font-semibold">
+                  <i data-lucide="alert-triangle" class="w-3 h-3"></i> Crítico en importación
+                </div>
+              </div>
+            </div>
+
+            <!-- (b) Alertas de stock · lista accionable con botón Crear -->
+            <div class="px-4 py-3 border-b border-slate-100">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-[11px] font-semibold text-slate-700 flex items-center gap-1.5">
+                  <i data-lucide="alert-octagon" class="w-3.5 h-3.5 text-rose-500"></i>
+                  Alertas de stock
+                  <span class="text-[9px] bg-rose-100 text-rose-700 px-1.5 rounded-full font-bold">7</span>
+                </span>
+                <button type="button" class="text-[11px] text-blue-600 hover:text-blue-800 font-medium">Ver todas →</button>
+              </div>
+              <div class="space-y-1.5">
+                <div class="flex items-center gap-2.5 p-2 rounded-lg hover:bg-slate-50">
+                  <span class="w-2 h-2 rounded-full bg-rose-500 flex-shrink-0"></span>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-[12px] font-medium text-slate-800 truncate">COSRX · Advanced Snail Mucin</div>
+                    <div class="text-[11px] text-slate-400">Stock: <strong class="text-rose-600">0</strong> / Reorden: 10 · pedir 30</div>
+                  </div>
+                  <button type="button" class="flex items-center gap-1 text-[11px] font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg px-2 py-1 flex-shrink-0">
+                    <i data-lucide="plus" class="w-3 h-3"></i> Crear
+                  </button>
+                </div>
+                <div class="flex items-center gap-2.5 p-2 rounded-lg hover:bg-slate-50">
+                  <span class="w-2 h-2 rounded-full bg-orange-400 flex-shrink-0"></span>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-[12px] font-medium text-slate-800 truncate">Laneige · Water Sleeping Mask</div>
+                    <div class="text-[11px] text-slate-400">Stock: <strong class="text-amber-600">3</strong> / Reorden: 15 · pedir 20</div>
+                  </div>
+                  <button type="button" class="flex items-center gap-1 text-[11px] font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg px-2 py-1 flex-shrink-0">
+                    <i data-lucide="plus" class="w-3 h-3"></i> Crear
+                  </button>
+                </div>
+                <div class="flex items-center gap-2.5 p-2 rounded-lg hover:bg-slate-50">
+                  <span class="w-2 h-2 rounded-full bg-amber-300 flex-shrink-0"></span>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-[12px] font-medium text-slate-800 truncate">The Ordinary · Glycolic 7%</div>
+                    <div class="text-[11px] text-slate-400">Stock: <strong class="text-amber-600">5</strong> / Reorden: 12 · pedir 15</div>
+                  </div>
+                  <button type="button" class="flex items-center gap-1 text-[11px] font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg px-2 py-1 flex-shrink-0">
+                    <i data-lucide="plus" class="w-3 h-3"></i> Crear
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- (c) Demanda potencial · señal read-only -->
+            <div class="px-4 py-3">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-[11px] font-semibold text-slate-700 flex items-center gap-1.5">
+                  <i data-lucide="trending-up" class="w-3.5 h-3.5 text-sky-500"></i>
+                  Demanda potencial
+                  <span class="text-[9px] bg-sky-100 text-sky-700 px-1.5 rounded-full font-bold">4</span>
+                </span>
+                <span class="text-[10px] text-slate-400">sin compromiso · solo análisis</span>
+              </div>
+              <div class="space-y-1.5">
+                <div class="flex items-center gap-2.5 p-2 rounded-lg">
+                  <span class="w-2 h-2 rounded-full bg-sky-400 flex-shrink-0"></span>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-[12px] font-medium text-slate-800 truncate">Clínica Derma Lima</div>
+                    <div class="text-[11px] text-slate-400">COT-2024-088 · 3 producto(s) sin stock · aún sin adelanto</div>
+                  </div>
+                  <span class="text-[10px] text-slate-400 flex-shrink-0">señal</span>
+                </div>
+                <div class="flex items-center gap-2.5 p-2 rounded-lg">
+                  <span class="w-2 h-2 rounded-full bg-sky-400 flex-shrink-0"></span>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-[12px] font-medium text-slate-800 truncate">Spa Natureza</div>
+                    <div class="text-[11px] text-slate-400">COT-2024-092 · 1 producto(s) sin stock · aún sin adelanto</div>
+                  </div>
+                  <span class="text-[10px] text-slate-400 flex-shrink-0">señal</span>
+                </div>
+              </div>
+              <p class="text-[10px] text-slate-400 mt-2 leading-snug">Cotizaciones con faltante que aún no comprometieron. <strong>No genera requerimiento</strong> (eso ocurre solo al adelanto del cliente) — sirve para detectar qué conviene <strong>apostar</strong>.</p>
+            </div>
+          </div>
+          <!-- FIN §C -->
+
+        </div>
+        <!-- FIN MAIN -->
+
+        <!-- ASIDE · §D §E §F -->
+        <aside class="md:col-span-1 space-y-4">
+
+          <!-- §D · Acciones rápidas -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-4">
+            <h3 class="text-[12px] font-semibold text-slate-700 mb-3">Acciones rápidas</h3>
+            <div class="grid grid-cols-2 gap-2">
+              <button type="button" class="flex flex-col items-start gap-1 p-2.5 rounded-lg border border-slate-200 hover:border-blue-300 hover:bg-blue-50/40 text-left">
+                <i data-lucide="plus" class="w-4 h-4 text-blue-600"></i>
+                <span class="text-[11px] font-semibold text-slate-800">Nuevo</span>
+              </button>
+              <!-- "Generar compra" se mantiene como shortcut en §D (shortcut rápido vs. flujo rico en la tab) -->
+              <button type="button" class="flex flex-col items-start gap-1 p-2.5 rounded-lg border border-slate-200 hover:border-blue-300 hover:bg-blue-50/40 text-left">
+                <i data-lucide="layers" class="w-4 h-4 text-blue-600"></i>
+                <span class="text-[11px] font-semibold text-slate-800">Generar compra</span>
+              </button>
+              <button type="button" class="flex flex-col items-start gap-1 p-2.5 rounded-lg border border-slate-200 hover:border-blue-300 hover:bg-blue-50/40 text-left">
+                <i data-lucide="package-search" class="w-4 h-4 text-blue-600"></i>
+                <span class="text-[11px] font-semibold text-slate-800">Pendientes</span>
+              </button>
+              <button type="button" class="flex flex-col items-start gap-1 p-2.5 rounded-lg border border-slate-200 hover:border-blue-300 hover:bg-blue-50/40 text-left">
+                <i data-lucide="dice-5" class="w-4 h-4 text-blue-600"></i>
+                <span class="text-[11px] font-semibold text-slate-800">Apuesta</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- §E · Ir a · 360 — incluye las tabs nuevas del MISMO hub -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-4">
+            <h3 class="text-[12px] font-semibold text-slate-700 mb-3">Ir a · 360</h3>
+            <!-- Sub-sección: tabs del hub -->
+            <div class="mb-2">
+              <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Este hub</div>
+              <div class="space-y-1">
+                <!-- Link a tab Bandeja (nueva) -->
+                <button type="button" class="w-full flex items-center justify-between p-2 rounded-lg hover:bg-blue-50/50 text-[12px] text-slate-700 border border-transparent hover:border-blue-200/60">
+                  <span class="flex items-center gap-2">
+                    <i data-lucide="inbox" class="w-4 h-4 text-blue-600"></i>
+                    Bandeja de aprobación
+                    <span class="text-[9px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-bold">12</span>
+                  </span>
+                  <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-300"></i>
+                </button>
+                <!-- Link a tab Plan de compra (nueva) -->
+                <button type="button" class="w-full flex items-center justify-between p-2 rounded-lg hover:bg-blue-50/50 text-[12px] text-slate-700 border border-transparent hover:border-blue-200/60">
+                  <span class="flex items-center gap-2">
+                    <i data-lucide="list-ordered" class="w-4 h-4 text-blue-600"></i>
+                    Plan de compra
+                    <span class="text-[9px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-full font-bold">5</span>
+                  </span>
+                  <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-300"></i>
+                </button>
+              </div>
+            </div>
+            <!-- Sub-sección: módulos externos -->
+            <div>
+              <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5 mt-3">Módulos</div>
+              <div class="space-y-1">
+                <button type="button" class="w-full flex items-center justify-between p-2 rounded-lg hover:bg-slate-50 text-[12px] text-slate-700">
+                  <span class="flex items-center gap-2"><i data-lucide="shopping-cart" class="w-4 h-4 text-blue-600"></i> Órdenes de compra</span>
+                  <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-300"></i>
+                </button>
+                <button type="button" class="w-full flex items-center justify-between p-2 rounded-lg hover:bg-slate-50 text-[12px] text-slate-700">
+                  <span class="flex items-center gap-2"><i data-lucide="boxes" class="w-4 h-4 text-orange-500"></i> Stock / Inventario</span>
+                  <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-300"></i>
+                </button>
+                <button type="button" class="w-full flex items-center justify-between p-2 rounded-lg hover:bg-slate-50 text-[12px] text-slate-700">
+                  <span class="flex items-center gap-2"><i data-lucide="shopping-bag" class="w-4 h-4 text-blue-600"></i> Ventas / Cotizaciones</span>
+                  <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-300"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- §F · A2 · Presión de caja (condicional · enciende cuando cola > caja libre) -->
+          <div class="bg-amber-50 rounded-2xl ring-1 ring-amber-200/60 p-4">
+            <h3 class="text-[12px] font-semibold text-amber-800 mb-2 flex items-center gap-1.5">
+              <i data-lucide="wallet" class="w-4 h-4 text-amber-600"></i> Presión de caja
+            </h3>
+            <div class="text-[12px] text-amber-800">
+              Cola pendiente <strong class="tabular-nums">S/ 52,000</strong> vs caja libre <strong class="tabular-nums">S/ 29,000</strong>.
+            </div>
+            <div class="text-[11px] text-amber-700 mt-1 leading-snug">La cola supera el 1.8× la caja disponible. Prioriza o difiere antes de emitir.</div>
+          </div>
+
+          <!-- §F · Atención (alertas · urgentes sin aprobar linkea a tab Bandeja) -->
+          <div class="bg-rose-50 rounded-2xl ring-1 ring-rose-200/60 p-4">
+            <h3 class="text-[12px] font-semibold text-rose-800 mb-2 flex items-center gap-1.5">
+              <i data-lucide="bell" class="w-4 h-4 text-rose-600"></i> Atención
+            </h3>
+            <ul class="space-y-2 text-[11px] text-rose-700">
+              <!-- "urgentes sin aprobar" ahora es un LINK a la tab Bandeja -->
+              <li class="flex items-start gap-1.5">
+                <i data-lucide="clock" class="w-3.5 h-3.5 mt-0.5 flex-shrink-0"></i>
+                <span>
+                  <button type="button" class="font-bold underline underline-offset-2 hover:text-rose-900">3 urgentes sin aprobar</button>
+                  · ir a la Bandeja →
+                </span>
+              </li>
+              <li class="flex items-start gap-1.5">
+                <i data-lucide="users" class="w-3.5 h-3.5 mt-0.5 flex-shrink-0"></i>
+                <span>2 aprobados sin viajero asignado.</span>
+              </li>
+            </ul>
+          </div>
+
+        </aside>
+        <!-- FIN ASIDE -->
+
+      </div>
+    </div>
+    <!-- FIN body -->
+  </div>
+  <!-- FIN hub shell desktop -->
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- ACTO 2 · MOBILE 375px · Layout A apilado (main → aside) -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section>
+  <div class="text-[10px] font-bold uppercase tracking-wider text-blue-600 mb-4 acto-sep tracking-widest">ACTO 2 · MOBILE 375px · Resumen apilado</div>
+
+  <div class="flex justify-center">
+  <div class="bg-white border border-slate-200 rounded-2xl frame overflow-hidden" style="width:375px;">
+
+    <!-- Top-bar mobile -->
+    <div class="border-b border-slate-200 px-4 py-2.5 bg-slate-50 flex items-center justify-between">
+      <div class="flex items-center gap-1 text-[11px] text-slate-500">
+        <i data-lucide="chevron-left" class="w-3.5 h-3.5"></i>
+        <span class="text-slate-800 font-medium">Requerimientos</span>
+      </div>
+      <div class="flex items-center gap-1 bg-blue-50 border border-blue-200 rounded-full px-2 py-0.5">
+        <i data-lucide="shield" class="w-3 h-3 text-blue-600"></i>
+        <span class="text-[9px] font-bold text-blue-700">admin</span>
+      </div>
+    </div>
+
+    <!-- KPI strip mobile scroll-x -->
+    <div class="border-b border-slate-100 px-3 py-2.5 flex gap-2 overflow-x-auto" style="scrollbar-width:none;">
+      <div class="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-xl p-2.5 min-w-[88px] flex-shrink-0">
+        <div class="text-[9px] font-bold uppercase tracking-wider text-amber-700 mb-1">Pendientes</div>
+        <div class="text-lg font-bold tabular-nums text-amber-900">12</div>
+      </div>
+      <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-xl p-2.5 min-w-[88px] flex-shrink-0">
+        <div class="text-[9px] font-bold uppercase tracking-wider text-emerald-700 mb-1">Aprobados</div>
+        <div class="text-lg font-bold tabular-nums text-emerald-900">5</div>
+      </div>
+      <div class="bg-gradient-to-br from-sky-50 to-sky-100/40 ring-1 ring-sky-200/50 rounded-xl p-2.5 min-w-[88px] flex-shrink-0">
+        <div class="text-[9px] font-bold uppercase tracking-wider text-sky-700 mb-1">En proceso</div>
+        <div class="text-lg font-bold tabular-nums text-sky-900">8</div>
+      </div>
+      <div class="bg-gradient-to-br from-rose-50 to-rose-100/40 ring-1 ring-rose-200/50 rounded-xl p-2.5 min-w-[88px] flex-shrink-0">
+        <div class="text-[9px] font-bold uppercase tracking-wider text-rose-700 mb-1">Urgentes</div>
+        <div class="text-lg font-bold tabular-nums text-rose-900">3</div>
+      </div>
+    </div>
+
+    <!-- Tabs mobile scroll-x -->
+    <div class="border-b border-slate-200 px-1 flex gap-0 overflow-x-auto" style="scrollbar-width:none;">
+      <button class="px-3 py-2.5 text-[12px] font-semibold text-blue-700 border-b-2 border-blue-600 whitespace-nowrap -mb-px flex-shrink-0">Resumen</button>
+      <button class="px-3 py-2.5 text-[12px] text-slate-500 whitespace-nowrap flex-shrink-0">Bandeja</button>
+      <button class="px-3 py-2.5 text-[12px] text-slate-500 whitespace-nowrap flex-shrink-0">Tablero</button>
+      <button class="px-3 py-2.5 text-[12px] text-slate-500 whitespace-nowrap flex-shrink-0">Plan de compra</button>
+    </div>
+
+    <!-- Body mobile · columna única -->
+    <div class="p-3 space-y-3">
+
+      <!-- §A mobile · full-width stacked -->
+      <div class="bg-gradient-to-r from-blue-50 to-blue-100/30 ring-1 ring-blue-200/50 rounded-2xl p-3.5 space-y-2.5">
+        <div class="flex items-start gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center flex-shrink-0">
+            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+          </div>
+          <div>
+            <div class="text-[12px] font-semibold text-slate-900">5 aprobados listos para comprar</div>
+            <div class="text-[11px] text-slate-500 mt-0.5">Revisa el portafolio y emite las OCs.</div>
+          </div>
+        </div>
+        <button type="button" class="w-full flex items-center justify-center gap-1.5 text-[13px] font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg py-3 min-h-[44px]">
+          <i data-lucide="list-ordered" class="w-4 h-4"></i> Ver Plan de compra
+        </button>
+      </div>
+
+      <!-- §B · Salud de la cola mobile -->
+      <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+        <div class="px-3 py-2.5 border-b border-slate-100 flex items-center gap-2">
+          <i data-lucide="activity" class="w-4 h-4 text-blue-600"></i>
+          <span class="text-[12px] font-semibold text-slate-800">Salud de la cola</span>
+        </div>
+        <div class="px-3 py-3 space-y-2.5">
+          <div class="flex h-3.5 rounded-full overflow-hidden gap-px">
+            <div class="bg-emerald-500 flex-none" style="width:35%"></div>
+            <div class="bg-sky-400 flex-none" style="width:30%"></div>
+            <div class="bg-indigo-400 flex-none" style="width:20%"></div>
+            <div class="bg-slate-300 flex-none" style="width:15%"></div>
+          </div>
+          <div class="grid grid-cols-2 gap-x-3 gap-y-1 text-[10px]">
+            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-emerald-500 flex-shrink-0"></span><span class="text-slate-600">Demanda <strong>35%</strong></span></span>
+            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-sky-400 flex-shrink-0"></span><span class="text-slate-600">Restock <strong>30%</strong></span></span>
+            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-indigo-400 flex-shrink-0"></span><span class="text-slate-600">Apuesta <strong>20%</strong></span></span>
+            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-slate-300 flex-shrink-0"></span><span class="text-slate-600">Manual <strong>15%</strong></span></span>
+          </div>
+          <div class="bg-amber-50 border border-amber-200 rounded-lg px-2.5 py-2 text-[11px] flex items-start gap-1.5 text-amber-800">
+            <i data-lucide="alert-triangle" class="w-3.5 h-3.5 flex-shrink-0 mt-0.5"></i>
+            <span>Cola <strong class="tabular-nums">1.8×</strong> la caja libre · priorizar</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- §B · Embudo mobile -->
+      <div class="bg-white border border-slate-200 rounded-xl p-3">
+        <div class="flex items-center justify-between mb-2.5">
+          <h3 class="text-[12px] font-semibold text-slate-800 flex items-center gap-1.5">
+            <i data-lucide="git-commit-horizontal" class="w-3.5 h-3.5 text-blue-600"></i> Flujo
+          </h3>
+          <span class="text-[10px] text-slate-400">por estado</span>
+        </div>
+        <div class="flex items-end gap-1.5 h-20">
+          <div class="flex-1 flex flex-col items-center justify-end gap-1">
+            <span class="text-[11px] font-bold tabular-nums text-amber-700">12</span>
+            <div class="w-full rounded-t-md bg-amber-400/80" style="height:100%"></div>
+            <span class="text-[9px] text-slate-500">Pendiente</span>
+          </div>
+          <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 mb-5 flex-shrink-0"></i>
+          <div class="flex-1 flex flex-col items-center justify-end gap-1">
+            <span class="text-[11px] font-bold tabular-nums text-emerald-700">5</span>
+            <div class="w-full rounded-t-md bg-emerald-400/80" style="height:42%"></div>
+            <span class="text-[9px] text-slate-500">Aprob.</span>
+          </div>
+          <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 mb-5 flex-shrink-0"></i>
+          <div class="flex-1 flex flex-col items-center justify-end gap-1">
+            <span class="text-[11px] font-bold tabular-nums text-sky-700">8</span>
+            <div class="w-full rounded-t-md bg-sky-400/80" style="height:67%"></div>
+            <span class="text-[9px] text-slate-500">En proc.</span>
+          </div>
+          <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 mb-5 flex-shrink-0"></i>
+          <div class="flex-1 flex flex-col items-center justify-end gap-1">
+            <span class="text-[11px] font-bold tabular-nums text-slate-700">14</span>
+            <div class="w-full rounded-t-md bg-slate-300" style="height:100%"></div>
+            <span class="text-[9px] text-slate-500">Complet.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- §C · Inteligencia consolidada mobile -->
+      <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+        <div class="px-3 py-2.5 border-b border-slate-100 flex items-center justify-between">
+          <span class="text-[12px] font-semibold text-slate-800 flex items-center gap-1.5">
+            <i data-lucide="radar" class="w-4 h-4 text-blue-600"></i> Inteligencia de demanda
+          </span>
+        </div>
+        <!-- (a) Quiebres criticos mobile highlight -->
+        <div class="mx-3 mt-3 mb-2 bg-rose-50 border border-rose-200 rounded-xl overflow-hidden">
+          <div class="px-3 py-2 border-b border-rose-100 flex items-center gap-2">
+            <i data-lucide="package-x" class="w-3.5 h-3.5 text-rose-600"></i>
+            <span class="text-[11px] font-semibold text-rose-800">Quiebres críticos</span>
+            <span class="ml-auto text-[9px] bg-rose-600 text-white px-1.5 py-0.5 rounded-full font-bold">3</span>
+          </div>
+          <div class="px-3 py-2 space-y-2">
+            <div class="flex items-center justify-between py-1 border-b border-rose-100">
+              <div class="min-w-0 flex-1 mr-2">
+                <div class="text-[11px] font-semibold text-slate-800 truncate">Sérum Retinol 1%</div>
+                <div class="text-[10px] text-slate-500">lt 45d</div>
+              </div>
+              <div class="text-right flex-shrink-0">
+                <div class="text-[11px] font-bold tabular-nums text-rose-700">4 días</div>
+                <div class="text-[9px] text-rose-500">41d brecha</div>
+              </div>
+            </div>
+            <div class="flex items-center justify-between py-1">
+              <div class="min-w-0 flex-1 mr-2">
+                <div class="text-[11px] font-semibold text-slate-800 truncate">Niacinamide 10%</div>
+                <div class="text-[10px] text-slate-500">lt 60d</div>
+              </div>
+              <div class="text-right flex-shrink-0">
+                <div class="text-[11px] font-bold tabular-nums text-amber-700">18 días</div>
+                <div class="text-[9px] text-amber-500">42d brecha</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- (b) Alertas de stock mobile -->
+        <div class="px-3 py-2.5 border-b border-slate-100">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[11px] font-semibold text-slate-700 flex items-center gap-1.5">
+              <i data-lucide="alert-octagon" class="w-3.5 h-3.5 text-rose-500"></i> Alertas stock
+              <span class="text-[9px] bg-rose-100 text-rose-700 px-1.5 rounded-full font-bold">7</span>
+            </span>
+            <button type="button" class="text-[11px] text-blue-600 font-medium min-h-[44px] px-1">Ver →</button>
+          </div>
+          <div class="flex items-center gap-2 py-2 border-b border-slate-100">
+            <span class="w-2 h-2 rounded-full bg-rose-500 flex-shrink-0"></span>
+            <div class="flex-1 min-w-0">
+              <div class="text-[11px] font-medium text-slate-800 truncate">COSRX · Snail Mucin</div>
+              <div class="text-[10px] text-slate-400">Stock: <strong class="text-rose-600">0</strong> / Reorden: 10</div>
+            </div>
+            <button type="button" class="flex items-center gap-1 text-[11px] font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-lg px-2.5 py-2.5 flex-shrink-0 min-h-[44px]">
+              <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+          <div class="flex items-center gap-2 py-2">
+            <span class="w-2 h-2 rounded-full bg-orange-400 flex-shrink-0"></span>
+            <div class="flex-1 min-w-0">
+              <div class="text-[11px] font-medium text-slate-800 truncate">Laneige · Water Mask</div>
+              <div class="text-[10px] text-slate-400">Stock: <strong class="text-amber-600">3</strong> / Reorden: 15</div>
+            </div>
+            <button type="button" class="flex items-center gap-1 text-[11px] font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-lg px-2.5 py-2.5 flex-shrink-0 min-h-[44px]">
+              <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+        </div>
+        <!-- (c) Demanda potencial mobile -->
+        <div class="px-3 py-2.5">
+          <div class="flex items-center gap-1.5 mb-1.5">
+            <i data-lucide="trending-up" class="w-3.5 h-3.5 text-sky-500"></i>
+            <span class="text-[11px] font-semibold text-slate-700">Demanda potencial</span>
+            <span class="text-[9px] bg-sky-100 text-sky-700 px-1.5 rounded-full font-bold">4</span>
+          </div>
+          <div class="flex items-center gap-2 py-1">
+            <span class="w-2 h-2 rounded-full bg-sky-400 flex-shrink-0"></span>
+            <div class="flex-1 min-w-0">
+              <div class="text-[11px] font-medium text-slate-800 truncate">Clínica Derma Lima</div>
+              <div class="text-[10px] text-slate-400">COT-2024-088 · 3 productos sin stock</div>
+            </div>
+            <span class="text-[9px] text-slate-400 flex-shrink-0">señal</span>
+          </div>
+          <p class="text-[10px] text-slate-400 mt-1.5 leading-snug">No genera req. — sirve para detectar qué <strong>apostar</strong>.</p>
+        </div>
+      </div>
+
+      <!-- §D aside mobile · Acciones rápidas -->
+      <div class="bg-white rounded-xl border border-slate-200 p-3">
+        <h3 class="text-[11px] font-semibold text-slate-700 mb-2.5">Acciones rápidas</h3>
+        <div class="grid grid-cols-2 gap-2">
+          <button type="button" class="flex flex-col items-start gap-1 p-3 rounded-lg border border-slate-200 hover:border-blue-300 hover:bg-blue-50/40 text-left min-h-[54px]">
+            <i data-lucide="plus" class="w-4 h-4 text-blue-600"></i>
+            <span class="text-[11px] font-semibold text-slate-800">Nuevo</span>
+          </button>
+          <button type="button" class="flex flex-col items-start gap-1 p-3 rounded-lg border border-slate-200 hover:border-blue-300 hover:bg-blue-50/40 text-left min-h-[54px]">
+            <i data-lucide="layers" class="w-4 h-4 text-blue-600"></i>
+            <span class="text-[11px] font-semibold text-slate-800">Generar compra</span>
+          </button>
+          <button type="button" class="flex flex-col items-start gap-1 p-3 rounded-lg border border-slate-200 hover:border-blue-300 hover:bg-blue-50/40 text-left min-h-[54px]">
+            <i data-lucide="package-search" class="w-4 h-4 text-blue-600"></i>
+            <span class="text-[11px] font-semibold text-slate-800">Pendientes</span>
+          </button>
+          <button type="button" class="flex flex-col items-start gap-1 p-3 rounded-lg border border-slate-200 hover:border-blue-300 hover:bg-blue-50/40 text-left min-h-[54px]">
+            <i data-lucide="dice-5" class="w-4 h-4 text-blue-600"></i>
+            <span class="text-[11px] font-semibold text-slate-800">Apuesta</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- §E aside mobile · 360 con tabs nuevas -->
+      <div class="bg-white rounded-xl border border-slate-200 p-3">
+        <h3 class="text-[11px] font-semibold text-slate-700 mb-2">Ir a · 360</h3>
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Este hub</div>
+        <div class="space-y-0.5 mb-3">
+          <button type="button" class="w-full flex items-center justify-between px-2.5 py-3 rounded-lg hover:bg-blue-50/50 text-[12px] text-slate-700 min-h-[44px]">
+            <span class="flex items-center gap-2">
+              <i data-lucide="inbox" class="w-4 h-4 text-blue-600"></i> Bandeja
+              <span class="text-[9px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-bold">12</span>
+            </span>
+            <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-300"></i>
+          </button>
+          <button type="button" class="w-full flex items-center justify-between px-2.5 py-3 rounded-lg hover:bg-blue-50/50 text-[12px] text-slate-700 min-h-[44px]">
+            <span class="flex items-center gap-2">
+              <i data-lucide="list-ordered" class="w-4 h-4 text-blue-600"></i> Plan de compra
+              <span class="text-[9px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-full font-bold">5</span>
+            </span>
+            <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-300"></i>
+          </button>
+        </div>
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Módulos</div>
+        <div class="space-y-0.5">
+          <button type="button" class="w-full flex items-center justify-between px-2.5 py-3 rounded-lg hover:bg-slate-50 text-[12px] text-slate-700 min-h-[44px]">
+            <span class="flex items-center gap-2"><i data-lucide="shopping-cart" class="w-4 h-4 text-blue-600"></i> Órdenes de compra</span>
+            <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-300"></i>
+          </button>
+          <button type="button" class="w-full flex items-center justify-between px-2.5 py-3 rounded-lg hover:bg-slate-50 text-[12px] text-slate-700 min-h-[44px]">
+            <span class="flex items-center gap-2"><i data-lucide="boxes" class="w-4 h-4 text-orange-500"></i> Stock / Inventario</span>
+            <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-300"></i>
+          </button>
+          <button type="button" class="w-full flex items-center justify-between px-2.5 py-3 rounded-lg hover:bg-slate-50 text-[12px] text-slate-700 min-h-[44px]">
+            <span class="flex items-center gap-2"><i data-lucide="shopping-bag" class="w-4 h-4 text-blue-600"></i> Ventas</span>
+            <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-300"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- §F mobile · Presion de caja -->
+      <div class="bg-amber-50 rounded-xl ring-1 ring-amber-200/60 p-3">
+        <h3 class="text-[11px] font-semibold text-amber-800 mb-1.5 flex items-center gap-1.5">
+          <i data-lucide="wallet" class="w-3.5 h-3.5 text-amber-600"></i> Presión de caja
+        </h3>
+        <div class="text-[12px] text-amber-800">Cola <strong class="tabular-nums">S/ 52,000</strong> vs caja <strong class="tabular-nums">S/ 29,000</strong>.</div>
+        <div class="text-[10px] text-amber-700 mt-1">Cola supera 1.8× la caja. Priorizar antes de emitir.</div>
+      </div>
+
+      <!-- §F mobile · Alertas urgentes con link a Bandeja -->
+      <div class="bg-rose-50 rounded-xl ring-1 ring-rose-200/60 p-3">
+        <h3 class="text-[11px] font-semibold text-rose-800 mb-2 flex items-center gap-1.5">
+          <i data-lucide="bell" class="w-3.5 h-3.5 text-rose-600"></i> Atención
+        </h3>
+        <ul class="space-y-1 text-[11px] text-rose-700">
+          <li class="flex items-center justify-between gap-2 min-h-[44px]">
+            <span class="flex items-center gap-1.5">
+              <i data-lucide="clock" class="w-3.5 h-3.5 flex-shrink-0"></i>
+              3 urgentes sin aprobar
+            </span>
+            <button type="button" class="flex items-center gap-1 text-[11px] font-semibold text-rose-700 underline underline-offset-2 flex-shrink-0 py-2 px-1">
+              Ir a Bandeja <i data-lucide="chevron-right" class="w-3 h-3"></i>
+            </button>
+          </li>
+          <li class="flex items-start gap-1.5">
+            <i data-lucide="users" class="w-3.5 h-3.5 mt-0.5 flex-shrink-0"></i>
+            2 aprobados sin viajero.
+          </li>
+        </ul>
+      </div>
+
+    </div><!-- /body mobile -->
+  </div><!-- /frame 375px -->
+  </div><!-- /flex justify-center -->
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- FOOTER · CHECKLIST CANON -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<footer class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
+  <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-4 acto-sep">Checklist de cobertura · mockup canon</div>
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[12px]">
+
+    <div class="space-y-2">
+      <div class="text-[11px] font-bold text-slate-700 mb-1">Orden canónico §A→§F</div>
+      <div class="flex items-center gap-2 text-emerald-700"><i data-lucide="check-circle-2" class="w-4 h-4 flex-shrink-0"></i> §A NextAction — banner "Ver Plan de compra"</div>
+      <div class="flex items-center gap-2 text-emerald-700"><i data-lucide="check-circle-2" class="w-4 h-4 flex-shrink-0"></i> §B Visualización — SaludCola + Embudo CONTIGUOS</div>
+      <div class="flex items-center gap-2 text-emerald-700"><i data-lucide="check-circle-2" class="w-4 h-4 flex-shrink-0"></i> §C Inteligencia consolidada (C1 absorbido como highlight)</div>
+      <div class="flex items-center gap-2 text-emerald-700"><i data-lucide="check-circle-2" class="w-4 h-4 flex-shrink-0"></i> §D Acciones rápidas (aside)</div>
+      <div class="flex items-center gap-2 text-emerald-700"><i data-lucide="check-circle-2" class="w-4 h-4 flex-shrink-0"></i> §E Cross-links con Bandeja + Plan de compra + 3 módulos externos</div>
+      <div class="flex items-center gap-2 text-emerald-700"><i data-lucide="check-circle-2" class="w-4 h-4 flex-shrink-0"></i> §F Presión de caja (A2 · condicional) + urgentes LINK a Bandeja</div>
+    </div>
+
+    <div class="space-y-2">
+      <div class="text-[11px] font-bold text-slate-700 mb-1">Problemas resueltos</div>
+      <div class="flex items-center gap-2 text-emerald-700"><i data-lucide="check-circle-2" class="w-4 h-4 flex-shrink-0"></i> C1 = "Quiebres críticos" highlight dentro de §C (rose panel arriba de la lista)</div>
+      <div class="flex items-center gap-2 text-emerald-700"><i data-lucide="check-circle-2" class="w-4 h-4 flex-shrink-0"></i> AnticipacionQuiebresWidget suelto eliminado</div>
+      <div class="flex items-center gap-2 text-emerald-700"><i data-lucide="check-circle-2" class="w-4 h-4 flex-shrink-0"></i> §A CTA = "Ver Plan de compra" (navega a tab, no dispara OC)</div>
+      <div class="flex items-center gap-2 text-emerald-700"><i data-lucide="check-circle-2" class="w-4 h-4 flex-shrink-0"></i> §D "Generar compra" conservado como shortcut directo (distinto de §A)</div>
+      <div class="flex items-center gap-2 text-emerald-700"><i data-lucide="check-circle-2" class="w-4 h-4 flex-shrink-0"></i> No clona el KPI strip (canon no-redundancia)</div>
+      <div class="flex items-center gap-2 text-emerald-700"><i data-lucide="check-circle-2" class="w-4 h-4 flex-shrink-0"></i> Mobile 375px · Layout A apilado · main → aside</div>
+      <div class="flex items-center gap-2 text-emerald-700"><i data-lucide="check-circle-2" class="w-4 h-4 flex-shrink-0"></i> Touch targets ≥44px (CTA, botones Crear, shortcuts, links)</div>
+      <div class="flex items-center gap-2 text-emerald-700"><i data-lucide="check-circle-2" class="w-4 h-4 flex-shrink-0"></i> tabular-nums en todos los números</div>
+      <div class="flex items-center gap-2 text-emerald-700"><i data-lucide="check-circle-2" class="w-4 h-4 flex-shrink-0"></i> Sin emojis · Lucide CDN · Inter · Tailwind CDN · autocontenido</div>
+      <div class="flex items-center gap-2 text-emerald-700"><i data-lucide="check-circle-2" class="w-4 h-4 flex-shrink-0"></i> Color semántico: rose/amber=urgencia · sky=señal · emerald/sky/indigo/slate=origen lente</div>
+    </div>
+
+  </div>
+
+  <div class="mt-5 bg-blue-50 border border-blue-200 rounded-xl p-3.5 text-[12px] text-blue-800">
+    <strong>Nota §A vs §D "Generar compra":</strong> §A es navegación al flujo rico (tab Plan de compra · portafolio + waterline). §D es un shortcut de acción directa para usuarios experimentados que ya saben qué aprobar. Son distintos en naturaleza. Se diferencian por label: §A = "Ver Plan de compra" · §D = "Generar compra".
+  </div>
+</footer>
+
+</div>
+
+<script>
+  if (window.lucide) { lucide.createIcons(); }
+  document.addEventListener('DOMContentLoaded', () => {
+    if (window.lucide) { lucide.createIcons(); }
+  });
+</script>
+</body>
+</html>

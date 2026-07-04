@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Requerimientos · Creación guiada por recomendaciones + Radar de Apuestas</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { font-family: 'Inter', system-ui, sans-serif; }
+  .tabular-nums { font-variant-numeric: tabular-nums; }
+  body { background: #f1f5f9; }
+  .frame { box-shadow: 0 1px 3px rgba(15,23,42,.08), 0 8px 24px rgba(15,23,42,.06); }
+  .modal-sh { box-shadow: 0 10px 15px -3px rgba(15,23,42,.18), 0 20px 50px -12px rgba(15,23,42,.30); }
+  .scrollbar-none { scrollbar-width: none; }
+  .scrollbar-none::-webkit-scrollbar { display: none; }
+  .phone { width: 380px; }
+  .dim-hub { filter: blur(1px) saturate(.7); opacity: .55; }
+</style>
+</head>
+<body class="text-slate-800">
+
+<!-- ═══════════════════ HERO ═══════════════════ -->
+<header class="max-w-6xl mx-auto px-6 pt-10 pb-6">
+  <div class="flex flex-wrap items-center gap-2 mb-3">
+    <span class="text-[10px] font-bold uppercase tracking-wider bg-blue-100 text-blue-700 px-2 py-1 rounded-full">F4+ · Propuesta de evolución</span>
+    <span class="text-[10px] font-bold uppercase tracking-wider bg-slate-200 text-slate-600 px-2 py-1 rounded-full">Grupo Comercial · azul</span>
+    <span class="text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full">Mismo modal (FormModalV2) · cambia el contenido</span>
+    <span class="text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-700 px-2 py-1 rounded-full">Consume el motor de reorden (F1–F4)</span>
+  </div>
+  <h1 class="text-2xl font-bold tracking-tight text-slate-900">Creación guiada por recomendaciones + Radar de Apuestas</h1>
+  <p class="text-[13px] text-slate-500 mt-2 max-w-3xl leading-relaxed">
+    "Nuevo requerimiento" <b>se mantiene como modal (FormModalV2) sobre Requerimientos</b> — eso no cambia.
+    Lo que cambia es <b>su contenido</b>: hoy es un <b>buscador en blanco</b> (buscás a mano lo que el sistema ya sabe que hay que pedir);
+    el target lo invierte → <b>la recomendación primero</b> (lista del motor de reorden + candidatos investigados), <b>la búsqueda como último recurso</b>.
+    Mobile = bottom-sheet (canon). Suma el <b>Radar de Apuestas</b> como tab del hub.
+  </p>
+</header>
+
+<!-- ═══════════════════ ÍNDICE ═══════════════════ -->
+<section class="max-w-6xl mx-auto px-6 pb-8">
+  <div class="bg-white rounded-2xl border border-slate-200 frame overflow-hidden">
+    <div class="px-5 py-3 border-b border-slate-200 bg-slate-50">
+      <h2 class="text-[13px] font-semibold text-slate-700 flex items-center gap-2"><i data-lucide="list" class="w-4 h-4 text-blue-600"></i> Índice de actos</h2>
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-px bg-slate-100 text-[12px]">
+      <div class="bg-white px-4 py-2.5"><b>Modelo</b> · escala de certeza + ciclo de vida</div>
+      <div class="bg-white px-4 py-2.5"><b>Acto 1</b> · El hub · de dónde se abre el modal</div>
+      <div class="bg-white px-4 py-2.5"><b>Acto 2</b> · Modal · modo Restock (lista del motor)</div>
+      <div class="bg-white px-4 py-2.5"><b>Acto 3</b> · Modal · modo Apuesta (candidatos + tesis)</div>
+      <div class="bg-white px-4 py-2.5"><b>Acto 4</b> · Modal · modo Manual (búsqueda)</div>
+      <div class="bg-white px-4 py-2.5"><b>Acto 5</b> · Candado de investigación</div>
+      <div class="bg-white px-4 py-2.5"><b>Acto 6</b> · Radar de Apuestas (tab)</div>
+      <div class="bg-white px-4 py-2.5"><b>Acto 7</b> · Empty / loading</div>
+      <div class="bg-white px-4 py-2.5 col-span-2 md:col-span-4"><b>Acto 8</b> · Mobile (modal = bottom-sheet · radar cards)</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ MODELO ═══════════════════ -->
+<section class="max-w-6xl mx-auto px-6 pb-10">
+  <div class="bg-white rounded-2xl border border-slate-200 frame overflow-hidden">
+    <div class="px-5 py-3 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+      <h2 class="text-[13px] font-semibold text-slate-700 flex items-center gap-2"><i data-lucide="git-branch" class="w-4 h-4 text-blue-600"></i> Modelo cerrado · la escala de certeza de demanda decide el modo</h2>
+      <span class="text-[10px] font-bold uppercase tracking-wide bg-emerald-600 text-white px-2 py-0.5 rounded-full">validado en chat</span>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-[12px] min-w-[640px]">
+        <thead class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wide">
+          <tr>
+            <th class="text-left font-semibold px-5 py-2.5">Modo</th>
+            <th class="text-left font-semibold px-5 py-2.5">Fuente de la confianza en la demanda</th>
+            <th class="text-left font-semibold px-5 py-2.5">Producto</th>
+            <th class="text-left font-semibold px-5 py-2.5">De dónde sale la lista (derivado · no se elige)</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          <tr>
+            <td class="px-5 py-3"><span class="inline-flex items-center gap-1.5 text-[11px] font-bold text-emerald-700 bg-emerald-50 ring-1 ring-emerald-200 rounded-full px-2 py-0.5"><i data-lucide="user-check" class="w-3 h-3"></i> Demanda comprometida</span></td>
+            <td class="px-5 py-3 text-slate-600"><b>Certeza</b> — el cliente ya se comprometió</td>
+            <td class="px-5 py-3 text-slate-500">cualquiera</td>
+            <td class="px-5 py-3 text-slate-600">Cotizaciones con adelanto · flujo existente</td>
+          </tr>
+          <tr>
+            <td class="px-5 py-3"><span class="inline-flex items-center gap-1.5 text-[11px] font-bold text-sky-700 bg-sky-50 ring-1 ring-sky-200 rounded-full px-2 py-0.5"><i data-lucide="cpu" class="w-3 h-3"></i> Restock</span></td>
+            <td class="px-5 py-3 text-slate-600"><b>Datos</b> — el motor de reorden lo predice por historial</td>
+            <td class="px-5 py-3 text-slate-500">existente</td>
+            <td class="px-5 py-3 text-slate-600"><code class="text-[11px] bg-slate-100 px-1 rounded">sugerenciasReposicion</code> (motor · ya existe)</td>
+          </tr>
+          <tr>
+            <td class="px-5 py-3"><span class="inline-flex items-center gap-1.5 text-[11px] font-bold text-violet-700 bg-violet-50 ring-1 ring-violet-200 rounded-full px-2 py-0.5"><i data-lucide="hand" class="w-3 h-3"></i> Manual</span></td>
+            <td class="px-5 py-3 text-slate-600"><b>Intuición</b> — lectura humana del consumidor, sin variable de datos</td>
+            <td class="px-5 py-3 text-slate-500">existente</td>
+            <td class="px-5 py-3 text-slate-600">Búsqueda (único modo que busca a mano)</td>
+          </tr>
+          <tr>
+            <td class="px-5 py-3"><span class="inline-flex items-center gap-1.5 text-[11px] font-bold text-amber-700 bg-amber-50 ring-1 ring-amber-200 rounded-full px-2 py-0.5"><i data-lucide="target" class="w-3 h-3"></i> Apuesta</span></td>
+            <td class="px-5 py-3 text-slate-600"><b>Intuición</b> — igual que manual, pero producto <b>nuevo</b> → exige tesis + candado + radar</td>
+            <td class="px-5 py-3 text-slate-500">nuevo</td>
+            <td class="px-5 py-3 text-slate-600">Candidatos <b>investigados</b> (candado cumplido)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="px-5 py-3 bg-amber-50/60 border-t border-amber-100 text-[12px] text-amber-900 flex flex-wrap items-center gap-x-4 gap-y-1">
+      <span class="font-semibold">Ciclo de vida de la apuesta · 365 días:</span>
+      <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-slate-400"></span> En evaluación</span>
+      <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Acierto → gradúa a catálogo (recuperó CTRU + rotación)</span>
+      <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-rose-500"></span> Fallida → al año sin recuperar, sugiere descontinuar</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ ACTO 1 · HUB (de dónde se abre el modal) ═══════════════════ -->
+<section class="max-w-6xl mx-auto px-6 pb-12">
+  <div class="flex items-center gap-2 mb-3">
+    <span class="text-[11px] font-bold uppercase tracking-wider text-blue-700">Acto 1</span>
+    <span class="text-[13px] font-semibold text-slate-700">El hub Requerimientos · el botón "Nuevo requerimiento" abre el modal (como hoy)</span>
+  </div>
+  <div class="bg-white rounded-2xl border border-slate-200 frame overflow-hidden">
+    <div class="border-b border-slate-200 px-6 py-2.5 bg-slate-50 flex items-center justify-between">
+      <div class="text-[11px] text-slate-500 flex items-center gap-1.5"><i data-lucide="home" class="w-3 h-3"></i> Inicio <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300"></i> <span class="text-slate-700 font-medium">Requerimientos</span></div>
+      <span class="inline-flex items-center gap-1 text-[11px] font-medium text-blue-700 bg-blue-50 ring-1 ring-blue-200 rounded-full px-2 py-0.5"><i data-lucide="shield" class="w-3 h-3"></i> Vista ejecutiva · admin</span>
+    </div>
+    <div class="px-6 pt-5 pb-4 flex items-start justify-between gap-4 flex-wrap">
+      <div class="flex items-start gap-3">
+        <div class="w-11 h-11 rounded-xl bg-blue-50 ring-1 ring-blue-100 flex items-center justify-center"><i data-lucide="clipboard-list" class="w-5 h-5 text-blue-600"></i></div>
+        <div>
+          <h3 class="text-lg font-semibold text-slate-900">Requerimientos de compra</h3>
+          <p class="text-[13px] text-slate-500 leading-snug">Qué pedir · por qué · y el seguimiento de las apuestas</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button class="text-[12px] font-medium text-slate-600 bg-white border border-slate-200 rounded-lg px-3 py-1.5 hover:bg-slate-50 inline-flex items-center gap-1.5"><i data-lucide="package" class="w-3.5 h-3.5"></i> Pendientes</button>
+        <button class="text-[12px] font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg px-3 py-1.5 inline-flex items-center gap-1.5 shadow-sm ring-2 ring-blue-200"><i data-lucide="plus" class="w-3.5 h-3.5"></i> Nuevo requerimiento</button>
+      </div>
+    </div>
+    <div class="px-6 border-b border-slate-200 flex items-center gap-5 text-[13px] overflow-x-auto scrollbar-none">
+      <button class="py-2.5 border-b-2 border-blue-600 text-blue-700 font-semibold whitespace-nowrap">Resumen</button>
+      <button class="py-2.5 border-b-2 border-transparent text-slate-500 hover:text-slate-700 whitespace-nowrap">Tablero</button>
+      <button class="py-2.5 border-b-2 border-transparent text-slate-500 hover:text-slate-700 whitespace-nowrap">Pendientes de compra</button>
+      <button class="py-2.5 border-b-2 border-transparent text-slate-500 hover:text-slate-700 whitespace-nowrap inline-flex items-center gap-1.5">Apuestas <span class="text-[9px] font-bold bg-amber-100 text-amber-700 rounded-full px-1.5">7</span></button>
+    </div>
+    <div class="p-6 bg-slate-50/30">
+      <div class="bg-blue-50/50 ring-1 ring-blue-200/60 rounded-xl p-4 flex items-start gap-3">
+        <i data-lucide="sparkles" class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5"></i>
+        <div class="text-[13px] text-blue-900">
+          En el Resumen §C "Inteligencia de demanda" las recomendaciones del motor ya están (alertas de stock). El botón
+          <b>"Nuevo requerimiento"</b> abre el <b>mismo modal de siempre</b> — pero ahora dentro trae esas recomendaciones en vez de un buscador vacío.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ ACTO 2 · MODAL · RESTOCK ═══════════════════ -->
+<section class="max-w-6xl mx-auto px-6 pb-12">
+  <div class="flex items-center gap-2 mb-3">
+    <span class="text-[11px] font-bold uppercase tracking-wider text-sky-700">Acto 2</span>
+    <span class="text-[13px] font-semibold text-slate-700">El modal "Nuevo Requerimiento" (FormModalV2) · sobre Requerimientos · modo Restock</span>
+  </div>
+  <!-- backdrop: el hub atenuado detrás del modal -->
+  <div class="rounded-2xl overflow-hidden frame relative bg-slate-900/10 px-3 sm:px-10 pt-10 pb-6">
+    <div class="absolute top-3 left-4 text-[10px] font-bold uppercase tracking-wide text-slate-500 flex items-center gap-1.5"><i data-lucide="layers" class="w-3 h-3"></i> FormModalV2 · overlay sobre el hub (atenuado detrás)</div>
+    <!-- el modal -->
+    <div class="bg-white rounded-2xl border border-slate-200 modal-sh overflow-hidden max-w-3xl mx-auto">
+      <!-- header FormModalV2 · banking-grade (con cuerpo: valorización + prioridad) -->
+      <div class="border-b border-slate-200 px-6 py-4">
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex items-start gap-3">
+            <div class="w-10 h-10 rounded-xl bg-blue-50 ring-1 ring-blue-100 flex items-center justify-center"><i data-lucide="clipboard-list" class="w-5 h-5 text-blue-600"></i></div>
+            <div><h3 class="text-base font-semibold text-slate-900">Nuevo requerimiento</h3><p class="text-[12px] text-slate-500">TC del día: S/ 3.785 · modo Restock</p></div>
+          </div>
+          <button class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <!-- strip banking-grade: Valor (costo producto) · Margen proyectado · Impacto en caja -->
+        <div class="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <div class="bg-amber-50 ring-1 ring-amber-200 rounded-xl px-3 py-2">
+            <div class="text-[9px] uppercase tracking-wider text-amber-700 font-bold flex items-center gap-1"><i data-lucide="dollar-sign" class="w-3 h-3"></i> Valor · costo de producto</div>
+            <div class="text-[16px] font-bold text-amber-900 tabular-nums leading-tight">$ 1,275</div>
+            <div class="text-[10px] text-amber-600">S/ 4,826 · <b>no landed</b></div>
+          </div>
+          <div class="bg-emerald-50 ring-1 ring-emerald-200 rounded-xl px-3 py-2">
+            <div class="text-[9px] uppercase tracking-wider text-emerald-700 font-bold flex items-center gap-1"><i data-lucide="trending-up" class="w-3 h-3"></i> Margen proyectado</div>
+            <div class="text-[16px] font-bold text-emerald-900 tabular-nums leading-tight">~58<span class="text-emerald-400">%</span></div>
+            <div class="text-[10px] text-emerald-600">vs precio de competencia</div>
+          </div>
+          <div class="bg-sky-50 ring-1 ring-sky-200 rounded-xl px-3 py-2">
+            <div class="text-[9px] uppercase tracking-wider text-sky-700 font-bold flex items-center gap-1"><i data-lucide="wallet" class="w-3 h-3"></i> Impacto en caja</div>
+            <div class="text-[16px] font-bold text-sky-900 tabular-nums leading-tight">6<span class="text-sky-400">%</span></div>
+            <div class="text-[10px] text-sky-600 inline-flex items-center gap-0.5"><i data-lucide="check" class="w-2.5 h-2.5"></i> entra · S/ 76k disp</div>
+          </div>
+        </div>
+        <div class="mt-2 flex items-center gap-1.5 text-[11px]">
+          <span class="text-slate-400 font-medium">Prioridad</span>
+          <button class="px-2 py-0.5 rounded-full font-medium bg-slate-100 text-slate-500">Baja</button>
+          <button class="px-2 py-0.5 rounded-full font-medium bg-slate-100 text-slate-500">Media</button>
+          <button class="px-2 py-0.5 rounded-full font-medium bg-rose-500 text-white shadow-sm">Alta</button>
+        </div>
+      </div>
+      <!-- body -->
+      <div class="px-6 py-4 max-h-[460px] overflow-y-auto">
+        <!-- mode segmented -->
+        <div class="flex items-center gap-2 flex-wrap mb-4">
+          <button class="text-[12px] font-semibold text-white bg-sky-600 rounded-lg px-3 py-1.5 inline-flex items-center gap-1.5"><i data-lucide="cpu" class="w-3.5 h-3.5"></i> Restock</button>
+          <button class="text-[12px] font-medium text-slate-600 bg-white border border-slate-200 rounded-lg px-3 py-1.5 inline-flex items-center gap-1.5 hover:bg-slate-50"><i data-lucide="target" class="w-3.5 h-3.5"></i> Apuesta</button>
+          <button class="text-[12px] font-medium text-slate-600 bg-white border border-slate-200 rounded-lg px-3 py-1.5 inline-flex items-center gap-1.5 hover:bg-slate-50"><i data-lucide="hand" class="w-3.5 h-3.5"></i> Manual</button>
+          <button class="text-[12px] font-medium text-slate-600 bg-white border border-slate-200 rounded-lg px-3 py-1.5 inline-flex items-center gap-1.5 hover:bg-slate-50"><i data-lucide="user-check" class="w-3.5 h-3.5"></i> Comprometida</button>
+        </div>
+        <div class="flex items-center justify-between mb-2">
+          <div class="text-[12px] text-slate-600">El motor recomienda reponer <b class="text-slate-900">8 productos</b> <span class="text-slate-400">(sin historial no aparece)</span>.</div>
+          <label class="text-[11px] text-slate-500 inline-flex items-center gap-1.5"><input type="checkbox" class="rounded border-slate-300"> Todo</label>
+        </div>
+        <div class="space-y-2">
+          <!-- row seleccionada -->
+          <div class="rounded-xl border border-sky-300 bg-sky-50/40 ring-1 ring-sky-200 p-3">
+            <div class="flex items-start gap-3">
+              <input type="checkbox" checked class="mt-1 rounded border-slate-300 text-sky-600">
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between gap-2">
+                  <div class="text-[13px] font-semibold text-slate-800 truncate">CeraVe · Crema Hidratante 340g</div>
+                  <span class="text-[10px] font-bold text-rose-700 bg-rose-100 rounded-full px-2 py-0.5">crítico</span>
+                </div>
+                <div class="text-[11px] text-slate-500 mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 tabular-nums">
+                  <span>Disp neto <b class="text-rose-600">3</b></span><span>Reorden <b>77</b></span><span>Velocidad <b>2/día</b></span><span>Lead time <b>30d</b></span><span>Cobertura <b class="text-rose-600">1.5d</b></span>
+                </div>
+              </div>
+              <div class="text-right flex-shrink-0">
+                <div class="text-[10px] text-slate-400 uppercase tracking-wide">Pedir</div>
+                <div class="flex items-center gap-1 mt-0.5">
+                  <button class="w-6 h-6 rounded border border-slate-200 text-slate-500 hover:bg-slate-50">−</button>
+                  <input value="150" class="w-12 text-center text-[13px] font-bold text-slate-900 tabular-nums border border-slate-200 rounded py-0.5">
+                  <button class="w-6 h-6 rounded border border-slate-200 text-slate-500 hover:bg-slate-50">+</button>
+                </div>
+                <div class="text-[10px] text-slate-500 mt-1 tabular-nums">× $8.50 = <b class="text-amber-700">$1,275</b></div>
+                <div class="text-[9px] text-slate-400 inline-flex items-center gap-0.5"><i data-lucide="history" class="w-2.5 h-2.5"></i> última compra</div>
+              </div>
+            </div>
+          </div>
+          <div class="rounded-xl border border-slate-200 p-3 hover:border-slate-300">
+            <div class="flex items-start gap-3">
+              <input type="checkbox" class="mt-1 rounded border-slate-300">
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between gap-2"><div class="text-[13px] font-semibold text-slate-800 truncate">The Ordinary · Niacinamide 10%</div><span class="text-[10px] font-bold text-amber-700 bg-amber-100 rounded-full px-2 py-0.5">alta</span></div>
+                <div class="text-[11px] text-slate-500 mt-0.5 flex flex-wrap items-center gap-x-3 tabular-nums"><span>Disp neto <b class="text-amber-600">12</b></span><span>Reorden <b>40</b></span><span>Velocidad <b>0.8/día</b></span><span>Cobertura <b>15d</b></span></div>
+              </div>
+              <div class="text-right flex-shrink-0"><div class="text-[10px] text-slate-400 uppercase tracking-wide">Pedir</div><div class="text-[13px] font-bold text-slate-900 tabular-nums mt-1">60</div></div>
+            </div>
+          </div>
+          <div class="rounded-xl border border-slate-200 p-3 hover:border-slate-300">
+            <div class="flex items-start gap-3">
+              <input type="checkbox" class="mt-1 rounded border-slate-300">
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between gap-2"><div class="text-[13px] font-semibold text-slate-800 truncate">La Roche-Posay · Anthelios SPF50</div><span class="text-[10px] font-bold text-slate-600 bg-slate-100 rounded-full px-2 py-0.5">media</span></div>
+                <div class="text-[11px] text-slate-500 mt-0.5 flex flex-wrap items-center gap-x-3 tabular-nums"><span>Disp neto <b>28</b></span><span>Reorden <b>35</b></span><span>Cobertura <b>70d</b></span></div>
+              </div>
+              <div class="text-right flex-shrink-0"><div class="text-[10px] text-slate-400 uppercase tracking-wide">Pedir</div><div class="text-[13px] font-bold text-slate-900 tabular-nums mt-1">25</div></div>
+            </div>
+          </div>
+          <p class="text-[11px] text-slate-400 text-center py-1">+5 más · ordenados por prioridad del motor · ↓ scroll</p>
+        </div>
+      </div>
+      <!-- footer FormModalV2 (footerExtras + submit) -->
+      <div class="border-t border-slate-200 px-6 py-3 bg-slate-50 flex items-center justify-between gap-3 flex-wrap">
+        <div class="text-[12px] text-slate-500">1 producto · valor <b class="text-amber-700 tabular-nums">$ 1,275 USD</b> <span class="text-slate-400">(costo de producto · no landed)</span> · subtipo <span class="text-sky-700 font-medium">restock (auto)</span></div>
+        <div class="flex items-center gap-2">
+          <button class="text-[12px] font-medium text-slate-600 hover:text-slate-800 px-3 py-2">Guardar borrador</button>
+          <button class="text-[13px] font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg px-4 py-2 inline-flex items-center gap-1.5 shadow-sm"><i data-lucide="check" class="w-4 h-4"></i> Crear requerimiento</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ ACTO 3 · MODAL · APUESTA ═══════════════════ -->
+<section class="max-w-6xl mx-auto px-6 pb-12">
+  <div class="flex items-center gap-2 mb-3">
+    <span class="text-[11px] font-bold uppercase tracking-wider text-amber-700">Acto 3</span>
+    <span class="text-[13px] font-semibold text-slate-700">El mismo modal · modo Apuesta — candidatos investigados + tesis</span>
+  </div>
+  <div class="bg-white rounded-2xl border border-slate-200 modal-sh overflow-hidden max-w-3xl mx-auto">
+    <div class="border-b border-slate-200 px-6 py-4">
+      <div class="flex items-start justify-between gap-3">
+        <div class="flex items-start gap-3">
+          <div class="w-10 h-10 rounded-xl bg-blue-50 ring-1 ring-blue-100 flex items-center justify-center"><i data-lucide="clipboard-list" class="w-5 h-5 text-blue-600"></i></div>
+          <div><h3 class="text-base font-semibold text-slate-900">Nuevo requerimiento</h3><p class="text-[12px] text-slate-500">Apuesta · producto nuevo sin cliente</p></div>
+        </div>
+        <button class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div class="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-2">
+        <div class="bg-amber-50 ring-1 ring-amber-200 rounded-xl px-3 py-2">
+          <div class="text-[9px] uppercase tracking-wider text-amber-700 font-bold flex items-center gap-1"><i data-lucide="dollar-sign" class="w-3 h-3"></i> Valor · costo de producto</div>
+          <div class="text-[16px] font-bold text-amber-900 tabular-nums leading-tight">$ 360</div>
+          <div class="text-[10px] text-amber-600 inline-flex items-center gap-0.5"><i data-lucide="microscope" class="w-2.5 h-2.5"></i> S/ 1,363 · desde investigación</div>
+        </div>
+        <div class="bg-emerald-50 ring-1 ring-emerald-200 rounded-xl px-3 py-2">
+          <div class="text-[9px] uppercase tracking-wider text-emerald-700 font-bold flex items-center gap-1"><i data-lucide="trending-up" class="w-3 h-3"></i> Margen proyectado</div>
+          <div class="text-[16px] font-bold text-emerald-900 tabular-nums leading-tight">~58<span class="text-emerald-400">%</span></div>
+          <div class="text-[10px] text-emerald-600">vs competencia S/ 49–69</div>
+        </div>
+        <div class="bg-sky-50 ring-1 ring-sky-200 rounded-xl px-3 py-2">
+          <div class="text-[9px] uppercase tracking-wider text-sky-700 font-bold flex items-center gap-1"><i data-lucide="wallet" class="w-3 h-3"></i> Impacto en caja</div>
+          <div class="text-[16px] font-bold text-sky-900 tabular-nums leading-tight">2<span class="text-sky-400">%</span></div>
+          <div class="text-[10px] text-sky-600 inline-flex items-center gap-0.5"><i data-lucide="check" class="w-2.5 h-2.5"></i> entra · S/ 76k disp</div>
+        </div>
+      </div>
+    </div>
+    <div class="px-6 py-4 max-h-[460px] overflow-y-auto">
+      <div class="flex items-center gap-2 flex-wrap mb-4">
+        <button class="text-[12px] font-medium text-slate-600 bg-white border border-slate-200 rounded-lg px-3 py-1.5 inline-flex items-center gap-1.5 hover:bg-slate-50"><i data-lucide="cpu" class="w-3.5 h-3.5"></i> Restock</button>
+        <button class="text-[12px] font-semibold text-white bg-amber-600 rounded-lg px-3 py-1.5 inline-flex items-center gap-1.5"><i data-lucide="target" class="w-3.5 h-3.5"></i> Apuesta</button>
+        <button class="text-[12px] font-medium text-slate-600 bg-white border border-slate-200 rounded-lg px-3 py-1.5 inline-flex items-center gap-1.5 hover:bg-slate-50"><i data-lucide="hand" class="w-3.5 h-3.5"></i> Manual</button>
+        <button class="ml-auto text-[12px] font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-1.5 inline-flex items-center gap-1.5 hover:bg-amber-100"><i data-lucide="microscope" class="w-3.5 h-3.5"></i> Investigar nuevo</button>
+      </div>
+      <div class="text-[12px] text-slate-600 mb-3">Candidatos <b class="text-slate-900">investigados</b> y aún no apostados (candado cumplido).</div>
+      <!-- candidato seleccionado con tesis -->
+      <div class="rounded-xl border border-amber-300 bg-amber-50/30 ring-1 ring-amber-200 p-4 mb-2">
+        <div class="flex items-start gap-3">
+          <input type="checkbox" checked class="mt-1 rounded border-slate-300 text-amber-600">
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center justify-between gap-2"><div class="text-[13px] font-semibold text-slate-800">Beauty of Joseon · Glow Serum</div><span class="text-[10px] font-bold text-emerald-700 bg-emerald-100 rounded-full px-2 py-0.5 inline-flex items-center gap-1"><i data-lucide="lock-open" class="w-3 h-3"></i> investigado</span></div>
+            <div class="text-[11px] text-slate-500 mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 tabular-nums">
+              <span><i data-lucide="truck" class="w-3 h-3 inline text-slate-400"></i> 2 proveedores · $8.40–9.10</span>
+              <span><i data-lucide="store" class="w-3 h-3 inline text-slate-400"></i> 3 competidores · S/ 49–69</span>
+              <span class="text-emerald-600 font-medium">margen est. 58%</span>
+            </div>
+            <div class="mt-3">
+              <label class="text-[10px] font-bold uppercase tracking-wide text-amber-700">Tesis · por qué apostás (obligatoria)</label>
+              <textarea rows="2" class="w-full mt-1 text-[12px] border border-amber-200 rounded-lg px-3 py-2 bg-white focus:ring-2 focus:ring-amber-500/40 focus:border-amber-300">Tendencia K-beauty en alza local; ningún competidor cubre el segmento glow económico &lt;S/60. Demanda observada en consultas de IG.</textarea>
+            </div>
+          </div>
+          <div class="text-right flex-shrink-0"><div class="text-[10px] text-slate-400 uppercase tracking-wide">Apostar</div><input value="40" class="w-14 text-center text-[13px] font-bold text-slate-900 tabular-nums border border-slate-200 rounded py-0.5 mt-1"></div>
+        </div>
+      </div>
+      <div class="rounded-xl border border-slate-200 p-3 hover:border-slate-300">
+        <div class="flex items-start gap-3">
+          <input type="checkbox" class="mt-1 rounded border-slate-300">
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center justify-between gap-2"><div class="text-[13px] font-semibold text-slate-800">Anua · Heartleaf Toner 250ml</div><span class="text-[10px] font-bold text-emerald-700 bg-emerald-100 rounded-full px-2 py-0.5 inline-flex items-center gap-1"><i data-lucide="lock-open" class="w-3 h-3"></i> investigado</span></div>
+            <div class="text-[11px] text-slate-500 mt-1 flex flex-wrap items-center gap-x-3 tabular-nums"><span>1 proveedor · $11.20</span><span>2 competidores · S/ 72–85</span><span class="text-emerald-600 font-medium">margen est. 61%</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-slate-200 px-6 py-3 bg-slate-50 flex items-center justify-between gap-3 flex-wrap">
+      <div class="text-[12px] text-slate-500">1 apuesta · valor <b class="text-amber-700 tabular-nums">$ 360</b> <span class="text-slate-400">(costo de producto)</span> · tesis <span class="text-emerald-600 font-medium">✓</span> · entra al radar 365d</div>
+      <div class="flex items-center gap-2">
+        <button class="text-[12px] font-medium text-slate-600 hover:text-slate-800 px-3 py-2">Guardar borrador</button>
+        <button class="text-[13px] font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg px-4 py-2 inline-flex items-center gap-1.5 shadow-sm"><i data-lucide="check" class="w-4 h-4"></i> Crear apuesta</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ ACTO 4 · MODAL · MANUAL ═══════════════════ -->
+<section class="max-w-6xl mx-auto px-6 pb-12">
+  <div class="flex items-center gap-2 mb-3">
+    <span class="text-[11px] font-bold uppercase tracking-wider text-slate-600">Acto 4</span>
+    <span class="text-[13px] font-semibold text-slate-700">El mismo modal · modo Manual — la única vez que buscás a mano (intuición · producto existente)</span>
+  </div>
+  <div class="bg-white rounded-2xl border border-slate-200 modal-sh overflow-hidden max-w-3xl mx-auto">
+    <div class="border-b border-slate-200 px-6 py-4 flex items-start justify-between gap-3">
+      <div class="flex items-start gap-3">
+        <div class="w-10 h-10 rounded-xl bg-blue-50 ring-1 ring-blue-100 flex items-center justify-center"><i data-lucide="clipboard-list" class="w-5 h-5 text-blue-600"></i></div>
+        <div><h3 class="text-base font-semibold text-slate-900">Nuevo requerimiento</h3><p class="text-[12px] text-slate-500">Manual · tu lectura del mercado</p></div>
+      </div>
+      <button class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+    </div>
+    <div class="px-6 py-4">
+      <div class="flex items-center gap-2 flex-wrap mb-4">
+        <button class="text-[12px] font-medium text-slate-600 bg-white border border-slate-200 rounded-lg px-3 py-1.5 inline-flex items-center gap-1.5 hover:bg-slate-50"><i data-lucide="cpu" class="w-3.5 h-3.5"></i> Restock</button>
+        <button class="text-[12px] font-medium text-slate-600 bg-white border border-slate-200 rounded-lg px-3 py-1.5 inline-flex items-center gap-1.5 hover:bg-slate-50"><i data-lucide="target" class="w-3.5 h-3.5"></i> Apuesta</button>
+        <button class="text-[12px] font-semibold text-white bg-slate-700 rounded-lg px-3 py-1.5 inline-flex items-center gap-1.5"><i data-lucide="hand" class="w-3.5 h-3.5"></i> Manual</button>
+      </div>
+      <div class="bg-slate-50 ring-1 ring-slate-200 rounded-xl p-3 mb-4 text-[12px] text-slate-600 flex items-start gap-2"><i data-lucide="info" class="w-4 h-4 text-slate-400 flex-shrink-0 mt-0.5"></i> Para tu <b>intuición</b>: un producto que ya tenés y querés reponer aunque el motor no lo marque.</div>
+      <label class="text-[11px] font-bold uppercase tracking-wide text-slate-500">Buscar producto existente</label>
+      <div class="relative mt-1">
+        <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+        <input class="w-full text-[13px] border border-slate-200 rounded-lg pl-9 pr-3 py-2.5 focus:ring-2 focus:ring-blue-500/40 focus:border-blue-300" placeholder="SKU, marca o nombre…" value="cerave">
+      </div>
+      <div class="mt-2 border border-slate-200 rounded-lg divide-y divide-slate-100">
+        <button class="w-full text-left px-3 py-2.5 hover:bg-slate-50 flex items-center justify-between"><span class="text-[12px] text-slate-700">CeraVe · Limpiador Espumoso 236ml</span><span class="text-[11px] text-slate-400">stock 18</span></button>
+        <button class="w-full text-left px-3 py-2.5 hover:bg-slate-50 flex items-center justify-between"><span class="text-[12px] text-slate-700">CeraVe · Crema Hidratante 340g</span><span class="text-[11px] text-slate-400">stock 3</span></button>
+      </div>
+    </div>
+    <div class="border-t border-slate-200 px-6 py-3 bg-slate-50 flex items-center justify-end gap-2">
+      <button class="text-[12px] font-medium text-slate-600 hover:text-slate-800 px-3 py-2">Guardar borrador</button>
+      <button class="text-[13px] font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg px-4 py-2 inline-flex items-center gap-1.5 shadow-sm"><i data-lucide="check" class="w-4 h-4"></i> Crear requerimiento</button>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ ACTO 5 · CANDADO ═══════════════════ -->
+<section class="max-w-6xl mx-auto px-6 pb-12">
+  <div class="flex items-center gap-2 mb-3">
+    <span class="text-[11px] font-bold uppercase tracking-wider text-rose-700">Acto 5</span>
+    <span class="text-[13px] font-semibold text-slate-700">El candado · dentro del modo Apuesta · no se trae un producto nuevo sin investigar</span>
+  </div>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="bg-white rounded-2xl border border-slate-200 frame overflow-hidden">
+      <div class="px-5 py-3 border-b border-slate-100 bg-rose-50/50 text-[12px] font-semibold text-rose-800 flex items-center gap-2"><i data-lucide="lock" class="w-4 h-4 text-rose-600"></i> Producto nuevo sin investigación → bloqueado</div>
+      <div class="p-5">
+        <div class="rounded-xl border border-rose-200 bg-rose-50/40 p-4">
+          <div class="flex items-start gap-3">
+            <i data-lucide="alert-octagon" class="w-5 h-5 text-rose-500 flex-shrink-0 mt-0.5"></i>
+            <div class="text-[12px] text-rose-900">
+              <b>No se puede traer "Skin1004 · Centella Ampoule" todavía.</b>
+              Es un producto nuevo (sin historial) y le falta investigación de mercado mínima:
+              <ul class="mt-2 space-y-1">
+                <li class="flex items-center gap-1.5"><i data-lucide="x" class="w-3.5 h-3.5 text-rose-500"></i> 0 proveedores <span class="text-rose-500">(requiere ≥1)</span></li>
+                <li class="flex items-center gap-1.5"><i data-lucide="x" class="w-3.5 h-3.5 text-rose-500"></i> 0 competidores <span class="text-rose-500">(requiere ≥1)</span></li>
+              </ul>
+            </div>
+          </div>
+          <button class="w-full mt-4 text-[12px] font-semibold text-white bg-amber-600 hover:bg-amber-700 rounded-lg py-2 inline-flex items-center justify-center gap-1.5"><i data-lucide="microscope" class="w-4 h-4"></i> Investigar ahora (precios · competencia · proveedores)</button>
+        </div>
+        <p class="text-[11px] text-slate-400 mt-3">Aplica solo a productos nuevos / sin historial. El restock de productos ya probados pasa sin candado.</p>
+      </div>
+    </div>
+    <div class="bg-white rounded-2xl border border-slate-200 frame overflow-hidden">
+      <div class="px-5 py-3 border-b border-slate-100 bg-emerald-50/50 text-[12px] font-semibold text-emerald-800 flex items-center gap-2"><i data-lucide="lock-open" class="w-4 h-4 text-emerald-600"></i> Investigación mínima cumplida → habilitado</div>
+      <div class="p-5">
+        <div class="rounded-xl border border-emerald-200 bg-emerald-50/30 p-4">
+          <div class="text-[13px] font-semibold text-slate-800 mb-2">Beauty of Joseon · Glow Serum</div>
+          <div class="grid grid-cols-2 gap-2 text-[11px]">
+            <div class="bg-white rounded-lg border border-slate-200 px-2.5 py-2"><div class="text-slate-400">Proveedores</div><div class="font-bold text-emerald-700">2 · $8.40–9.10</div></div>
+            <div class="bg-white rounded-lg border border-slate-200 px-2.5 py-2"><div class="text-slate-400">Competencia</div><div class="font-bold text-emerald-700">3 · S/ 49–69</div></div>
+          </div>
+          <div class="mt-3 text-[12px] text-emerald-800 flex items-center gap-1.5"><i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600"></i> Habilitado para apuesta — escribí la tesis y listo.</div>
+        </div>
+        <p class="text-[11px] text-slate-400 mt-3">Se eliminó la etiqueta vestigial "recomendación (importar/descartar)" — la decisión es el requerimiento, no un tag.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ ACTO 6 · RADAR DE APUESTAS ═══════════════════ -->
+<section class="max-w-6xl mx-auto px-6 pb-12">
+  <div class="flex items-center gap-2 mb-3">
+    <span class="text-[11px] font-bold uppercase tracking-wider text-amber-700">Acto 6</span>
+    <span class="text-[13px] font-semibold text-slate-700">Radar de Apuestas — ¿están funcionando? (tab del hub · derivado · cero schema)</span>
+  </div>
+  <div class="bg-white rounded-2xl border border-slate-200 frame overflow-hidden">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-px bg-slate-100 border-b border-slate-200">
+      <div class="bg-white px-4 py-3"><div class="text-[10px] uppercase tracking-wide text-slate-500 font-bold">En evaluación</div><div class="text-2xl font-bold text-slate-900 tabular-nums">5</div></div>
+      <div class="bg-white px-4 py-3"><div class="text-[10px] uppercase tracking-wide text-emerald-600 font-bold">Aciertos</div><div class="text-2xl font-bold text-emerald-700 tabular-nums">2</div></div>
+      <div class="bg-white px-4 py-3"><div class="text-[10px] uppercase tracking-wide text-rose-600 font-bold">Fallidas</div><div class="text-2xl font-bold text-rose-700 tabular-nums">1</div></div>
+      <div class="bg-white px-4 py-3"><div class="text-[10px] uppercase tracking-wide text-amber-600 font-bold">Tasa de acierto</div><div class="text-2xl font-bold text-amber-700 tabular-nums">67<span class="text-amber-400">%</span></div></div>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-[12px] min-w-[860px]">
+        <thead class="bg-slate-50 text-slate-500 text-[10px] uppercase tracking-wide">
+          <tr>
+            <th class="text-left font-semibold px-5 py-2.5">Producto · tesis</th>
+            <th class="text-right font-semibold px-4 py-2.5">CTRU invertido</th>
+            <th class="text-left font-semibold px-4 py-2.5 w-44">Recuperación</th>
+            <th class="text-left font-semibold px-4 py-2.5">Rotación</th>
+            <th class="text-right font-semibold px-4 py-2.5">Día / 365</th>
+            <th class="text-left font-semibold px-4 py-2.5">Veredicto</th>
+            <th class="text-right font-semibold px-5 py-2.5">Acción</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          <tr class="hover:bg-slate-50/60">
+            <td class="px-5 py-3"><div class="font-semibold text-slate-800">Glow Serum</div><div class="text-[11px] text-slate-400 truncate max-w-[220px]">K-beauty en alza · sin competencia económica</div></td>
+            <td class="px-4 py-3 text-right tabular-nums font-medium text-slate-700">$ 360</td>
+            <td class="px-4 py-3"><div class="flex items-center gap-2"><div class="flex-1 h-1.5 rounded-full bg-slate-100 overflow-hidden"><div class="h-full bg-emerald-500" style="width:100%"></div></div><span class="text-[11px] font-bold text-emerald-700 tabular-nums">118%</span></div></td>
+            <td class="px-4 py-3"><span class="text-[11px] font-medium text-emerald-700">muy alta</span></td>
+            <td class="px-4 py-3 text-right tabular-nums text-slate-500">96</td>
+            <td class="px-4 py-3"><span class="text-[10px] font-bold text-emerald-700 bg-emerald-100 rounded-full px-2 py-0.5 inline-flex items-center gap-1"><i data-lucide="trophy" class="w-3 h-3"></i> acierto</span></td>
+            <td class="px-5 py-3 text-right"><button class="text-[11px] font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg px-2.5 py-1 inline-flex items-center gap-1"><i data-lucide="award" class="w-3 h-3"></i> Graduar</button></td>
+          </tr>
+          <tr class="hover:bg-slate-50/60">
+            <td class="px-5 py-3"><div class="font-semibold text-slate-800">Heartleaf Toner</div><div class="text-[11px] text-slate-400 truncate max-w-[220px]">Hero product viral · margen alto</div></td>
+            <td class="px-4 py-3 text-right tabular-nums font-medium text-slate-700">$ 448</td>
+            <td class="px-4 py-3"><div class="flex items-center gap-2"><div class="flex-1 h-1.5 rounded-full bg-slate-100 overflow-hidden"><div class="h-full bg-sky-500" style="width:52%"></div></div><span class="text-[11px] font-bold text-sky-700 tabular-nums">52%</span></div></td>
+            <td class="px-4 py-3"><span class="text-[11px] font-medium text-slate-600">media</span></td>
+            <td class="px-4 py-3 text-right tabular-nums text-slate-500">120</td>
+            <td class="px-4 py-3"><span class="text-[10px] font-bold text-slate-600 bg-slate-100 rounded-full px-2 py-0.5 inline-flex items-center gap-1"><i data-lucide="loader" class="w-3 h-3"></i> en evaluación</span></td>
+            <td class="px-5 py-3 text-right"><button class="text-[11px] font-medium text-slate-600 border border-slate-200 rounded-lg px-2.5 py-1 hover:bg-slate-50">Ver</button></td>
+          </tr>
+          <tr class="hover:bg-slate-50/60">
+            <td class="px-5 py-3"><div class="font-semibold text-slate-800">Propolis Ampoule</div><div class="text-[11px] text-slate-400 truncate max-w-[220px]">Apuesta a temporada invierno · no despegó</div></td>
+            <td class="px-4 py-3 text-right tabular-nums font-medium text-slate-700">$ 520</td>
+            <td class="px-4 py-3"><div class="flex items-center gap-2"><div class="flex-1 h-1.5 rounded-full bg-slate-100 overflow-hidden"><div class="h-full bg-rose-500" style="width:14%"></div></div><span class="text-[11px] font-bold text-rose-700 tabular-nums">14%</span></div></td>
+            <td class="px-4 py-3"><span class="text-[11px] font-medium text-rose-600">sin movimiento</span></td>
+            <td class="px-4 py-3 text-right tabular-nums text-rose-600 font-medium">371</td>
+            <td class="px-4 py-3"><span class="text-[10px] font-bold text-rose-700 bg-rose-100 rounded-full px-2 py-0.5 inline-flex items-center gap-1"><i data-lucide="trending-down" class="w-3 h-3"></i> fallida</span></td>
+            <td class="px-5 py-3 text-right"><button class="text-[11px] font-semibold text-rose-700 bg-rose-50 border border-rose-200 hover:bg-rose-100 rounded-lg px-2.5 py-1 inline-flex items-center gap-1"><i data-lucide="archive" class="w-3 h-3"></i> Descontinuar</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="px-5 py-2.5 bg-slate-50/60 border-t border-slate-100 text-[11px] text-slate-400 flex items-center gap-1.5"><i data-lucide="info" class="w-3 h-3"></i> Todo derivado: cruza requerimientos subtipo=apuesta con productoIntel (rotación) + recuperación de CTRU. Cero campos nuevos en el producto.</div>
+  </div>
+</section>
+
+<!-- ═══════════════════ ACTO 7 · EMPTY / LOADING ═══════════════════ -->
+<section class="max-w-6xl mx-auto px-6 pb-12">
+  <div class="flex items-center gap-2 mb-3">
+    <span class="text-[11px] font-bold uppercase tracking-wider text-slate-600">Acto 7</span>
+    <span class="text-[13px] font-semibold text-slate-700">Estados del modal · empty / loading</span>
+  </div>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div class="bg-white rounded-2xl border border-slate-200 frame p-6 text-center">
+      <div class="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center mx-auto mb-3"><i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-600"></i></div>
+      <div class="text-[13px] font-semibold text-slate-800">Restock · sin recomendaciones</div>
+      <p class="text-[11px] text-slate-500 mt-1">Todo por encima del punto de reorden. El motor no sugiere nada — buena señal. (Cambiá a Manual para forzar.)</p>
+    </div>
+    <div class="bg-white rounded-2xl border border-slate-200 frame p-6 text-center">
+      <div class="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center mx-auto mb-3"><i data-lucide="microscope" class="w-5 h-5 text-amber-600"></i></div>
+      <div class="text-[13px] font-semibold text-slate-800">Apuesta · sin candidatos</div>
+      <p class="text-[11px] text-slate-500 mt-1">No hay productos investigados sin apostar.</p>
+      <button class="mt-3 text-[11px] font-semibold text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-1.5 inline-flex items-center gap-1.5"><i data-lucide="plus" class="w-3 h-3"></i> Investigar un producto</button>
+    </div>
+    <div class="bg-white rounded-2xl border border-slate-200 frame p-6">
+      <div class="text-[13px] font-semibold text-slate-800 mb-3">Loading · motor calculando</div>
+      <div class="space-y-2"><div class="h-10 rounded-lg bg-slate-100 animate-pulse"></div><div class="h-10 rounded-lg bg-slate-100 animate-pulse"></div><div class="h-10 rounded-lg bg-slate-100 animate-pulse"></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ ACTO 8 · MOBILE ═══════════════════ -->
+<section class="max-w-6xl mx-auto px-6 pb-14">
+  <div class="flex items-center gap-2 mb-4">
+    <span class="text-[11px] font-bold uppercase tracking-wider text-blue-700">Acto 8</span>
+    <span class="text-[13px] font-semibold text-slate-700">Mobile · 380px — el modal = bottom-sheet (canon FormModalV2) · radar = cards</span>
+  </div>
+  <div class="flex flex-wrap gap-6 justify-center">
+    <!-- mobile modal = bottom-sheet -->
+    <div class="phone bg-slate-200 rounded-[2rem] border-4 border-slate-800 frame overflow-hidden relative" style="height:560px">
+      <div class="bg-slate-800 h-6 flex items-center justify-center"><div class="w-20 h-1.5 rounded-full bg-slate-600"></div></div>
+      <!-- hub atenuado detrás -->
+      <div class="dim-hub px-3 py-2"><div class="text-[11px] font-semibold text-slate-700">Requerimientos</div><div class="mt-2 h-16 rounded-lg bg-white"></div><div class="mt-2 h-16 rounded-lg bg-white"></div></div>
+      <!-- bottom sheet -->
+      <div class="absolute bottom-0 inset-x-0 bg-white rounded-t-2xl modal-sh">
+        <div class="flex justify-center py-2"><div class="w-10 h-1 rounded-full bg-slate-300"></div></div>
+        <div class="px-3 pb-1 flex items-center justify-between"><div class="text-[12px] font-semibold text-slate-900">Nuevo requerimiento</div><i data-lucide="x" class="w-4 h-4 text-slate-400"></i></div>
+        <div class="px-3 py-2 flex gap-1.5 overflow-x-auto scrollbar-none">
+          <button class="text-[11px] font-semibold text-white bg-sky-600 rounded-full px-2.5 py-1 whitespace-nowrap">Restock</button>
+          <button class="text-[11px] text-slate-600 border border-slate-200 rounded-full px-2.5 py-1 whitespace-nowrap">Apuesta</button>
+          <button class="text-[11px] text-slate-600 border border-slate-200 rounded-full px-2.5 py-1 whitespace-nowrap">Manual</button>
+        </div>
+        <div class="px-3 pb-2 space-y-2 max-h-[230px] overflow-y-auto">
+          <div class="rounded-xl border border-sky-300 bg-sky-50/40 p-3">
+            <div class="flex items-center justify-between"><div class="text-[12px] font-semibold text-slate-800 truncate">CeraVe Crema 340g</div><input type="checkbox" checked class="rounded text-sky-600"></div>
+            <div class="text-[10px] text-slate-500 mt-1 tabular-nums">Disp <b class="text-rose-600">3</b> · Reorden 77 · pedir <b>150</b></div>
+          </div>
+          <div class="rounded-xl border border-slate-200 p-3">
+            <div class="flex items-center justify-between"><div class="text-[12px] font-semibold text-slate-800 truncate">Niacinamide 10%</div><input type="checkbox" class="rounded"></div>
+            <div class="text-[10px] text-slate-500 mt-1 tabular-nums">Disp <b class="text-amber-600">12</b> · Reorden 40 · pedir <b>60</b></div>
+          </div>
+        </div>
+        <div class="border-t border-slate-200 px-3 py-2.5 flex items-center justify-between" style="padding-bottom:calc(0.625rem + env(safe-area-inset-bottom))">
+          <div class="text-[11px] text-slate-500">1 sel · <b class="text-amber-700">$1,275</b></div>
+          <button class="text-[12px] font-semibold text-white bg-blue-600 rounded-lg px-3 py-2 inline-flex items-center gap-1"><i data-lucide="check" class="w-3.5 h-3.5"></i> Crear</button>
+        </div>
+      </div>
+    </div>
+    <!-- mobile radar -->
+    <div class="phone bg-white rounded-[2rem] border-4 border-slate-800 frame overflow-hidden">
+      <div class="bg-slate-800 h-6 flex items-center justify-center"><div class="w-20 h-1.5 rounded-full bg-slate-600"></div></div>
+      <div class="px-3 py-2 border-b border-slate-200 bg-slate-50 text-[11px] font-semibold text-slate-700">Radar de Apuestas</div>
+      <div class="p-3 space-y-2">
+        <div class="rounded-xl border border-slate-200 p-3">
+          <div class="flex items-center justify-between"><div class="text-[12px] font-semibold text-slate-800">Glow Serum</div><span class="text-[9px] font-bold text-emerald-700 bg-emerald-100 rounded-full px-1.5 py-0.5">acierto</span></div>
+          <div class="text-[10px] text-slate-400 mt-0.5 truncate">K-beauty en alza · sin competencia</div>
+          <div class="flex items-center gap-2 mt-2"><div class="flex-1 h-1.5 rounded-full bg-slate-100 overflow-hidden"><div class="h-full bg-emerald-500" style="width:100%"></div></div><span class="text-[10px] font-bold text-emerald-700 tabular-nums">118%</span></div>
+          <button class="w-full mt-2 text-[11px] font-semibold text-white bg-emerald-600 rounded-lg py-1.5 inline-flex items-center justify-center gap-1"><i data-lucide="award" class="w-3 h-3"></i> Graduar a catálogo</button>
+        </div>
+        <div class="rounded-xl border border-slate-200 p-3">
+          <div class="flex items-center justify-between"><div class="text-[12px] font-semibold text-slate-800">Propolis Ampoule</div><span class="text-[9px] font-bold text-rose-700 bg-rose-100 rounded-full px-1.5 py-0.5">fallida</span></div>
+          <div class="text-[10px] text-slate-400 mt-0.5">Día 371/365 · sin movimiento</div>
+          <div class="flex items-center gap-2 mt-2"><div class="flex-1 h-1.5 rounded-full bg-slate-100 overflow-hidden"><div class="h-full bg-rose-500" style="width:14%"></div></div><span class="text-[10px] font-bold text-rose-700 tabular-nums">14%</span></div>
+          <button class="w-full mt-2 text-[11px] font-semibold text-rose-700 bg-rose-50 border border-rose-200 rounded-lg py-1.5 inline-flex items-center justify-center gap-1"><i data-lucide="archive" class="w-3 h-3"></i> Descontinuar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ FOOTER · CHECKLIST ═══════════════════ -->
+<section class="max-w-6xl mx-auto px-6 pb-16">
+  <div class="bg-white rounded-2xl border border-slate-200 frame overflow-hidden">
+    <div class="px-5 py-3 border-b border-slate-200 bg-slate-50"><h2 class="text-[13px] font-semibold text-slate-700 flex items-center gap-2"><i data-lucide="check-square" class="w-4 h-4 text-blue-600"></i> Checklist de modelo · qué resuelve este mockup</h2></div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-px bg-slate-100 text-[12px]">
+      <div class="bg-white px-5 py-3 flex items-start gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600 mt-0.5"></i> "Nuevo requerimiento" <b>sigue siendo modal (FormModalV2)</b> sobre Requerimientos · mobile = bottom-sheet.</div>
+      <div class="bg-white px-5 py-3 flex items-start gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600 mt-0.5"></i> El <b>contenido</b> del modal pasa de búsqueda → <b>recomendaciones del motor</b> (restock) + candidatos investigados (apuesta).</div>
+      <div class="bg-white px-5 py-3 flex items-start gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600 mt-0.5"></i> Subtipo <b>derivado del modo</b> (no se elige restock/manual a mano).</div>
+      <div class="bg-white px-5 py-3 flex items-start gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600 mt-0.5"></i> <b>Candado de investigación</b> (≥1 proveedor + ≥1 competidor) para productos nuevos · elimina el tag vestigial.</div>
+      <div class="bg-white px-5 py-3 flex items-start gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600 mt-0.5"></i> <b>Radar de Apuestas</b> (tab del hub) · ciclo 365d · graduar / descontinuar · derivado (cero schema).</div>
+      <div class="bg-white px-5 py-3 flex items-start gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600 mt-0.5"></i> Borrador + descartar (canon de formularios) en el footer del modal.</div>
+      <div class="bg-white px-5 py-3 flex items-start gap-2 md:col-span-2"><i data-lucide="check" class="w-4 h-4 text-amber-600 mt-0.5"></i> <b>Header banking-grade · strip de 3 KPIs de decisión</b>: <span class="text-amber-700">Valor</span> (costo de producto · no landed · <code class="text-[11px] bg-slate-100 px-1 rounded">expectativa.costoEstimadoUSD</code>) · <span class="text-emerald-700">Margen proyectado</span> (vs precio competencia de investigación) · <span class="text-sky-700">Impacto en caja</span> (vs saldo disponible de <code class="text-[11px] bg-slate-100 px-1 rounded">cuentasPendientes</code>). Proveedor sugerido descartado.</div>
+    </div>
+    <div class="px-5 py-3 bg-amber-50/50 border-t border-amber-100 text-[12px] text-amber-900">
+      <b>Pendiente de tu validación:</b> ¿la <b>tab "Apuestas"</b> en el hub te cierra, o el radar va como sección del Resumen? · ¿el atajo "Crear" del §C abre el modal <b>pre-cargado con ese producto</b>? · umbral de graduación (CTRU 100% vs 120%) · ¿la <b>consolidación por proveedor</b> entra acá o se queda en el OCBuilder (ver nota abajo)?
+    </div>
+  </div>
+</section>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>

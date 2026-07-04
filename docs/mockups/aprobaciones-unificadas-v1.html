@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema de Aprobaciones Unificado · anclado en egresos</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { font-family: 'Inter', system-ui, sans-serif; }
+  .tabular-nums { font-variant-numeric: tabular-nums; }
+  body { background: #f1f5f9; }
+  .frame { box-shadow: 0 1px 3px rgba(15,23,42,.08), 0 8px 24px rgba(15,23,42,.06); }
+  .modal-sh { box-shadow: 0 10px 15px -3px rgba(15,23,42,.18), 0 20px 50px -12px rgba(15,23,42,.30); }
+  .scrollbar-none { scrollbar-width: none; }
+  .scrollbar-none::-webkit-scrollbar { display: none; }
+  .phone { width: 380px; }
+</style>
+</head>
+<body class="text-slate-800">
+
+<!-- HERO -->
+<header class="max-w-6xl mx-auto px-6 pt-10 pb-6">
+  <div class="flex flex-wrap items-center gap-2 mb-3">
+    <span class="text-[10px] font-bold uppercase tracking-wider bg-slate-200 text-slate-700 px-2 py-1 rounded-full">Transversal · iniciativa unificada</span>
+    <span class="text-[10px] font-bold uppercase tracking-wider bg-teal-100 text-teal-700 px-2 py-1 rounded-full">Anclado en EGRESOS</span>
+    <span class="text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full">Reusable · 1 servicio, N módulos</span>
+    <span class="text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-700 px-2 py-1 rounded-full">Reemplaza esquemas ad-hoc + limpia legacy</span>
+  </div>
+  <h1 class="text-2xl font-bold tracking-tight text-slate-900">Sistema de aprobaciones unificado</h1>
+  <p class="text-[13px] text-slate-500 mt-2 max-w-3xl leading-relaxed">
+    El control <b>no es del documento — es del EGRESO</b> (gasto comprometido / flujo de caja). Hoy cada módulo
+    reinventa su aprobación (requerimientos doble firma rota · OC solo confirma · <b>gastos y pagos egresan SIN autorización</b>).
+    El target: <b>un</b> control de autorización anclado en el compromiso de plata, <b>reusable</b> por requerimientos, gastos,
+    pagos, OC y adelantos — con bandeja única, visible en cada perfil, y conectado a la proyección de caja.
+  </p>
+</header>
+
+<!-- MODELO -->
+<section class="max-w-6xl mx-auto px-6 pb-10">
+  <div class="bg-white rounded-2xl border border-slate-200 frame overflow-hidden">
+    <div class="px-5 py-3 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+      <h2 class="text-[13px] font-semibold text-slate-700 flex items-center gap-2"><i data-lucide="shield-check" class="w-4 h-4 text-teal-600"></i> El modelo · el egreso decide</h2>
+      <span class="text-[10px] font-bold uppercase tracking-wide bg-emerald-600 text-white px-2 py-0.5 rounded-full">validado en chat</span>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-px bg-slate-100">
+      <div class="bg-white p-4">
+        <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1 flex items-center gap-1"><i data-lucide="anchor" class="w-3 h-3"></i> Ancla</div>
+        <div class="text-[12px] text-slate-600">El <b>gasto comprometido (landed)</b> del egreso. Un requerimiento, un gasto o un pago son <b>fuentes de egreso</b> — el mismo control aplica a todos.</div>
+      </div>
+      <div class="bg-white p-4">
+        <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1 flex items-center gap-1"><i data-lucide="sliders-horizontal" class="w-3 h-3"></i> Umbral + niveles</div>
+        <div class="text-[12px] text-slate-600"><b>≤ $1,000</b> → directo (autoridad del rol) · <b>&gt; $1,000</b> → <b>doble firma</b> (gerente + admin · 2 personas distintas). Configurable.</div>
+      </div>
+      <div class="bg-white p-4">
+        <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1 flex items-center gap-1"><i data-lucide="users" class="w-3 h-3"></i> Segregación</div>
+        <div class="text-[12px] text-slate-600">El que <b>solicita no firma lo suyo</b> (admin/gerente = excepción para lo chico). En la doble firma, las 2 firmas son de personas distintas.</div>
+      </div>
+    </div>
+    <div class="px-5 py-3 bg-teal-50/50 border-t border-teal-100 text-[12px] text-teal-900 flex flex-wrap items-center gap-x-4 gap-y-1">
+      <span class="font-semibold">Fuentes de egreso que lo consumen:</span>
+      <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-blue-500"></span> Requerimientos</span>
+      <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-teal-500"></span> Gastos</span>
+      <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-teal-500"></span> Pagos / Tesorería</span>
+      <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-blue-500"></span> Órdenes de compra</span>
+      <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-violet-500"></span> Adelantos de nómina</span>
+    </div>
+  </div>
+</section>
+
+<!-- ADHERENCIA HUB KIT -->
+<section class="max-w-6xl mx-auto px-6 pb-10">
+  <div class="bg-violet-50 rounded-2xl border border-violet-200 frame overflow-hidden">
+    <div class="px-5 py-3 border-b border-violet-200/70 bg-violet-100/40">
+      <h2 class="text-[13px] font-semibold text-violet-900 flex items-center gap-2"><i data-lucide="layout-dashboard" class="w-4 h-4 text-violet-700"></i> Cómo se inserta · nada es una página suelta (canon Hub Kit)</h2>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-px bg-violet-200/40 text-[12px]">
+      <div class="bg-violet-50 px-4 py-3"><b class="text-violet-900">Bandeja de aprobaciones</b><div class="text-violet-800 mt-0.5">= TAB del hub <b>"Mi bandeja"</b> (anatomía Hub Kit completa · Acto 1).</div></div>
+      <div class="bg-violet-50 px-4 py-3"><b class="text-violet-900">AprobacionModal</b><div class="text-violet-800 mt-0.5">= <b>modal encima</b> (overlay) · toma el color del módulo origen (Acto 2).</div></div>
+      <div class="bg-violet-50 px-4 py-3"><b class="text-violet-900">Política · Autoridad · Caja</b><div class="text-violet-800 mt-0.5">= <b>secciones dentro</b> de los hubs Configuración · Mi Perfil · Finanzas (Actos 4–6).</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 1 · BANDEJA (HUB "Mi bandeja") -->
+<section class="max-w-6xl mx-auto px-6 pb-12">
+  <div class="flex items-center gap-2 mb-3">
+    <span class="text-[11px] font-bold uppercase tracking-wider text-violet-700">Acto 1</span>
+    <span class="text-[13px] font-semibold text-slate-700">La bandeja = tab "Aprobaciones" del hub "Mi bandeja" (Hub Kit completo)</span>
+  </div>
+  <div class="bg-white rounded-2xl border border-slate-200 frame overflow-hidden">
+    <div class="border-b border-slate-200 px-6 py-2.5 bg-slate-50 flex items-center justify-between">
+      <div class="text-[11px] text-slate-500 flex items-center gap-1.5"><i data-lucide="home" class="w-3 h-3"></i> Inicio <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300"></i> Mi bandeja <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300"></i> <span class="text-slate-700 font-medium">Aprobaciones</span></div>
+      <span class="inline-flex items-center gap-1 text-[11px] font-medium text-violet-700 bg-violet-50 ring-1 ring-violet-200 rounded-full px-2 py-0.5"><i data-lucide="shield" class="w-3 h-3"></i> Vista personal · gerente</span>
+    </div>
+    <!-- header banking-grade -->
+    <div class="px-6 pt-5 pb-4 flex items-start justify-between gap-4 flex-wrap">
+      <div class="flex items-start gap-3">
+        <div class="w-11 h-11 rounded-xl bg-violet-50 ring-1 ring-violet-100 flex items-center justify-center"><i data-lucide="inbox" class="w-5 h-5 text-violet-600"></i></div>
+        <div><h3 class="text-lg font-semibold text-slate-900">Mi bandeja</h3><p class="text-[13px] text-slate-500 leading-snug">Lo que requiere tu acción · aprobaciones, tareas y avisos</p></div>
+      </div>
+      <button class="text-[12px] font-medium text-slate-600 bg-white border border-slate-200 rounded-lg px-3 py-1.5 hover:bg-slate-50 inline-flex items-center gap-1.5"><i data-lucide="settings-2" class="w-3.5 h-3.5"></i> Política de aprobaciones</button>
+    </div>
+    <!-- KPI strip -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-px bg-slate-100 border-y border-slate-200">
+      <div class="bg-white px-4 py-3"><div class="text-[10px] uppercase tracking-wide text-rose-600 font-bold">Esperan tu firma</div><div class="text-2xl font-bold text-rose-700 tabular-nums">4</div></div>
+      <div class="bg-white px-4 py-3"><div class="text-[10px] uppercase tracking-wide text-amber-600 font-bold">Comprometido en espera</div><div class="text-2xl font-bold text-amber-700 tabular-nums">$8.4<span class="text-amber-400">k</span></div></div>
+      <div class="bg-white px-4 py-3"><div class="text-[10px] uppercase tracking-wide text-violet-600 font-bold">Esperando 2ª firma</div><div class="text-2xl font-bold text-violet-700 tabular-nums">2</div></div>
+      <div class="bg-white px-4 py-3"><div class="text-[10px] uppercase tracking-wide text-slate-500 font-bold">Vs caja disponible</div><div class="text-2xl font-bold text-slate-900 tabular-nums">11<span class="text-slate-400">%</span></div></div>
+    </div>
+    <!-- tabs de sub-sección (Mi bandeja) -->
+    <div class="px-6 border-b border-slate-200 flex items-center gap-5 text-[13px] overflow-x-auto scrollbar-none">
+      <button class="py-2.5 border-b-2 border-violet-600 text-violet-700 font-semibold whitespace-nowrap inline-flex items-center gap-1.5">Aprobaciones <span class="text-[9px] font-bold bg-rose-100 text-rose-700 rounded-full px-1.5">4</span></button>
+      <button class="py-2.5 border-b-2 border-transparent text-slate-500 hover:text-slate-700 whitespace-nowrap">Tareas</button>
+      <button class="py-2.5 border-b-2 border-transparent text-slate-500 hover:text-slate-700 whitespace-nowrap">Notificaciones</button>
+    </div>
+    <!-- body · filtros + lista -->
+    <div class="px-6 py-2.5 flex items-center gap-1.5 overflow-x-auto scrollbar-none border-b border-slate-100 text-[11px]">
+      <button class="font-semibold text-white bg-slate-700 rounded-full px-2.5 py-1 whitespace-nowrap">Todos</button>
+      <button class="text-slate-600 border border-slate-200 rounded-full px-2.5 py-1 whitespace-nowrap">Requerimientos</button>
+      <button class="text-slate-600 border border-slate-200 rounded-full px-2.5 py-1 whitespace-nowrap">Gastos</button>
+      <button class="text-slate-600 border border-slate-200 rounded-full px-2.5 py-1 whitespace-nowrap">Pagos</button>
+      <button class="text-slate-600 border border-slate-200 rounded-full px-2.5 py-1 whitespace-nowrap">Adelantos</button>
+    </div>
+    <!-- lista -->
+    <div class="divide-y divide-slate-100">
+      <!-- requerimiento (blue) -->
+      <div class="px-6 py-3 flex items-center gap-3 hover:bg-slate-50/60">
+        <span class="w-9 h-9 rounded-xl bg-blue-50 ring-1 ring-blue-100 flex items-center justify-center flex-shrink-0"><i data-lucide="clipboard-list" class="w-4 h-4 text-blue-600"></i></span>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2"><span class="text-[10px] font-bold text-blue-700 bg-blue-50 rounded px-1.5 py-0.5">REQ</span><span class="text-[13px] font-semibold text-slate-800 truncate">REQ-2026-0188 · Demanda comprometida · cliente Rojas</span></div>
+          <div class="text-[11px] text-slate-500 mt-0.5">Pedido sin stock · 14 productos · solicitó <b>L. Pinto (ventas)</b> · hace 2h</div>
+        </div>
+        <div class="text-right flex-shrink-0 mr-2">
+          <div class="text-[10px] text-slate-400 uppercase tracking-wide">Comprometido</div>
+          <div class="text-[14px] font-bold text-amber-700 tabular-nums">$ 2,340 <span class="text-[9px] text-slate-400">landed</span></div>
+          <span class="text-[9px] font-bold text-violet-700 bg-violet-100 rounded-full px-1.5">requiere doble firma</span>
+        </div>
+        <div class="flex items-center gap-1.5 flex-shrink-0">
+          <button class="text-[12px] font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg px-3 py-1.5 inline-flex items-center gap-1"><i data-lucide="pen-line" class="w-3.5 h-3.5"></i> Firmar</button>
+          <button class="text-[12px] font-medium text-slate-500 border border-slate-200 rounded-lg px-2.5 py-1.5 hover:bg-slate-50">Ver</button>
+        </div>
+      </div>
+      <!-- gasto (teal) -->
+      <div class="px-6 py-3 flex items-center gap-3 hover:bg-slate-50/60">
+        <span class="w-9 h-9 rounded-xl bg-teal-50 ring-1 ring-teal-100 flex items-center justify-center flex-shrink-0"><i data-lucide="receipt" class="w-4 h-4 text-teal-600"></i></span>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2"><span class="text-[10px] font-bold text-teal-700 bg-teal-50 rounded px-1.5 py-0.5">GASTO</span><span class="text-[13px] font-semibold text-slate-800 truncate">GAS-2026-0421 · Servicio de marketing · Agencia Norte</span></div>
+          <div class="text-[11px] text-slate-500 mt-0.5">Gasto operativo · solicitó <b>M. Torres</b> · hace 5h</div>
+        </div>
+        <div class="text-right flex-shrink-0 mr-2">
+          <div class="text-[10px] text-slate-400 uppercase tracking-wide">Comprometido</div>
+          <div class="text-[14px] font-bold text-amber-700 tabular-nums">$ 1,500</div>
+          <span class="text-[9px] font-bold text-violet-700 bg-violet-100 rounded-full px-1.5">requiere doble firma</span>
+        </div>
+        <div class="flex items-center gap-1.5 flex-shrink-0">
+          <button class="text-[12px] font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg px-3 py-1.5 inline-flex items-center gap-1"><i data-lucide="pen-line" class="w-3.5 h-3.5"></i> Firmar</button>
+          <button class="text-[12px] font-medium text-slate-500 border border-slate-200 rounded-lg px-2.5 py-1.5 hover:bg-slate-50">Ver</button>
+        </div>
+      </div>
+      <!-- pago (teal) · esperando 2ª firma -->
+      <div class="px-6 py-3 flex items-center gap-3 hover:bg-slate-50/60 bg-violet-50/20">
+        <span class="w-9 h-9 rounded-xl bg-teal-50 ring-1 ring-teal-100 flex items-center justify-center flex-shrink-0"><i data-lucide="banknote" class="w-4 h-4 text-teal-600"></i></span>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2"><span class="text-[10px] font-bold text-teal-700 bg-teal-50 rounded px-1.5 py-0.5">PAGO</span><span class="text-[13px] font-semibold text-slate-800 truncate">Egreso a proveedor iHerb · OC-2026-0091</span></div>
+          <div class="text-[11px] text-slate-500 mt-0.5"><i data-lucide="check" class="w-3 h-3 inline text-emerald-500"></i> 1ª firma: <b>J. Pinto (admin)</b> · falta tu firma (gerente)</div>
+        </div>
+        <div class="text-right flex-shrink-0 mr-2">
+          <div class="text-[10px] text-slate-400 uppercase tracking-wide">Comprometido</div>
+          <div class="text-[14px] font-bold text-amber-700 tabular-nums">$ 4,200</div>
+        </div>
+        <div class="flex items-center gap-1.5 flex-shrink-0">
+          <button class="text-[12px] font-semibold text-white bg-violet-600 hover:bg-violet-700 rounded-lg px-3 py-1.5 inline-flex items-center gap-1"><i data-lucide="pen-line" class="w-3.5 h-3.5"></i> 2ª firma</button>
+          <button class="text-[12px] font-medium text-slate-500 border border-slate-200 rounded-lg px-2.5 py-1.5 hover:bg-slate-50">Ver</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 2 · MODAL REUSABLE -->
+<section class="max-w-6xl mx-auto px-6 pb-12">
+  <div class="flex items-center gap-2 mb-3">
+    <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-700">Acto 2</span>
+    <span class="text-[13px] font-semibold text-slate-700">El modal de aprobación REUSABLE · toma el color del módulo origen</span>
+  </div>
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <!-- modal sobre requerimiento (blue) -->
+    <div class="bg-slate-900/10 rounded-2xl p-4 frame">
+      <div class="text-[10px] font-bold uppercase tracking-wide text-slate-500 mb-2 flex items-center gap-1.5"><i data-lucide="layers" class="w-3 h-3"></i> Mismo componente · origen Requerimiento (azul)</div>
+      <div class="bg-white rounded-2xl border border-slate-200 modal-sh overflow-hidden">
+        <div class="border-b border-slate-200 px-5 py-3.5 flex items-start justify-between gap-3">
+          <div class="flex items-start gap-2.5">
+            <div class="w-9 h-9 rounded-xl bg-blue-50 ring-1 ring-blue-100 flex items-center justify-center"><i data-lucide="pen-line" class="w-4 h-4 text-blue-600"></i></div>
+            <div><h3 class="text-[14px] font-semibold text-slate-900">Aprobar egreso</h3><p class="text-[11px] text-slate-500">REQ-2026-0188 · requerimiento</p></div>
+          </div>
+          <button class="text-slate-400"><i data-lucide="x" class="w-4 h-4"></i></button>
+        </div>
+        <div class="px-5 py-3 space-y-3">
+          <div class="grid grid-cols-3 gap-2">
+            <div class="bg-amber-50 ring-1 ring-amber-200 rounded-xl px-2.5 py-2"><div class="text-[9px] uppercase tracking-wide text-amber-700 font-bold">Comprometido</div><div class="text-[15px] font-bold text-amber-900 tabular-nums">$2,340</div><div class="text-[9px] text-amber-600">landed</div></div>
+            <div class="bg-sky-50 ring-1 ring-sky-200 rounded-xl px-2.5 py-2"><div class="text-[9px] uppercase tracking-wide text-sky-700 font-bold">Impacto caja</div><div class="text-[15px] font-bold text-sky-900 tabular-nums">3%</div><div class="text-[9px] text-sky-600">entra · S/76k</div></div>
+            <div class="bg-violet-50 ring-1 ring-violet-200 rounded-xl px-2.5 py-2"><div class="text-[9px] uppercase tracking-wide text-violet-700 font-bold">Nivel</div><div class="text-[13px] font-bold text-violet-900">Doble firma</div><div class="text-[9px] text-violet-600">&gt; $1,000</div></div>
+          </div>
+          <div class="text-[11px] text-slate-500 bg-slate-50 rounded-lg p-2.5">Solicitó <b>L. Pinto (ventas)</b> · demanda comprometida del cliente Rojas (14 productos sin stock). Vos firmás como <b>gerente</b> · falta la firma del <b>admin</b>.</div>
+          <textarea rows="2" class="w-full text-[12px] border border-slate-200 rounded-lg px-3 py-2" placeholder="Comentario (opcional · obligatorio si rechazás)…"></textarea>
+        </div>
+        <div class="border-t border-slate-200 px-5 py-3 bg-slate-50 flex items-center justify-between gap-2">
+          <button class="text-[12px] font-medium text-rose-600 hover:text-rose-700 inline-flex items-center gap-1"><i data-lucide="x-circle" class="w-3.5 h-3.5"></i> Rechazar</button>
+          <div class="flex items-center gap-2">
+            <button class="text-[12px] font-medium text-slate-500 hover:text-slate-700 px-2 py-1.5">Devolver</button>
+            <button class="text-[12px] font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg px-3 py-1.5 inline-flex items-center gap-1"><i data-lucide="pen-line" class="w-3.5 h-3.5"></i> Firmar como gerente</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- mismo modal sobre gasto (teal) -->
+    <div class="bg-slate-900/10 rounded-2xl p-4 frame">
+      <div class="text-[10px] font-bold uppercase tracking-wide text-slate-500 mb-2 flex items-center gap-1.5"><i data-lucide="layers" class="w-3 h-3"></i> Mismo componente · origen Gasto (teal)</div>
+      <div class="bg-white rounded-2xl border border-slate-200 modal-sh overflow-hidden">
+        <div class="border-b border-slate-200 px-5 py-3.5 flex items-start justify-between gap-3">
+          <div class="flex items-start gap-2.5">
+            <div class="w-9 h-9 rounded-xl bg-teal-50 ring-1 ring-teal-100 flex items-center justify-center"><i data-lucide="pen-line" class="w-4 h-4 text-teal-600"></i></div>
+            <div><h3 class="text-[14px] font-semibold text-slate-900">Aprobar egreso</h3><p class="text-[11px] text-slate-500">GAS-2026-0421 · gasto</p></div>
+          </div>
+          <button class="text-slate-400"><i data-lucide="x" class="w-4 h-4"></i></button>
+        </div>
+        <div class="px-5 py-3 space-y-3">
+          <div class="grid grid-cols-3 gap-2">
+            <div class="bg-amber-50 ring-1 ring-amber-200 rounded-xl px-2.5 py-2"><div class="text-[9px] uppercase tracking-wide text-amber-700 font-bold">Comprometido</div><div class="text-[15px] font-bold text-amber-900 tabular-nums">$1,500</div></div>
+            <div class="bg-sky-50 ring-1 ring-sky-200 rounded-xl px-2.5 py-2"><div class="text-[9px] uppercase tracking-wide text-sky-700 font-bold">Impacto caja</div><div class="text-[15px] font-bold text-sky-900 tabular-nums">2%</div></div>
+            <div class="bg-violet-50 ring-1 ring-violet-200 rounded-xl px-2.5 py-2"><div class="text-[9px] uppercase tracking-wide text-violet-700 font-bold">Nivel</div><div class="text-[13px] font-bold text-violet-900">Doble firma</div></div>
+          </div>
+          <div class="text-[11px] text-slate-500 bg-slate-50 rounded-lg p-2.5">Gasto de marketing · Agencia Norte · solicitó <b>M. Torres</b>. <b>Idéntico flujo</b> que el requerimiento — el control es del egreso, no del documento.</div>
+        </div>
+        <div class="border-t border-slate-200 px-5 py-3 bg-slate-50 flex items-center justify-between gap-2">
+          <button class="text-[12px] font-medium text-rose-600 hover:text-rose-700 inline-flex items-center gap-1"><i data-lucide="x-circle" class="w-3.5 h-3.5"></i> Rechazar</button>
+          <button class="text-[12px] font-semibold text-white bg-teal-600 hover:bg-teal-700 rounded-lg px-3 py-1.5 inline-flex items-center gap-1"><i data-lucide="pen-line" class="w-3.5 h-3.5"></i> Firmar como gerente</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 3 · DOBLE FIRMA -->
+<section class="max-w-6xl mx-auto px-6 pb-12">
+  <div class="flex items-center gap-2 mb-3">
+    <span class="text-[11px] font-bold uppercase tracking-wider text-violet-700">Acto 3</span>
+    <span class="text-[13px] font-semibold text-slate-700">El flujo de doble firma (&gt; $1,000) · 2 personas distintas</span>
+  </div>
+  <div class="bg-white rounded-2xl border border-slate-200 frame p-6">
+    <div class="flex items-center gap-2 flex-wrap text-[12px]">
+      <div class="flex items-center gap-2 bg-slate-50 ring-1 ring-slate-200 rounded-xl px-3 py-2"><span class="w-6 h-6 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-[11px]">1</span> <div><div class="font-semibold text-slate-800">Solicitud</div><div class="text-[10px] text-slate-500">egreso &gt; $1,000 · queda "pendiente"</div></div></div>
+      <i data-lucide="arrow-right" class="w-4 h-4 text-slate-300"></i>
+      <div class="flex items-center gap-2 bg-emerald-50 ring-1 ring-emerald-200 rounded-xl px-3 py-2"><span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center"><i data-lucide="pen-line" class="w-3 h-3"></i></span> <div><div class="font-semibold text-slate-800">1ª firma (admin)</div><div class="text-[10px] text-slate-500">→ "esperando 2ª firma" · notifica al gerente</div></div></div>
+      <i data-lucide="arrow-right" class="w-4 h-4 text-slate-300"></i>
+      <div class="flex items-center gap-2 bg-violet-50 ring-1 ring-violet-200 rounded-xl px-3 py-2"><span class="w-6 h-6 rounded-full bg-violet-100 text-violet-700 flex items-center justify-center"><i data-lucide="pen-line" class="w-3 h-3"></i></span> <div><div class="font-semibold text-slate-800">2ª firma (gerente ≠ 1ª)</div><div class="text-[10px] text-slate-500">segregación garantizada</div></div></div>
+      <i data-lucide="arrow-right" class="w-4 h-4 text-slate-300"></i>
+      <div class="flex items-center gap-2 bg-emerald-600 text-white rounded-xl px-3 py-2"><i data-lucide="check-circle-2" class="w-4 h-4"></i> <div><div class="font-semibold">Aprobado</div><div class="text-[10px] text-emerald-100">el egreso se desbloquea · entra a la proyección de caja</div></div></div>
+    </div>
+    <p class="text-[11px] text-slate-400 mt-3">Si quien firma 1ª es admin/gerente y el monto ≤ $1,000, se aprueba solo (su autoridad). El umbral y los niveles salen de la Política (Acto 4).</p>
+  </div>
+</section>
+
+<!-- ACTO 4 · POLITICA + ACTO 5 · PERFIL -->
+<section class="max-w-6xl mx-auto px-6 pb-12 grid grid-cols-1 md:grid-cols-2 gap-4">
+  <!-- política -->
+  <div>
+    <div class="flex items-center gap-2 mb-3"><span class="text-[11px] font-bold uppercase tracking-wider text-slate-600">Acto 4</span><span class="text-[13px] font-semibold text-slate-700">Política · sección dentro del hub Configuración</span></div>
+    <div class="bg-white rounded-2xl border border-slate-200 frame overflow-hidden">
+      <div class="px-5 py-3 border-b border-slate-100 bg-slate-50 text-[12px] font-semibold text-slate-700 flex items-center gap-2"><i data-lucide="settings-2" class="w-4 h-4 text-slate-500"></i> Política de aprobaciones</div>
+      <div class="p-5 space-y-3 text-[12px]">
+        <div class="flex items-center justify-between"><span class="text-slate-600">Umbral "requiere autorización"</span><span class="font-bold text-slate-900 tabular-nums bg-slate-100 rounded px-2 py-0.5">$ 1,000 <span class="text-slate-400 font-normal">landed</span></span></div>
+        <div class="flex items-center justify-between"><span class="text-slate-600">≤ umbral</span><span class="text-emerald-700 font-medium">Directo (autoridad del rol)</span></div>
+        <div class="flex items-center justify-between"><span class="text-slate-600">&gt; umbral</span><span class="text-violet-700 font-medium">Doble firma · gerente + admin</span></div>
+        <div class="border-t border-slate-100 pt-3">
+          <div class="text-[10px] uppercase tracking-wide text-slate-400 font-bold mb-1.5">Tipos de egreso bajo control</div>
+          <div class="space-y-1.5">
+            <label class="flex items-center justify-between"><span class="text-slate-600">Requerimientos</span><span class="w-8 h-4 rounded-full bg-emerald-500 relative"><span class="absolute right-0.5 top-0.5 w-3 h-3 rounded-full bg-white"></span></span></label>
+            <label class="flex items-center justify-between"><span class="text-slate-600">Gastos</span><span class="w-8 h-4 rounded-full bg-emerald-500 relative"><span class="absolute right-0.5 top-0.5 w-3 h-3 rounded-full bg-white"></span></span></label>
+            <label class="flex items-center justify-between"><span class="text-slate-600">Pagos / Tesorería</span><span class="w-8 h-4 rounded-full bg-emerald-500 relative"><span class="absolute right-0.5 top-0.5 w-3 h-3 rounded-full bg-white"></span></span></label>
+            <label class="flex items-center justify-between"><span class="text-slate-600">Adelantos de nómina</span><span class="w-8 h-4 rounded-full bg-slate-300 relative"><span class="absolute left-0.5 top-0.5 w-3 h-3 rounded-full bg-white"></span></span></label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- perfil -->
+  <div>
+    <div class="flex items-center gap-2 mb-3"><span class="text-[11px] font-bold uppercase tracking-wider text-violet-700">Acto 5</span><span class="text-[13px] font-semibold text-slate-700">Mis autorizaciones · sección dentro del hub Mi Perfil</span></div>
+    <div class="bg-white rounded-2xl border border-slate-200 frame overflow-hidden">
+      <div class="px-5 py-3 border-b border-slate-100 bg-violet-50/40 text-[12px] font-semibold text-violet-800 flex items-center gap-2"><i data-lucide="badge-check" class="w-4 h-4 text-violet-600"></i> Tus autorizaciones</div>
+      <div class="p-5 space-y-3 text-[12px]">
+        <div class="text-slate-600">Como <b>gerente general</b>, sos <b>firmante</b> de:</div>
+        <div class="space-y-1.5">
+          <div class="flex items-center gap-2 bg-emerald-50 rounded-lg px-3 py-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> <span class="text-slate-700">Requerimientos · cualquier monto (firma del nivel)</span></div>
+          <div class="flex items-center gap-2 bg-emerald-50 rounded-lg px-3 py-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> <span class="text-slate-700">Gastos y pagos · cualquier monto</span></div>
+          <div class="flex items-center gap-2 bg-amber-50 rounded-lg px-3 py-2"><i data-lucide="info" class="w-3.5 h-3.5 text-amber-600"></i> <span class="text-slate-700">Tus propios egresos ≤ $1,000 los resolvés solo · &gt; $1,000 necesitan otra firma</span></div>
+        </div>
+        <div class="border-t border-slate-100 pt-3 flex items-center justify-between"><span class="text-slate-500">Esperan tu firma ahora</span><span class="text-[12px] font-bold text-rose-700 bg-rose-100 rounded-full px-2 py-0.5">4 · $8.4k</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTO 6 · FLUJO DE CAJA -->
+<section class="max-w-6xl mx-auto px-6 pb-12">
+  <div class="flex items-center gap-2 mb-3">
+    <span class="text-[11px] font-bold uppercase tracking-wider text-teal-700">Acto 6</span>
+    <span class="text-[13px] font-semibold text-slate-700">Conexión al flujo de caja · sección dentro del hub Finanzas · lo aprobado es plata que va a salir</span>
+  </div>
+  <div class="bg-white rounded-2xl border border-slate-200 frame p-6">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-[12px]">
+      <div class="bg-slate-50 rounded-xl p-4"><div class="text-[10px] uppercase tracking-wide text-slate-500 font-bold">Caja disponible</div><div class="text-2xl font-bold text-slate-900 tabular-nums">S/ 76,400</div></div>
+      <div class="bg-violet-50 ring-1 ring-violet-200 rounded-xl p-4"><div class="text-[10px] uppercase tracking-wide text-violet-700 font-bold">Egresos comprometidos (aprobados)</div><div class="text-2xl font-bold text-violet-700 tabular-nums">− S/ 31,800</div><div class="text-[10px] text-violet-600">requerimientos + gastos + pagos firmados</div></div>
+      <div class="bg-emerald-50 ring-1 ring-emerald-200 rounded-xl p-4"><div class="text-[10px] uppercase tracking-wide text-emerald-700 font-bold">Caja proyectada (neta)</div><div class="text-2xl font-bold text-emerald-700 tabular-nums">S/ 44,600</div></div>
+    </div>
+    <p class="text-[11px] text-slate-400 mt-3">Cada egreso <b>aprobado</b> descuenta la proyección automáticamente. Aprobar deja de ser un trámite suelto: es el momento en que la plata queda <b>comprometida</b> en el flujo de caja. En espera ($8.4k) aún no descuenta.</p>
+  </div>
+</section>
+
+<!-- ACTO 7 · MOBILE -->
+<section class="max-w-6xl mx-auto px-6 pb-14">
+  <div class="flex items-center gap-2 mb-4"><span class="text-[11px] font-bold uppercase tracking-wider text-slate-600">Acto 7</span><span class="text-[13px] font-semibold text-slate-700">Mobile · bandeja + firmar (bottom-sheet)</span></div>
+  <div class="flex flex-wrap gap-6 justify-center">
+    <div class="phone bg-white rounded-[2rem] border-4 border-slate-800 frame overflow-hidden">
+      <div class="bg-slate-800 h-6 flex items-center justify-center"><div class="w-20 h-1.5 rounded-full bg-slate-600"></div></div>
+      <div class="px-3 py-2 border-b border-slate-200 bg-slate-50 flex items-center justify-between"><span class="text-[11px] font-semibold text-slate-700">Aprobaciones</span><span class="text-[9px] font-bold text-rose-700 bg-rose-100 rounded-full px-1.5">4</span></div>
+      <div class="p-3 space-y-2">
+        <div class="rounded-xl border border-slate-200 p-3">
+          <div class="flex items-center gap-1.5"><span class="text-[9px] font-bold text-blue-700 bg-blue-50 rounded px-1">REQ</span><span class="text-[12px] font-semibold text-slate-800 truncate">REQ-0188 · Rojas</span></div>
+          <div class="text-[10px] text-slate-500 mt-1">$2,340 landed · <span class="text-violet-700 font-medium">doble firma</span></div>
+          <div class="flex gap-1.5 mt-2"><button class="flex-1 text-[11px] font-semibold text-white bg-emerald-600 rounded-lg py-1.5">Firmar</button><button class="text-[11px] text-slate-500 border border-slate-200 rounded-lg px-3 py-1.5">Ver</button></div>
+        </div>
+        <div class="rounded-xl border border-slate-200 p-3">
+          <div class="flex items-center gap-1.5"><span class="text-[9px] font-bold text-teal-700 bg-teal-50 rounded px-1">GASTO</span><span class="text-[12px] font-semibold text-slate-800 truncate">GAS-0421 · Marketing</span></div>
+          <div class="text-[10px] text-slate-500 mt-1">$1,500 · <span class="text-violet-700 font-medium">doble firma</span></div>
+          <div class="flex gap-1.5 mt-2"><button class="flex-1 text-[11px] font-semibold text-white bg-emerald-600 rounded-lg py-1.5">Firmar</button><button class="text-[11px] text-slate-500 border border-slate-200 rounded-lg px-3 py-1.5">Ver</button></div>
+        </div>
+      </div>
+    </div>
+    <div class="phone bg-slate-200 rounded-[2rem] border-4 border-slate-800 frame overflow-hidden relative" style="height:520px">
+      <div class="bg-slate-800 h-6 flex items-center justify-center"><div class="w-20 h-1.5 rounded-full bg-slate-600"></div></div>
+      <div class="absolute bottom-0 inset-x-0 bg-white rounded-t-2xl modal-sh">
+        <div class="flex justify-center py-2"><div class="w-10 h-1 rounded-full bg-slate-300"></div></div>
+        <div class="px-3 pb-2 flex items-center gap-2"><div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center"><i data-lucide="pen-line" class="w-4 h-4 text-blue-600"></i></div><div><div class="text-[12px] font-semibold text-slate-900">Aprobar egreso</div><div class="text-[10px] text-slate-500">REQ-0188</div></div></div>
+        <div class="px-3 py-2 grid grid-cols-3 gap-1.5">
+          <div class="bg-amber-50 rounded-lg px-2 py-1.5"><div class="text-[8px] uppercase text-amber-700 font-bold">Monto</div><div class="text-[12px] font-bold text-amber-900 tabular-nums">$2,340</div></div>
+          <div class="bg-sky-50 rounded-lg px-2 py-1.5"><div class="text-[8px] uppercase text-sky-700 font-bold">Caja</div><div class="text-[12px] font-bold text-sky-900 tabular-nums">3%</div></div>
+          <div class="bg-violet-50 rounded-lg px-2 py-1.5"><div class="text-[8px] uppercase text-violet-700 font-bold">Nivel</div><div class="text-[11px] font-bold text-violet-900">2 firmas</div></div>
+        </div>
+        <div class="px-3 pb-1"><div class="text-[10px] text-slate-500 bg-slate-50 rounded-lg p-2">Solicitó L. Pinto (ventas) · falta firma admin.</div></div>
+        <div class="border-t border-slate-200 px-3 py-2.5 flex items-center gap-2" style="padding-bottom:calc(0.625rem + env(safe-area-inset-bottom))">
+          <button class="text-[11px] font-medium text-rose-600">Rechazar</button>
+          <button class="flex-1 text-[12px] font-semibold text-white bg-blue-600 rounded-lg py-2 inline-flex items-center justify-center gap-1"><i data-lucide="pen-line" class="w-3.5 h-3.5"></i> Firmar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<section class="max-w-6xl mx-auto px-6 pb-16">
+  <div class="bg-white rounded-2xl border border-slate-200 frame overflow-hidden">
+    <div class="px-5 py-3 border-b border-slate-200 bg-slate-50"><h2 class="text-[13px] font-semibold text-slate-700 flex items-center gap-2"><i data-lucide="check-square" class="w-4 h-4 text-teal-600"></i> Qué resuelve · y qué limpia</h2></div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-px bg-slate-100 text-[12px]">
+      <div class="bg-white px-5 py-3 flex items-start gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600 mt-0.5"></i> <b>1 servicio + 1 modal reusable</b> (`aprobacionService` + `AprobacionModal`) para todos los egresos.</div>
+      <div class="bg-white px-5 py-3 flex items-start gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600 mt-0.5"></i> Cierra los <b>GAPS CRÍTICOS</b>: Gastos y Pagos/Tesorería dejan de egresar sin autorización.</div>
+      <div class="bg-white px-5 py-3 flex items-start gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600 mt-0.5"></i> <b>Bandeja única</b> (Mi bandeja) · autoridad visible en <b>Mi Perfil</b> · política en Configuración.</div>
+      <div class="bg-white px-5 py-3 flex items-start gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600 mt-0.5"></i> Umbral <b>$1,000 landed</b> · ≤ directo · &gt; doble firma · segregación garantizada.</div>
+      <div class="bg-white px-5 py-3 flex items-start gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-600 mt-0.5"></i> <b>Conectado al flujo de caja</b>: lo aprobado descuenta la proyección (egreso comprometido).</div>
+      <div class="bg-white px-5 py-3 flex items-start gap-2"><i data-lucide="trash-2" class="w-4 h-4 text-rose-500 mt-0.5"></i> <b>Limpia legacy</b>: absorbe `requerimiento.aprobaciones{}` ad-hoc · `AprobarAdelantoModal` que no persiste · duplicaciones (knip).</div>
+    </div>
+    <div class="px-5 py-3 bg-amber-50/50 border-t border-amber-100 text-[12px] text-amber-900">
+      <b>Pendiente de tu validación:</b> ¿el umbral queda en <b>$1,000</b> o vuelve a $500? · ¿la bandeja vive en <b>"Mi bandeja"</b> (como muestro) o querés una entrada propia "Aprobaciones" en el sidebar? · ¿migramos los 3 esquemas que YA tienen aprobación (requerimientos/devoluciones/usuarios) al unificado, o solo sumamos los que faltan (gastos/pagos)?
+    </div>
+  </div>
+</section>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>

@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mi Espacio + Aprobaciones · catálogo COMPLETO de modales y estados</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { font-family: 'Inter', system-ui, sans-serif; }
+  .tabular-nums { font-variant-numeric: tabular-nums; }
+  body { background: #f1f5f9; }
+  .frame { box-shadow: 0 1px 3px rgba(15,23,42,.08), 0 8px 24px rgba(15,23,42,.06); }
+  .modal-sh { box-shadow: 0 10px 15px -3px rgba(15,23,42,.18), 0 20px 50px -12px rgba(15,23,42,.30); }
+  .phone { width: 360px; }
+  .mhead { } /* placeholder */
+</style>
+</head>
+<body class="text-slate-800">
+
+<!-- HERO -->
+<header class="max-w-6xl mx-auto px-6 pt-10 pb-6">
+  <div class="flex flex-wrap items-center gap-2 mb-3">
+    <span class="text-[10px] font-bold uppercase tracking-wider bg-violet-100 text-violet-700 px-2 py-1 rounded-full">Cobertura total · canon 2026-05-27</span>
+    <span class="text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full">Todos los modales = FormModalV2 (overlay)</span>
+    <span class="text-[10px] font-bold uppercase tracking-wider bg-slate-200 text-slate-600 px-2 py-1 rounded-full">Color del módulo origen</span>
+  </div>
+  <h1 class="text-2xl font-bold tracking-tight text-slate-900">Mi Espacio + Aprobaciones · catálogo de modales y estados</h1>
+  <p class="text-[13px] text-slate-500 mt-2 max-w-3xl leading-relaxed">
+    Todo lo que se abre <b>encima</b> del hub "Mi espacio" — uno por modal, su <b>punto de lanzamiento</b> y su diseño target.
+    Las superficies (hub, tabs) ya están en <code class="text-[11px] bg-slate-100 px-1 rounded">mi-espacio-hub-v1</code> y <code class="text-[11px] bg-slate-100 px-1 rounded">aprobaciones-unificadas-v1</code>;
+    acá se completa la cobertura: <b>§A aprobación · §B personales · §C estados · §D mobile</b>.
+  </p>
+</header>
+
+<!-- ÍNDICE -->
+<section class="max-w-6xl mx-auto px-6 pb-8">
+  <div class="bg-white rounded-2xl border border-slate-200 frame overflow-hidden">
+    <div class="px-5 py-3 border-b border-slate-200 bg-slate-50"><h2 class="text-[13px] font-semibold text-slate-700 flex items-center gap-2"><i data-lucide="list" class="w-4 h-4 text-violet-600"></i> 12 superficies</h2></div>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-px bg-slate-100 text-[11px]">
+      <div class="bg-white px-3 py-2">§A1 · Firmar (1 firma)</div>
+      <div class="bg-white px-3 py-2">§A2 · Doble firma · esperando 2ª</div>
+      <div class="bg-white px-3 py-2">§A3 · Rechazar (motivo)</div>
+      <div class="bg-white px-3 py-2">§A4 · Devolver (pedir info)</div>
+      <div class="bg-white px-3 py-2">§A5 · Detalle del egreso</div>
+      <div class="bg-white px-3 py-2">§B1 · Editar perfil</div>
+      <div class="bg-white px-3 py-2">§B2 · Seguridad / acceso</div>
+      <div class="bg-white px-3 py-2">§B3 · Detalle de boleta</div>
+      <div class="bg-white px-3 py-2">§B4 · Solicitar adelanto</div>
+      <div class="bg-white px-3 py-2">§B5 · Detalle de capital</div>
+      <div class="bg-white px-3 py-2">§C · Empty / loading / error</div>
+      <div class="bg-white px-3 py-2">§D · Mobile (bottom-sheet)</div>
+    </div>
+  </div>
+</section>
+
+<!-- §A · APROBACIÓN -->
+<section class="max-w-6xl mx-auto px-6 pb-4">
+  <h2 class="text-[13px] font-bold uppercase tracking-wide text-violet-700 flex items-center gap-2 mb-1"><i data-lucide="shield-check" class="w-4 h-4"></i> §A · Modales de aprobación (reusables · 1 componente, N egresos)</h2>
+  <p class="text-[12px] text-slate-500 mb-4">Se lanzan desde la tab Bandeja (botón Firmar / 2ª firma) o desde el detalle de cualquier egreso. El header toma el color del módulo origen.</p>
+</section>
+<section class="max-w-6xl mx-auto px-6 pb-12 grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+  <!-- §A1 · FIRMAR -->
+  <div>
+    <div class="text-[11px] font-bold text-slate-600 mb-2">§A1 · Firmar · lanzado desde "Firmar" en la bandeja</div>
+    <div class="bg-white rounded-2xl border border-slate-200 modal-sh overflow-hidden">
+      <div class="border-b border-slate-200 px-5 py-3.5 flex items-start justify-between">
+        <div class="flex items-start gap-2.5"><div class="w-9 h-9 rounded-xl bg-blue-50 ring-1 ring-blue-100 flex items-center justify-center"><i data-lucide="pen-line" class="w-4 h-4 text-blue-600"></i></div><div><h3 class="text-[14px] font-semibold text-slate-900">Aprobar egreso</h3><p class="text-[11px] text-slate-500">REQ-2026-0188 · requerimiento</p></div></div>
+        <button class="text-slate-400"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <div class="px-5 py-3 space-y-3">
+        <div class="grid grid-cols-3 gap-2">
+          <div class="bg-amber-50 ring-1 ring-amber-200 rounded-xl px-2.5 py-2"><div class="text-[9px] uppercase text-amber-700 font-bold">Comprometido</div><div class="text-[15px] font-bold text-amber-900 tabular-nums">$2,340</div><div class="text-[9px] text-amber-600">landed</div></div>
+          <div class="bg-sky-50 ring-1 ring-sky-200 rounded-xl px-2.5 py-2"><div class="text-[9px] uppercase text-sky-700 font-bold">Impacto caja</div><div class="text-[15px] font-bold text-sky-900 tabular-nums">3%</div></div>
+          <div class="bg-violet-50 ring-1 ring-violet-200 rounded-xl px-2.5 py-2"><div class="text-[9px] uppercase text-violet-700 font-bold">Nivel</div><div class="text-[12px] font-bold text-violet-900">Doble firma</div></div>
+        </div>
+        <div class="text-[11px] text-slate-500 bg-slate-50 rounded-lg p-2.5">Solicitó <b>L. Pinto (ventas)</b> · cliente Rojas sin stock. <a class="text-blue-600 font-medium">Ver detalle del egreso →</a></div>
+      </div>
+      <div class="border-t border-slate-200 px-5 py-3 bg-slate-50 flex items-center justify-between">
+        <button class="text-[12px] font-medium text-rose-600 inline-flex items-center gap-1"><i data-lucide="x-circle" class="w-3.5 h-3.5"></i> Rechazar</button>
+        <div class="flex items-center gap-2"><button class="text-[12px] text-slate-500 px-2 py-1.5">Devolver</button><button class="text-[12px] font-semibold text-white bg-blue-600 rounded-lg px-3 py-1.5 inline-flex items-center gap-1"><i data-lucide="pen-line" class="w-3.5 h-3.5"></i> Firmar como gerente</button></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- §A2 · ESPERANDO 2ª FIRMA -->
+  <div>
+    <div class="text-[11px] font-bold text-slate-600 mb-2">§A2 · Doble firma · esperando la 2ª (tras la 1ª firma)</div>
+    <div class="bg-white rounded-2xl border border-slate-200 modal-sh overflow-hidden">
+      <div class="border-b border-slate-200 px-5 py-3.5 flex items-start justify-between">
+        <div class="flex items-start gap-2.5"><div class="w-9 h-9 rounded-xl bg-violet-50 ring-1 ring-violet-100 flex items-center justify-center"><i data-lucide="pen-line" class="w-4 h-4 text-violet-600"></i></div><div><h3 class="text-[14px] font-semibold text-slate-900">Segunda firma</h3><p class="text-[11px] text-slate-500">PAGO · egreso a iHerb · OC-0091</p></div></div>
+        <button class="text-slate-400"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <div class="px-5 py-3 space-y-3">
+        <div class="bg-emerald-50 ring-1 ring-emerald-200 rounded-lg p-2.5 flex items-center gap-2 text-[12px] text-emerald-900"><i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600 flex-shrink-0"></i> <b>1ª firma:</b> J. Pinto (admin) · hace 1h</div>
+        <div class="grid grid-cols-2 gap-2">
+          <div class="bg-amber-50 ring-1 ring-amber-200 rounded-xl px-2.5 py-2"><div class="text-[9px] uppercase text-amber-700 font-bold">Comprometido</div><div class="text-[15px] font-bold text-amber-900 tabular-nums">$4,200</div></div>
+          <div class="bg-slate-50 ring-1 ring-slate-200 rounded-xl px-2.5 py-2"><div class="text-[9px] uppercase text-slate-500 font-bold">Falta</div><div class="text-[12px] font-bold text-slate-700">Tu firma (gerente)</div></div>
+        </div>
+        <p class="text-[10px] text-slate-400">Segregación: vos sos persona distinta de la 1ª firma ✓</p>
+      </div>
+      <div class="border-t border-slate-200 px-5 py-3 bg-slate-50 flex items-center justify-between">
+        <button class="text-[12px] font-medium text-rose-600 inline-flex items-center gap-1"><i data-lucide="x-circle" class="w-3.5 h-3.5"></i> Rechazar</button>
+        <button class="text-[12px] font-semibold text-white bg-violet-600 rounded-lg px-3 py-1.5 inline-flex items-center gap-1"><i data-lucide="check-check" class="w-3.5 h-3.5"></i> Firmar y aprobar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- §A3 · RECHAZAR -->
+  <div>
+    <div class="text-[11px] font-bold text-slate-600 mb-2">§A3 · Rechazar · motivo obligatorio</div>
+    <div class="bg-white rounded-2xl border border-slate-200 modal-sh overflow-hidden">
+      <div class="border-b border-slate-200 px-5 py-3.5 flex items-start justify-between">
+        <div class="flex items-start gap-2.5"><div class="w-9 h-9 rounded-xl bg-rose-50 ring-1 ring-rose-100 flex items-center justify-center"><i data-lucide="x-circle" class="w-4 h-4 text-rose-600"></i></div><div><h3 class="text-[14px] font-semibold text-slate-900">Rechazar egreso</h3><p class="text-[11px] text-slate-500">REQ-2026-0188 · $2,340</p></div></div>
+        <button class="text-slate-400"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <div class="px-5 py-3 space-y-2">
+        <label class="text-[11px] font-bold uppercase tracking-wide text-rose-700">Motivo del rechazo (obligatorio)</label>
+        <textarea rows="3" class="w-full text-[12px] border border-rose-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-rose-500/40" placeholder="Ej. el cliente no confirmó adelanto · margen insuficiente · falta investigación…"></textarea>
+        <p class="text-[10px] text-slate-400">El solicitante recibe el motivo por notificación. El egreso queda "rechazado" (no se compra).</p>
+      </div>
+      <div class="border-t border-slate-200 px-5 py-3 bg-slate-50 flex items-center justify-end gap-2">
+        <button class="text-[12px] text-slate-500 px-3 py-1.5">Cancelar</button>
+        <button class="text-[12px] font-semibold text-white bg-rose-600 rounded-lg px-3 py-1.5 inline-flex items-center gap-1"><i data-lucide="x-circle" class="w-3.5 h-3.5"></i> Confirmar rechazo</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- §A4 · DEVOLVER -->
+  <div>
+    <div class="text-[11px] font-bold text-slate-600 mb-2">§A4 · Devolver · pedir info al solicitante (sin rechazar)</div>
+    <div class="bg-white rounded-2xl border border-slate-200 modal-sh overflow-hidden">
+      <div class="border-b border-slate-200 px-5 py-3.5 flex items-start justify-between">
+        <div class="flex items-start gap-2.5"><div class="w-9 h-9 rounded-xl bg-amber-50 ring-1 ring-amber-100 flex items-center justify-center"><i data-lucide="undo-2" class="w-4 h-4 text-amber-600"></i></div><div><h3 class="text-[14px] font-semibold text-slate-900">Devolver al solicitante</h3><p class="text-[11px] text-slate-500">para ajustes · no es rechazo</p></div></div>
+        <button class="text-slate-400"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <div class="px-5 py-3 space-y-2">
+        <label class="text-[11px] font-bold uppercase tracking-wide text-amber-700">Qué falta / qué ajustar</label>
+        <textarea rows="3" class="w-full text-[12px] border border-amber-200 rounded-lg px-3 py-2" placeholder="Ej. adjuntá la investigación de mercado · confirmá el adelanto del cliente…"></textarea>
+        <p class="text-[10px] text-slate-400">Vuelve a "pendiente" con tu comentario · el solicitante corrige y reenvía.</p>
+      </div>
+      <div class="border-t border-slate-200 px-5 py-3 bg-slate-50 flex items-center justify-end gap-2">
+        <button class="text-[12px] text-slate-500 px-3 py-1.5">Cancelar</button>
+        <button class="text-[12px] font-semibold text-white bg-amber-600 rounded-lg px-3 py-1.5 inline-flex items-center gap-1"><i data-lucide="undo-2" class="w-3.5 h-3.5"></i> Devolver</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- §A5 · DETALLE DEL EGRESO -->
+  <div class="lg:col-span-2">
+    <div class="text-[11px] font-bold text-slate-600 mb-2">§A5 · Detalle del egreso · qué estás aprobando (drill desde "Ver detalle")</div>
+    <div class="bg-white rounded-2xl border border-slate-200 modal-sh overflow-hidden max-w-3xl">
+      <div class="border-b border-slate-200 px-5 py-3.5 flex items-start justify-between">
+        <div class="flex items-start gap-2.5"><div class="w-9 h-9 rounded-xl bg-blue-50 ring-1 ring-blue-100 flex items-center justify-center"><i data-lucide="clipboard-list" class="w-4 h-4 text-blue-600"></i></div><div><h3 class="text-[14px] font-semibold text-slate-900">REQ-2026-0188 · detalle</h3><p class="text-[11px] text-slate-500">Demanda comprometida · cliente Rojas · sin stock</p></div></div>
+        <button class="text-slate-400"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <div class="px-5 py-3">
+        <div class="overflow-x-auto"><table class="w-full text-[12px] min-w-[480px]">
+          <thead class="text-[10px] uppercase tracking-wide text-slate-400"><tr><th class="text-left font-semibold py-1.5">Producto</th><th class="text-right font-semibold py-1.5">Cant</th><th class="text-right font-semibold py-1.5">Costo u.</th><th class="text-right font-semibold py-1.5">Línea</th></tr></thead>
+          <tbody class="divide-y divide-slate-100">
+            <tr><td class="py-2 text-slate-700">CeraVe Crema 340g</td><td class="py-2 text-right tabular-nums">40</td><td class="py-2 text-right tabular-nums">$8.50</td><td class="py-2 text-right tabular-nums font-medium">$340</td></tr>
+            <tr><td class="py-2 text-slate-700">Glow Serum</td><td class="py-2 text-right tabular-nums">60</td><td class="py-2 text-right tabular-nums">$9.00</td><td class="py-2 text-right tabular-nums font-medium">$540</td></tr>
+            <tr><td class="py-2 text-slate-400 italic" colspan="4">+12 productos más…</td></tr>
+          </tbody>
+          <tfoot class="border-t border-slate-200 text-[12px]"><tr><td class="py-2 font-semibold text-slate-700" colspan="3">Costo de producto</td><td class="py-2 text-right font-bold tabular-nums">$1,980</td></tr><tr><td class="py-1 text-slate-500" colspan="3">+ flete + impuesto (landed)</td><td class="py-1 text-right tabular-nums text-amber-700 font-bold">$2,340</td></tr></tfoot>
+        </table></div>
+      </div>
+      <div class="border-t border-slate-200 px-5 py-3 bg-slate-50 flex items-center justify-between">
+        <span class="text-[11px] text-slate-500">tesis / justificación · investigación de mercado · cliente</span>
+        <button class="text-[12px] font-semibold text-white bg-blue-600 rounded-lg px-3 py-1.5 inline-flex items-center gap-1"><i data-lucide="pen-line" class="w-3.5 h-3.5"></i> Firmar</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- §B · PERSONALES -->
+<section class="max-w-6xl mx-auto px-6 pb-4">
+  <h2 class="text-[13px] font-bold uppercase tracking-wide text-violet-700 flex items-center gap-2 mb-1"><i data-lucide="user" class="w-4 h-4"></i> §B · Modales personales (tabs Perfil · Planilla · Capital)</h2>
+  <p class="text-[12px] text-slate-500 mb-4">Lo que se abre desde las otras tabs del hub "Mi espacio".</p>
+</section>
+<section class="max-w-6xl mx-auto px-6 pb-12 grid grid-cols-1 lg:grid-cols-2 gap-5">
+  <!-- §B1 editar perfil -->
+  <div>
+    <div class="text-[11px] font-bold text-slate-600 mb-2">§B1 · Editar perfil (tab Perfil)</div>
+    <div class="bg-white rounded-2xl border border-slate-200 modal-sh overflow-hidden">
+      <div class="border-b border-slate-200 px-5 py-3.5 flex items-center gap-2.5"><div class="w-9 h-9 rounded-xl bg-violet-50 flex items-center justify-center"><i data-lucide="user-cog" class="w-4 h-4 text-violet-600"></i></div><h3 class="text-[14px] font-semibold text-slate-900">Editar mi perfil</h3></div>
+      <div class="px-5 py-3 space-y-2.5 text-[12px]">
+        <div><label class="text-[10px] uppercase tracking-wide text-slate-400 font-bold">Nombre</label><input value="José Luis Pinto" class="w-full mt-0.5 border border-slate-200 rounded-lg px-3 py-2"></div>
+        <div class="grid grid-cols-2 gap-2"><div><label class="text-[10px] uppercase tracking-wide text-slate-400 font-bold">Teléfono</label><input value="+51 9xx" class="w-full mt-0.5 border border-slate-200 rounded-lg px-3 py-2"></div><div><label class="text-[10px] uppercase tracking-wide text-slate-400 font-bold">Foto</label><button class="w-full mt-0.5 border border-slate-200 rounded-lg px-3 py-2 text-slate-500 text-left">Cambiar…</button></div></div>
+      </div>
+      <div class="border-t border-slate-200 px-5 py-3 bg-slate-50 flex justify-end gap-2"><button class="text-[12px] text-slate-500 px-3 py-1.5">Cancelar</button><button class="text-[12px] font-semibold text-white bg-violet-600 rounded-lg px-3 py-1.5">Guardar</button></div>
+    </div>
+  </div>
+  <!-- §B2 seguridad -->
+  <div>
+    <div class="text-[11px] font-bold text-slate-600 mb-2">§B2 · Seguridad / métodos de inicio (tab Perfil)</div>
+    <div class="bg-white rounded-2xl border border-slate-200 modal-sh overflow-hidden">
+      <div class="border-b border-slate-200 px-5 py-3.5 flex items-center gap-2.5"><div class="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center"><i data-lucide="lock" class="w-4 h-4 text-slate-600"></i></div><h3 class="text-[14px] font-semibold text-slate-900">Seguridad y acceso</h3></div>
+      <div class="px-5 py-3 space-y-2 text-[12px]">
+        <div class="flex items-center justify-between border border-slate-200 rounded-lg px-3 py-2"><span class="flex items-center gap-2"><i data-lucide="mail" class="w-4 h-4 text-slate-400"></i> Email + contraseña</span><span class="text-emerald-600 text-[11px] font-medium">activo</span></div>
+        <div class="flex items-center justify-between border border-slate-200 rounded-lg px-3 py-2"><span class="flex items-center gap-2"><i data-lucide="chrome" class="w-4 h-4 text-slate-400"></i> Google</span><button class="text-[11px] text-blue-600 font-medium">Vincular</button></div>
+        <button class="w-full text-[12px] font-medium text-slate-600 border border-slate-200 rounded-lg py-2 mt-1">Cambiar contraseña</button>
+      </div>
+      <div class="border-t border-slate-200 px-5 py-3 bg-slate-50 flex justify-end"><button class="text-[12px] text-slate-500 px-3 py-1.5">Cerrar</button></div>
+    </div>
+  </div>
+  <!-- §B3 boleta -->
+  <div>
+    <div class="text-[11px] font-bold text-slate-600 mb-2">§B3 · Detalle de boleta (tab Mi planilla)</div>
+    <div class="bg-white rounded-2xl border border-slate-200 modal-sh overflow-hidden">
+      <div class="border-b border-slate-200 px-5 py-3.5 flex items-center gap-2.5"><div class="w-9 h-9 rounded-xl bg-violet-50 flex items-center justify-center"><i data-lucide="briefcase" class="w-4 h-4 text-violet-600"></i></div><div><h3 class="text-[14px] font-semibold text-slate-900">Boleta · junio 2026</h3><p class="text-[11px] text-slate-500">tu liquidación</p></div></div>
+      <div class="px-5 py-3 space-y-1.5 text-[12px]">
+        <div class="flex justify-between"><span class="text-slate-500">Sueldo base</span><span class="tabular-nums">S/ 2,500</span></div>
+        <div class="flex justify-between"><span class="text-slate-500">Comisión</span><span class="tabular-nums text-emerald-700">+ S/ 920</span></div>
+        <div class="flex justify-between"><span class="text-slate-500">Descuentos</span><span class="tabular-nums text-rose-600">− S/ 340</span></div>
+        <div class="flex justify-between border-t border-slate-100 pt-1.5 font-bold"><span>Neto</span><span class="tabular-nums">S/ 3,080</span></div>
+      </div>
+      <div class="border-t border-slate-200 px-5 py-3 bg-slate-50 flex justify-between"><button class="text-[12px] text-slate-600 inline-flex items-center gap-1"><i data-lucide="download" class="w-3.5 h-3.5"></i> PDF</button><button class="text-[12px] text-slate-500 px-3 py-1.5">Cerrar</button></div>
+    </div>
+  </div>
+  <!-- §B4 adelanto -->
+  <div>
+    <div class="text-[11px] font-bold text-slate-600 mb-2">§B4 · Solicitar adelanto (tab Mi planilla)</div>
+    <div class="bg-white rounded-2xl border border-slate-200 modal-sh overflow-hidden">
+      <div class="border-b border-slate-200 px-5 py-3.5 flex items-center gap-2.5"><div class="w-9 h-9 rounded-xl bg-amber-50 flex items-center justify-center"><i data-lucide="hand-coins" class="w-4 h-4 text-amber-600"></i></div><h3 class="text-[14px] font-semibold text-slate-900">Solicitar adelanto</h3></div>
+      <div class="px-5 py-3 space-y-2.5 text-[12px]">
+        <div><label class="text-[10px] uppercase tracking-wide text-slate-400 font-bold">Monto</label><input value="S/ 500" class="w-full mt-0.5 border border-slate-200 rounded-lg px-3 py-2 tabular-nums"></div>
+        <div><label class="text-[10px] uppercase tracking-wide text-slate-400 font-bold">Motivo</label><textarea rows="2" class="w-full mt-0.5 border border-slate-200 rounded-lg px-3 py-2"></textarea></div>
+        <div class="text-[10px] text-amber-700 bg-amber-50 rounded p-2 flex items-center gap-1.5"><i data-lucide="info" class="w-3.5 h-3.5"></i> Requiere aprobación (entra a la bandeja del aprobador).</div>
+      </div>
+      <div class="border-t border-slate-200 px-5 py-3 bg-slate-50 flex justify-end gap-2"><button class="text-[12px] text-slate-500 px-3 py-1.5">Cancelar</button><button class="text-[12px] font-semibold text-white bg-amber-600 rounded-lg px-3 py-1.5">Solicitar</button></div>
+    </div>
+  </div>
+  <!-- §B5 capital -->
+  <div class="lg:col-span-2">
+    <div class="text-[11px] font-bold text-slate-600 mb-2">§B5 · Detalle de capital / movimiento (tab Mi capital · solo socios)</div>
+    <div class="bg-white rounded-2xl border border-slate-200 modal-sh overflow-hidden max-w-2xl">
+      <div class="border-b border-slate-200 px-5 py-3.5 flex items-center gap-2.5"><div class="w-9 h-9 rounded-xl bg-violet-50 flex items-center justify-center"><i data-lucide="coins" class="w-4 h-4 text-violet-600"></i></div><div><h3 class="text-[14px] font-semibold text-slate-900">Mi capital · detalle</h3><p class="text-[11px] text-slate-500">aporte + retorno</p></div></div>
+      <div class="px-5 py-3 grid grid-cols-3 gap-2 text-[12px]">
+        <div class="bg-slate-50 rounded-lg p-2.5"><div class="text-[9px] uppercase text-slate-400 font-bold">Aportado</div><div class="text-[15px] font-bold tabular-nums">$ 12,000</div></div>
+        <div class="bg-emerald-50 rounded-lg p-2.5"><div class="text-[9px] uppercase text-emerald-600 font-bold">Equity</div><div class="text-[15px] font-bold text-emerald-700 tabular-nums">8.5%</div></div>
+        <div class="bg-amber-50 rounded-lg p-2.5"><div class="text-[9px] uppercase text-amber-600 font-bold">Retorno acum.</div><div class="text-[15px] font-bold text-amber-700 tabular-nums">$ 3,200</div></div>
+      </div>
+      <div class="border-t border-slate-200 px-5 py-3 bg-slate-50 flex justify-end"><button class="text-[12px] text-slate-500 px-3 py-1.5">Cerrar</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- §C · ESTADOS + §D MOBILE -->
+<section class="max-w-6xl mx-auto px-6 pb-12">
+  <h2 class="text-[13px] font-bold uppercase tracking-wide text-violet-700 flex items-center gap-2 mb-3"><i data-lucide="layers" class="w-4 h-4"></i> §C · Estados de la bandeja &nbsp;·&nbsp; §D · Mobile (modal = bottom-sheet)</h2>
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div class="bg-white rounded-2xl border border-slate-200 frame p-5 text-center"><div class="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center mx-auto mb-2"><i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-600"></i></div><div class="text-[12px] font-semibold text-slate-800">Empty</div><p class="text-[11px] text-slate-500 mt-1">"Nada pendiente · estás al día."</p></div>
+    <div class="bg-white rounded-2xl border border-slate-200 frame p-5"><div class="text-[12px] font-semibold text-slate-800 mb-2">Loading</div><div class="space-y-2"><div class="h-9 rounded-lg bg-slate-100 animate-pulse"></div><div class="h-9 rounded-lg bg-slate-100 animate-pulse"></div></div></div>
+    <div class="bg-white rounded-2xl border border-slate-200 frame p-5 text-center"><div class="w-10 h-10 rounded-xl bg-rose-50 flex items-center justify-center mx-auto mb-2"><i data-lucide="alert-triangle" class="w-5 h-5 text-rose-600"></i></div><div class="text-[12px] font-semibold text-slate-800">Error</div><button class="mt-2 text-[11px] font-semibold text-rose-700 bg-rose-50 border border-rose-200 rounded-lg px-3 py-1.5">Reintentar</button></div>
+    <!-- mobile bottom-sheet -->
+    <div class="flex justify-center">
+      <div class="phone bg-slate-200 rounded-[1.8rem] border-4 border-slate-800 frame overflow-hidden relative" style="height:300px;width:170px">
+        <div class="bg-slate-800 h-4 flex items-center justify-center"><div class="w-12 h-1 rounded-full bg-slate-600"></div></div>
+        <div class="absolute bottom-0 inset-x-0 bg-white rounded-t-2xl modal-sh">
+          <div class="flex justify-center py-1.5"><div class="w-8 h-1 rounded-full bg-slate-300"></div></div>
+          <div class="px-2.5 pb-1 text-[11px] font-semibold text-slate-900">Aprobar egreso</div>
+          <div class="px-2.5 grid grid-cols-2 gap-1"><div class="bg-amber-50 rounded px-1.5 py-1"><div class="text-[7px] uppercase text-amber-700 font-bold">Monto</div><div class="text-[11px] font-bold tabular-nums">$2,340</div></div><div class="bg-violet-50 rounded px-1.5 py-1"><div class="text-[7px] uppercase text-violet-700 font-bold">Nivel</div><div class="text-[9px] font-bold text-violet-900">2 firmas</div></div></div>
+          <div class="border-t border-slate-200 px-2.5 py-2 flex gap-1.5 mt-1"><button class="text-[10px] text-rose-600">Rechazar</button><button class="flex-1 text-[11px] font-semibold text-white bg-blue-600 rounded-lg py-1.5">Firmar</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<section class="max-w-6xl mx-auto px-6 pb-16">
+  <div class="bg-white rounded-2xl border border-slate-200 frame overflow-hidden">
+    <div class="px-5 py-3 border-b border-slate-200 bg-slate-50"><h2 class="text-[13px] font-semibold text-slate-700 flex items-center gap-2"><i data-lucide="check-square" class="w-4 h-4 text-violet-600"></i> Cobertura · todo lo que se visualiza en la zona</h2></div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-px bg-slate-100 text-[12px]">
+      <div class="bg-white px-5 py-3"><b>Hub + tabs</b><div class="text-slate-500 mt-0.5">mi-espacio-hub-v1 (Perfil · Planilla · Capital · Bandeja)</div></div>
+      <div class="bg-white px-5 py-3"><b>Bandeja completa</b><div class="text-slate-500 mt-0.5">aprobaciones-unificadas-v1 (lista · doble firma · política · caja)</div></div>
+      <div class="bg-white px-5 py-3"><b>Modales + estados</b><div class="text-slate-500 mt-0.5">este mockup (§A aprobación · §B personales · §C estados · §D mobile)</div></div>
+    </div>
+    <div class="px-5 py-3 bg-amber-50/50 border-t border-amber-100 text-[12px] text-amber-900"><b>Nota:</b> todos los modales = FormModalV2 (overlay · mobile bottom-sheet) · el de aprobación es <b>1 solo componente reusable</b> que cambia de color según el egreso origen. Banner "Borrador" donde aplique (solicitar adelanto). ¿Falta alguna superficie de esta zona que quieras ver?</div>
+  </div>
+</section>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>
