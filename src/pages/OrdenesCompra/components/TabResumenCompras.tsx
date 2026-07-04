@@ -1,10 +1,13 @@
 import React, { useMemo } from 'react';
 import {
   AlertTriangle, CheckCircle2, PieChart, Activity, Clock, Building2,
-  ArrowLeftRight, Plus, ClipboardList, Truck, ArrowRight, ShoppingCart,
+  Plus, ClipboardList, Truck, ArrowRight, ShoppingCart,
   UserCheck, PenLine, GitMerge, ChevronRight, FileText, PackageSearch, CreditCard,
   Info, CalendarClock, Plug, ShieldAlert, Layers, Bell,
 } from 'lucide-react';
+// Acto 16 · calendario de caja + FX MIGRARON al tab Impacto financiero (adjudicación
+// no-redundancia 3) · aquí solo queda el teaser de 1 línea (misma fuente de cálculo).
+import { calcularCalendarioCajaCompras, calcularExposicionFxCompras } from '../impactoCompras.helper';
 import type { OrdenCompra, OrdenCompraStats, Proveedor } from '../../../types/ordenCompra.types';
 import type { Requerimiento } from '../../../types/requerimiento.types';
 import { useProductoIntelStore } from '../../../store/productoIntelStore';
@@ -36,7 +39,7 @@ interface TabResumenComprasProps {
   radar: RadarAtrasadosResult;
   esSocio: boolean;
   onNuevaOC: () => void;
-  onIrTab: (tab: 'ordenes' | 'pendientes' | 'inteligencia') => void;
+  onIrTab: (tab: 'ordenes' | 'pendientes' | 'impacto' | 'inteligencia') => void;
   onFiltrarEstado: (estado: string) => void;
   onFiltrarProveedor: (proveedorId: string) => void;
   onVerOC: (oc: OrdenCompra) => void;
@@ -183,29 +186,15 @@ export const TabResumenCompras: React.FC<TabResumenComprasProps> = ({
   }, [activas]);
 
   // ── % cumplimiento de pago (§C · base LINE-AWARE: comprometido y pendiente sobre el MISMO set
-  //    filtrado por Línea · antes comprometido salía de stats GLOBAL e inflaba el % al filtrar línea) ──
+  //    filtrado por Línea · antes comprometido salía de stats GLOBAL e inflaba el % al filtrar línea).
+  //    c52e904 · base = COMPROMETIDAS (un borrador no es deuda · el pendiente del strip ya los excluye) ──
   const cumplimientoPago = useMemo(() => {
-    const comprometido = activas.reduce((s, o) => s + (o.totalUSD || 0), 0);
+    const comprometido = comprometidas.reduce((s, o) => s + (o.totalUSD || 0), 0);
     const pendiente = statsExtra.montoPendienteUSD;
     const pagado = Math.max(0, comprometido - pendiente);
     const pct = comprometido > 0 ? Math.round((pagado / comprometido) * 100) : 100;
     return { pct, comprometido, pendiente, pagado };
-  }, [statsExtra, activas]);
-
-  // ── Exposición FX · OCs sin pagar · tcCompra histórico vs hoy (§C) ──
-  const fx = useMemo(() => {
-    if (!tcHoy) return { impactoPEN: 0, hayTC: false };
-    let impactoPEN = 0;
-    for (const o of comprometidas) {
-      if (o.estadoPago === 'pagado') continue;
-      const tcRef = o.tcReferencial || o.tcCompra;
-      if (!tcRef) continue;
-      const pendienteUSD = o.montoPendiente ? o.montoPendiente / tcRef : (o.totalUSD || 0);
-      if (pendienteUSD <= 0) continue;
-      impactoPEN += pendienteUSD * (tcHoy - tcRef); // >0 = pagar hoy cuesta más PEN (pérdida)
-    }
-    return { impactoPEN: Math.round(impactoPEN), hayTC: true };
-  }, [activas, tcHoy]);
+  }, [statsExtra, comprometidas]);
 
   // ── OCs demoradas · proxy local (en tránsito > 21 días) para el banner de salud ──
   const demoradas = useMemo(
@@ -222,7 +211,8 @@ export const TabResumenCompras: React.FC<TabResumenComprasProps> = ({
   // En curso = grupo 'confirmada' (lo que filtra el click) · Por recibir = grupo 'en_despacho'.
   const enCurso = useMemo(() => activas.filter((o) => ESTADOS_CONFIRMADA.includes(o.estado)), [activas]);
   const porRecibir = useMemo(() => activas.filter((o) => ESTADOS_EN_DESPACHO.includes(o.estado)), [activas]);
-  const porPagar = useMemo(() => activas.filter((o) => o.estadoPago === 'pendiente' || o.estadoPago === 'parcial'), [activas]);
+  // c52e904 · "por pagar" es agregado de dinero → sobre COMPROMETIDAS (un borrador no es deuda).
+  const porPagar = useMemo(() => comprometidas.filter((o) => o.estadoPago === 'pendiente' || o.estadoPago === 'parcial'), [comprometidas]);
 
   const pipeline = useMemo(() => {
     const montoUSD = (lista: OrdenCompra[]) => lista.reduce((s, o) => s + (o.totalUSD || 0), 0);
@@ -238,24 +228,14 @@ export const TabResumenCompras: React.FC<TabResumenComprasProps> = ({
     };
   }, [activas, resPendientes, enCurso, porRecibir, radar.resumen.badge, statsExtra]);
 
-  // ── §C · Calendario / escalonado de caja (próximas salidas) ──
-  // HONESTIDAD: no existe campo de fecha de vencimiento de pago de OC. Estimamos buckets por la
-  // antigüedad de la OC sin pagar (proxy de cuándo vence el saldo) · rotulado "estimación".
-  const calendarioCaja = useMemo(() => {
-    let d7 = 0, d15 = 0, d30 = 0;
-    for (const o of porPagar) {
-      const tcRef = o.tcReferencial || o.tcCompra || tcHoy || 1;
-      const pendUSD = o.montoPendiente ? o.montoPendiente / tcRef : (o.totalUSD || 0);
-      if (pendUSD <= 0.01) continue;
-      const dias = diasDesde(o.fechaCreacion) ?? 0;
-      // Heurística: más antigua = vence antes (más urgente).
-      if (dias > 21) d7 += pendUSD;
-      else if (dias > 10) d15 += pendUSD;
-      else d30 += pendUSD;
-    }
-    const max = Math.max(d7, d15, d30, 1);
-    return { d7, d15, d30, max, hayDatos: d7 + d15 + d30 > 0 };
-  }, [porPagar, tcHoy]);
+  // ── Teaser de 1 línea · caja próxima + FX (Acto 16 · adjudicación no-redundancia 3) ──
+  // El DETALLE (calendario de caja + exposición FX) MIGRÓ al tab Impacto financiero ·
+  // fuente única de cálculo = impactoCompras.helper (no se re-implementa aquí).
+  const cajaFxTeaser = useMemo(() => {
+    const cal = calcularCalendarioCajaCompras(ordenes);
+    const fx = calcularExposicionFxCompras(ordenes, tcHoy);
+    return { d7: cal.d7, hayCaja: cal.hayDatos, deltaPct: fx.deltaPct };
+  }, [ordenes, tcHoy]);
 
   // ── §C · Concentración × riesgo SRM · % del gasto en proveedores condicionales/sin evaluar ──
   // Deriva de la clasificación SRM (evaluacion.clasificacion · C6). "En riesgo" = condicional +
@@ -579,10 +559,10 @@ export const TabResumenCompras: React.FC<TabResumenComprasProps> = ({
             </div>
           </div>
 
-          {/* §C · INSIGHTS · row 1: lead/concentración/cumplimiento/FX (preservados) */}
+          {/* §C · INSIGHTS · row 1: lead/concentración/cumplimiento (FX migró al tab Impacto · Acto 16) */}
           <div>
             <div className="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2 ml-1">Insights del mes</div>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
               {/* Lead time · desglose REAL por pierna (proveedor + viajero · del scorecard leadTimePiernas
                   que el radar ya computa). El mockup pedía tránsito/aduana pero ese corte NO es computable
                   (sin timestamp de aduana) → proveedor/viajero es el desglose honesto con el dato que existe.
@@ -615,42 +595,12 @@ export const TabResumenCompras: React.FC<TabResumenComprasProps> = ({
                 <div className="text-[18px] font-bold tabular-nums text-slate-900">{cumplimientoPago.pct}<span className="text-slate-400">%</span></div>
                 <div className="text-[11px] text-slate-500 leading-snug">pagado vs total adeudado</div>
               </div>
-              {/* FX */}
-              <div className="bg-white border border-slate-200 rounded-xl p-3">
-                <div className="flex items-center gap-1.5 mb-1"><ArrowLeftRight className="w-3.5 h-3.5 text-amber-600" /><span className="text-[10px] uppercase tracking-wider text-amber-700 font-bold">FX acumulado</span></div>
-                {fx.hayTC ? (
-                  <div className={`text-[18px] font-bold tabular-nums ${fx.impactoPEN > 0 ? 'text-rose-700' : fx.impactoPEN < 0 ? 'text-emerald-700' : 'text-slate-900'}`}>
-                    {fx.impactoPEN > 0 ? '− ' : fx.impactoPEN < 0 ? '+ ' : ''}{fmtPEN(fx.impactoPEN)}
-                  </div>
-                ) : (
-                  <div className="text-[18px] font-bold tabular-nums text-slate-400">—</div>
-                )}
-                <div className="text-[11px] text-slate-500 leading-snug">TC compra vs hoy (sin pagar)</div>
-              </div>
             </div>
           </div>
 
-          {/* §C · INSIGHTS · row 2 · calendario de caja + concentración×riesgo + mix origen */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
-            {/* CALENDARIO/ESCALONADO DE CAJA · de montoPendiente+antigüedad · estimación */}
-            <div className="bg-white border border-slate-200 rounded-xl p-4">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-1.5"><CalendarClock className="w-3.5 h-3.5 text-amber-600" /><span className="text-[10px] uppercase tracking-wider text-amber-700 font-bold">Próximas salidas de caja</span></div>
-                <span className="text-[9px] font-bold text-amber-600 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded inline-flex items-center gap-1"><Plug className="w-2.5 h-2.5" /> estimación</span>
-              </div>
-              {calendarioCaja.hayDatos ? (
-                <div className="space-y-1.5">
-                  <div className="flex items-center justify-between"><span className="text-[11px] text-slate-600">Próximos <b className="text-slate-800">7d</b></span><span className="text-[13px] font-bold tabular-nums text-rose-700">{fmtUSD(calendarioCaja.d7)}</span></div>
-                  <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-rose-400 rounded-full" style={{ width: `${(calendarioCaja.d7 / calendarioCaja.max) * 100}%` }} /></div>
-                  <div className="flex items-center justify-between"><span className="text-[11px] text-slate-600"><b className="text-slate-800">15d</b></span><span className="text-[13px] font-bold tabular-nums text-amber-700">{fmtUSD(calendarioCaja.d15)}</span></div>
-                  <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-amber-400 rounded-full" style={{ width: `${(calendarioCaja.d15 / calendarioCaja.max) * 100}%` }} /></div>
-                  <div className="flex items-center justify-between"><span className="text-[11px] text-slate-600"><b className="text-slate-800">30d</b></span><span className="text-[13px] font-bold tabular-nums text-slate-700">{fmtUSD(calendarioCaja.d30)}</span></div>
-                  <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-slate-400 rounded-full" style={{ width: `${(calendarioCaja.d30 / calendarioCaja.max) * 100}%` }} /></div>
-                </div>
-              ) : (
-                <div className="text-[11px] text-slate-400 leading-snug py-2">Sin saldos por pagar · no hay salidas de caja proyectadas</div>
-              )}
-            </div>
+          {/* §C · INSIGHTS · row 2 · concentración×riesgo + mix origen
+              (el calendario de caja migró al tab Impacto financiero · Acto 16 · queda el teaser del aside) */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
             {/* CONCENTRACIÓN × RIESGO · TEASER comprimido (22% + barra riesgo/ok) */}
             <div className="bg-white border border-slate-200 rounded-xl p-4">
               <div className="flex items-center gap-1.5 mb-2"><ShieldAlert className="w-3.5 h-3.5 text-rose-600" /><span className="text-[10px] uppercase tracking-wider text-rose-700 font-bold">Compra × riesgo SRM</span></div>
@@ -769,6 +719,13 @@ export const TabResumenCompras: React.FC<TabResumenComprasProps> = ({
               </button>
             </div>
             <div className="mt-2 text-[9px] text-slate-400 flex items-start gap-1.5"><Info className="w-3 h-3 flex-shrink-0 mt-0.5" /><span>Requerimientos = calcularPendientesCompra · ROP = motor stockReorden (cifra al abrir Stock).</span></div>
+          </div>
+
+          {/* teaser 1-línea · calendario de caja + FX migraron a Impacto financiero (adjudicación no-redundancia 3) */}
+          <div className="bg-white border border-slate-200 rounded-xl px-4 py-2.5 flex items-center gap-2 text-[11px] text-slate-600">
+            <CalendarClock className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />
+            <span className="truncate">Caja 7 días: <b className="tabular-nums text-slate-800">{cajaFxTeaser.hayCaja ? fmtUSD(cajaFxTeaser.d7) : '$0'}</b> · FX <b className="tabular-nums text-slate-800">{cajaFxTeaser.deltaPct !== null ? `${cajaFxTeaser.deltaPct >= 0 ? '+' : ''}${cajaFxTeaser.deltaPct.toFixed(1)}%` : '—'}</b></span>
+            <button type="button" onClick={() => onIrTab('impacto')} className="ml-auto flex items-center gap-1 text-blue-700 font-semibold whitespace-nowrap cursor-pointer">Impacto financiero <ArrowRight className="w-3 h-3" /></button>
           </div>
 
         </aside>

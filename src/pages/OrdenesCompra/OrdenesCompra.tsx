@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import { Plus, Package, DollarSign, AlertCircle, Download, ExternalLink, FileText, Truck, CheckCircle, CreditCard, Building2, ShoppingCart, LayoutDashboard, ClipboardList, BrainCircuit, PlaneLanding, Filter, X } from 'lucide-react';
+import { Plus, Package, DollarSign, AlertCircle, Download, ExternalLink, FileText, Truck, CheckCircle, CreditCard, Building2, ShoppingCart, LayoutDashboard, ClipboardList, BrainCircuit, PlaneLanding, Filter, X, Coins } from 'lucide-react';
 import { Modal, useConfirmDialog, ConfirmDialog, useActionModal, ActionModal } from '../../components/common';
 // Control GLOBAL de línea de negocio (canon · va en el chrome del header · OC-POB-4)
 import { LineaDropdown } from '../../components/common/LineaDropdown';
@@ -18,6 +18,7 @@ import { CompraCard } from '../../components/modules/ordenCompra/CompraCard';
 import { SubOrdenDetailModal } from '../../components/modules/ordenCompra/SubOrdenDetailModal';
 import { TabResumenCompras } from './components/TabResumenCompras';
 import { TabPendientesCompras } from './components/TabPendientesCompras';
+import { TabImpactoCompras } from './components/TabImpactoCompras';
 import { TabInteligenciaCompras } from './components/TabInteligenciaCompras';
 import { TabLlegadas } from './components/TabLlegadas';
 import { useRadarAtrasados } from './useRadarAtrasados';
@@ -203,7 +204,8 @@ export const OrdenesCompra: React.FC = () => {
   const [filtroEstado, setFiltroEstado] = useState<string | null>(null);
   // chk5.COMERCIALES-F1 · tab activa del hub · default 'ordenes' hasta que la Fase 1b construya el Resumen §A→§F
   // COMERCIALES · Fase 1 (Llegadas) · 6ª tab agregada.
-  const [tabActiva, setTabActiva] = useState<'resumen' | 'ordenes' | 'pendientes' | 'inteligencia' | 'llegadas'>('resumen');
+  // Acto 16 (2026-07-03) · tab 'impacto' = lente de dinero read-only (4ª posición · tras Pendientes).
+  const [tabActiva, setTabActiva] = useState<'resumen' | 'ordenes' | 'pendientes' | 'impacto' | 'inteligencia' | 'llegadas'>('resumen');
   const [isOCBuilderOpen, setIsOCBuilderOpen] = useState(false);
   const [ocBuilderReqs, setOcBuilderReqs] = useState<Requerimiento[]>([]);
   // Incidencias cross-OC (listAll) · fetch ÚNICO en el padre (NO por-tab · perf) · alimenta los tabs
@@ -334,7 +336,10 @@ export const OrdenesCompra: React.FC = () => {
         compradoMesUSD += (o.totalUSD || 0);
         compradoMesCount++;
       }
-      if (o.estadoPago === 'pendiente' || o.estadoPago === 'parcial') {
+      // c52e904 + Acto 16 (Impacto financiero) · un BORRADOR no es deuda: el débito en CC
+      // nace al confirmar → los agregados de dinero "Por pagar" del strip EXCLUYEN
+      // borradores (su golpe se ve en la simulación §C del tab Impacto financiero).
+      if (o.estado !== 'borrador' && (o.estadoPago === 'pendiente' || o.estadoPago === 'parcial')) {
         // S55 Fase 2 — usamos `montoPendiente` denormalizado (mantenido por
         // ordenCompra.pagos.service al registrar pagos). Si no está, asumimos
         // total pendiente. Para detalle de pagos individuales se consulta CC.
@@ -436,7 +441,8 @@ export const OrdenesCompra: React.FC = () => {
       if (o.estado === 'cancelada') continue;
       count++;
       total += o.totalUSD || 0;
-      if (o.estadoPago === 'pendiente' || o.estadoPago === 'parcial') {
+      // Coherencia c52e904 · un borrador no es deuda → no suma al "por pagar" del resumen filtrado.
+      if (o.estado !== 'borrador' && (o.estadoPago === 'pendiente' || o.estadoPago === 'parcial')) {
         const tcRef = o.tcReferencial || o.tcCompra || 1;
         const pendiente = o.montoPendiente ? o.montoPendiente / tcRef : (o.totalUSD || 0);
         if (pendiente > 0.01) porPagar += pendiente;
@@ -1050,6 +1056,8 @@ export const OrdenesCompra: React.FC = () => {
     { id: 'resumen', label: 'Resumen', icon: LayoutDashboard },
     { id: 'ordenes', label: 'Órdenes', icon: Package },
     { id: 'pendientes', label: 'Pendientes', icon: ClipboardList },
+    // Acto 16 · lente de dinero read-only (deuda · simulación borradores · pérdidas · reclamos · caja/FX).
+    { id: 'impacto', label: 'Impacto financiero', icon: Coins },
     { id: 'inteligencia', label: 'Inteligencia', icon: BrainCircuit },
     // 6ª tab · badge = atrasados severo+crítico (los que demandan acción · resumen.badge).
     { id: 'llegadas', label: 'Llegadas', icon: PlaneLanding, badge: radar.resumen.badge || undefined },
@@ -1315,6 +1323,19 @@ export const OrdenesCompra: React.FC = () => {
           />
         )}
 
+
+        {/* ═══ TAB IMPACTO FINANCIERO · lente de dinero de SOLO-LECTURA (Acto 16) ═══ */}
+        {tabActiva === 'impacto' && (
+          <TabImpactoCompras
+            ordenes={ordenesLN}
+            statsExtra={statsExtra}
+            tcHoy={tcSugerido}
+            envios={envios}
+            incidencias={incidencias}
+            onNuevaOC={() => setIsWizardV2Open(true)}
+            navigate={navigate}
+          />
+        )}
 
         {/* ═══ TAB INTELIGENCIA · vista agregada de compra (ranking SKU · precios · competitividad) ═══ */}
         {tabActiva === 'inteligencia' && (
