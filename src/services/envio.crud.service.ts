@@ -173,6 +173,34 @@ export const envioCrudService = {
   },
 
   /**
+   * Despachos F (Caso F · última milla) de una venta: `ventaId` + `destinoTipo='cliente'`.
+   * Reemplaza al legacy `entregaService.getByVenta` en el modelo único de despacho.
+   */
+  async getByVenta(ventaId: string): Promise<Envio[]> {
+    const q = query(
+      collection(db, COLL),
+      where('ventaId', '==', ventaId),
+      where('destinoTipo', '==', 'cliente'),
+    );
+    const snap = await getDocs(q);
+    return snap.docs.map(d => ({ id: d.id, ...d.data() } as Envio));
+  },
+
+  /**
+   * Despachos F pendientes de salir ('programada'/'reprogramada'), todas las ventas.
+   * Reemplaza al legacy `entregaService.getProgramadas` (escáner DespachoML).
+   */
+  async getDespachosProgramados(): Promise<Envio[]> {
+    const q = query(
+      collection(db, COLL),
+      where('destinoTipo', '==', 'cliente'),
+      where('estado', 'in', ['programada', 'reprogramada']),
+    );
+    const snap = await getDocs(q);
+    return snap.docs.map(d => ({ id: d.id, ...d.data() } as Envio));
+  },
+
+  /**
    * Envíos cuyo ORIGEN es este proveedor (`origenTipo='proveedor'` + `origenProveedorId`).
    * Es la fuente AUTORITATIVA de las fechas reales por pierna (despacho proveedor → entrega
    * en casilla) que consolida el scorecard de lead-time. Envíos es el dueño de las fechas;

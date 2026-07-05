@@ -7,7 +7,6 @@ import type {
   EstadoPago,
   MetodoPago,
   PagoVenta,
-  EntregaParcial,
   VentaStats,
   ProductoDisponible,
   ResultadoAsignacion,
@@ -52,11 +51,6 @@ interface VentaState {
   actualizarFechaEstimadaProducto: (ventaId: string, productoId: string, fechaEstimada: Date, notas?: string, userId?: string) => Promise<void>;
   marcarEnEntrega: (id: string, userId: string, datos?: any) => Promise<void>;
   marcarEntregada: (id: string, userId: string) => Promise<void>;
-  registrarEntregaParcial: (id: string, userId: string, datos?: {
-    direccionEntrega?: string;
-    notasEntrega?: string;
-    productosAEntregar?: Array<{ productoId: string; cantidad: number }>;
-  }) => Promise<EntregaParcial>;
   cancelarVenta: (id: string, userId: string, motivo?: string) => Promise<void>;
   deleteVenta: (id: string) => Promise<void>;
   fetchStats: () => Promise<void>;
@@ -304,26 +298,6 @@ export const useVentaStore = create<VentaState>((set, get) => ({
       }
 
       set({ loading: false });
-    } catch (error: any) {
-      set({ error: error.message, loading: false });
-      throw error;
-    }
-  },
-
-  registrarEntregaParcial: async (id, userId, datos) => {
-    set({ loading: true, error: null });
-    try {
-      const entrega = await VentaService.registrarEntregaParcial(id, userId, datos);
-      await get().fetchVentas();
-      await get().fetchStats();
-      await get().fetchProductosDisponibles();
-
-      if (get().selectedVenta?.id === id) {
-        await get().fetchVentaById(id);
-      }
-
-      set({ loading: false });
-      return entrega;
     } catch (error: any) {
       set({ error: error.message, loading: false });
       throw error;

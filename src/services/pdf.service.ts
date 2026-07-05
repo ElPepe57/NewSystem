@@ -1,8 +1,48 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import QRCode from 'qrcode';
-import type { Entrega } from '../types/entrega.types';
+import type { MetodoPago } from '../types/venta.types';
 import { ConfiguracionService } from './configuracion.service';
+
+/** Producto para el PDF de despacho (guía / cargo). */
+export interface DespachoPDFProducto {
+  marca: string;
+  nombreComercial: string;
+  cantidad: number;
+  precioUnitario: number;
+  subtotal: number;
+}
+
+/**
+ * DTO de entrada para los PDF de despacho (guía de transportista + cargo de cliente).
+ * Subconjunto que los generadores consumen. Antes se tipaba con la entidad `Entrega`
+ * (deprecada · modelo único Envío); ahora se arma desde (Venta + Envío F) en el call-site.
+ */
+export interface DespachoPDFData {
+  codigo: string;
+  numeroVenta: string;
+  numeroEntrega: number;
+  totalEntregas?: number;
+  nombreTransportista: string;
+  nombreCliente: string;
+  telefonoCliente?: string;
+  direccionEntrega: string;
+  distrito?: string;
+  provincia?: string;
+  codigoPostal?: string;
+  referencia?: string;
+  coordenadas?: { lat: number; lng: number };
+  productos: DespachoPDFProducto[];
+  cantidadItems: number;
+  subtotalPEN: number;
+  costoEnvio?: number;
+  cobroPendiente: boolean;
+  montoPorCobrar?: number;
+  metodoPagoEsperado?: MetodoPago;
+  fechaProgramada: unknown;   // Timestamp | Date | string · formatTimestamp() lo normaliza
+  horaProgramada?: string;
+  observaciones?: string;
+}
 
 export interface PDFReportOptions {
   title: string;
@@ -596,7 +636,7 @@ class PDFService {
   /**
    * Genera URL de Google Maps para navegación directa
    */
-  private generarGoogleMapsUrl(entrega: Entrega): string | null {
+  private generarGoogleMapsUrl(entrega: DespachoPDFData): string | null {
     if (entrega.coordenadas?.lat && entrega.coordenadas?.lng) {
       return `https://www.google.com/maps/dir/?api=1&destination=${entrega.coordenadas.lat},${entrega.coordenadas.lng}`;
     }
@@ -613,7 +653,7 @@ class PDFService {
    * Borde dibujado AL FINAL para que no sea tapado por los rellenos de color
    */
   async generarGuiaTransportista(
-    entrega: Entrega,
+    entrega: DespachoPDFData,
     empresa = EMPRESA_DEFAULT,
     qrPago = QR_PAGO_DEFAULT
   ): Promise<jsPDF> {
@@ -1080,7 +1120,7 @@ class PDFService {
    * Documento más simple, enfocado en confirmación de recepción
    */
   async generarCargoCliente(
-    entrega: Entrega,
+    entrega: DespachoPDFData,
     empresa = EMPRESA_DEFAULT,
     qrPago = QR_PAGO_DEFAULT
   ): Promise<jsPDF> {
@@ -1344,7 +1384,7 @@ class PDFService {
   /**
    * Generar y descargar guía de transportista (usando config de empresa)
    */
-  async downloadGuiaTransportista(entrega: Entrega): Promise<void> {
+  async downloadGuiaTransportista(entrega: DespachoPDFData): Promise<void> {
     const { empresa, qrPago } = await this.getEmpresaConfig();
     const doc = await this.generarGuiaTransportista(entrega, empresa, qrPago);
     this.save(doc, `guia_${entrega.codigo}`);
@@ -1353,7 +1393,7 @@ class PDFService {
   /**
    * Generar y descargar cargo de cliente (usando config de empresa)
    */
-  async downloadCargoCliente(entrega: Entrega): Promise<void> {
+  async downloadCargoCliente(entrega: DespachoPDFData): Promise<void> {
     const { empresa, qrPago } = await this.getEmpresaConfig();
     const doc = await this.generarCargoCliente(entrega, empresa, qrPago);
     this.save(doc, `cargo_${entrega.codigo}`);
@@ -1362,7 +1402,7 @@ class PDFService {
   /**
    * Generar ambos documentos de entrega (usando config de empresa)
    */
-  async generarDocumentosEntrega(entrega: Entrega): Promise<{ guia: jsPDF; cargo: jsPDF }> {
+  async generarDocumentosEntrega(entrega: DespachoPDFData): Promise<{ guia: jsPDF; cargo: jsPDF }> {
     const { empresa, qrPago } = await this.getEmpresaConfig();
     const [guia, cargo] = await Promise.all([
       this.generarGuiaTransportista(entrega, empresa, qrPago),

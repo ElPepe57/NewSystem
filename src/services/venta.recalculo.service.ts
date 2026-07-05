@@ -33,7 +33,6 @@ import type {
 } from '../types/venta.types';
 import { getCTRU } from '../utils/ctru.utils';
 import { tesoreriaService } from './tesoreria.service';
-import { entregaService } from './entrega.service';
 import { unidadService } from './unidad.service';
 import { getReservaPara } from './reserva.helper';
 import { actividadService } from './actividad.service';
@@ -149,40 +148,11 @@ export async function corregirPrecioProducto(
   cambios.push(`Venta: Total S/ ${venta.totalPEN.toFixed(2)} → S/ ${nuevoTotalPEN.toFixed(2)}`);
   cambios.push(`Producto: Precio S/ ${precioAnterior.toFixed(2)} → S/ ${nuevoPrecioUnitario.toFixed(2)}`);
 
-  // Propagar a entregas
-  try {
-    const entregas = await entregaService.getByVenta(ventaId);
-    for (const entrega of entregas) {
-      const productoEntrega = entrega.productos.find(p => p.productoId === productoId);
-      if (productoEntrega) {
-        const nuevosProductosEntrega = entrega.productos.map(p => {
-          if (p.productoId === productoId) {
-            return {
-              ...p,
-              precioUnitario: nuevoPrecioUnitario,
-              subtotal: p.cantidad * nuevoPrecioUnitario
-            };
-          }
-          return p;
-        });
-        const nuevoSubtotalEntrega = nuevosProductosEntrega.reduce((sum, p) => sum + p.subtotal, 0);
-
-        const entregaUpdates: Record<string, any> = {
-          productos: nuevosProductosEntrega,
-          subtotalPEN: nuevoSubtotalEntrega
-        };
-        if (entrega.montoPorCobrar && entrega.montoPorCobrar === entrega.subtotalPEN) {
-          entregaUpdates.montoPorCobrar = nuevoSubtotalEntrega;
-        }
-
-        await updateDoc(doc(db, COLLECTIONS.ENTREGAS, entrega.id), entregaUpdates);
-        cambios.push(`Entrega ${entrega.codigo}: Subtotal S/ ${entrega.subtotalPEN.toFixed(2)} → S/ ${nuevoSubtotalEntrega.toFixed(2)}`);
-      }
-    }
-  } catch (err) {
-    logger.error('Error actualizando entregas:', err);
-    cambios.push('Entregas: Error al actualizar (revisar manualmente)');
-  }
+  // (Modelo único F) El despacho vive en `Envío` Caso F, que NO almacena precios de
+  // venta (los precios están en la venta · las unidades toman precioVentaPEN al vender).
+  // Por eso NO hay propagación de precio al despacho. Deuda menor: si se cambia el precio
+  // de una venta con un despacho F ya programado con COD, el `montoPorCobrar` del envío
+  // no se re-sincroniza (editar el COD en el detalle del envío).
 
   // Propagar a tesorería
   try {
@@ -376,36 +346,9 @@ export async function corregirProductoVenta(
     cambios.push('Requerimientos: Error al actualizar (revisar manualmente)');
   }
 
-  // Cascada a entregas
-  try {
-    const entregas = await entregaService.getByVenta(ventaId);
-    for (const entrega of entregas) {
-      const entregaProdIndex = entrega.productos.findIndex(p => p.productoId === productoIdAnterior);
-      if (entregaProdIndex !== -1) {
-        const entregaProductosActualizados = entrega.productos.map(p => {
-          if (p.productoId === productoIdAnterior) {
-            return {
-              ...p,
-              productoId: nuevoProducto.id,
-              sku: nuevoProducto.sku,
-              marca: nuevoProducto.marca,
-              nombreComercial: nuevoProducto.nombreComercial,
-              presentacion: nuevoProducto.presentacion,
-            };
-          }
-          return p;
-        });
-
-        await updateDoc(doc(db, COLLECTIONS.ENTREGAS, entrega.id), {
-          productos: entregaProductosActualizados
-        });
-        cambios.push(`Entrega ${entrega.codigo}: Producto actualizado`);
-      }
-    }
-  } catch (err) {
-    logger.error('Error actualizando entregas:', err);
-    cambios.push('Entregas: Error al actualizar (revisar manualmente)');
-  }
+  // (Modelo único F) El despacho vive en `Envío` Caso F · su `productosSummary`/unidades
+  // se resuelven por `productoId` (no guarda copia de precios/datos del producto), así que
+  // el cambio de producto de la venta no requiere propagación al despacho.
 
   return { cambios };
 }
@@ -569,41 +512,8 @@ export async function editarVenta(
 
   await updateDoc(doc(db, COLLECTION_NAME, ventaId), updates);
 
-  // Cascade a entregas
-  if (updates.productos && nuevoTotalPEN !== venta.totalPEN) {
-    try {
-      const entregas = await entregaService.getByVenta(ventaId);
-      for (const entrega of entregas) {
-        const nuevosProductosEntrega = entrega.productos.map(pe => {
-          const productoActualizado = (updates.productos as ProductoVenta[]).find(
-            p => p.productoId === pe.productoId
-          );
-          if (productoActualizado && (pe.precioUnitario !== productoActualizado.precioUnitario)) {
-            return {
-              ...pe,
-              precioUnitario: productoActualizado.precioUnitario,
-              subtotal: pe.cantidad * productoActualizado.precioUnitario
-            };
-          }
-          return pe;
-        });
-        const nuevoSubtotalEntrega = nuevosProductosEntrega.reduce((sum, p) => sum + p.subtotal, 0);
-
-        const entregaUpdates: Record<string, any> = {
-          productos: nuevosProductosEntrega,
-          subtotalPEN: nuevoSubtotalEntrega
-        };
-        if (entrega.montoPorCobrar && entrega.montoPorCobrar === entrega.subtotalPEN) {
-          entregaUpdates.montoPorCobrar = nuevoSubtotalEntrega;
-        }
-        await updateDoc(doc(db, COLLECTIONS.ENTREGAS, entrega.id), entregaUpdates);
-        log.push(`Entrega ${entrega.codigo} actualizada`);
-      }
-    } catch (err) {
-      logger.error('Error actualizando entregas:', err);
-      log.push('Entregas: revisar manualmente');
-    }
-  }
+  // (Modelo único F) sin propagación de precios al despacho: el `Envío` Caso F no
+  // almacena precios de venta (ver notas arriba).
 
   // Cascade a tesorería
   if (nuevoTotalPEN !== venta.totalPEN) {

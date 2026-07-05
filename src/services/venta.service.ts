@@ -7,7 +7,7 @@
  *
  * La lógica ha sido extraída a módulos especializados:
  *   - venta.pagos.service.ts      → registrarPago, eliminarPago, consultas de pago
- *   - venta.entregas.service.ts   → registrarEntregaParcial, marcarEnEntrega, marcarEntregada
+ *   - venta.entregas.service.ts   → marcarEnEntrega, marcarEntregada
  *   - venta.reservas.service.ts   → registrarAdelantoConReserva, reservas, adelantos
  *   - venta.recalculo.service.ts  → corregirPrecio, editarVenta, FEFO diag, canales
  *   - venta.stats.service.ts      → getStats, historial financiero cliente
@@ -56,7 +56,6 @@ import type {
   TipoReserva,
   EstadoCotizacion,
   EstadoAsignacionProducto,
-  EntregaParcial,
   EditarVentaData
 } from '../types/venta.types';
 import { ESTADOS_EN_ORIGEN } from '../types/unidad.types';
@@ -68,7 +67,6 @@ import { unidadService, buildLiberacionReservaFields } from './unidad.service';
 import { getReservaPara } from './reserva.helper';
 import { tesoreriaService } from './tesoreria.service';
 import { metricasService } from './metricas.service';
-import { entregaService } from './entrega.service';
 import { actividadService } from './actividad.service';
 import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import { logBackgroundError } from '../lib/logger';
@@ -1178,28 +1176,6 @@ export class VentaService {
   // ==========================================================================
 
   /**
-   * Registrar entrega parcial de productos.
-   */
-  static async registrarEntregaParcial(
-    id: string,
-    userId: string,
-    datos?: {
-      direccionEntrega?: string;
-      notasEntrega?: string;
-      productosAEntregar?: Array<{ productoId: string; cantidad: number }>;
-    }
-  ): Promise<EntregaParcial> {
-    try {
-      const venta = await this.getById(id);
-      if (!venta) throw new Error('Venta no encontrada');
-      return await EntregasService.registrarEntregaParcial(venta, userId, datos);
-    } catch (error: any) {
-      logger.error('Error registrando entrega parcial:', error);
-      throw error;
-    }
-  }
-
-  /**
    * Marcar como en entrega.
    */
   static async marcarEnEntrega(
@@ -1394,23 +1370,26 @@ export class VentaService {
         metadata: { entidadId: id, entidadTipo: 'venta' }
       }).catch(() => {});
 
+      // Cancelar despachos F (Envío · Caso F) pendientes de esta venta.
       try {
-        const entregas = await entregaService.getByVenta(id);
-        const pendientes = entregas.filter(e =>
-          e.estado === 'programada' || e.estado === 'en_camino'
+        const { envioCrudService } = await import('./envio.crud.service');
+        const { envioDespachoService } = await import('./envio.despacho.service');
+        const despachosF = await envioCrudService.getByVenta(id);
+        const pendientes = despachosF.filter(
+          (e) => e.estado !== 'entregada' && e.estado !== 'cancelada'
         );
-        for (const entrega of pendientes) {
-          await entregaService.cancelar(
-            entrega.id!,
+        for (const envio of pendientes) {
+          await envioDespachoService.cancelarDespacho(
+            envio.id!,
             `Cancelada por cancelación de venta${motivo ? ': ' + motivo : ''}`,
             userId
           );
         }
         if (pendientes.length > 0) {
-          logger.log(`[Venta ${venta.numeroVenta}] ${pendientes.length} entrega(s) pendiente(s) cancelada(s)`);
+          logger.log(`[Venta ${venta.numeroVenta}] ${pendientes.length} despacho(s) F cancelado(s)`);
         }
-      } catch (entregaError) {
-        logger.warn(`[Venta ${venta.numeroVenta}] Error al cancelar entregas pendientes (no bloquea):`, entregaError);
+      } catch (envioError) {
+        logger.warn(`[Venta ${venta.numeroVenta}] Error al cancelar despachos F pendientes (no bloquea):`, envioError);
       }
 
       // Revertir métricas del cliente

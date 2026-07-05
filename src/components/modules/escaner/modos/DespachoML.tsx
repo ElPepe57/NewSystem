@@ -2,7 +2,9 @@ import React, { useState, useEffect, useCallback, useImperativeHandle, forwardRe
 import { ShoppingBag, CheckCircle2, AlertTriangle, Clock, Package, Truck, Loader2, DollarSign, CreditCard, Send } from 'lucide-react';
 import { ProductoService } from '../../../../services/producto.service';
 import { VentaService } from '../../../../services/venta.service';
-import { entregaService } from '../../../../services/entrega.service';
+import { envioCrudService } from '../../../../services/envio.crud.service';
+import { envioDespachoService } from '../../../../services/envio.despacho.service';
+import { despacharVentaDesdeData } from '../../../../pages/Ventas/despachoVentaF';
 import { colaboradorService } from '../../../../services/colaborador.service';
 import { useMercadoLibreStore } from '../../../../store/mercadoLibreStore';
 import { useToastStore } from '../../../../store/toastStore';
@@ -11,7 +13,7 @@ import type { MLOrderSync } from '../../../../types/mercadoLibre.types';
 import type { Venta } from '../../../../types/venta.types';
 import type { Colaborador as Transportista } from '../../../../types/colaborador.types';
 import type { MetodoPago } from '../../../../types/venta.types';
-import type { ProgramarEntregaData, Entrega } from '../../../../types/entrega.types';
+import type { ProgramarEntregaData, Envio } from '../../../../types/envio.types';
 
 export interface DespachoMLHandle {
   handleScan: (barcode: string, format?: string) => void;
@@ -57,7 +59,7 @@ export const DespachoML = forwardRef<DespachoMLHandle>((_props, ref) => {
   const [metodoPago, setMetodoPago] = useState<MetodoPago>('efectivo');
 
   // === DESPACHAR state ===
-  const [entregasProgramadas, setEntregasProgramadas] = useState<Entrega[]>([]);
+  const [entregasProgramadas, setEntregasProgramadas] = useState<Envio[]>([]);
   const [loadingEntregas, setLoadingEntregas] = useState(false);
   const [despachando, setDespachando] = useState<string | null>(null);
 
@@ -128,7 +130,7 @@ export const DespachoML = forwardRef<DespachoMLHandle>((_props, ref) => {
 
     const loadEntregas = async () => {
       try {
-        const entregas = await entregaService.getProgramadas();
+        const entregas = await envioCrudService.getDespachosProgramados();
         if (!cancelled) setEntregasProgramadas(entregas);
       } catch {
         if (!cancelled) setEntregasProgramadas([]);
@@ -219,21 +221,21 @@ export const DespachoML = forwardRef<DespachoMLHandle>((_props, ref) => {
       if (navigator.vibrate) navigator.vibrate(100);
       toast.success(`${prod.nombre}`, `${prod.escaneado + 1}/${prod.esperado}`);
     } else {
-      // Modo Despachar: buscar entrega por código o SKU de producto
-      const entrega = entregasProgramadas.find(e =>
-        e.codigo === barcode ||
-        e.numeroVenta === barcode ||
-        e.productos.some(p => p.sku === barcode)
+      // Modo Despachar: buscar despacho por código o SKU de producto
+      const envio = entregasProgramadas.find(e =>
+        e.numeroEnvio === barcode ||
+        e.ventaNumero === barcode ||
+        e.productosSummary.some(p => p.sku === barcode)
       );
-      if (entrega) {
-        handleDespacharEntrega(entrega);
+      if (envio) {
+        handleDespacharEntrega(envio);
       } else {
         // Intentar buscar por UPC
         try {
           const producto = await ProductoService.getByCodigoUPC(barcode);
           if (producto) {
             const match = entregasProgramadas.find(e =>
-              e.productos.some(p => p.productoId === producto.id)
+              e.productosSummary.some(p => p.productoId === producto.id)
             );
             if (match) {
               handleDespacharEntrega(match);
@@ -325,7 +327,7 @@ export const DespachoML = forwardRef<DespachoMLHandle>((_props, ref) => {
         costoTransportista,
       };
 
-      await entregaService.programar(data, ventaActual, user.uid);
+      await despacharVentaDesdeData(data, ventaActual, user.uid);
       toast.success('Entrega programada', `${selectedOrder.numeroVenta || ventaActual.numeroVenta} lista para despacho`);
 
       // Reset
@@ -346,14 +348,14 @@ export const DespachoML = forwardRef<DespachoMLHandle>((_props, ref) => {
   }, [selectedOrder, ventaActual, user, transportistaId, cobroPendiente, montoPorCobrar, metodoPago, costoTransportista, toast]);
 
   // Despachar entrega (marcar En Camino)
-  const handleDespacharEntrega = useCallback(async (entrega: Entrega) => {
-    if (!user?.uid) return;
-    setDespachando(entrega.id);
+  const handleDespacharEntrega = useCallback(async (envio: Envio) => {
+    if (!user?.uid || !envio.id) return;
+    setDespachando(envio.id);
     try {
-      await entregaService.marcarEnCamino(entrega.id, user.uid);
-      setEntregasProgramadas(prev => prev.filter(e => e.id !== entrega.id));
+      await envioDespachoService.marcarEnCaminoEnvio(envio.id, user.uid);
+      setEntregasProgramadas(prev => prev.filter(e => e.id !== envio.id));
       if (navigator.vibrate) navigator.vibrate([100, 30, 100, 30, 100]);
-      toast.success(`${entrega.numeroVenta} despachada`, `${entrega.nombreTransportista} — en camino`);
+      toast.success(`${envio.ventaNumero} despachada`, `${envio.colaboradorNombre} — en camino`);
     } catch (error: any) {
       toast.error(error?.message || 'Error al despachar');
     } finally {
@@ -733,35 +735,35 @@ export const DespachoML = forwardRef<DespachoMLHandle>((_props, ref) => {
             </div>
           ) : (
             <div className="space-y-2">
-              {entregasProgramadas.map(entrega => (
+              {entregasProgramadas.map(envio => (
                 <div
-                  key={entrega.id}
+                  key={envio.id}
                   className="bg-white border border-slate-200 rounded-lg p-3 space-y-2"
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="font-mono text-xs text-teal-600 font-semibold">{entrega.numeroVenta}</span>
+                        <span className="font-mono text-xs text-teal-600 font-semibold">{envio.ventaNumero}</span>
                         <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 font-medium">
-                          {entrega.estado === 'reprogramada' ? 'Reprogramada' : 'Programada'}
+                          {envio.estado === 'reprogramada' ? 'Reprogramada' : 'Programada'}
                         </span>
                       </div>
-                      <p className="text-sm font-medium text-slate-900 truncate mt-0.5">{entrega.nombreCliente}</p>
+                      <p className="text-sm font-medium text-slate-900 truncate mt-0.5">{envio.destinoClienteNombre}</p>
                       <div className="text-xs text-slate-500 mt-0.5 space-y-0.5">
-                        <p><Truck className="inline h-3 w-3 mr-0.5" />{entrega.nombreTransportista}</p>
-                        {entrega.direccionEntrega && (
-                          <p className="truncate">{entrega.direccionEntrega}{entrega.distrito ? ` — ${entrega.distrito}` : ''}</p>
+                        <p><Truck className="inline h-3 w-3 mr-0.5" />{envio.colaboradorNombre}</p>
+                        {envio.destinoClienteDireccion && (
+                          <p className="truncate">{envio.destinoClienteDireccion}{envio.destinoClienteDistrito ? ` — ${envio.destinoClienteDistrito}` : ''}</p>
                         )}
                       </div>
                     </div>
                     <div className="text-right shrink-0 ml-2">
-                      <p className="text-xs text-slate-500">{entrega.cantidadItems} item{entrega.cantidadItems !== 1 ? 's' : ''}</p>
+                      <p className="text-xs text-slate-500">{envio.totalUnidades} item{envio.totalUnidades !== 1 ? 's' : ''}</p>
                       <button
-                        onClick={() => handleDespacharEntrega(entrega)}
-                        disabled={despachando === entrega.id}
+                        onClick={() => handleDespacharEntrega(envio)}
+                        disabled={despachando === envio.id}
                         className="mt-1.5 inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-white bg-sky-600 rounded-lg hover:bg-sky-700 disabled:opacity-50 transition-colors"
                       >
-                        {despachando === entrega.id ? (
+                        {despachando === envio.id ? (
                           <Loader2 className="h-3 w-3 animate-spin" />
                         ) : (
                           <Send className="h-3 w-3" />

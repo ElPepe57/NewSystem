@@ -2,154 +2,28 @@
  * venta.entregas.service.ts
  *
  * Métodos de entrega de ventas extraídos de VentaService.
- * Contiene: registrarEntregaParcial, marcarEnEntrega, marcarEntregada.
+ * Contiene: marcarEnEntrega, marcarEntregada.
  *
  * Estas funciones son invocadas como delegados desde VentaService,
  * manteniendo la API pública intacta.
  */
 
 import {
-  collection,
   doc,
   updateDoc,
   serverTimestamp,
-  writeBatch,
   Timestamp,
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { COLLECTIONS } from '../config/collections';
-import type {
-  Venta,
-  EstadoEntregaProducto,
-  EntregaParcial,
-} from '../types/venta.types';
+import type { Venta } from '../types/venta.types';
 import { unidadService } from './unidad.service';
 import { tesoreriaService } from './tesoreria.service';
 import { metricasService } from './metricas.service';
-import { entregaService } from './entrega.service';
 import { ProductoService } from './producto.service';
 import { logger } from '../lib/logger';
 
 const COLLECTION_NAME = COLLECTIONS.VENTAS;
-
-/**
- * Registrar entrega parcial de productos.
- * Actualiza el estado de las unidades a 'entregada' y actualiza la venta.
- */
-export async function registrarEntregaParcial(
-  venta: Venta,
-  userId: string,
-  datos?: {
-    direccionEntrega?: string;
-    notasEntrega?: string;
-    productosAEntregar?: Array<{ productoId: string; cantidad: number }>;
-  }
-): Promise<EntregaParcial> {
-  const id = venta.id;
-
-  if (venta.estado !== 'en_entrega' && venta.estado !== 'despachada' && venta.estado !== 'asignada') {
-    throw new Error('Solo se pueden registrar entregas parciales para ventas asignadas o en entrega');
-  }
-
-  const batch = writeBatch(db);
-  const productosEntregados: Array<{
-    productoId: string;
-    cantidad: number;
-    unidadesIds: string[];
-  }> = [];
-
-  const productosAEntregar = datos?.productosAEntregar || venta.productos.map(p => ({
-    productoId: p.productoId,
-    cantidad: (p.unidadesAsignadas?.length || 0) - (p.cantidadEntregada || 0)
-  }));
-
-  for (const { productoId, cantidad } of productosAEntregar) {
-    const producto = venta.productos.find(p => p.productoId === productoId);
-    if (!producto || !producto.unidadesAsignadas) {
-      continue;
-    }
-
-    const cantidadYaEntregada = producto.cantidadEntregada || 0;
-    const cantidadDisponible = producto.unidadesAsignadas.length - cantidadYaEntregada;
-    const cantidadAEntregar = Math.min(cantidad, cantidadDisponible);
-
-    if (cantidadAEntregar <= 0) {
-      continue;
-    }
-
-    const unidadesAEntregar = producto.unidadesAsignadas.slice(
-      cantidadYaEntregada,
-      cantidadYaEntregada + cantidadAEntregar
-    );
-
-    for (const unidadId of unidadesAEntregar) {
-      const unidadRef = doc(db, COLLECTIONS.UNIDADES, unidadId);
-      batch.update(unidadRef, {
-        estado: 'entregada',
-        fechaEntrega: serverTimestamp()
-      });
-    }
-
-    productosEntregados.push({
-      productoId,
-      cantidad: cantidadAEntregar,
-      unidadesIds: unidadesAEntregar
-    });
-  }
-
-  const entregaParcial: EntregaParcial = {
-    id: doc(collection(db, COLLECTIONS.ENTREGAS_PARCIALES)).id,
-    fecha: Timestamp.now(),
-    productosEntregados,
-    direccionEntrega: datos?.direccionEntrega,
-    notasEntrega: datos?.notasEntrega,
-    registradoPor: userId
-  };
-
-  const productosActualizados = venta.productos.map(p => {
-    const entregado = productosEntregados.find(pe => pe.productoId === p.productoId);
-    if (!entregado) {
-      return p;
-    }
-
-    const cantidadEntregadaTotal = (p.cantidadEntregada || 0) + entregado.cantidad;
-    const cantidadPorEntregar = (p.unidadesAsignadas?.length || 0) - cantidadEntregadaTotal;
-
-    let estadoEntrega: EstadoEntregaProducto = 'pendiente';
-    if (cantidadEntregadaTotal > 0 && cantidadPorEntregar > 0) {
-      estadoEntrega = 'parcial';
-    } else if (cantidadPorEntregar === 0) {
-      estadoEntrega = 'entregado';
-    }
-
-    return {
-      ...p,
-      cantidadEntregada: cantidadEntregadaTotal,
-      cantidadPorEntregar,
-      estadoEntrega
-    };
-  });
-
-  const todosEntregados = productosActualizados.every(
-    p => p.estadoEntrega === 'entregado' || !p.unidadesAsignadas?.length
-  );
-
-  const entregasParciales = (venta as any).entregasParciales || [];
-  const ventaRef = doc(db, COLLECTION_NAME, id);
-  batch.update(ventaRef, {
-    productos: productosActualizados,
-    entregasParciales: [...entregasParciales, entregaParcial],
-    estado: todosEntregados ? 'entregada' : (venta.estado === 'despachada' ? 'despachada' : 'en_entrega'),
-    ...(!todosEntregados && venta.estado !== 'en_entrega' && venta.estado !== 'despachada' && { fechaEnEntrega: serverTimestamp() }),
-    ...(todosEntregados && { fechaEntrega: serverTimestamp() }),
-    ultimaEdicion: serverTimestamp(),
-    editadoPor: userId
-  });
-
-  await batch.commit();
-
-  return entregaParcial;
-}
 
 /**
  * Marcar una venta como en entrega (estado: asignada → en_entrega).
@@ -181,11 +55,16 @@ export async function marcarEnEntrega(
 /**
  * Marcar una venta como entregada.
  *
+ * Ruta venta-SIN-despacho (retiro en tienda / cierre directo). El despacho con
+ * Envío (Caso F) NO pasa por aquí: su motor (envio.despacho.service) confirma
+ * unidades, cobra COD y cierra la venta. El call-site (Ventas) bloquea esta ruta
+ * si la venta ya tiene un despacho F activo, evitando doble-conteo.
+ *
  * FLUJO:
- * 1. Completar entregas pendientes → crea GD y actualiza unidades a 'vendida'
- * 2. Si no hay entregas programadas, actualizar unidades directamente a 'vendida'
- * 3. Actualizar estado de la venta
- * 4. Reclasificar anticipos en Tesorería
+ * 1. Confirmar las unidades de la venta directamente (→ 'vendida')
+ * 2. Actualizar estado de la venta → 'entregada'
+ * 3. Reclasificar anticipos en Tesorería (pasivo → ingreso)
+ * 4. Consumo automático de kit de empaque (costo + inventario)
  * 5. Actualizar métricas del Gestor Maestro
  */
 export async function marcarEntregada(
@@ -201,56 +80,24 @@ export async function marcarEntregada(
 
   logger.log(`[marcarEntregada] Iniciando para venta ${venta.numeroVenta}`);
 
-  // 1. Completar todas las entregas pendientes de esta venta
-  let entregasCompletadas = 0;
-  let entregasPendientes: Awaited<ReturnType<typeof entregaService.getByVenta>> = [];
-
-  try {
-    const entregas = await entregaService.getByVenta(id);
-    entregasPendientes = entregas.filter(
-      e => e.estado === 'programada' || e.estado === 'en_camino' || e.estado === 'reprogramada'
-    );
-    logger.log(`[marcarEntregada] Encontradas ${entregasPendientes.length} entregas pendientes`);
-
-    for (const entrega of entregasPendientes) {
+  // 1. Confirmar las unidades de la venta directamente.
+  for (const producto of venta.productos) {
+    if (producto.unidadesAsignadas && producto.unidadesAsignadas.length > 0) {
       try {
-        logger.log(`[marcarEntregada] Completando entrega ${entrega.codigo}...`);
-        await entregaService.registrarResultado({
-          entregaId: entrega.id,
-          exitosa: true,
-          notasEntrega: 'Completada automáticamente al marcar venta como entregada'
-        }, userId);
-        entregasCompletadas++;
-        logger.log(`[marcarEntregada] Entrega ${entrega.codigo} completada OK`);
-      } catch (entregaError) {
-        logger.error(`[marcarEntregada] Error completando entrega ${entrega.codigo}:`, entregaError);
-      }
-    }
-  } catch (entregasError) {
-    logger.error('[marcarEntregada] Error obteniendo entregas:', entregasError);
-  }
-
-  // 2. Si NO había entregas programadas, actualizar las unidades directamente
-  if (entregasPendientes.length === 0) {
-    logger.log('[marcarEntregada] No había entregas, actualizando unidades directamente');
-    for (const producto of venta.productos) {
-      if (producto.unidadesAsignadas && producto.unidadesAsignadas.length > 0) {
-        try {
-          await unidadService.confirmarVentaUnidades(
-            producto.unidadesAsignadas,
-            venta.id,
-            venta.numeroVenta,
-            producto.subtotal || (producto.cantidad * producto.precioUnitario),
-            userId
-          );
-        } catch (error) {
-          logger.error(`[marcarEntregada] Error confirmando unidades producto ${producto.sku}:`, error);
-        }
+        await unidadService.confirmarVentaUnidades(
+          producto.unidadesAsignadas,
+          venta.id,
+          venta.numeroVenta,
+          producto.subtotal || (producto.cantidad * producto.precioUnitario),
+          userId
+        );
+      } catch (error) {
+        logger.error(`[marcarEntregada] Error confirmando unidades producto ${producto.sku}:`, error);
       }
     }
   }
 
-  // 3. Actualizar estado de la venta
+  // 2. Actualizar estado de la venta
   const ventaRef = doc(db, COLLECTION_NAME, id);
   await updateDoc(ventaRef, {
     estado: 'entregada',
@@ -261,9 +108,9 @@ export async function marcarEntregada(
     editadoPor: userId
   });
 
-  logger.log(`[marcarEntregada] Venta ${venta.numeroVenta} marcada como entregada. Entregas completadas: ${entregasCompletadas}`);
+  logger.log(`[marcarEntregada] Venta ${venta.numeroVenta} marcada como entregada`);
 
-  // 4. Reclasificar anticipos: pasivo → ingreso real
+  // 3. Reclasificar anticipos: pasivo → ingreso real
   try {
     const reclasificados = await tesoreriaService.reclasificarAnticipos(
       id,
@@ -277,7 +124,7 @@ export async function marcarEntregada(
     logger.warn('[marcarEntregada] Error al reclasificar anticipos:', reclasError);
   }
 
-  // 5. Consumo automatico de kit de empaque (si hay kits configurados)
+  // 4. Consumo automatico de kit de empaque (si hay kits configurados)
   try {
     const { kitEmpaqueService } = await import('./kitEmpaque.service');
     // Calcular peso total del despacho
@@ -317,7 +164,7 @@ export async function marcarEntregada(
     logger.warn('[marcarEntregada] Error consumiendo kit de empaque:', kitError);
   }
 
-  // 6. Actualizar metricas del Gestor Maestro (cliente y marcas)
+  // 5. Actualizar metricas del Gestor Maestro (cliente y marcas)
   try {
     const marcaIds = new Map<string, string>();
     for (const producto of venta.productos) {

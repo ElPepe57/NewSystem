@@ -1,25 +1,15 @@
 /**
  * despachoVentaF — puente Ventas → motor de despacho F (A4).
  *
- * Cuando el flag WIZARD_F está activo, el despacho de una venta corre por el
- * modelo único `Envío` (Caso F) en vez del legacy `Entrega`. Este módulo:
- *   - mapea el `ProgramarEntregaData` del modal existente a `DespacharVentaPayload`
- *     (`despacharVentaDesdeData`), y
- *   - provee las GUARDIAS anti-doble-camino ASIMÉTRICAS: cada camino verifica que
- *     la venta no tenga un despacho ACTIVO en el OTRO camino (evita doble
- *     gasto/cobro). NO bloquea múltiples despachos del MISMO camino (entregas
- *     parciales legítimas).
+ * El despacho de una venta corre por el modelo único `Envío` (Caso F). Este módulo
+ * mapea el `ProgramarEntregaData` del modal existente a `DespacharVentaPayload`
+ * (`despacharVentaDesdeData`) y dispara el motor `envio.despacho.service`.
  */
 import { envioDespachoService } from '../../services/envio.despacho.service';
-import { entregaService } from '../../services/entrega.service';
 import { unidadService } from '../../services/unidad.service';
-import type { ProgramarEntregaData } from '../../types/entrega.types';
+import type { ProgramarEntregaData } from '../../types/envio.types';
 import type { Venta } from '../../types/venta.types';
 import type { Unidad } from '../../types/unidad.types';
-
-// Estados TERMINALES de una entrega legacy · todo lo demás cuenta como "activa"
-// (blacklist defensiva ante estados legacy desconocidos · DATA-001).
-const ESTADOS_ENTREGA_TERMINAL: readonly string[] = ['entregada', 'cancelada', 'fallida'];
 
 /**
  * Mapea el resultado del `ProgramarEntregaModal` a `DespacharVentaPayload` y
@@ -76,28 +66,4 @@ export async function despacharVentaDesdeData(
     },
     userId,
   );
-}
-
-/**
- * Guardia para el camino F: devuelve un mensaje si la venta tiene una entrega
- * LEGACY activa (evita despachar por ambos caminos). null = se puede despachar por F.
- */
-export async function bloqueoDespachoF(ventaId: string): Promise<string | null> {
-  const entregas = await entregaService.getByVenta(ventaId);
-  const legacyActiva = entregas.some((e) => !ESTADOS_ENTREGA_TERMINAL.includes(e.estado));
-  return legacyActiva
-    ? 'Esta venta tiene una entrega activa en el flujo anterior. Complétala o cancélala antes de despachar por el flujo nuevo.'
-    : null;
-}
-
-/**
- * Guardia para el camino LEGACY: devuelve un mensaje si la venta ya tiene un
- * despacho F activo (evita despachar por ambos caminos). null = se puede programar
- * por el flujo legacy.
- */
-export async function bloqueoDespachoLegacy(ventaId: string): Promise<string | null> {
-  const hayF = await envioDespachoService.existeEnvioFActivo(ventaId);
-  return hayF
-    ? 'Esta venta ya tiene un despacho activo en el flujo nuevo (módulo Envíos).'
-    : null;
 }

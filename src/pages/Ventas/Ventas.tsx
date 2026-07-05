@@ -25,7 +25,6 @@ import { useAuthStore } from '../../store/authStore';
 import { useRentabilidadVentas } from '../../hooks/useRentabilidadVentas';
 import { gastoService } from '../../services/gasto.service';
 import { VentaService } from '../../services/venta.service';
-import { useEntregaStore } from '../../store/entregaStore';
 import type { Venta, VentaFormData, MetodoPago, AdelantoData, EditarVentaData } from '../../types/venta.types';
 import { useLineaFilter } from '../../hooks/useLineaFilter';
 // S55 Fase 3 — cobros viven en CC; hook reactivo lee desde movimientosCC
@@ -33,9 +32,10 @@ import { useCobrosVenta } from '../../hooks/useCobrosVenta';
 import { ventaSociosService, MOTIVOS_VENTA_SOCIO } from '../../services/venta.socios.service';
 import type { ResumenVentasSocios, ResumenPorSocio } from '../../services/venta.socios.service';
 import { formatCurrencyPEN } from '../../utils/format';
-import type { ProgramarEntregaData } from '../../types/entrega.types';
-import { isWizardFEnabled } from '../../config/features';
-import { despacharVentaDesdeData, bloqueoDespachoF, bloqueoDespachoLegacy } from './despachoVentaF';
+import type { ProgramarEntregaData } from '../../types/envio.types';
+import { despacharVentaDesdeData } from './despachoVentaF';
+import { envioCrudService } from '../../services/envio.crud.service';
+import { envioDespachoService } from '../../services/envio.despacho.service';
 
 export const Ventas: React.FC = () => {
   const user = useAuthStore(state => state.user);
@@ -91,15 +91,6 @@ export const Ventas: React.FC = () => {
   [todasDevoluciones]);
   // Hook de rentabilidad con distribución proporcional de GA/GO
   const { datos: rentabilidad, getRentabilidadVenta, loading: loadingRentabilidad, refetch: refetchRentabilidad } = useRentabilidadVentas(ventas);
-
-  // Store de entregas
-  const {
-    programarEntrega,
-    marcarEnCamino,
-    fetchByVenta,
-    iniciarSuscripcion: iniciarSuscripcionEntregas,
-    detenerSuscripcion: detenerSuscripcionEntregas
-  } = useEntregaStore();
 
   // Hook para dialogo de confirmacion
   const { dialogProps, confirm } = useConfirmDialog();
@@ -227,19 +218,17 @@ export const Ventas: React.FC = () => {
     };
   }, [ventasLineaFiltradas]);
 
-  // Cargar datos al montar + suscripción en tiempo real para ventas y entregas
+  // Cargar datos al montar + suscripción en tiempo real para ventas
   useEffect(() => {
     iniciarSuscripcionVentas();   // Listener en tiempo real para ventas
-    iniciarSuscripcionEntregas(); // Listener en tiempo real para entregas pendientes
     fetchProductosDisponibles();
     fetchStats();
     fetchResumenPagos();
 
     return () => {
       detenerSuscripcionVentas();   // Limpiar listener al desmontar
-      detenerSuscripcionEntregas();
     };
-  }, [iniciarSuscripcionVentas, detenerSuscripcionVentas, iniciarSuscripcionEntregas, detenerSuscripcionEntregas, fetchProductosDisponibles, fetchStats, fetchResumenPagos]);
+  }, [iniciarSuscripcionVentas, detenerSuscripcionVentas, fetchProductosDisponibles, fetchStats, fetchResumenPagos]);
 
   // Crear venta/cotización
   const handleCreateVenta = async (data: VentaFormData, esVentaDirecta: boolean, adelanto?: AdelantoData) => {
@@ -371,6 +360,18 @@ export const Ventas: React.FC = () => {
   const handleMarcarEntregada = async () => {
     if (!user || !selectedVenta) return;
 
+    // Guardia anti-doble-conteo (Fase 3): si la venta se gestiona por despacho F,
+    // el cierre (entrega + cobro) vive en el detalle del envío (Envíos), no en este
+    // botón legacy — que confirmaría unidades/anticipos/kit por segunda vez.
+    const despachosF = await envioCrudService.getByVenta(selectedVenta.id);
+    if (despachosF.some((e) => e.estado !== 'cancelada')) {
+      toast.error(
+        'Esta venta tiene un despacho en Envíos · registrá la entrega desde el detalle del envío.',
+        'Cerrá desde Envíos',
+      );
+      return;
+    }
+
     const confirmed = await confirm({
       title: 'Marcar como Entregada',
       message: `¿Confirmar que la venta ${selectedVenta.numeroVenta} fue entregada al cliente? Las unidades pasaran a estado "entregada".`,
@@ -469,17 +470,17 @@ export const Ventas: React.FC = () => {
     }
   };
 
-  // Despachar venta (marcar entregas programadas como "En Camino")
+  // Despachar venta (marcar el despacho F programado como "En Camino")
   const handleDespachar = async (venta: Venta) => {
     if (!user?.uid) return;
     try {
-      const entregas = await fetchByVenta(venta.id);
-      const programada = entregas.find(e => e.estado === 'programada' || e.estado === 'reprogramada');
-      if (!programada) {
-        toast.warning('No hay entregas programadas para despachar');
+      const despachos = await envioCrudService.getByVenta(venta.id);
+      const programada = despachos.find(e => e.estado === 'programada' || e.estado === 'reprogramada');
+      if (!programada || !programada.id) {
+        toast.warning('No hay despachos programados para despachar');
         return;
       }
-      await marcarEnCamino(programada.id, user.uid);
+      await envioDespachoService.marcarEnCaminoEnvio(programada.id, user.uid);
       toast.success(`${venta.numeroVenta} despachada`, 'En camino');
     } catch (error: any) {
       toast.error(error.message || 'Error al despachar');
@@ -678,24 +679,13 @@ export const Ventas: React.FC = () => {
     setIsEntregaModalOpen(true);
   };
 
-  // Programar entrega / despachar venta
-  // A4 · switch por flag WIZARD_F: ON → motor único (Envío Caso F) · OFF → legacy.
-  // Guardia anti-doble-camino ASIMÉTRICA: cada camino verifica que no haya un
-  // despacho ACTIVO en el otro (evita doble gasto/cobro sobre la misma venta).
+  // Programar entrega / despachar venta · modelo único (Envío · Caso F).
   const handleProgramarEntrega = async (data: ProgramarEntregaData) => {
     if (!user || !selectedVenta) return;
 
     setIsSubmitting(true);
     try {
-      if (isWizardFEnabled()) {
-        const bloqueo = await bloqueoDespachoF(selectedVenta.id);
-        if (bloqueo) { toast.error(bloqueo, 'No se puede despachar'); return; }
-        await despacharVentaDesdeData(data, selectedVenta, user.uid);
-      } else {
-        const bloqueo = await bloqueoDespachoLegacy(selectedVenta.id);
-        if (bloqueo) { toast.error(bloqueo, 'No se puede despachar'); return; }
-        await programarEntrega(data, selectedVenta, user.uid);
-      }
+      await despacharVentaDesdeData(data, selectedVenta, user.uid);
       setIsEntregaModalOpen(false);
       toast.success('Entrega programada correctamente');
 

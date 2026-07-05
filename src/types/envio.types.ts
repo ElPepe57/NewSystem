@@ -986,3 +986,48 @@ export interface ResumenEnvios {
   unidadesFaltantesMes: number;
   unidadesDanadasMes: number;
 }
+
+// ============================================================================
+// DESPACHO DE VENTA (Caso F · última milla) — DTO de entrada
+// ----------------------------------------------------------------------------
+// Datos que la UI (ProgramarEntregaModal) recolecta para despachar una venta.
+// El motor `envio.despacho.service` los mapea a `DespacharVentaPayload`.
+// Migrado desde el legacy `entrega.types` al deprecar la entidad `Entrega`.
+// ============================================================================
+export interface ProgramarEntregaData {
+  ventaId: string;
+  transportistaId: string;
+
+  // Productos a incluir (para entregas parciales)
+  productos: Array<{
+    productoId: string;
+    cantidad: number;
+    unidadesAsignadas: string[];
+  }>;
+
+  // Dirección
+  direccionEntrega: string;
+  distrito?: string;
+  provincia?: string;
+  codigoPostal?: string;
+  referencia?: string;
+  coordenadas?: {
+    lat: number;
+    lng: number;
+  };
+
+  // Programación
+  fechaProgramada: Date;
+  horaProgramada?: string;
+
+  // Cobro
+  cobroPendiente: boolean;
+  montoPorCobrar?: number;
+  metodoPagoEsperado?: MetodoPago;
+
+  // Costo
+  costoTransportista: number;
+  costoEnvio?: number;
+
+  observaciones?: string;
+}

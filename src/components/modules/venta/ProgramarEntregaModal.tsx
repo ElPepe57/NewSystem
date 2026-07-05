@@ -12,9 +12,9 @@ import {
 import { Button, Modal, Input, Badge } from '../../common';
 import { GoogleMapsAddressInput, type AddressData } from '../../common/GoogleMapsAddressInput';
 import { useColaboradorStore } from '../../../store/colaboradorStore';
-import { entregaService } from '../../../services/entrega.service';
+import { envioCrudService } from '../../../services/envio.crud.service';
 import type { Venta, ProductoVenta, MetodoPago } from '../../../types/venta.types';
-import type { ProgramarEntregaData, Entrega } from '../../../types/entrega.types';
+import type { ProgramarEntregaData, Envio } from '../../../types/envio.types';
 
 interface ProgramarEntregaModalProps {
   isOpen: boolean;
@@ -78,7 +78,7 @@ export const ProgramarEntregaModal: React.FC<ProgramarEntregaModalProps> = ({
   const [productosSeleccionados, setProductosSeleccionados] = useState<ProductoSeleccionado[]>([]);
 
   // Entregas previas (para tracking parcial e inteligencia de cobro)
-  const [entregasPrevias, setEntregasPrevias] = useState<Entrega[]>([]);
+  const [entregasPrevias, setEntregasPrevias] = useState<Envio[]>([]);
   const [loadingEntregas, setLoadingEntregas] = useState(false);
 
   // Cobros ya programados en entregas previas
@@ -101,21 +101,21 @@ export const ProgramarEntregaModal: React.FC<ProgramarEntregaModalProps> = ({
           // ISSUE 1: Fetch entregas previas para calcular
           // cantidades realmente disponibles
           // =============================================
-          const previas = await entregaService.getByVenta(venta.id);
+          const previas = await envioCrudService.getByVenta(venta.id);
           const noCancel = previas.filter(e => e.estado !== 'cancelada');
           setEntregasPrevias(noCancel);
 
           // Construir mapa: productoId -> { cantidadAsignada, unidadesUsadas }
+          // Los despachos F agrupan por UNIDAD (no por producto+cantidad como el
+          // legacy Entrega): cada unidad suma 1 y aporta su unidadId.
           const asignadoMap: Record<string, { cantidad: number; unidades: Set<string> }> = {};
-          for (const ent of noCancel) {
-            for (const prod of ent.productos) {
-              if (!asignadoMap[prod.productoId]) {
-                asignadoMap[prod.productoId] = { cantidad: 0, unidades: new Set() };
+          for (const env of noCancel) {
+            for (const u of env.unidades) {
+              if (!asignadoMap[u.productoId]) {
+                asignadoMap[u.productoId] = { cantidad: 0, unidades: new Set() };
               }
-              asignadoMap[prod.productoId].cantidad += prod.cantidad;
-              (prod.unidadesAsignadas || []).forEach(uid =>
-                asignadoMap[prod.productoId].unidades.add(uid)
-              );
+              asignadoMap[u.productoId].cantidad += 1;
+              asignadoMap[u.productoId].unidades.add(u.unidadId);
             }
           }
 

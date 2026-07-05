@@ -359,9 +359,11 @@ export const envioDespachoService = {
       }
     }
 
-    // TODO (A2.3b/A6): movimientoTransportistaService.registrarEntregaFallida espera un objeto
-    // `Entrega` · se adapta a Envio cuando se porte el cobro/movimiento transportista (es solo
-    // historial sin costo · no bloquea la operación de fallo).
+    // DECISIÓN (A6 · review contable 2026-07-04): el motor F NO cablea
+    // `movimientoTransportistaService`. Ese ledger (saldo neto flete−COD del courier)
+    // quedó SUPERADO por la descomposición del modelo F: el flete es un `Gasto` tipo
+    // 'delivery' y el COD es registrarPago + cajaRecaudadora. Cablearlo duplicaría ambos
+    // lados. En fallo no hay cobro ni gasto (se anula), así que no hay nada que registrar.
 
     logger.log(`[marcarEntregaFallida ${envio.numeroEnvio}] → ${nuevoEstado} · ${payload.motivoFallo}`);
   },
@@ -378,11 +380,12 @@ export const envioDespachoService = {
    *
    * Reusa los servicios YA probados (VentaService.registrarPago, tesoreriaService, etc.).
    *
-   * ⚠️ DEUDA DECLARADA (no atajo · ver plan A6):
-   *   - movimientoTransportistaService.registrarEntregaExitosa espera un objeto Entrega → TODO.
-   *   - cable cajaRecaudadora.registrarCobroEntrante (si el COD lo recauda un courier-recaudador)
-   *     → TODO (requiere detectar tipoProducto de la cuenta + mapear canal). El cobro a la Venta
-   *     + tesorería SÍ se registra (registrarPago).
+   * DINERO del courier en el modelo F (review contable A6 · 2026-07-04):
+   *   - FLETE (le debemos) → `Gasto` tipo 'delivery' (en marcarEnCaminoEnvio).
+   *   - COD (nos debe) → registrarPago (venta+tesorería) + cajaRecaudadora.registrarCobroEntrante.
+   *   - `movimientoTransportistaService` NO se cablea · quedó superado (lo duplicaría). Gap
+   *     conocido: un courier que cobra COD debe modelarse como caja_recaudadora (si no, el
+   *     "nos debe lo recaudado" no queda en su ledger · se emite warn abajo).
    *   - _secondaryErrors solo se loguean (no se persisten · Envio no tiene ese campo de recovery).
    */
   async registrarEntregaExitosa(
@@ -574,6 +577,14 @@ export const envioDespachoService = {
                 logger.log(
                   `[registrarEntregaExitosa ${envio.numeroEnvio}] Cobro entrante en recaudadora ${recaudadora.codigo} · ${canalCobro}`,
                 );
+              } else if (!recaudadora) {
+                // Gap conocido (review A6): el COD se cobró pero la cuenta destino no es
+                // caja_recaudadora → el "el courier nos debe lo recaudado" NO queda en su
+                // ledger. El diseño F asume que todo courier que cobra COD es caja_recaudadora.
+                logger.warn(
+                  `[registrarEntregaExitosa ${envio.numeroEnvio}] COD S/${montoACobrar.toFixed(2)} cobrado, ` +
+                  `pero la cuenta ${data.cuentaDestinoId} no es caja_recaudadora · modelá al courier como recaudadora para trazar su saldo.`,
+                );
               }
             } catch (e) { secondaryErrors.push(`cobro_recaudadora: ${e}`); }
           }
@@ -587,6 +598,21 @@ export const envioDespachoService = {
         const reclas = await tesoreriaService.reclasificarAnticipos(envio.ventaId, venta.cotizacionOrigenId, userId);
         if (reclas > 0) logger.log(`[registrarEntregaExitosa ${envio.numeroEnvio}] ${reclas} anticipo(s) reclasificados`);
       } catch (e) { secondaryErrors.push(`reclasificar_anticipos: ${e}`); }
+
+      // Métricas del Gestor Maestro (cliente + marcas) · al COMPLETARSE la venta.
+      // Portado de venta.entregas.service.marcarEntregada (efecto de analytics · venta-level).
+      try {
+        const [{ metricasService }, { ProductoService }] = await Promise.all([
+          import('./metricas.service'),
+          import('./producto.service'),
+        ]);
+        const marcaIds = new Map<string, string>();
+        for (const p of venta.productos) {
+          const prod = await ProductoService.getById(p.productoId);
+          if (prod?.marcaId) marcaIds.set(p.sku, prod.marcaId);
+        }
+        await metricasService.procesarVentaCompleta(venta, marcaIds);
+      } catch (e) { secondaryErrors.push(`metricas_gestor: ${e}`); }
     }
 
     // CTRU recalc (fire-and-forget)
@@ -594,7 +620,58 @@ export const envioDespachoService = {
       ctruService.actualizarCTRUPromedioProductos().catch((e) => logger.error('[CTRU] post-entrega:', e));
     }).catch(() => {});
 
-    // TODO (A6): B4 movimientoTransportistaService.registrarEntregaExitosa espera Entrega · adaptar a Envio.
+    // Kit de empaque · POR DESPACHO (cada envío F es un empaque físico distinto).
+    // Portado de venta.entregas.service.marcarEntregada · idempotente por envío
+    // (id de costoVenta `CV-KIT-{envioId}`, no `Date.now()` como el legacy).
+    try {
+      // Guard de idempotencia contra la venta FRESCA (no el snapshot inicial): reduce la
+      // ventana de doble-consumo del kit (`consumirKit` descuenta insumos y NO es idempotente).
+      // La misma lectura sirve para el append (no pisa costosVenta). El cierre TOTAL de la
+      // ventana de concurrencia exigiría transacción sobre la Fase A (aplica a todo el motor).
+      const vSnap = await getDoc(doc(db, VENTAS_COLL, envio.ventaId));
+      const vData = vSnap.exists()
+        ? (vSnap.data() as { costosVenta?: Array<{ id?: string }>; costoVentaTotalPEN?: number })
+        : {};
+      const yaConsumido = (vData.costosVenta || []).some((c) => c?.id === `CV-KIT-${envioId}`);
+      if (!yaConsumido) {
+        const { ProductoService } = await import('./producto.service');
+        // Peso de ESTE despacho: unidades del envío agrupadas por producto.
+        const countByProducto = new Map<string, number>();
+        for (const u of unidadesMap.values()) {
+          countByProducto.set(u.productoId, (countByProducto.get(u.productoId) || 0) + 1);
+        }
+        let pesoTotalLb = 0;
+        for (const [pid, count] of countByProducto) {
+          const prod = await ProductoService.getById(pid);
+          if (prod?.pesoLibras) pesoTotalLb += prod.pesoLibras * count;
+        }
+        if (pesoTotalLb > 0) {
+          const { kitEmpaqueService } = await import('./kitEmpaque.service');
+          const kit = await kitEmpaqueService.seleccionarPorPeso(pesoTotalLb);
+          if (kit) {
+            const costoKit = await kitEmpaqueService.consumirKit(kit.id, userId);
+            if (costoKit > 0) {
+              await updateDoc(doc(db, VENTAS_COLL, envio.ventaId), {
+                costosVenta: [
+                  ...(vData.costosVenta || []),
+                  {
+                    id: `CV-KIT-${envioId}`,
+                    categoriaCostoId: 'kit_empaque',
+                    categoriaCostoNombre: 'Kit de Empaque',
+                    descripcion: `${kit.nombre} · ${envio.numeroEnvio} (${pesoTotalLb.toFixed(1)} lb)`,
+                    monto: costoKit,
+                    moneda: 'PEN',
+                    montoPEN: costoKit,
+                  },
+                ],
+                costoVentaTotalPEN: (vData.costoVentaTotalPEN || 0) + costoKit,
+              });
+              logger.log(`[registrarEntregaExitosa ${envio.numeroEnvio}] Kit ${kit.codigo} consumido: S/${costoKit.toFixed(2)}`);
+            }
+          }
+        }
+      }
+    } catch (e) { secondaryErrors.push(`kit_empaque: ${e}`); }
 
     if (secondaryErrors.length > 0) {
       logger.warn(`[registrarEntregaExitosa ${envio.numeroEnvio}] ${secondaryErrors.length} error(es) secundario(s):`, secondaryErrors);
@@ -624,22 +701,27 @@ export const envioDespachoService = {
       fechaActualizacion: Timestamp.now(),
     });
 
-    if (envio.gastoDeliveryId) {
-      try {
-        await gastoService.delete(envio.gastoDeliveryId);
-        await updateDoc(doc(db, ENVIOS_COLL, envioId), { gastoDeliveryId: null });
-      } catch (error) {
-        logger.error(`[cancelarDespacho ${envio.numeroEnvio}] Error anulando gasto delivery:`, error);
+    // Un despacho 'fallida' (no reprogramado) YA anuló el gasto y liberó las unidades
+    // en `marcarEntregaFallida`. NO re-revertir aquí: evita la doble liberación (riesgo
+    // real de liberar unidades que ya fueron reasignadas a OTRA venta).
+    if (envio.estado !== 'fallida') {
+      if (envio.gastoDeliveryId) {
+        try {
+          await gastoService.delete(envio.gastoDeliveryId);
+          await updateDoc(doc(db, ENVIOS_COLL, envioId), { gastoDeliveryId: null });
+        } catch (error) {
+          logger.error(`[cancelarDespacho ${envio.numeroEnvio}] Error anulando gasto delivery:`, error);
+        }
       }
-    }
 
-    const unidadIds = envio.unidades.map((u) => u.unidadId);
-    if (unidadIds.length > 0) {
-      try {
-        const r = await unidadService.liberarUnidades(unidadIds, `Despacho cancelado: ${motivo}`, userId);
-        logger.log(`[cancelarDespacho ${envio.numeroEnvio}] Unidades liberadas: ${r.exitos}/${unidadIds.length}`);
-      } catch (error) {
-        logger.error(`[cancelarDespacho ${envio.numeroEnvio}] Error liberando unidades:`, error);
+      const unidadIds = envio.unidades.map((u) => u.unidadId);
+      if (unidadIds.length > 0) {
+        try {
+          const r = await unidadService.liberarUnidades(unidadIds, `Despacho cancelado: ${motivo}`, userId);
+          logger.log(`[cancelarDespacho ${envio.numeroEnvio}] Unidades liberadas: ${r.exitos}/${unidadIds.length}`);
+        } catch (error) {
+          logger.error(`[cancelarDespacho ${envio.numeroEnvio}] Error liberando unidades:`, error);
+        }
       }
     }
 
@@ -710,6 +792,66 @@ export const envioDespachoService = {
     }
 
     logger.success(`[programarDespacho] ${envio.numeroEnvio} → programada · VT ${envio.ventaNumero ?? '—'}`);
+  },
+
+  /**
+   * A2.6 — Corrige un despacho F post-hoc (editar courier y/o costo de flete).
+   * Porta `entrega.service.corregirEntrega` sobre Envio PERO sin la cascada a la
+   * cuenta corriente del transportista (review A6 · el modelo F no cablea
+   * `movimientoTransportista`). La única contabilidad del courier que se ajusta es
+   * el `Gasto` tipo 'delivery' (el flete). Editable mientras el envío no esté
+   * cancelado (incluye 'entregada' para correcciones post-entrega).
+   */
+  async corregirDespacho(
+    envioId: string,
+    data: { colaboradorTransporteId?: string; costoDeliveryPEN?: number },
+    userId: string,
+  ): Promise<void> {
+    const envio = await envioCrudService.getById(envioId);
+    if (!envio) throw new Error('Envío no encontrado');
+    if (envio.destinoTipo !== 'cliente') throw new Error('No es un despacho de venta (Caso F).');
+    const editables: EstadoEnvio[] = ['programada', 'en_camino', 'reprogramada', 'entregada'];
+    if (!editables.includes(envio.estado)) {
+      throw new Error(`No se puede editar un despacho en estado "${envio.estado}".`);
+    }
+
+    const costoAnterior = envio.costoDeliveryPEN ?? 0;
+    const costoNuevo = data.costoDeliveryPEN ?? costoAnterior;
+    const cambioCourier = !!(data.colaboradorTransporteId && data.colaboradorTransporteId !== envio.colaboradorId);
+
+    const updates: Record<string, unknown> = { actualizadoPor: userId, fechaActualizacion: Timestamp.now() };
+    let nombreNuevo = envio.colaboradorNombre;
+    if (cambioCourier) {
+      const nuevo = await colaboradorService.getById(data.colaboradorTransporteId!);
+      if (!nuevo) throw new Error('Transportista no encontrado');
+      updates.colaboradorId = nuevo.id;
+      updates.colaboradorNombre = nuevo.nombre;
+      nombreNuevo = nuevo.nombre;
+    }
+    if (costoNuevo !== costoAnterior) updates.costoDeliveryPEN = costoNuevo;
+    await updateDoc(doc(db, ENVIOS_COLL, envioId), updates);
+
+    // Ajustar el Gasto de flete asociado (única contabilidad del courier en el modelo F).
+    if (envio.gastoDeliveryId && (costoNuevo !== costoAnterior || cambioCourier)) {
+      const gastoUpdates: Record<string, unknown> = { actualizadoPor: userId, fechaActualizacion: Timestamp.now() };
+      if (costoNuevo !== costoAnterior) { gastoUpdates.montoOriginal = costoNuevo; gastoUpdates.montoPEN = costoNuevo; }
+      if (cambioCourier) {
+        gastoUpdates.transportistaId = data.colaboradorTransporteId;
+        gastoUpdates.transportistaNombre = nombreNuevo;
+        gastoUpdates.proveedor = nombreNuevo;
+        gastoUpdates.descripcion = `Delivery ${envio.numeroEnvio} - ${nombreNuevo}${envio.destinoClienteDistrito ? ` (${envio.destinoClienteDistrito})` : ''}`;
+      }
+      try {
+        await updateDoc(doc(db, COLLECTIONS.GASTOS, envio.gastoDeliveryId), gastoUpdates);
+        logger.log(`[corregirDespacho ${envio.numeroEnvio}] Gasto delivery ${envio.gastoDeliveryId} actualizado`);
+      } catch (error) {
+        logger.error(`[corregirDespacho ${envio.numeroEnvio}] Error actualizando gasto:`, error);
+      }
+    }
+
+    // Deuda A6 menor: las métricas del colaborador en correcciones post-hoc no se
+    // revierten/reasignan (son analytics · no dinero). No se cablea movimientoTransportista.
+    logger.log(`[corregirDespacho ${envio.numeroEnvio}] corregido · courier=${cambioCourier ? nombreNuevo : 'igual'} · costo S/${costoNuevo.toFixed(2)}`);
   },
 
   /**
