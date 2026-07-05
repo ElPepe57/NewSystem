@@ -14,6 +14,7 @@ import {
   Package,
   Gavel,
   BarChart3,
+  Coins,
   Download,
   LayoutDashboard,
   Landmark,
@@ -65,6 +66,7 @@ import { TabIncidencias } from './TabIncidencias';
 import { TabCostosLanded } from './TabCostosLanded';
 import { TabRendimiento } from './TabRendimiento';
 import { TabResumenEnvios, type ResumenEnviosData } from './TabResumenEnvios';
+import { TabImpactoFinanciero, type ImpactoFinancieroData } from './TabImpactoFinanciero';
 // S47 — Modelo Envios Transversal: clasificación A-J derivada de campos existentes
 import {
   deriveTipoRutaLogistica,
@@ -80,7 +82,7 @@ const EnvioWizardModal = React.lazy(() =>
   import('./EnvioWizard/EnvioWizardPage').then((m) => ({ default: m.EnvioWizardPage }))
 );
 
-type TabEnvios = 'resumen' | 'operaciones' | 'incidencias' | 'reclamos' | 'costos' | 'rendimiento';
+type TabEnvios = 'resumen' | 'operaciones' | 'incidencias' | 'reclamos' | 'costos' | 'rendimiento' | 'impacto';
 
 export const Envios: React.FC = () => {
   const [tabEnvios, setTabEnvios] = useState<TabEnvios>('resumen');
@@ -552,6 +554,25 @@ export const Envios: React.FC = () => {
     { label: 'Incidencias', valor: String(resumen?.enviosConIncidencias ?? 0), tono: 'rose', icon: AlertTriangle, delta: 'sin resolver' },
     { label: 'Valor landed', valor: enviosStatsExtra.tc > 0 ? `S/ ${(enviosStatsExtra.valorLandedPEN / 1000).toFixed(1)}` : `$ ${(valorEnTransito / 1000).toFixed(1)}`, sufijo: 'k', tono: 'indigo', icon: DollarSign, delta: 'total prorrateado' },
   ];
+  const impactoData: ImpactoFinancieroData = useMemo(() => {
+    let codPorCobrar = 0;
+    let codDespachos = 0;
+    for (const e of enviosPorLinea) {
+      if (e.destinoTipo === 'cliente' && e.cobroPendiente && !e.cobroRealizado) {
+        codPorCobrar += e.montoPorCobrar || 0;
+        codDespachos += 1;
+      }
+    }
+    return {
+      fletePorPagar: null,     // agregación CC del colaborador · pasada dedicada
+      codPorCobrar,
+      codDespachos,
+      perdidas: null,          // agregación incidencias/merma · pasada dedicada
+      porRecuperar: resumenReclamos?.totalReclamadoPEN ?? 0,
+      reclamosDisputa: resumenReclamos?.reclamosPendientes ?? 0,
+    };
+  }, [enviosPorLinea, resumenReclamos]);
+
   const tabsHub: HubTab[] = [
     { id: 'resumen', label: 'Resumen', icon: LayoutDashboard },
     { id: 'operaciones', label: 'Operaciones', icon: ArrowRightLeft },
@@ -559,6 +580,7 @@ export const Envios: React.FC = () => {
     { id: 'reclamos', label: 'Reclamos', icon: Gavel, badge: resumenReclamos?.reclamosPendientes || undefined, badgeTono: 'amber' },
     { id: 'costos', label: 'Costos Landed', icon: DollarSign },
     { id: 'rendimiento', label: 'Rendimiento', icon: BarChart3 },
+    { id: 'impacto', label: 'Impacto financiero', icon: Coins },
   ];
   const breadcrumbLeaf = tabEnvios === 'resumen' ? null : (tabsHub.find((t) => t.id === tabEnvios)?.label ?? null);
 
@@ -626,6 +648,8 @@ export const Envios: React.FC = () => {
             <div className="p-4 sm:p-6"><TabCostosLanded /></div>
           ) : tabEnvios === 'rendimiento' ? (
             <div className="p-4 sm:p-6"><TabRendimiento /></div>
+          ) : tabEnvios === 'impacto' ? (
+            <div className="p-4 sm:p-6"><TabImpactoFinanciero data={impactoData} /></div>
           ) : (
           <div className="p-4 sm:p-6 space-y-4">
       {/* KPIs ejecutivos → HubKpiStrip persistente del shell (semántico) ·
