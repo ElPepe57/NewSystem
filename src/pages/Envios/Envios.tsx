@@ -26,13 +26,14 @@ import {
   Users,
   SlidersHorizontal,
   Search,
+  ChevronDown,
 } from "lucide-react";
 import { exportService } from "../../services/export.service";
 import {
   ConfirmDialog,
   useConfirmDialog,
 } from "../../components/common";
-import { FilterDrawer, FilterSection, HubShell, HubTopBar, HubHeader, HubKpiStrip, HubTabs, HubBody } from '../../design-system';
+import { HubShell, HubTopBar, HubHeader, HubKpiStrip, HubTabs, HubBody } from '../../design-system';
 import type { HubKpi, HubTab } from '../../design-system';
 import { hasRole } from '../../types/auth.types';
 import { useEnvioStore } from '../../store/envioStore';
@@ -682,7 +683,7 @@ export const Envios: React.FC = () => {
       {/* KPIs ejecutivos → HubKpiStrip persistente del shell (semántico) ·
            canon de no-redundancia: el strip DA el número, aquí NO se re-renderiza.
            El filtrado por vista (en_transito/pendientes/incidencias) vive en las
-           pills + FilterDrawer de abajo (antes era el click en el KPI). */}
+           pills + panel de filtros inline de abajo (antes era el click en el KPI). */}
 
       {/* (1) chips por TIPO DE RUTA A-J (scroll-x) — master Acto 3 (1) */}
       <div className="flex items-center gap-1.5 overflow-x-auto pb-1 -mx-1 px-1" style={{ scrollbarWidth: 'none' }}>
@@ -763,65 +764,114 @@ export const Envios: React.FC = () => {
             <AlertTriangle className="w-3.5 h-3.5 text-rose-500" /> Con incidencias <span className="text-[10px] bg-rose-100 text-rose-600 rounded-full px-1.5 py-0.5 font-bold tabular-nums">{enviosStatsExtra.countIncidencias}</span>
           </button>
         </div>
-        <div className="relative flex-1 min-w-0 lg:max-w-xs">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-          <input
-            type="text"
-            value={busqueda}
-            onChange={(e) => setBusqueda(e.target.value)}
-            placeholder="Buscar envío, courier, OC…"
-            className="w-full text-[12px] text-slate-700 placeholder:text-slate-400 bg-white border border-slate-200 rounded-lg pl-9 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-400"
-          />
+        <div className="flex items-center gap-2 lg:flex-shrink-0">
+          <div className="relative flex-1 min-w-0 lg:w-64">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
+              placeholder="Buscar envío, courier, OC…"
+              className="w-full text-[12px] text-slate-700 placeholder:text-slate-400 bg-white border border-slate-200 rounded-lg pl-9 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-400"
+            />
+          </div>
+          {(() => {
+            const nGran = [filtroTipo !== 'todas' ? filtroTipo : '', filtroEstado, activeTab !== 'todas' ? activeTab : '', filtroCourier].filter(Boolean).length;
+            return (
+              <button
+                type="button"
+                onClick={() => setShowFilters((v) => !v)}
+                className={`flex items-center gap-1.5 text-[12px] font-medium px-2.5 py-2 rounded-lg whitespace-nowrap flex-shrink-0 transition-colors ${
+                  showFilters || nGran > 0 ? 'bg-orange-50 text-orange-700 border border-orange-200' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+                }`}
+              >
+                <SlidersHorizontal className="w-3.5 h-3.5" /> Filtros
+                {nGran > 0 && (
+                  <span className="text-[10px] bg-orange-100 text-orange-700 rounded-full px-1.5 py-0.5 font-bold tabular-nums">{nGran}</span>
+                )}
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
+              </button>
+            );
+          })()}
         </div>
       </div>
 
-      {/* FilterDrawer — filtros granulares (Vista/Tipo/Estado/Courier) accesibles
-           desde el botón "Filtros" del header del listado (master no lo muestra
-           expandido · el chrome primario son los chips + pills + search de arriba). */}
-      <FilterDrawer
-        color="orange"
-        isOpen={showFilters}
-        onClose={() => setShowFilters(false)}
-        onClearAll={() => { setFiltroTipo('todas'); setFiltroEstado(''); setActiveTab('todas'); setFiltroCourier(''); }}
-        activeFilterCount={[filtroTipo !== 'todas' ? filtroTipo : '', filtroEstado, activeTab !== 'todas' ? activeTab : '', filtroCourier].filter(Boolean).length}
-      >
-        <FilterSection title="Vista">
-          <select className="w-full text-sm border border-slate-300 rounded-lg px-3 py-2" value={activeTab} onChange={e => setActiveTab(e.target.value as 'todas' | 'en_transito' | 'pendientes' | 'incidencias')}>
-            <option value="todas">Todos los envios</option>
-            <option value="en_transito">En transito</option>
-            <option value="pendientes">Pendientes recepcion</option>
-            <option value="incidencias">Con incidencias</option>
-          </select>
-        </FilterSection>
-        <FilterSection title="Tipo">
-          <select className="w-full text-sm border border-slate-300 rounded-lg px-3 py-2" value={filtroTipo} onChange={e => setFiltroTipo(e.target.value as TipoEnvio | 'todas')}>
-            <option value="todas">Todos los tipos</option>
-            <option value="internacional_peru">Internacional</option>
-            <option value="interna_origen">Interna Origen</option>
-          </select>
-        </FilterSection>
-        <FilterSection title="Estado">
-          <select className="w-full text-sm border border-slate-300 rounded-lg px-3 py-2" value={filtroEstado} onChange={e => setFiltroEstado(e.target.value as EstadoEnvio | '')}>
-            <option value="">Todos</option>
-            <option value="borrador">Borrador</option>
-            <option value="confirmado">Confirmado</option>
-            <option value="en_transito">En Transito</option>
-            <option value="recibida_parcial">Parcial</option>
-            <option value="recibida_completa">Completada</option>
-            <option value="cancelada">Cancelada</option>
-          </select>
-        </FilterSection>
-        {couriersUnicos.length > 0 && (
-          <FilterSection title="Courier">
-            <select className="w-full text-sm border border-slate-300 rounded-lg px-3 py-2" value={filtroCourier} onChange={e => setFiltroCourier(e.target.value)}>
-              <option value="">Todos los couriers</option>
-              {couriersUnicos.map((c) => (
-                <option key={c} value={c}>{c}</option>
-              ))}
-            </select>
-          </FilterSection>
-        )}
-      </FilterDrawer>
+      {/* Filtros granulares · panel INLINE colapsable (in-flow · NO drawer lateral ·
+           canon "único sidebar = navegación"). El chrome primario son los chips +
+           pills + search de arriba; los granulares se revelan acá al tocar Filtros. */}
+      {showFilters && (
+        <div className="bg-slate-50/70 border border-slate-200 rounded-xl p-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+            <label className="flex flex-col gap-1 min-w-0">
+              <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400">Vista</span>
+              <select
+                value={activeTab}
+                onChange={e => setActiveTab(e.target.value as 'todas' | 'en_transito' | 'pendientes' | 'incidencias')}
+                className="w-full text-[12px] text-slate-700 bg-white border border-slate-200 rounded-lg px-2.5 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-400"
+              >
+                <option value="todas">Todos los envíos</option>
+                <option value="en_transito">En tránsito</option>
+                <option value="pendientes">Pendientes recepción</option>
+                <option value="incidencias">Con incidencias</option>
+              </select>
+            </label>
+            <label className="flex flex-col gap-1 min-w-0">
+              <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400">Tipo</span>
+              <select
+                value={filtroTipo}
+                onChange={e => setFiltroTipo(e.target.value as TipoEnvio | 'todas')}
+                className="w-full text-[12px] text-slate-700 bg-white border border-slate-200 rounded-lg px-2.5 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-400"
+              >
+                <option value="todas">Todos los tipos</option>
+                <option value="internacional_peru">Internacional</option>
+                <option value="interna_origen">Interna Origen</option>
+              </select>
+            </label>
+            <label className="flex flex-col gap-1 min-w-0">
+              <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400">Estado</span>
+              <select
+                value={filtroEstado}
+                onChange={e => setFiltroEstado(e.target.value as EstadoEnvio | '')}
+                className="w-full text-[12px] text-slate-700 bg-white border border-slate-200 rounded-lg px-2.5 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-400"
+              >
+                <option value="">Todos</option>
+                <option value="borrador">Borrador</option>
+                <option value="confirmado">Confirmado</option>
+                <option value="en_transito">En Tránsito</option>
+                <option value="recibida_parcial">Parcial</option>
+                <option value="recibida_completa">Completada</option>
+                <option value="cancelada">Cancelada</option>
+              </select>
+            </label>
+            {couriersUnicos.length > 0 && (
+              <label className="flex flex-col gap-1 min-w-0">
+                <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400">Courier</span>
+                <select
+                  value={filtroCourier}
+                  onChange={e => setFiltroCourier(e.target.value)}
+                  className="w-full text-[12px] text-slate-700 bg-white border border-slate-200 rounded-lg px-2.5 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-400"
+                >
+                  <option value="">Todos los couriers</option>
+                  {couriersUnicos.map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+              </label>
+            )}
+          </div>
+          {(filtroTipo !== 'todas' || filtroEstado || activeTab !== 'todas' || filtroCourier) && (
+            <div className="flex justify-end mt-2.5">
+              <button
+                type="button"
+                onClick={() => { setFiltroTipo('todas'); setFiltroEstado(''); setActiveTab('todas'); setFiltroCourier(''); }}
+                className="text-[11px] text-slate-500 hover:text-rose-600 font-medium"
+              >
+                Limpiar filtros granulares
+              </button>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Lista de envios */}
       {loading ? (
@@ -835,24 +885,9 @@ export const Envios: React.FC = () => {
           {/* MAIN · lista de envíos */}
           <div className="md:col-span-2 space-y-3">
 
-            {/* header de resultados · N resultados + botón Filtros granulares */}
+            {/* header de resultados · N resultados */}
             <div className="flex items-center justify-between px-0.5">
               <span className="text-[11px] text-slate-500 tabular-nums">{enviosFiltrados.length} resultados</span>
-              {(() => {
-                const nGran = [filtroTipo !== 'todas' ? filtroTipo : '', filtroEstado, activeTab !== 'todas' ? activeTab : '', filtroCourier].filter(Boolean).length;
-                return (
-                  <button
-                    type="button"
-                    onClick={() => setShowFilters(true)}
-                    className="flex items-center gap-1.5 bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 text-[12px] font-medium px-2.5 py-1.5 rounded-lg"
-                  >
-                    <SlidersHorizontal className="w-3.5 h-3.5 text-slate-400" /> Filtros
-                    {nGran > 0 && (
-                      <span className="text-[10px] bg-orange-100 text-orange-700 rounded-full px-1.5 py-0.5 font-bold tabular-nums">{nGran}</span>
-                    )}
-                  </button>
-                );
-              })()}
             </div>
 
             {enviosFiltrados.length === 0 ? (
