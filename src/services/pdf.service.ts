@@ -997,8 +997,9 @@ class PDFService {
     const pagoAreaH = subColH - shH;
 
     if (tieneCobro) {
+      const mpc = entrega.montoPorCobrar ?? 0;
       // Calcular adelanto pagado
-      const adelanto = totalGeneral - entrega.montoPorCobrar!;
+      const adelanto = totalGeneral - mpc;
       const tieneAdelanto = adelanto > 0.5; // Tolerancia para redondeos
 
       // Centrar todo el bloque verticalmente
@@ -1026,7 +1027,7 @@ class PDFService {
       doc.setFontSize(15);
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(...rojo);
-      doc.text(`S/ ${entrega.montoPorCobrar!.toFixed(2)}`, pCenter, pY, { align: 'center' });
+      doc.text(`S/ ${mpc.toFixed(2)}`, pCenter, pY, { align: 'center' });
       pY += 4.5;
 
       // Método

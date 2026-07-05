@@ -48,7 +48,7 @@ function toDespachoPDFData(envio: Envio, venta: Venta): DespachoPDFData {
     const vp = venta.productos.find((p) => p.productoId === s.productoId);
     const precioUnitario = vp?.precioUnitario || 0;
     return {
-      marca: (vp as unknown as { marca?: string })?.marca || '',
+      marca: s.marca || vp?.marca || '',
       nombreComercial: s.nombre,
       cantidad: s.cantidad,
       precioUnitario,
@@ -100,7 +100,9 @@ export const EntregasVenta: React.FC<EntregasVentaProps> = ({ ventaId, venta }) 
     const cargar = async () => {
       try {
         const envios = await envioCrudService.getByVenta(ventaId);
-        if (alive) setDespachos(envios);
+        // Excluye borradores (drafts no operativos): no deben contar en el resumen ni
+        // habilitar impresión de guía/cargo sin fecha programada.
+        if (alive) setDespachos(envios.filter((e) => e.estado !== 'borrador'));
       } catch (error) {
         console.error('Error cargando despachos:', error);
       } finally {

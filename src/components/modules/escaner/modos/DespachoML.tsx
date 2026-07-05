@@ -313,6 +313,14 @@ export const DespachoML = forwardRef<DespachoMLHandle>((_props, ref) => {
         unidadesAsignadas: p.unidadesAsignadas?.slice(0, p.cantidad) || [],
       }));
 
+      // Falla rápido con mensaje accionable si la venta no tiene unidades asignadas
+      // (el motor F tiraría 'No hay unidades seleccionadas' sin contexto para el usuario).
+      if (productosEntrega.every(p => p.unidadesAsignadas.length === 0)) {
+        toast.error('Asigná unidades de inventario a la venta antes de despachar', 'Sin unidades asignadas');
+        setIsDispatching(false);
+        return;
+      }
+
       const data: ProgramarEntregaData = {
         ventaId: selectedOrder.ventaId,
         transportistaId,
@@ -355,7 +363,7 @@ export const DespachoML = forwardRef<DespachoMLHandle>((_props, ref) => {
       await envioDespachoService.marcarEnCaminoEnvio(envio.id, user.uid);
       setEntregasProgramadas(prev => prev.filter(e => e.id !== envio.id));
       if (navigator.vibrate) navigator.vibrate([100, 30, 100, 30, 100]);
-      toast.success(`${envio.ventaNumero} despachada`, `${envio.colaboradorNombre} — en camino`);
+      toast.success(`${envio.ventaNumero ?? envio.numeroEnvio} despachada`, `${envio.colaboradorNombre ?? 'Repartidor'} — en camino`);
     } catch (error: any) {
       toast.error(error?.message || 'Error al despachar');
     } finally {

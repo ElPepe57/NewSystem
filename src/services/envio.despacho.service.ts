@@ -15,7 +15,7 @@
  * Ver docs/ENVIOS_ABSORCION_ENTREGA_PLAN.md
  */
 import {
-  collection, doc, updateDoc, getDoc, query, where, getDocs, writeBatch, arrayUnion, Timestamp,
+  collection, doc, updateDoc, deleteDoc, getDoc, query, where, getDocs, writeBatch, arrayUnion, Timestamp,
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { logger } from '../lib/logger';
@@ -179,31 +179,42 @@ export const envioDespachoService = {
       costosPEN: [],
     }, userId);
 
-    // 4. Transicionar 'borrador' → 'programada' + campos de reparto (última milla)
-    const reparto: Record<string, unknown> = {
-      estado: 'programada' as EstadoEnvio,
-      numeroEntrega,
-      cobroPendiente: payload.cobroPendiente,
-      fechaLlegadaEstimada: Timestamp.fromDate(payload.fechaProgramada),
-      actualizadoPor: userId,
-      fechaActualizacion: Timestamp.now(),
-    };
-    if (payload.horaProgramada) reparto.horaProgramada = payload.horaProgramada;
-    if (payload.montoPorCobrar !== undefined) reparto.montoPorCobrar = payload.montoPorCobrar;
-    if (payload.metodoPagoEsperado) reparto.metodoPagoEsperado = payload.metodoPagoEsperado;
-    if (payload.costoDeliveryPEN !== undefined) reparto.costoDeliveryPEN = payload.costoDeliveryPEN;
-    await updateDoc(doc(db, ENVIOS_COLL, envioId), reparto);
+    // 4-5. Transicionar 'borrador' → 'programada' + sincronizar la venta. Si algo falla,
+    //      borrar el envío recién creado: no dejar un borrador huérfano de un despacho a
+    //      medias (que ensucia el conteo y confunde los flujos de la venta).
+    try {
+      // 4. 'borrador' → 'programada' + campos de reparto (última milla)
+      const reparto: Record<string, unknown> = {
+        estado: 'programada' as EstadoEnvio,
+        numeroEntrega,
+        cobroPendiente: payload.cobroPendiente,
+        fechaLlegadaEstimada: Timestamp.fromDate(payload.fechaProgramada),
+        actualizadoPor: userId,
+        fechaActualizacion: Timestamp.now(),
+      };
+      if (payload.horaProgramada) reparto.horaProgramada = payload.horaProgramada;
+      if (payload.montoPorCobrar !== undefined) reparto.montoPorCobrar = payload.montoPorCobrar;
+      if (payload.metodoPagoEsperado) reparto.metodoPagoEsperado = payload.metodoPagoEsperado;
+      if (payload.costoDeliveryPEN !== undefined) reparto.costoDeliveryPEN = payload.costoDeliveryPEN;
+      await updateDoc(doc(db, ENVIOS_COLL, envioId), reparto);
 
-    // 5. Sincronizar la venta → 'en_entrega' (patrón de entrega.service.programar)
-    const ventaUpdate: Record<string, unknown> = {
-      estado: 'en_entrega',
-      editadoPor: userId,
-      ultimaEdicion: Timestamp.now(),
-    };
-    if (venta.estado !== 'en_entrega') {
-      ventaUpdate.fechaEnEntrega = Timestamp.now();
+      // 5. Sincronizar la venta → 'en_entrega' (patrón de entrega.service.programar)
+      const ventaUpdate: Record<string, unknown> = {
+        estado: 'en_entrega',
+        editadoPor: userId,
+        ultimaEdicion: Timestamp.now(),
+      };
+      if (venta.estado !== 'en_entrega') {
+        ventaUpdate.fechaEnEntrega = Timestamp.now();
+      }
+      await updateDoc(doc(db, VENTAS_COLL, venta.id), ventaUpdate);
+    } catch (error) {
+      try {
+        await deleteDoc(doc(db, ENVIOS_COLL, envioId));
+        logger.warn(`[despacharVenta] Rollback: borrador ${numeroEnvio} eliminado tras fallo de programación`);
+      } catch { /* rollback best-effort */ }
+      throw error;
     }
-    await updateDoc(doc(db, VENTAS_COLL, venta.id), ventaUpdate);
 
     logger.success(
       `[despacharVenta] Despacho ${numeroEnvio} programado · VT ${venta.numeroVenta} · ` +

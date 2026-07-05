@@ -364,7 +364,9 @@ export const Ventas: React.FC = () => {
     // el cierre (entrega + cobro) vive en el detalle del envío (Envíos), no en este
     // botón legacy — que confirmaría unidades/anticipos/kit por segunda vez.
     const despachosF = await envioCrudService.getByVenta(selectedVenta.id);
-    if (despachosF.some((e) => e.estado !== 'cancelada')) {
+    // Excluye 'borrador' (draft no operativo · WizardF o despacho a medias) y 'cancelada':
+    // no deben bloquear el cierre directo de la venta.
+    if (despachosF.some((e) => e.estado !== 'cancelada' && e.estado !== 'borrador')) {
       toast.error(
         'Esta venta tiene un despacho en Envíos · registrá la entrega desde el detalle del envío.',
         'Cerrá desde Envíos',
