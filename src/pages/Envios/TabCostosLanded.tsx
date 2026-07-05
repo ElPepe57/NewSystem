@@ -1,147 +1,156 @@
 /**
- * TabCostosLanded — S40 Bloque D
+ * TabCostosLanded — Tab "Costos landed" del hub de Envíos.
  *
- * Breakdown de costos landed (flete, aduana, brokerage, seguro, otros) por envío.
- * Permite identificar envíos con costos anómalos y drill-down al detalle de cada uno.
+ * Vista operativa del costo puesto en almacén por envío:
+ *   §A · callout amber (estado honesto · Parcial)
+ *   §B · KPI cards semánticas (indigo · slate · amber · emerald)
+ *   §C · filtro período (pills · chrome orange)
+ *   §D · tabla expandible: fila-envío + desglose costos + CTRU por unidad
+ *   §E · nota drill-down (anti-redundancia)
  *
- * Fuente de datos: `envio.costosLanded[]` y `envio.costoLandedTotalPEN`.
- * No re-calcula — usa los valores ya almacenados en Firestore.
+ * Alineado PIXEL-PERFECT al master · docs/mockups/envios-master-v1.html · ACTO 6.
+ * Chrome = orange (grupo Inventario). Datos reales vía useEnvioStore.
+ * Métricas sin fuente calculable se muestran "—" · no se inventan.
+ * NO clona el KPI strip persistente del hub.
  */
 import React, { useEffect, useMemo, useState } from 'react';
 import {
+  Wrench,
   DollarSign,
-  ShieldAlert,
-  Truck,
-  Package,
-  Wallet,
-  TrendingUp,
-  ChevronRight,
+  Calculator,
+  Hourglass,
+  Lock,
+  CheckCircle2,
+  AlertTriangle,
+  Ship,
+  Stamp,
+  PackageCheck,
   ChevronDown,
-  Filter as FilterIcon,
+  ChevronRight,
+  Plus,
+  Info,
+  Layers,
+  Package,
 } from 'lucide-react';
-import { DataTable, StatCard } from '../../design-system';
-import type { DataTableColumn } from '../../design-system';
-import { Badge, SearchInput } from '../../components/common';
 import { useEnvioStore } from '../../store/envioStore';
-import { formatCurrency } from '../../utils/format';
 import type { Envio, CostoLanded } from '../../types/envio.types';
 
-/**
- * Clasifica un CostoLanded en una categoría visual común.
- */
-function clasificarCosto(c: CostoLanded): 'flete' | 'aduana' | 'brokerage' | 'seguro' | 'otros' {
+// ─────────────────────────────────────────────────────────────────────────────
+// Helpers
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Label de sección (canon Stcap: uppercase · text-[10px] · tracking-wider). */
+const Stcap: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className }) => (
+  <span className={`text-[10px] font-bold uppercase tracking-wider text-slate-500 ${className ?? ''}`}>
+    {children}
+  </span>
+);
+
+const formatPEN = (n: number): string =>
+  `S/ ${n.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+const formatPENk = (n: number): string => {
+  if (n >= 1000) return `S/ ${(n / 1000).toFixed(1)}k`;
+  return formatPEN(n);
+};
+
+/** Clasifica un CostoLanded en categoría visual para el ícono del desglose. */
+function categorizarCosto(c: CostoLanded): 'flete' | 'aduana' | 'fee' | 'otro' {
   const nombre = (c.categoriaCostoNombre || '').toLowerCase();
   const id = (c.categoriaCostoId || '').toLowerCase();
   if (nombre.includes('flete') || id === 'flete') return 'flete';
-  if (nombre.includes('aduana') || id === 'aduana' || id === 'impuesto') return 'aduana';
-  if (nombre.includes('broker') || id === 'brokerage') return 'brokerage';
-  if (nombre.includes('seguro') || id === 'seguro') return 'seguro';
-  return 'otros';
+  if (nombre.includes('aduana') || id === 'aduana' || id === 'impuesto' || nombre.includes('arancel')) return 'aduana';
+  if (nombre.includes('recepcion') || nombre.includes('fee') || id === 'fee') return 'fee';
+  return 'otro';
 }
 
-const CATEGORIA_CONFIG: Record<string, { label: string; icon: React.ElementType; color: string }> = {
-  flete: { label: 'Flete', icon: Truck, color: 'text-sky-600' },
-  aduana: { label: 'Aduana', icon: ShieldAlert, color: 'text-orange-600' },
-  brokerage: { label: 'Brokerage', icon: Wallet, color: 'text-purple-600' },
-  seguro: { label: 'Seguro', icon: Package, color: 'text-emerald-600' },
-  otros: { label: 'Otros', icon: DollarSign, color: 'text-slate-500' },
+const ICONO_CATEGORIA: Record<string, React.ElementType> = {
+  flete: Ship,
+  aduana: Stamp,
+  fee: PackageCheck,
+  otro: DollarSign,
 };
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Tipos internos
+// ─────────────────────────────────────────────────────────────────────────────
+
+type FiltroPeriodo = 'mes_actual' | 'trimestre' | 'anio';
 
 interface EnvioConCostos {
   envio: Envio;
   costos: CostoLanded[];
   totalPEN: number;
-  porCategoria: Record<string, number>;
-  porUnidad: number;  // Total / unidades del envío
+  unidades: number;
+  porUnidad: number;
+  estimados: number;
+  confirmados: number;
+  finalizado: boolean;
 }
 
-type FiltroPeriodo = 'todos' | 'mes_actual' | 'ultimos_3_meses' | 'ultimos_6_meses';
+// ─────────────────────────────────────────────────────────────────────────────
+// Componente principal
+// ─────────────────────────────────────────────────────────────────────────────
 
 export const TabCostosLanded: React.FC = () => {
   const { envios, fetchEnvios } = useEnvioStore();
-  const [search, setSearch] = useState('');
-  const [filtroPeriodo, setFiltroPeriodo] = useState<FiltroPeriodo>('ultimos_3_meses');
+  const [filtroPeriodo, setFiltroPeriodo] = useState<FiltroPeriodo>('mes_actual');
   const [expandidos, setExpandidos] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (envios.length === 0) fetchEnvios();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Construcción de dataset
+  // ─── Dataset: envíos que tienen al menos 1 costo landed ──────────────────
   const enviosConCostos = useMemo<EnvioConCostos[]>(() => {
     return envios
-      .filter(e => (e.costosLanded || []).length > 0)
-      .map(envio => {
-        const costos = envio.costosLanded || [];
-        const totalPEN = envio.costoLandedTotalPEN || costos.reduce((s, c) => s + (c.montoPEN || 0), 0);
-        const porCategoria: Record<string, number> = {};
-        for (const c of costos) {
-          const cat = clasificarCosto(c);
-          porCategoria[cat] = (porCategoria[cat] || 0) + (c.montoPEN || 0);
-        }
+      .filter((e) => (e.costosLanded ?? []).length > 0)
+      .map((envio) => {
+        const costos = envio.costosLanded ?? [];
+        const totalPEN =
+          envio.costoLandedTotalPEN ||
+          costos.reduce((s, c) => s + (c.montoPEN || 0), 0);
         const unidades = envio.totalUnidades || 1;
+        const estimados = costos.filter((c) => (c.estado ?? 'estimado') === 'estimado').length;
+        const confirmados = costos.filter((c) => c.estado === 'confirmado').length;
         return {
           envio,
           costos,
           totalPEN,
-          porCategoria,
+          unidades,
           porUnidad: totalPEN / unidades,
+          estimados,
+          confirmados,
+          finalizado: envio.costosFinalizados === true,
         };
       });
   }, [envios]);
 
-  // Filtros
-  const filtrados = useMemo(() => {
-    let list = enviosConCostos;
-
-    // Período
+  // ─── Filtro período ───────────────────────────────────────────────────────
+  const filtrados = useMemo<EnvioConCostos[]>(() => {
     const now = Date.now();
-    const MES_MS = 30 * 24 * 60 * 60 * 1000;
-    if (filtroPeriodo === 'mes_actual') {
-      const mesAtras = now - MES_MS;
-      list = list.filter(e => e.envio.fechaCreacion.toMillis() >= mesAtras);
-    } else if (filtroPeriodo === 'ultimos_3_meses') {
-      const cutoff = now - 3 * MES_MS;
-      list = list.filter(e => e.envio.fechaCreacion.toMillis() >= cutoff);
-    } else if (filtroPeriodo === 'ultimos_6_meses') {
-      const cutoff = now - 6 * MES_MS;
-      list = list.filter(e => e.envio.fechaCreacion.toMillis() >= cutoff);
-    }
+    const MES = 30 * 24 * 60 * 60 * 1000;
+    return enviosConCostos.filter((e) => {
+      const ts = e.envio.fechaCreacion?.toMillis?.() ?? 0;
+      if (filtroPeriodo === 'mes_actual') return ts >= now - MES;
+      if (filtroPeriodo === 'trimestre') return ts >= now - 3 * MES;
+      return ts >= now - 12 * MES; // anio
+    });
+  }, [enviosConCostos, filtroPeriodo]);
 
-    // Búsqueda
-    const q = search.trim().toLowerCase();
-    if (q) {
-      list = list.filter(e =>
-        e.envio.numeroEnvio.toLowerCase().includes(q)
-        || e.envio.ordenCompraNumero?.toLowerCase().includes(q)
-        || e.envio.origenProveedorNombre?.toLowerCase().includes(q)
-      );
-    }
-
-    return list;
-  }, [enviosConCostos, filtroPeriodo, search]);
-
-  // KPIs agregados sobre los filtrados
-  const resumen = useMemo(() => {
-    const total = filtrados.reduce((s, e) => s + e.totalPEN, 0);
-    const unidades = filtrados.reduce((s, e) => s + (e.envio.totalUnidades || 0), 0);
-    const porCategoria = filtrados.reduce<Record<string, number>>((acc, e) => {
-      for (const [cat, monto] of Object.entries(e.porCategoria)) {
-        acc[cat] = (acc[cat] || 0) + monto;
-      }
-      return acc;
-    }, {});
-    return {
-      totalEnvios: filtrados.length,
-      totalPEN: total,
-      costoPorUnidad: unidades > 0 ? total / unidades : 0,
-      costoPromedioEnvio: filtrados.length > 0 ? total / filtrados.length : 0,
-      porCategoria,
-    };
+  // ─── KPIs de la tab ───────────────────────────────────────────────────────
+  const kpis = useMemo(() => {
+    const totalPEN = filtrados.reduce((s, e) => s + e.totalPEN, 0);
+    const totalUnidades = filtrados.reduce((s, e) => s + e.unidades, 0);
+    const estimados = filtrados.filter((e) => !e.finalizado && e.estimados > 0).length;
+    const cerrados = filtrados.filter((e) => e.finalizado).length;
+    const ctrPromedio = totalUnidades > 0 ? totalPEN / totalUnidades : 0;
+    return { totalPEN, ctrPromedio, estimados, cerrados };
   }, [filtrados]);
 
+  // ─── Expand/colapso ──────────────────────────────────────────────────────
   const toggleExpand = (id: string) => {
-    setExpandidos(prev => {
+    setExpandidos((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
       else next.add(id);
@@ -149,231 +158,328 @@ export const TabCostosLanded: React.FC = () => {
     });
   };
 
-  const columnas: DataTableColumn<EnvioConCostos>[] = [
-    {
-      key: 'expand',
-      header: '',
-      width: '4%',
-      render: r => {
-        const expandido = expandidos.has(r.envio.id);
-        return (
-          <button
-            type="button"
-            onClick={(e) => { e.stopPropagation(); toggleExpand(r.envio.id); }}
-            className="text-slate-400 hover:text-slate-600"
-          >
-            {expandido ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-          </button>
-        );
-      },
-    },
-    {
-      key: 'envio',
-      header: 'Envío',
-      width: '16%',
-      render: r => (
-        <div>
-          <div className="font-medium text-slate-900">{r.envio.numeroEnvio}</div>
-          <div className="text-xs text-slate-500">
-            {r.envio.fechaCreacion.toDate().toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' })}
-            {r.envio.ordenCompraNumero && <> · {r.envio.ordenCompraNumero}</>}
-          </div>
-        </div>
-      ),
-    },
-    {
-      key: 'origen',
-      header: 'Origen',
-      width: '18%',
-      hideOnMobile: true,
-      render: r => (
-        <div className="text-sm">
-          <div className="text-slate-700 truncate">
-            {r.envio.origenProveedorNombre || r.envio.origenCasillaNombre || '—'}
-          </div>
-          <div className="text-xs text-slate-500">
-            {r.envio.totalUnidades || 0} unidades
-          </div>
-        </div>
-      ),
-    },
-    {
-      key: 'flete',
-      header: 'Flete',
-      width: '10%',
-      align: 'right',
-      hideOnMobile: true,
-      render: r => (
-        <span className="text-xs text-sky-700">
-          {r.porCategoria.flete ? formatCurrency(r.porCategoria.flete, 'PEN') : '—'}
-        </span>
-      ),
-    },
-    {
-      key: 'aduana',
-      header: 'Aduana',
-      width: '10%',
-      align: 'right',
-      hideOnMobile: true,
-      render: r => (
-        <span className="text-xs text-orange-700">
-          {r.porCategoria.aduana ? formatCurrency(r.porCategoria.aduana, 'PEN') : '—'}
-        </span>
-      ),
-    },
-    {
-      key: 'otros',
-      header: 'Otros',
-      width: '10%',
-      align: 'right',
-      hideOnMobile: true,
-      render: r => {
-        const otros = (r.porCategoria.otros || 0) + (r.porCategoria.brokerage || 0) + (r.porCategoria.seguro || 0);
-        return (
-          <span className="text-xs text-slate-600">
-            {otros > 0 ? formatCurrency(otros, 'PEN') : '—'}
-          </span>
-        );
-      },
-    },
-    {
-      key: 'total',
-      header: 'Total',
-      width: '16%',
-      align: 'right',
-      render: r => (
-        <div>
-          <div className="font-semibold text-slate-900 text-sm">{formatCurrency(r.totalPEN, 'PEN')}</div>
-          <div className="text-xs text-slate-500">
-            {formatCurrency(r.porUnidad, 'PEN')} / unidad
-          </div>
-        </div>
-      ),
-    },
-    {
-      key: 'cantidadCostos',
-      header: '# cargos',
-      width: '8%',
-      align: 'center',
-      render: r => <Badge variant="default" size="sm">{r.costos.length}</Badge>,
-    },
-  ];
-
-  const expandedRender = (r: EnvioConCostos) => (
-    <div className="p-4 bg-slate-50 border-t border-slate-200 space-y-2">
-      <div className="text-xs font-medium text-slate-700 mb-2">
-        Desglose de cargos del envío {r.envio.numeroEnvio}
-      </div>
-      {r.costos.map(c => {
-        const cat = clasificarCosto(c);
-        const cfg = CATEGORIA_CONFIG[cat];
-        const Icon = cfg.icon;
-        return (
-          <div key={c.id} className="flex items-center gap-3 p-2 bg-white border border-slate-200 rounded-lg text-xs">
-            <Icon className={`w-4 h-4 ${cfg.color} flex-shrink-0`} />
-            <div className="flex-1 min-w-0">
-              <div className="text-slate-900 font-medium">
-                {c.categoriaCostoNombre || cfg.label}
-              </div>
-              {c.descripcion && (
-                <div className="text-slate-500 truncate">{c.descripcion}</div>
-              )}
-              <div className="text-[10px] text-slate-400 mt-0.5">
-                Prorrateo: {c.metodoProrrateo}
-                {c.pagado ? ' · Pagado' : ' · Pendiente'}
-              </div>
-            </div>
-            <div className="text-right flex-shrink-0">
-              <div className="font-semibold text-slate-900">
-                {formatCurrency(c.montoPEN, 'PEN')}
-              </div>
-              {c.moneda === 'USD' && (
-                <div className="text-[10px] text-slate-500">
-                  ${c.monto.toFixed(2)} @ {c.tipoCambio?.toFixed(2) || '—'}
-                </div>
-              )}
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
-
+  // ─────────────────────────────────────────────────────────────────────────
   return (
-    <div className="space-y-4">
-      {/* KPIs agregados */}
-      <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(140px,1fr))]">
-        <StatCard
-          label="Envíos con costos"
-          value={resumen.totalEnvios}
-          icon={Package}
-          variant="neutral"
-        />
-        <StatCard
-          label="Total landed"
-          value={formatCurrency(resumen.totalPEN, 'PEN')}
-          icon={DollarSign}
-          variant="info"
-        />
-        <StatCard
-          label="Promedio / envío"
-          value={formatCurrency(resumen.costoPromedioEnvio, 'PEN')}
-          icon={TrendingUp}
-          variant="warning"
-        />
-        <StatCard
-          label="Costo / unidad"
-          value={formatCurrency(resumen.costoPorUnidad, 'PEN')}
-          icon={Package}
-          variant="brand"
-        />
-        <StatCard
-          label="Aduana total"
-          value={formatCurrency(resumen.porCategoria.aduana || 0, 'PEN')}
-          icon={ShieldAlert}
-          variant="danger"
-        />
+    <div className="space-y-5">
+
+      {/* §A · callout amber · estado honesto ─────────────────────────────── */}
+      <div className="bg-gradient-to-r from-amber-50 to-amber-100/30 ring-1 ring-amber-200/60 rounded-2xl p-4 flex items-start gap-3">
+        <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0">
+          <Wrench className="w-5 h-5 text-amber-700" />
+        </div>
+        <div className="flex-1">
+          <div className="text-[13px] font-bold text-amber-900 flex items-center gap-2">
+            Estado de la tab
+            <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 bg-amber-100 text-amber-700 border border-amber-200 rounded-full">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-500" /> Parcial
+            </span>
+          </div>
+          <div className="text-[12px] text-amber-800/90 leading-snug mt-0.5">
+            La <span className="font-semibold">DATA existe</span> en{' '}
+            <code className="text-[11px] bg-amber-100/60 px-1 py-0.5 rounded">envio.costosLanded[]</code> y el
+            CTRU se calcula bien, pero la vista usa <code className="text-[11px] bg-amber-100/60 px-1 py-0.5 rounded">DataTable</code>{' '}
+            + primitivas <code className="text-[11px] bg-amber-100/60 px-1 py-0.5 rounded">common/</code> (Badge/Button).
+            El gap es migrar al kit (fila expandible + FormModalV2 al agregar/finalizar costos).
+          </div>
+        </div>
       </div>
 
-      {/* Filtros */}
-      <div className="flex flex-wrap items-center gap-2 p-3 bg-white border border-slate-200 rounded-lg">
-        <div className="flex-1 min-w-[200px]">
-          <SearchInput
-            value={search}
-            onChange={setSearch}
-            placeholder="Buscar envío, OC, proveedor..."
-          />
+      {/* §B · KPI cards semánticas (4 · N2) ─────────────────────────────── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+
+        {/* Total landed · indigo (dinero comprometido/fijo) */}
+        <div className="bg-gradient-to-br from-indigo-50 to-indigo-100/40 ring-1 ring-indigo-200/50 rounded-2xl p-4">
+          <div className="flex items-center justify-between mb-2">
+            <Stcap className="text-indigo-700">Total landed</Stcap>
+            <DollarSign className="w-3.5 h-3.5 text-indigo-700" />
+          </div>
+          <div className="text-2xl font-bold tabular-nums text-indigo-900">
+            {formatPENk(kpis.totalPEN)}
+          </div>
+          <div className="text-[11px] text-indigo-700 flex items-center gap-1 mt-1">
+            <Layers className="w-3 h-3" /> prorrateado al CTRU
+          </div>
         </div>
-        <div className="flex items-center gap-1.5">
-          <FilterIcon className="w-4 h-4 text-slate-400" />
-          <select
-            value={filtroPeriodo}
-            onChange={(e) => setFiltroPeriodo(e.target.value as FiltroPeriodo)}
-            className="px-2 py-1.5 text-sm border border-slate-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+
+        {/* CTRU promedio · slate (neutro / referencia) */}
+        <div className="bg-gradient-to-br from-slate-50 to-slate-100/40 ring-1 ring-slate-200/50 rounded-2xl p-4">
+          <div className="flex items-center justify-between mb-2">
+            <Stcap>CTRU promedio</Stcap>
+            <Calculator className="w-3.5 h-3.5 text-slate-500" />
+          </div>
+          <div className="text-2xl font-bold tabular-nums text-slate-800">
+            {kpis.ctrPromedio > 0 ? formatPEN(kpis.ctrPromedio) : <span className="text-slate-300">—</span>}
+          </div>
+          <div className="text-[11px] text-slate-500 flex items-center gap-1 mt-1">
+            <Package className="w-3 h-3" /> por unidad recibida
+          </div>
+        </div>
+
+        {/* Estimados · amber (pendientes de confirmar) */}
+        <div className="bg-gradient-to-br from-amber-50 to-amber-100/40 ring-1 ring-amber-200/50 rounded-2xl p-4">
+          <div className="flex items-center justify-between mb-2">
+            <Stcap className="text-amber-700">Estimados</Stcap>
+            <Hourglass className="w-3.5 h-3.5 text-amber-700" />
+          </div>
+          <div className="text-2xl font-bold tabular-nums text-amber-900">
+            {kpis.estimados}
+          </div>
+          <div className="text-[11px] text-amber-700 flex items-center gap-1 mt-1">
+            <AlertTriangle className="w-3 h-3" /> costos sin confirmar
+          </div>
+        </div>
+
+        {/* Cerrados · emerald (CTRU definitivo) */}
+        <div className="bg-gradient-to-br from-emerald-50 to-emerald-100/40 ring-1 ring-emerald-200/50 rounded-2xl p-4">
+          <div className="flex items-center justify-between mb-2">
+            <Stcap className="text-emerald-700">Cerrados</Stcap>
+            <Lock className="w-3.5 h-3.5 text-emerald-700" />
+          </div>
+          <div className="text-2xl font-bold tabular-nums text-emerald-900">
+            {kpis.cerrados}
+          </div>
+          <div className="text-[11px] text-emerald-700 flex items-center gap-1 mt-1">
+            <CheckCircle2 className="w-3 h-3" /> CTRU definitivo
+          </div>
+        </div>
+
+      </div>
+
+      {/* §C · filtro período (pills · chrome orange · scroll-x N6) ────────── */}
+      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 -mx-1 px-1" style={{ scrollbarWidth: 'none' }}>
+        <Stcap className="text-slate-400 flex-shrink-0 mr-1">Período</Stcap>
+        {(
+          [
+            { id: 'mes_actual', label: 'Este mes' },
+            { id: 'trimestre', label: 'Trimestre' },
+            { id: 'anio', label: 'Año' },
+          ] as { id: FiltroPeriodo; label: string }[]
+        ).map((p) => (
+          <button
+            key={p.id}
+            type="button"
+            onClick={() => setFiltroPeriodo(p.id)}
+            className={`text-[12px] font-medium px-2.5 py-1.5 rounded-lg whitespace-nowrap flex-shrink-0 border transition-colors ${
+              filtroPeriodo === p.id
+                ? 'bg-orange-50 text-orange-700 border-orange-200'
+                : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+            }`}
           >
-            <option value="mes_actual">Último mes</option>
-            <option value="ultimos_3_meses">Últimos 3 meses</option>
-            <option value="ultimos_6_meses">Últimos 6 meses</option>
-            <option value="todos">Todos</option>
-          </select>
-        </div>
+            {p.label}
+          </button>
+        ))}
       </div>
 
-      {/* Tabla con expand */}
-      <DataTable<EnvioConCostos>
-        data={filtrados}
-        columns={columnas}
-        keyExtractor={r => r.envio.id}
-        onRowClick={(r) => toggleExpand(r.envio.id)}
-        expandedRowRender={expandedRender}
-        expandedKeys={expandidos}
-        onToggleExpand={toggleExpand}
-        emptyMessage={
-          search
-            ? 'No hay envíos que coincidan con la búsqueda.'
-            : 'No hay envíos con costos landed en el período seleccionado.'
-        }
-      />
+      {/* §D · tabla expandible ───────────────────────────────────────────── */}
+      {filtrados.length === 0 ? (
+        <div className="border border-dashed border-slate-200 rounded-xl p-8 text-center">
+          <DollarSign className="w-8 h-8 text-slate-200 mx-auto mb-2" />
+          <div className="text-[13px] font-medium text-slate-500">
+            Sin envíos con costos landed en este período
+          </div>
+          <div className="text-[12px] text-slate-400 mt-1">
+            Cambiá el filtro de período o registrá costos desde el detalle de un envío.
+          </div>
+        </div>
+      ) : (
+        <div className="border border-slate-200 rounded-xl overflow-hidden">
+
+          {/* Head (oculto en mobile) */}
+          <div className="hidden sm:grid grid-cols-[32px_140px_1fr_140px_120px] gap-3 items-center bg-slate-50 border-b border-slate-200 px-4 py-2.5">
+            <span />
+            <Stcap className="text-slate-500">Envío</Stcap>
+            <Stcap className="text-slate-500">Productos</Stcap>
+            <Stcap className="text-slate-500 text-right block">Total landed</Stcap>
+            <Stcap className="text-slate-500 text-center block">Cierre</Stcap>
+          </div>
+
+          {/* Filas */}
+          {filtrados.map((item, idx) => {
+            const expandido = expandidos.has(item.envio.id);
+            const isLast = idx === filtrados.length - 1;
+            const skuCount = item.envio.productosSummary?.length ?? 0;
+
+            return (
+              <React.Fragment key={item.envio.id}>
+                {/* Fila principal */}
+                <div
+                  onClick={() => toggleExpand(item.envio.id)}
+                  className={`grid grid-cols-1 sm:grid-cols-[32px_140px_1fr_140px_120px] gap-3 items-center px-4 py-3 cursor-pointer transition-colors ${
+                    expandido
+                      ? 'bg-indigo-50/30 ring-1 ring-inset ring-indigo-200/50'
+                      : 'hover:bg-slate-50'
+                  } ${!isLast || expandido ? 'border-b border-slate-100' : ''}`}
+                >
+                  {/* Chevron */}
+                  <div className="flex items-center justify-center">
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); toggleExpand(item.envio.id); }}
+                      className={`w-6 h-6 rounded-lg flex items-center justify-center transition-colors ${
+                        expandido
+                          ? 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200'
+                          : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+                      }`}
+                    >
+                      {expandido
+                        ? <ChevronDown className="w-4 h-4" />
+                        : <ChevronRight className="w-4 h-4" />
+                      }
+                    </button>
+                  </div>
+
+                  {/* Número de envío */}
+                  <div className="text-[13px] font-bold tabular-nums text-slate-900">
+                    {item.envio.numeroEnvio}
+                  </div>
+
+                  {/* Productos / unidades */}
+                  <div className="text-[12px] text-slate-600">
+                    {skuCount > 0 ? (
+                      <>{skuCount} SKU{skuCount !== 1 ? 's' : ''} <span className="text-slate-300">·</span> <span className="tabular-nums">{item.unidades}</span> und</>
+                    ) : (
+                      <><span className="tabular-nums">{item.unidades}</span> und</>
+                    )}
+                  </div>
+
+                  {/* Total */}
+                  <div className={`text-right text-[14px] font-bold tabular-nums ${expandido ? 'text-indigo-900' : 'text-slate-900'}`}>
+                    {formatPEN(item.totalPEN).replace('S/ ', 'S/ ').split('.')[0]}
+                    <span className={expandido ? 'text-indigo-400' : 'text-slate-400'}>
+                      .{item.totalPEN.toFixed(2).split('.')[1]}
+                    </span>
+                  </div>
+
+                  {/* Badge cierre */}
+                  <div className="sm:text-center">
+                    {item.finalizado ? (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full">
+                        <Lock className="w-2.5 h-2.5" /> Definitivo
+                      </span>
+                    ) : item.estimados > 0 ? (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 bg-amber-50 text-amber-700 border border-amber-200 rounded-full">
+                        <Hourglass className="w-2.5 h-2.5" /> Pendiente
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 bg-sky-50 text-sky-700 border border-sky-200 rounded-full">
+                        <CheckCircle2 className="w-2.5 h-2.5" /> Listo
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Desglose expandido */}
+                {expandido && (
+                  <div className={`bg-indigo-50/20 px-4 sm:px-6 py-4 ${!isLast ? 'border-b border-slate-100' : ''}`}>
+                    <div className="max-w-2xl space-y-2">
+                      {item.costos.map((c) => {
+                        const cat = categorizarCosto(c);
+                        const IconoCat = ICONO_CATEGORIA[cat] ?? DollarSign;
+                        const esEstimado = (c.estado ?? 'estimado') === 'estimado';
+                        return (
+                          <div key={c.id} className="flex items-center justify-between text-[12px]">
+                            <span className="flex items-center gap-2 text-slate-600">
+                              <IconoCat className="w-3.5 h-3.5 text-slate-400" />
+                              {c.categoriaCostoNombre || cat}
+                              {esEstimado ? (
+                                <span className="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 bg-amber-50 text-amber-700 border border-amber-200 rounded-full">
+                                  <Hourglass className="w-2.5 h-2.5" /> Estimado
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full">
+                                  <CheckCircle2 className="w-2.5 h-2.5" /> Confirmado
+                                </span>
+                              )}
+                            </span>
+                            <span className={`font-semibold tabular-nums ${esEstimado ? 'text-amber-800' : 'text-slate-800'}`}>
+                              {formatPEN(c.montoPEN).split('.')[0]}
+                              <span className={esEstimado ? 'text-amber-400' : 'text-slate-400'}>
+                                .{c.montoPEN.toFixed(2).split('.')[1]}
+                              </span>
+                            </span>
+                          </div>
+                        );
+                      })}
+
+                      {/* Total + CTRU derivado */}
+                      <div className="flex items-center justify-between text-[13px] pt-2 mt-1 border-t border-indigo-200/60">
+                        <span className="font-bold text-slate-900">Total landed</span>
+                        <span className="font-bold tabular-nums text-indigo-900">
+                          {formatPEN(item.totalPEN).split('.')[0]}
+                          <span className="text-indigo-400">.{item.totalPEN.toFixed(2).split('.')[1]}</span>
+                        </span>
+                      </div>
+
+                      <div className="flex items-center justify-between bg-indigo-50 ring-1 ring-indigo-200/60 rounded-lg px-3 py-2 mt-2">
+                        <span className="text-[11px] font-semibold text-indigo-700 flex items-center gap-1.5">
+                          <Calculator className="w-3.5 h-3.5" />
+                          CTRU por unidad
+                          <span className="text-indigo-400 font-normal">· {item.unidades} und</span>
+                        </span>
+                        <span className="text-[14px] font-bold tabular-nums text-indigo-900">
+                          {formatPEN(item.porUnidad).split('.')[0]}
+                          <span className="text-indigo-400">.{item.porUnidad.toFixed(2).split('.')[1]}</span>
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Acciones del envío expandido */}
+                    <div className="flex items-center gap-2 mt-3">
+                      {!item.finalizado && (
+                        <>
+                          <button
+                            type="button"
+                            className="flex items-center gap-1.5 bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 text-[12px] font-semibold px-3 py-1.5 rounded-lg"
+                          >
+                            <Plus className="w-3.5 h-3.5" /> Agregar costo
+                          </button>
+                          <button
+                            type="button"
+                            disabled={item.estimados > 0}
+                            className="flex items-center gap-1.5 bg-white border border-slate-200 text-[12px] font-semibold px-3 py-1.5 rounded-lg disabled:text-slate-400 disabled:cursor-not-allowed text-slate-600 hover:enabled:bg-slate-50"
+                          >
+                            <Lock className="w-3.5 h-3.5" /> Finalizar CTRU
+                          </button>
+                          {item.estimados > 0 && (
+                            <span className="text-[11px] text-amber-600 flex items-center gap-1">
+                              <AlertTriangle className="w-3 h-3" />
+                              {item.estimados === 1
+                                ? 'hay 1 costo estimado'
+                                : `hay ${item.estimados} costos estimados`}
+                            </span>
+                          )}
+                        </>
+                      )}
+                      {item.finalizado && (
+                        <span className="text-[11px] text-emerald-700 flex items-center gap-1">
+                          <Lock className="w-3 h-3" /> CTRU definitivo · cerrado
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </React.Fragment>
+            );
+          })}
+        </div>
+      )}
+
+      {/* §E · nota drill-down (anti-redundancia) ────────────────────────── */}
+      <div className="flex items-start gap-2 text-[11px] text-slate-500">
+        <Info className="w-3.5 h-3.5 text-slate-400 flex-shrink-0 mt-0.5" />
+        <span>
+          Esta tab es el{' '}
+          <span className="font-semibold text-slate-600">desglose del KPI "Valor landed"</span>{' '}
+          del strip del shell — no lo clona, lo{' '}
+          <span className="font-semibold text-slate-600">abre</span>{' '}
+          en sus componentes (flete · aduana · fee de recepción). El{' '}
+          <span className="font-semibold text-slate-600">CTRU se congela en la recepción del envío</span>{' '}
+          (dueño Envíos): mientras haya un costo{' '}
+          <span className="text-amber-600 font-semibold">Estimado</span>{' '}
+          el cierre queda Pendiente y no se puede finalizar.
+        </span>
+      </div>
+
     </div>
   );
 };
