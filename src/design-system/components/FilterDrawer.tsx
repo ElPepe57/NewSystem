@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { X, Trash2 } from 'lucide-react';
 import { cn } from '../utils';
 import { text, elevation } from '../tokens';
+import { COLOR_CLASSES, type ColorIdentidad } from '../grupoColor';
 
 interface FilterDrawerProps {
   isOpen: boolean;
@@ -11,6 +12,12 @@ interface FilterDrawerProps {
   onClearAll?: () => void;
   activeFilterCount?: number;
   className?: string;
+  /**
+   * Color de identidad del módulo (canon gobernanza de color). Viste el chrome
+   * del drawer (badge de conteo + CTA "Aplicar") con el color del grupo en vez
+   * del teal legacy. Aditivo: sin él, mantiene el teal (no-breaking).
+   */
+  color?: ColorIdentidad;
 }
 
 /**
@@ -18,8 +25,9 @@ interface FilterDrawerProps {
  * Se desliza desde la derecha. Fondo overlay oscuro.
  */
 export const FilterDrawer: React.FC<FilterDrawerProps> = ({
-  isOpen, onClose, title = 'Filtros', children, onClearAll, activeFilterCount, className,
+  isOpen, onClose, title = 'Filtros', children, onClearAll, activeFilterCount, className, color = 'teal',
 }) => {
+  const C = COLOR_CLASSES[color];
   // Bloquear scroll del body cuando esta abierto
   useEffect(() => {
     if (isOpen) document.body.style.overflow = 'hidden';
@@ -52,7 +60,7 @@ export const FilterDrawer: React.FC<FilterDrawerProps> = ({
           <div className="flex items-center gap-2">
             <h2 className={text.heading}>{title}</h2>
             {!!activeFilterCount && (
-              <span className="w-5 h-5 bg-teal-600 text-white text-xs font-bold rounded-full flex items-center justify-center">
+              <span className={cn('w-5 h-5 text-xs font-bold rounded-full flex items-center justify-center', C.toggleActive)}>
                 {activeFilterCount}
               </span>
             )}
@@ -79,7 +87,7 @@ export const FilterDrawer: React.FC<FilterDrawerProps> = ({
             </button>
             <button
               onClick={onClose}
-              className="px-4 py-2 bg-teal-600 text-white text-sm font-medium rounded-lg hover:bg-teal-700 transition-colors"
+              className={cn('px-4 py-2 text-sm font-medium rounded-lg transition-colors', C.primaryBtn)}
             >
               Aplicar
             </button>

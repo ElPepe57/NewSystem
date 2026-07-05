@@ -18,15 +18,21 @@ import {
   Download,
   LayoutDashboard,
   Landmark,
+  Zap,
+  HandCoins,
+  ArrowUpDown,
+  ArrowRight,
+  ArrowUpRight,
+  Users,
+  SlidersHorizontal,
+  Search,
 } from "lucide-react";
 import { exportService } from "../../services/export.service";
 import {
-  Button,
-  Card,
   ConfirmDialog,
   useConfirmDialog,
 } from "../../components/common";
-import { Toolbar, FilterDrawer, FilterSection, HubShell, HubTopBar, HubHeader, HubKpiStrip, HubTabs, HubBody } from '../../design-system';
+import { FilterDrawer, FilterSection, HubShell, HubTopBar, HubHeader, HubKpiStrip, HubTabs, HubBody } from '../../design-system';
 import type { HubKpi, HubTab } from '../../design-system';
 import { hasRole } from '../../types/auth.types';
 import { useEnvioStore } from '../../store/envioStore';
@@ -298,6 +304,22 @@ export const Envios: React.FC = () => {
       if (e.courier) set.add(e.courier);
     }
     return Array.from(set).sort();
+  }, [enviosPorLinea]);
+
+  // Aside Operaciones · couriers ACTIVOS con su carga real (envíos no cerrados).
+  const couriersActivos = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const e of enviosPorLinea) {
+      if (['recibida_completa', 'cancelada'].includes(e.estado)) continue;
+      if (!e.courier) continue;
+      map.set(e.courier, (map.get(e.courier) || 0) + 1);
+    }
+    const iniciales = (n: string) =>
+      n.trim().split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase();
+    return Array.from(map.entries())
+      .map(([nombre, count]) => ({ nombre, count, iniciales: iniciales(nombre) }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
   }, [enviosPorLinea]);
 
   // Filtrar envios
@@ -662,127 +684,106 @@ export const Envios: React.FC = () => {
            El filtrado por vista (en_transito/pendientes/incidencias) vive en las
            pills + FilterDrawer de abajo (antes era el click en el KPI). */}
 
-      {/* S42 Tanda 9 — Pills filtros + dropdowns (mockup líneas 2072-2092) */}
-      <div className="flex items-center gap-2 flex-wrap">
-        <span className="text-xs text-slate-500">Filtrar:</span>
+      {/* (1) chips por TIPO DE RUTA A-J (scroll-x) — master Acto 3 (1) */}
+      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 -mx-1 px-1" style={{ scrollbarWidth: 'none' }}>
+        <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400 flex-shrink-0 mr-1">Tipo de ruta</span>
         <button
           type="button"
-          onClick={() => setPillFiltroEnv('todas')}
-          className={`px-2.5 py-1 text-xs rounded-full transition-colors ${
-            pillFiltroEnv === 'todas' ? 'bg-orange-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+          onClick={() => setFiltroTipoRuta('')}
+          title="Ver todos los tipos de ruta"
+          className={`flex items-center gap-1.5 text-[12px] px-2.5 py-1.5 rounded-lg whitespace-nowrap flex-shrink-0 transition-colors ${
+            filtroTipoRuta === '' ? 'bg-orange-600 text-white font-semibold' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 font-medium'
           }`}
         >
-          Todas <span className="ml-1 opacity-75">({enviosPorLinea.length})</span>
+          Todos
+          <span className={`text-[10px] rounded-full px-1.5 py-0.5 font-bold tabular-nums ${filtroTipoRuta === '' ? 'bg-white/20' : 'bg-slate-100 text-slate-500'}`}>{enviosPorLinea.length}</span>
         </button>
-        <button
-          type="button"
-          onClick={() => setPillFiltroEnv('activas')}
-          className={`px-2.5 py-1 text-xs rounded-full transition-colors ${
-            pillFiltroEnv === 'activas' ? 'bg-orange-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-          }`}
-        >
-          Activas ({enviosStatsExtra.countActivas})
-        </button>
-        <button
-          type="button"
-          onClick={() => setPillFiltroEnv('incidencias')}
-          className={`px-2.5 py-1 text-xs rounded-full transition-colors ${
-            pillFiltroEnv === 'incidencias' ? 'bg-orange-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-          }`}
-        >
-          Con incidencias ({enviosStatsExtra.countIncidencias})
-        </button>
-        <select
-          value={filtroCourier}
-          onChange={(e) => setFiltroCourier(e.target.value)}
-          className="text-xs border border-slate-300 rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-orange-500"
-        >
-          <option value="">Todos los couriers</option>
-          {couriersUnicos.map((c) => (
-            <option key={c} value={c}>{c}</option>
-          ))}
-        </select>
-        <div className="flex-1" />
-        {(pillFiltroEnv !== 'todas' || filtroCourier || filtroTipoRuta) && (
-          <button
-            type="button"
-            onClick={() => { setPillFiltroEnv('todas'); setFiltroCourier(''); setFiltroTipoRuta(''); }}
-            className="text-xs text-slate-500 hover:text-slate-700"
-          >
-            Limpiar filtros
-          </button>
+        {(Object.keys(INFO_TIPO_RUTA) as TipoRutaLogistica[]).map((codigo) => {
+          const info = INFO_TIPO_RUTA[codigo];
+          const count = enviosStatsExtra.countsPorTipoRuta[codigo] || 0;
+          const activo = filtroTipoRuta === codigo;
+          // S52 — Siempre visibles (incluso con count=0) para matching con master
+          return (
+            <button
+              key={codigo}
+              type="button"
+              onClick={() => setFiltroTipoRuta(activo ? '' : codigo)}
+              disabled={count === 0 && !activo}
+              title={info.nombreLargo}
+              className={`flex items-center gap-1.5 text-[12px] px-2.5 py-1.5 rounded-lg whitespace-nowrap flex-shrink-0 transition-colors ${
+                activo
+                  ? 'bg-orange-600 text-white font-semibold'
+                  : count === 0
+                    ? 'bg-white text-slate-300 border border-slate-100 cursor-not-allowed'
+                    : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 font-medium cursor-pointer'
+              }`}
+            >
+              <info.icon className={`w-3.5 h-3.5 ${activo ? '' : 'text-slate-400'}`} />
+              <span>{info.nombreCorto}</span>
+              <span className={`text-[10px] rounded-full px-1.5 py-0.5 font-bold tabular-nums ${activo ? 'bg-white/20' : 'bg-slate-100 text-slate-500'}`}>{count}</span>
+            </button>
+          );
+        })}
+        {enviosStatsExtra.countsPorTipoRuta.sin_clasificar > 0 && (
+          <span className="text-[11px] text-slate-400 italic ml-1 flex-shrink-0">
+            · {enviosStatsExtra.countsPorTipoRuta.sin_clasificar} sin clasificar
+          </span>
         )}
       </div>
 
-      {/* S47 — Sección "Filtrar por tipo de ruta logística" (mockup S43 pixel-perfect) */}
-      <div className="space-y-2 mt-2">
-        <div className="text-xs font-medium text-slate-700">
-          Filtrar por tipo de ruta logística
-        </div>
-        <div className="flex items-center gap-2 flex-wrap">
+      {/* (2) pills de estado + buscador inline — master Acto 3 (2) */}
+      <div className="flex flex-col lg:flex-row lg:items-center gap-3">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 -mx-1 px-1 flex-1 min-w-0" style={{ scrollbarWidth: 'none' }}>
+          <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400 flex-shrink-0 mr-1">Filtrar</span>
           <button
             type="button"
-            onClick={() => setFiltroTipoRuta('')}
-            className={`px-2.5 py-1 text-xs rounded-full transition-colors ${
-              filtroTipoRuta === '' ? 'bg-orange-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+            onClick={() => setPillFiltroEnv('todas')}
+            className={`flex items-center gap-1.5 text-[12px] font-medium px-2.5 py-1.5 rounded-lg whitespace-nowrap flex-shrink-0 transition-colors ${
+              pillFiltroEnv === 'todas' ? 'bg-orange-50 text-orange-700 border border-orange-200' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
             }`}
-            title="Ver todos los tipos de ruta"
           >
-            Todos <span className="ml-1 opacity-75">({enviosPorLinea.length})</span>
+            Todas <span className={`text-[10px] rounded-full px-1.5 py-0.5 font-bold tabular-nums ${pillFiltroEnv === 'todas' ? 'bg-orange-100 text-orange-700' : 'bg-slate-100 text-slate-500'}`}>{enviosPorLinea.length}</span>
           </button>
-          {(Object.keys(INFO_TIPO_RUTA) as TipoRutaLogistica[]).map((codigo) => {
-            const info = INFO_TIPO_RUTA[codigo];
-            const count = enviosStatsExtra.countsPorTipoRuta[codigo] || 0;
-            const activo = filtroTipoRuta === codigo;
-            // S52 — Siempre visibles (incluso con count=0) para matching pixel-perfect con mockup
-            return (
-              <button
-                key={codigo}
-                type="button"
-                onClick={() => setFiltroTipoRuta(activo ? '' : codigo)}
-                disabled={count === 0 && !activo}
-                title={info.nombreLargo}
-                className={`px-2.5 py-1 text-xs rounded-full transition-colors flex items-center gap-1.5 ${
-                  activo
-                    ? 'bg-orange-600 text-white ring-2 ring-orange-300'
-                    : count === 0
-                      ? 'bg-slate-50 text-slate-400 border border-slate-100 cursor-not-allowed opacity-60'
-                      : 'bg-slate-50 text-slate-700 hover:bg-slate-100 border border-slate-200 cursor-pointer'
-                }`}
-              >
-                <info.icon className="w-3 h-3" />
-                <span>{info.nombreCorto}</span>
-                <span className="font-mono text-[10px] opacity-70">· {codigo}</span>
-                <span className={`font-semibold ${activo ? 'text-white/90' : 'text-slate-500'}`}>({count})</span>
-              </button>
-            );
-          })}
-          {enviosStatsExtra.countsPorTipoRuta.sin_clasificar > 0 && (
-            <span className="text-[11px] text-slate-400 italic ml-1">
-              · {enviosStatsExtra.countsPorTipoRuta.sin_clasificar} sin clasificar
-            </span>
-          )}
+          <button
+            type="button"
+            onClick={() => setPillFiltroEnv('activas')}
+            className={`flex items-center gap-1.5 text-[12px] font-medium px-2.5 py-1.5 rounded-lg whitespace-nowrap flex-shrink-0 transition-colors ${
+              pillFiltroEnv === 'activas' ? 'bg-orange-50 text-orange-700 border border-orange-200' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+            }`}
+          >
+            Activas <span className={`text-[10px] rounded-full px-1.5 py-0.5 font-bold tabular-nums ${pillFiltroEnv === 'activas' ? 'bg-orange-100 text-orange-700' : 'bg-slate-100 text-slate-500'}`}>{enviosStatsExtra.countActivas}</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setPillFiltroEnv('incidencias')}
+            className={`flex items-center gap-1.5 text-[12px] font-medium px-2.5 py-1.5 rounded-lg whitespace-nowrap flex-shrink-0 transition-colors ${
+              pillFiltroEnv === 'incidencias' ? 'bg-rose-50 text-rose-700 border border-rose-200' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+            }`}
+          >
+            <AlertTriangle className="w-3.5 h-3.5 text-rose-500" /> Con incidencias <span className="text-[10px] bg-rose-100 text-rose-600 rounded-full px-1.5 py-0.5 font-bold tabular-nums">{enviosStatsExtra.countIncidencias}</span>
+          </button>
+        </div>
+        <div className="relative flex-1 min-w-0 lg:max-w-xs">
+          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <input
+            type="text"
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+            placeholder="Buscar envío, courier, OC…"
+            className="w-full text-[12px] text-slate-700 placeholder:text-slate-400 bg-white border border-slate-200 rounded-lg pl-9 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-400"
+          />
         </div>
       </div>
 
-      {/* S53.26 — El botón "Nuevo envío" y "Exportar" se movieron al PageHeader
-           (arriba) para consolidar los controles principales en un solo card
-           alargado, igual al patrón de /compras. */}
-
-      {/* Toolbar — sin toggle de vista (S57.x: cards únicamente) */}
-      <Toolbar
-        search={{ value: busqueda, onChange: setBusqueda, placeholder: 'Buscar envios...' }}
-        filterCount={[filtroTipo !== 'todas' ? filtroTipo : '', filtroEstado, activeTab !== 'todas' ? activeTab : ''].filter(Boolean).length}
-        onFilterToggle={() => setShowFilters(true)}
-        resultCount={enviosFiltrados.length}
-      />
-
-      {/* FilterDrawer */}
+      {/* FilterDrawer — filtros granulares (Vista/Tipo/Estado/Courier) accesibles
+           desde el botón "Filtros" del header del listado (master no lo muestra
+           expandido · el chrome primario son los chips + pills + search de arriba). */}
       <FilterDrawer
+        color="orange"
         isOpen={showFilters}
         onClose={() => setShowFilters(false)}
-        onClearAll={() => { setFiltroTipo('todas'); setFiltroEstado(''); setActiveTab('todas'); }}
-        activeFilterCount={[filtroTipo !== 'todas' ? filtroTipo : '', filtroEstado, activeTab !== 'todas' ? activeTab : ''].filter(Boolean).length}
+        onClearAll={() => { setFiltroTipo('todas'); setFiltroEstado(''); setActiveTab('todas'); setFiltroCourier(''); }}
+        activeFilterCount={[filtroTipo !== 'todas' ? filtroTipo : '', filtroEstado, activeTab !== 'todas' ? activeTab : '', filtroCourier].filter(Boolean).length}
       >
         <FilterSection title="Vista">
           <select className="w-full text-sm border border-slate-300 rounded-lg px-3 py-2" value={activeTab} onChange={e => setActiveTab(e.target.value as 'todas' | 'en_transito' | 'pendientes' | 'incidencias')}>
@@ -810,6 +811,16 @@ export const Envios: React.FC = () => {
             <option value="cancelada">Cancelada</option>
           </select>
         </FilterSection>
+        {couriersUnicos.length > 0 && (
+          <FilterSection title="Courier">
+            <select className="w-full text-sm border border-slate-300 rounded-lg px-3 py-2" value={filtroCourier} onChange={e => setFiltroCourier(e.target.value)}>
+              <option value="">Todos los couriers</option>
+              {couriersUnicos.map((c) => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+          </FilterSection>
+        )}
       </FilterDrawer>
 
       {/* Lista de envios */}
@@ -817,63 +828,185 @@ export const Envios: React.FC = () => {
         <div className="flex items-center justify-center py-12">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
         </div>
-      ) : enviosFiltrados.length === 0 ? (
-        <Card padding="lg">
-          <div className="text-center py-12">
-            <ArrowRightLeft className="h-16 w-16 text-slate-400 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-slate-900 mb-2">
-              No hay envios
-            </h3>
-            <p className="text-slate-600 mb-6">
-              {activeTab === 'en_transito'
-                ? 'No hay envios en transito'
-                : activeTab === 'pendientes'
-                  ? 'No hay envios pendientes de recepcion'
-                  : activeTab === 'incidencias'
-                    ? 'Sin incidencias abiertas. Todo bajo control.'
-                    : 'Crea tu primer envio para mover productos entre casillas'
-              }
-            </p>
-            {activeTab === 'todas' && (
-              <Button variant="primary" onClick={() => setShowWizard(true)}>
-                <Plus className="h-5 w-5 mr-2" />
-                Nuevo Envio
-              </Button>
+      ) : (
+        /* (3) BODY · Layout A (main 2 + aside 1) — master Acto 3 (3) */
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+          {/* MAIN · lista de envíos */}
+          <div className="md:col-span-2 space-y-3">
+
+            {/* header de resultados · N resultados + botón Filtros granulares */}
+            <div className="flex items-center justify-between px-0.5">
+              <span className="text-[11px] text-slate-500 tabular-nums">{enviosFiltrados.length} resultados</span>
+              {(() => {
+                const nGran = [filtroTipo !== 'todas' ? filtroTipo : '', filtroEstado, activeTab !== 'todas' ? activeTab : '', filtroCourier].filter(Boolean).length;
+                return (
+                  <button
+                    type="button"
+                    onClick={() => setShowFilters(true)}
+                    className="flex items-center gap-1.5 bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 text-[12px] font-medium px-2.5 py-1.5 rounded-lg"
+                  >
+                    <SlidersHorizontal className="w-3.5 h-3.5 text-slate-400" /> Filtros
+                    {nGran > 0 && (
+                      <span className="text-[10px] bg-orange-100 text-orange-700 rounded-full px-1.5 py-0.5 font-bold tabular-nums">{nGran}</span>
+                    )}
+                  </button>
+                );
+              })()}
+            </div>
+
+            {enviosFiltrados.length === 0 ? (
+              <div className="bg-white border border-slate-200 rounded-xl p-8 text-center">
+                <ArrowRightLeft className="h-12 w-12 text-slate-300 mx-auto mb-3" />
+                <h3 className="text-[14px] font-semibold text-slate-900 mb-1">No hay envíos</h3>
+                <p className="text-[12px] text-slate-500 mb-4">
+                  {activeTab === 'en_transito'
+                    ? 'No hay envíos en tránsito.'
+                    : activeTab === 'pendientes'
+                      ? 'No hay envíos pendientes de recepción.'
+                      : activeTab === 'incidencias' || pillFiltroEnv === 'incidencias'
+                        ? 'Sin incidencias abiertas. Todo bajo control.'
+                        : 'Crea tu primer envío para mover productos entre casillas.'}
+                </p>
+                {activeTab === 'todas' && pillFiltroEnv === 'todas' && !filtroTipoRuta && (
+                  <button
+                    type="button"
+                    onClick={() => setShowWizard(true)}
+                    className="inline-flex items-center gap-1.5 bg-orange-600 hover:bg-orange-700 text-white text-[12px] font-semibold px-3.5 py-2 rounded-lg shadow-sm"
+                  >
+                    <Plus className="w-4 h-4" /> Nuevo envío
+                  </button>
+                )}
+              </div>
+            ) : (
+              <>
+                {/* Card canónica EnvioCardSimple — directas en la columna (sin wrapper slate) */}
+                {enviosFiltrados.slice(0, itemsVisiblesEnv).map(envio => (
+                  <EnvioCardSimple
+                    key={envio.id}
+                    envio={envio}
+                    productosMap={productosMapGlobal}
+                    onSelect={setSelectedEnvio}
+                  />
+                ))}
+                {/* paginación · master Acto 3 */}
+                {enviosFiltrados.length > itemsVisiblesEnv && (
+                  <div className="flex items-center justify-between pt-1">
+                    <span className="text-[11px] text-slate-400 tabular-nums">
+                      Mostrando {Math.min(itemsVisiblesEnv, enviosFiltrados.length)} de {enviosFiltrados.length}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setItemsVisiblesEnv((n) => n + 12)}
+                      className="flex items-center gap-1.5 bg-orange-50 text-orange-700 border border-orange-200 hover:bg-orange-100 text-[12px] font-semibold px-3.5 py-2 rounded-lg"
+                    >
+                      Cargar más · +{Math.min(12, enviosFiltrados.length - itemsVisiblesEnv)}
+                    </button>
+                  </div>
+                )}
+              </>
             )}
           </div>
-        </Card>
-      ) : (
-        <>
-          {/* S53.29 — Vista estándar: EnvioCardSimple con layout 5-columnas
-               (igual a CompraCard). Elegante, alargado, consistente con
-               /compras. El detalle se abre en EnvioDetailModal al hacer click.
-               S57.x — Vista de tarjetas única (DataTable eliminada). */}
-          <div className="bg-slate-50 rounded-xl p-4 md:p-5 space-y-3 border border-slate-100">
-            {enviosFiltrados.slice(0, itemsVisiblesEnv).map(envio => (
-              <EnvioCardSimple
-                key={envio.id}
-                envio={envio}
-                productosMap={productosMapGlobal}
-                onSelect={setSelectedEnvio}
-              />
-            ))}
-          </div>
-          {/* S42 Tanda 9 — Footer "Cargar más" (mockup sección final) */}
-          {enviosFiltrados.length > itemsVisiblesEnv && (
-            <div className="pt-2 text-center">
-              <span className="text-xs text-slate-500">
-                + {enviosFiltrados.length - itemsVisiblesEnv} envíos más ·{' '}
-              </span>
-              <button
-                type="button"
-                onClick={() => setItemsVisiblesEnv((n) => n + 12)}
-                className="text-xs font-medium text-orange-600 hover:text-orange-700 hover:underline"
-              >
-                Cargar más
-              </button>
+
+          {/* ASIDE · contexto persistente (datos reales) — master Acto 3 */}
+          <aside className="md:col-span-1 space-y-4">
+
+            {/* Urgencias logísticas */}
+            <div className="bg-gradient-to-br from-rose-50 to-rose-100/30 ring-1 ring-rose-200/60 rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Zap className="w-4 h-4 text-rose-600" />
+                <span className="text-[10px] uppercase tracking-wider font-bold text-rose-700">Urgencias logísticas</span>
+              </div>
+              {enviosStatsExtra.countEnAduana > 0 || codResumen.despachos > 0 || enviosStatsExtra.countIncidencias > 0 ? (
+                <div className="space-y-2">
+                  {enviosStatsExtra.countEnAduana > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setFiltroEstado('retenida_aduana')}
+                      className="w-full flex items-start gap-2.5 bg-white border border-rose-200 rounded-lg px-3 py-2 hover:bg-rose-50/50 text-left"
+                    >
+                      <div className="w-7 h-7 rounded-lg bg-rose-100 flex items-center justify-center flex-shrink-0"><Landmark className="w-3.5 h-3.5 text-rose-700" /></div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-[12px] font-semibold text-slate-900">Retenidos en aduana</div>
+                        <div className="text-[11px] text-rose-700 tabular-nums">{enviosStatsExtra.countEnAduana} envío(s)</div>
+                      </div>
+                      <ArrowRight className="w-3.5 h-3.5 text-rose-400 flex-shrink-0 mt-1" />
+                    </button>
+                  )}
+                  {codResumen.despachos > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setFiltroTipoRuta('F' as TipoRutaLogistica)}
+                      className="w-full flex items-start gap-2.5 bg-white border border-amber-200 rounded-lg px-3 py-2 hover:bg-amber-50/50 text-left"
+                    >
+                      <div className="w-7 h-7 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0"><HandCoins className="w-3.5 h-3.5 text-amber-700" /></div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-[12px] font-semibold text-slate-900">COD por cobrar</div>
+                        <div className="text-[11px] text-amber-700 tabular-nums">S/ {Math.round(codResumen.monto).toLocaleString('es-PE')} · {codResumen.despachos} despacho(s)</div>
+                      </div>
+                      <ArrowRight className="w-3.5 h-3.5 text-amber-400 flex-shrink-0 mt-1" />
+                    </button>
+                  )}
+                  {enviosStatsExtra.countIncidencias > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setPillFiltroEnv('incidencias')}
+                      className="w-full flex items-start gap-2.5 bg-white border border-rose-200 rounded-lg px-3 py-2 hover:bg-rose-50/50 text-left"
+                    >
+                      <div className="w-7 h-7 rounded-lg bg-rose-100 flex items-center justify-center flex-shrink-0"><AlertTriangle className="w-3.5 h-3.5 text-rose-700" /></div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-[12px] font-semibold text-slate-900">Con incidencias</div>
+                        <div className="text-[11px] text-rose-700 tabular-nums">{enviosStatsExtra.countIncidencias} envío(s)</div>
+                      </div>
+                      <ArrowRight className="w-3.5 h-3.5 text-rose-400 flex-shrink-0 mt-1" />
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 bg-white/70 border border-emerald-200 rounded-lg px-3 py-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0"><Package className="w-3.5 h-3.5 text-emerald-700" /></div>
+                  <div className="text-[12px] font-medium text-emerald-800">Sin urgencias · todo bajo control</div>
+                </div>
+              )}
             </div>
-          )}
-        </>
+
+            {/* Couriers activos */}
+            <div className="bg-white border border-slate-200 rounded-xl p-4">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <Users className="w-4 h-4 text-violet-600" />
+                  <span className="text-[10px] uppercase tracking-wider font-bold text-slate-500">Couriers activos</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => navigate('/red-logistica')}
+                  className="text-[11px] font-semibold text-violet-700 hover:text-violet-800 flex items-center gap-1"
+                >
+                  Red logística <ArrowUpRight className="w-3 h-3" />
+                </button>
+              </div>
+              {couriersActivos.length > 0 ? (
+                <div className="space-y-2">
+                  {couriersActivos.map((c) => (
+                    <div key={c.nombre} className="flex items-center gap-2.5">
+                      <span className="w-7 h-7 rounded-full bg-violet-100 text-violet-700 text-[11px] font-bold flex items-center justify-center flex-shrink-0">{c.iniciales}</span>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-[12px] font-medium text-slate-700 truncate">{c.nombre}</div>
+                      </div>
+                      <span className="text-[12px] font-bold tabular-nums text-slate-700">{c.count}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-[12px] text-slate-400 py-1">Sin couriers con envíos activos.</div>
+              )}
+              <div className="mt-3 pt-3 border-t border-slate-100 flex items-center gap-1.5 text-[10px] text-slate-400">
+                <SlidersHorizontal className="w-3 h-3" />
+                <span>Métricas y casillas viven en Red Logística</span>
+              </div>
+            </div>
+          </aside>
+        </div>
       )}
           </div>
           )}
