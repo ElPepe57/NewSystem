@@ -358,7 +358,7 @@ export const SubEnvioTimelineItem: React.FC<SubEnvioTimelineItemProps> = ({
                   <button
                     type="button"
                     onClick={() => onEditar(subEnvio)}
-                    className="inline-flex items-center gap-1 text-xs text-teal-700 hover:underline ml-auto"
+                    className="inline-flex items-center gap-1 text-xs text-orange-700 hover:underline ml-auto"
                   >
                     <Pencil className="w-3 h-3" aria-hidden /> Editar tracking
                   </button>

@@ -165,7 +165,7 @@ export const CostosLandedPanel: React.FC<CostosLandedPanelProps> = ({
         <div className="px-5 py-4 flex items-center justify-between gap-3 flex-wrap">
           <div className="flex items-center gap-3 flex-wrap">
             <div className="flex items-center gap-2">
-              <DollarSign className="w-5 h-5 text-teal-600" aria-hidden />
+              <DollarSign className="w-5 h-5 text-orange-600" aria-hidden />
               <h4 className="text-sm font-semibold text-slate-900">
                 Costos landed ({costos.length})
               </h4>
@@ -211,7 +211,7 @@ export const CostosLandedPanel: React.FC<CostosLandedPanelProps> = ({
                   setModalAgregarOpen(true);
                 }}
                 disabled={loading}
-                className="px-3 py-1.5 text-xs font-semibold text-white bg-teal-600 hover:bg-teal-700 rounded-lg transition-colors flex items-center gap-1.5 disabled:opacity-50"
+                className="px-3 py-1.5 text-xs font-semibold text-white bg-orange-600 hover:bg-orange-700 rounded-lg transition-colors flex items-center gap-1.5 disabled:opacity-50"
               >
                 <Plus className="w-3.5 h-3.5" aria-hidden /> Agregar costo
               </button>
@@ -287,7 +287,7 @@ export const CostosLandedPanel: React.FC<CostosLandedPanelProps> = ({
               type="button"
               onClick={() => setModalAgregarOpen(true)}
               disabled={loading}
-              className="mt-4 px-4 py-2 text-xs font-semibold text-white bg-teal-600 hover:bg-teal-700 rounded-lg inline-flex items-center gap-1.5"
+              className="mt-4 px-4 py-2 text-xs font-semibold text-white bg-orange-600 hover:bg-orange-700 rounded-lg inline-flex items-center gap-1.5"
             >
               <Plus className="w-3.5 h-3.5" aria-hidden /> Agregar primer costo
             </button>

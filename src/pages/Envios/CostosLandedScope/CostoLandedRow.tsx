@@ -169,7 +169,7 @@ export const CostoLandedRow: React.FC<CostoLandedRowProps> = ({
           <button
             type="button"
             onClick={() => onEditar(costo)}
-            className="w-7 h-7 text-slate-400 hover:text-teal-700 hover:bg-slate-100 rounded transition-colors inline-flex items-center justify-center"
+            className="w-7 h-7 text-slate-400 hover:text-orange-700 hover:bg-slate-100 rounded transition-colors inline-flex items-center justify-center"
             title="Editar costo"
             aria-label="Editar"
           >

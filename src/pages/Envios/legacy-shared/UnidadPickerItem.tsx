@@ -74,7 +74,7 @@ export const UnidadPickerItem: React.FC<UnidadPickerItemProps> = ({
         checked={seleccionada}
         onChange={onToggle}
         disabled={disabled}
-        className="w-4 h-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500 disabled:cursor-not-allowed"
+        className="w-4 h-4 rounded border-slate-300 text-orange-600 focus:ring-orange-500 disabled:cursor-not-allowed"
       />
       <Tag className="w-4 h-4 flex-shrink-0 text-slate-400" aria-hidden />
       <div className="flex-1 min-w-0 flex items-center gap-2 flex-wrap">
