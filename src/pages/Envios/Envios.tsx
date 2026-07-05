@@ -253,6 +253,18 @@ export const Envios: React.FC = () => {
     };
   }, [enviosEnTransitoPorLinea, enviosPorLinea, tipoCambioActual, valorEnTransito]);
 
+  // COD por cobrar de los despachos F activos (compartido: §A Resumen + tab Impacto).
+  const codResumen = useMemo(() => {
+    let monto = 0, despachos = 0;
+    for (const e of enviosPorLinea) {
+      if (e.destinoTipo === 'cliente' && e.cobroPendiente && !e.cobroRealizado) {
+        monto += e.montoPorCobrar || 0;
+        despachos += 1;
+      }
+    }
+    return { monto, despachos };
+  }, [enviosPorLinea]);
+
   // Resumen ejecutivo (tab Resumen · §A→§F · canon HUB)
   const resumenEnviosData: ResumenEnviosData = useMemo(() => {
     const alertas: ResumenEnviosData['alertas'] = [];
@@ -271,10 +283,13 @@ export const Envios: React.FC = () => {
       incidencias: resumen?.enviosConIncidencias ?? enviosStatsExtra.countIncidencias,
       reclamosPendientes: resumenReclamos?.reclamosPendientes ?? 0,
       reclamadoPEN: resumenReclamos?.totalReclamadoPEN ?? 0,
+      codPorCobrar: codResumen.monto,
+      leadTimeDias: resumen?.tiempoPromedioTransitoDias ?? null,
+      countEnAduana: enviosStatsExtra.countEnAduana,
       countsPorTipoRuta: enviosStatsExtra.countsPorTipoRuta,
       alertas,
     };
-  }, [enviosPorLinea, resumen, resumenReclamos, enviosStatsExtra]);
+  }, [enviosPorLinea, resumen, resumenReclamos, enviosStatsExtra, codResumen]);
 
   // S42 Tanda 9 — Couriers únicos para dropdown filtro
   const couriersUnicos = useMemo(() => {
@@ -554,24 +569,14 @@ export const Envios: React.FC = () => {
     { label: 'Incidencias', valor: String(resumen?.enviosConIncidencias ?? 0), tono: 'rose', icon: AlertTriangle, delta: 'sin resolver' },
     { label: 'Valor landed', valor: enviosStatsExtra.tc > 0 ? `S/ ${(enviosStatsExtra.valorLandedPEN / 1000).toFixed(1)}` : `$ ${(valorEnTransito / 1000).toFixed(1)}`, sufijo: 'k', tono: 'indigo', icon: DollarSign, delta: 'total prorrateado' },
   ];
-  const impactoData: ImpactoFinancieroData = useMemo(() => {
-    let codPorCobrar = 0;
-    let codDespachos = 0;
-    for (const e of enviosPorLinea) {
-      if (e.destinoTipo === 'cliente' && e.cobroPendiente && !e.cobroRealizado) {
-        codPorCobrar += e.montoPorCobrar || 0;
-        codDespachos += 1;
-      }
-    }
-    return {
-      fletePorPagar: null,     // agregación CC del colaborador · pasada dedicada
-      codPorCobrar,
-      codDespachos,
-      perdidas: null,          // agregación incidencias/merma · pasada dedicada
-      porRecuperar: resumenReclamos?.totalReclamadoPEN ?? 0,
-      reclamosDisputa: resumenReclamos?.reclamosPendientes ?? 0,
-    };
-  }, [enviosPorLinea, resumenReclamos]);
+  const impactoData: ImpactoFinancieroData = useMemo(() => ({
+    fletePorPagar: null,     // agregación CC del colaborador · pasada dedicada
+    codPorCobrar: codResumen.monto,
+    codDespachos: codResumen.despachos,
+    perdidas: null,          // agregación incidencias/merma · pasada dedicada
+    porRecuperar: resumenReclamos?.totalReclamadoPEN ?? 0,
+    reclamosDisputa: resumenReclamos?.reclamosPendientes ?? 0,
+  }), [codResumen, resumenReclamos]);
 
   const tabsHub: HubTab[] = [
     { id: 'resumen', label: 'Resumen', icon: LayoutDashboard },
