@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Envíos · organización de filtros · propuesta v1</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  * { font-family: 'Inter', system-ui, sans-serif; }
+  .tabular-nums { font-variant-numeric: tabular-nums; }
+  body { background: #f1f5f9; }
+  .frame { box-shadow: 0 1px 3px rgba(15,23,42,.08), 0 8px 24px rgba(15,23,42,.06); }
+  .scrollbar-none { scrollbar-width: none; }
+  .scrollbar-none::-webkit-scrollbar { display: none; }
+  .badge { display: inline-flex; align-items: center; gap: 3px; border-radius: 999px; padding: 1px 7px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+  .stcap { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
+  html { scroll-behavior: smooth; }
+</style>
+</head>
+<body class="text-slate-800">
+
+<!-- ═══════════════════════════════ HERO ═══════════════════════════════ -->
+<header class="max-w-[980px] mx-auto px-4 sm:px-6 pt-8 pb-3">
+  <div class="flex items-center gap-2 mb-3 flex-wrap">
+    <span class="badge bg-orange-600 text-white">Envíos · Operaciones</span>
+    <span class="badge bg-slate-800 text-white">Propuesta v1</span>
+    <span class="badge bg-violet-50 text-violet-700 border border-violet-200"><i data-lucide="compass" class="w-2.5 h-2.5"></i> Exploratorio · decisión</span>
+  </div>
+  <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900 mb-2">Organización de filtros · Operaciones</h1>
+  <p class="text-[14px] text-slate-600 max-w-3xl leading-relaxed">
+    Diagnóstico del <b>por qué hoy hay 3 lenguajes de filtro apilados</b> y propuesta para unificarlos en el
+    componente canónico <code class="bg-white/70 px-1 rounded text-[12px]">FiltrosBar</code> — el mismo que
+    ya usan Inventario y Cotizaciones. Mockup de <b>decisión</b>: muestra el estado actual + la propuesta + la sub-decisión.
+    No es especificación cerrada · el titular elige.
+  </p>
+</header>
+
+<!-- ═══════════════════════════════ ACTO 1 · DIAGNÓSTICO ═══════════════════════════════ -->
+<section class="max-w-[980px] mx-auto px-4 sm:px-6 py-4">
+  <div class="flex items-center gap-3 mb-3">
+    <span class="w-8 h-8 rounded-lg bg-slate-800 text-white text-[13px] font-bold flex items-center justify-center flex-shrink-0">1</span>
+    <div>
+      <div class="text-[17px] font-bold text-slate-900">El problema · 3 lenguajes de filtro apilados</div>
+      <div class="text-[12px] text-slate-500">Hoy conviven tres formas distintas de expresar "filtrar", una debajo de otra.</div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-[1fr_260px] gap-4 items-start">
+    <!-- Render del estado actual -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 frame space-y-4">
+
+      <!-- (1) chips tipo de ruta -->
+      <div class="relative">
+        <div class="absolute -left-3 -top-2 w-5 h-5 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center">1</div>
+        <div class="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none ring-1 ring-rose-200 rounded-lg p-1.5">
+          <span class="stcap text-slate-400 flex-shrink-0 mr-1">Tipo de ruta</span>
+          <button class="flex items-center gap-1.5 bg-orange-600 text-white text-[12px] font-semibold px-2.5 py-1.5 rounded-lg whitespace-nowrap flex-shrink-0">Todos <span class="text-[10px] bg-white/20 rounded-full px-1.5 py-0.5 font-bold tabular-nums">0</span></button>
+          <button class="flex items-center gap-1.5 bg-white text-slate-600 border border-slate-200 text-[12px] font-medium px-2.5 py-1.5 rounded-lg whitespace-nowrap flex-shrink-0"><i data-lucide="factory" class="w-3.5 h-3.5 text-slate-400"></i> Proveedor-Casilla <span class="text-[10px] bg-slate-100 text-slate-500 rounded-full px-1.5 py-0.5 font-bold tabular-nums">0</span></button>
+          <button class="flex items-center gap-1.5 bg-white text-slate-600 border border-slate-200 text-[12px] font-medium px-2.5 py-1.5 rounded-lg whitespace-nowrap flex-shrink-0"><i data-lucide="plane" class="w-3.5 h-3.5 text-slate-400"></i> DDP Directo <span class="text-[10px] bg-slate-100 text-slate-500 rounded-full px-1.5 py-0.5 font-bold tabular-nums">0</span></button>
+          <button class="flex items-center gap-1.5 bg-white text-slate-600 border border-slate-200 text-[12px] font-medium px-2.5 py-1.5 rounded-lg whitespace-nowrap flex-shrink-0"><i data-lucide="ship" class="w-3.5 h-3.5 text-slate-400"></i> Casilla-Perú <span class="text-[10px] bg-slate-100 text-slate-500 rounded-full px-1.5 py-0.5 font-bold tabular-nums">0</span></button>
+          <span class="text-[11px] text-slate-300 flex-shrink-0">+5 más →</span>
+        </div>
+      </div>
+
+      <!-- (2) pills estado -->
+      <div class="relative">
+        <div class="absolute -left-3 -top-2 w-5 h-5 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center">2</div>
+        <div class="flex items-center gap-1.5 ring-1 ring-rose-200 rounded-lg p-1.5">
+          <span class="stcap text-slate-400 flex-shrink-0 mr-1">Filtrar</span>
+          <button class="flex items-center gap-1.5 bg-orange-50 text-orange-700 border border-orange-200 text-[12px] font-medium px-2.5 py-1.5 rounded-lg">Todas <span class="text-[10px] bg-orange-100 text-orange-700 rounded-full px-1.5 py-0.5 font-bold tabular-nums">0</span></button>
+          <button class="flex items-center gap-1.5 bg-white text-slate-600 border border-slate-200 text-[12px] font-medium px-2.5 py-1.5 rounded-lg">Activas <span class="text-[10px] bg-slate-100 text-slate-500 rounded-full px-1.5 py-0.5 font-bold tabular-nums">0</span></button>
+          <button class="flex items-center gap-1.5 bg-white text-slate-600 border border-slate-200 text-[12px] font-medium px-2.5 py-1.5 rounded-lg"><i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-rose-500"></i> Con incidencias <span class="text-[10px] bg-rose-100 text-rose-600 rounded-full px-1.5 py-0.5 font-bold tabular-nums">0</span></button>
+        </div>
+      </div>
+
+      <!-- (3) search + panel de selects -->
+      <div class="relative">
+        <div class="absolute -left-3 -top-2 w-5 h-5 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center">3</div>
+        <div class="ring-1 ring-rose-200 rounded-lg p-1.5 space-y-2">
+          <div class="flex items-center gap-2">
+            <div class="relative flex-1">
+              <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+              <input disabled placeholder="Buscar envío, courier, OC…" class="w-full text-[12px] bg-white border border-slate-200 rounded-lg pl-9 pr-3 py-2" />
+            </div>
+            <button class="flex items-center gap-1.5 bg-orange-50 text-orange-700 border border-orange-200 text-[12px] font-medium px-2.5 py-2 rounded-lg"><i data-lucide="sliders-horizontal" class="w-3.5 h-3.5"></i> Filtros <i data-lucide="chevron-up" class="w-3.5 h-3.5"></i></button>
+          </div>
+          <div class="bg-slate-50/70 border border-slate-200 rounded-lg p-3 grid grid-cols-3 gap-2.5">
+            <div><div class="stcap text-slate-400 mb-1">Vista</div><div class="bg-white border border-slate-200 rounded-lg px-2.5 py-2 text-[12px] text-slate-600 flex items-center justify-between">Todos los envíos <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i></div></div>
+            <div><div class="stcap text-slate-400 mb-1">Tipo</div><div class="bg-white border border-slate-200 rounded-lg px-2.5 py-2 text-[12px] text-slate-600 flex items-center justify-between">Todos los tipos <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i></div></div>
+            <div><div class="stcap text-slate-400 mb-1">Estado</div><div class="bg-white border border-slate-200 rounded-lg px-2.5 py-2 text-[12px] text-slate-600 flex items-center justify-between">Todos <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Callouts -->
+    <div class="space-y-2.5">
+      <div class="bg-white border border-slate-200 rounded-xl p-3">
+        <div class="flex items-center gap-2 mb-1"><span class="w-5 h-5 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center flex-shrink-0">1</span><span class="text-[12px] font-bold text-slate-900">Chips sólidos</span></div>
+        <div class="text-[11px] text-slate-500 leading-snug">Fila scroll-x, activo naranja sólido. Hasta 9 tipos de ruta → fila larga y ruidosa.</div>
+      </div>
+      <div class="bg-white border border-slate-200 rounded-xl p-3">
+        <div class="flex items-center gap-2 mb-1"><span class="w-5 h-5 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center flex-shrink-0">2</span><span class="text-[12px] font-bold text-slate-900">Pills suaves</span></div>
+        <div class="text-[11px] text-slate-500 leading-snug">Mismo formato que #1 pero activo naranja-50. Otro "dialecto" del mismo idioma.</div>
+      </div>
+      <div class="bg-white border border-slate-200 rounded-xl p-3">
+        <div class="flex items-center gap-2 mb-1"><span class="w-5 h-5 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center flex-shrink-0">3</span><span class="text-[12px] font-bold text-slate-900">Selects nativos</span></div>
+        <div class="text-[11px] text-slate-500 leading-snug">Un tercer lenguaje: dropdowns en un panel aparte. Además hay solape (Vista ≈ pills).</div>
+      </div>
+      <div class="bg-amber-50 border border-amber-200 rounded-xl p-3">
+        <div class="flex items-center gap-2 mb-1"><i data-lucide="help-circle" class="w-4 h-4 text-amber-600"></i><span class="text-[12px] font-bold text-amber-900">La causa</span></div>
+        <div class="text-[11px] text-amber-800 leading-snug">Operaciones se alineó al <b>mockup master</b>, cuyo diseño de filtros es <b>anterior</b> al canon <code class="bg-white/60 px-1 rounded">FiltrosBar</code>. Inventario y Cotizaciones sí nacieron del canon.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ ACTO 2 · PROPUESTA ═══════════════════════════════ -->
+<section class="max-w-[980px] mx-auto px-4 sm:px-6 py-4">
+  <div class="flex items-center gap-3 mb-3">
+    <span class="w-8 h-8 rounded-lg bg-orange-600 text-white text-[13px] font-bold flex items-center justify-center flex-shrink-0">2</span>
+    <div>
+      <div class="text-[17px] font-bold text-slate-900">La propuesta · 1 solo <code class="text-[15px] bg-slate-100 px-1.5 rounded">FiltrosBar</code></div>
+      <div class="text-[12px] text-slate-500">Un idioma único: dropdowns compactos + chips semánticos + búsqueda + orden, en una tarjeta.</div>
+    </div>
+  </div>
+
+  <!-- FiltrosBar unificado (recomendado · Tipo de ruta = dropdown) -->
+  <div class="bg-white border border-slate-200 rounded-xl p-3 frame space-y-2.5">
+    <!-- Fila 1 · dropdowns + chips -->
+    <div class="flex items-center gap-2 flex-wrap">
+      <button class="flex items-center gap-1.5 rounded-lg px-3 py-1.5 bg-orange-50 border border-orange-200 ring-2 ring-orange-100">
+        <i data-lucide="route" class="w-3.5 h-3.5 text-orange-600"></i>
+        <span class="text-xs font-bold text-orange-700">Tipo de ruta</span>
+        <i data-lucide="chevron-down" class="w-3 h-3 text-orange-500"></i>
+      </button>
+      <button class="flex items-center gap-1.5 rounded-lg px-3 py-1.5 bg-slate-50 border border-slate-200">
+        <i data-lucide="truck" class="w-3.5 h-3.5 text-orange-600"></i>
+        <span class="text-xs font-medium text-slate-700">Courier</span>
+        <i data-lucide="chevron-down" class="w-3 h-3 text-slate-400"></i>
+      </button>
+      <div class="h-5 w-px bg-slate-200"></div>
+      <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Estado:</span>
+      <button class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700 ring-2 ring-emerald-300"><i data-lucide="activity" class="w-2.5 h-2.5"></i> Activas</button>
+      <button class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold bg-white text-slate-600 border border-slate-200"><i data-lucide="truck" class="w-2.5 h-2.5 text-sky-600"></i> En tránsito</button>
+      <button class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold bg-white text-slate-600 border border-slate-200"><i data-lucide="package-check" class="w-2.5 h-2.5 text-amber-600"></i> Pendientes</button>
+      <button class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold bg-white text-slate-600 border border-slate-200"><i data-lucide="alert-triangle" class="w-2.5 h-2.5 text-rose-600"></i> Incidencias</button>
+      <button class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold bg-white text-slate-600 border border-slate-200"><i data-lucide="x-circle" class="w-2.5 h-2.5 text-slate-400"></i> Canceladas</button>
+    </div>
+    <div class="border-t border-slate-100"></div>
+    <!-- Fila 2 · búsqueda + orden + limpiar -->
+    <div class="flex items-center gap-2">
+      <div class="relative flex-1 min-w-[240px]">
+        <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+        <input disabled placeholder="Buscar envío, courier, OC…" class="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-slate-200" />
+      </div>
+      <button class="bg-slate-50 border border-slate-200 text-slate-700 font-medium text-xs px-3 py-2 rounded-lg flex items-center gap-1.5"><i data-lucide="arrow-up-down" class="w-3 h-3 text-slate-400"></i> <span class="text-slate-400 font-normal">Ordenar:</span> Más recientes <i data-lucide="chevron-down" class="w-3 h-3 text-slate-400"></i></button>
+      <button class="text-[10px] font-bold text-orange-600 flex items-center gap-1 px-2 py-2 rounded-lg"><i data-lucide="x" class="w-3 h-3"></i> Limpiar</button>
+    </div>
+  </div>
+
+  <div class="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-3">
+    <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-3">
+      <div class="flex items-center gap-1.5 mb-1"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i><span class="text-[11px] font-bold text-emerald-900">Un solo idioma</span></div>
+      <div class="text-[11px] text-emerald-800 leading-snug">3 paradigmas → 1 tarjeta. Igual a Inventario y Cotizaciones.</div>
+    </div>
+    <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-3">
+      <div class="flex items-center gap-1.5 mb-1"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i><span class="text-[11px] font-bold text-emerald-900">Menos ruido</span></div>
+      <div class="text-[11px] text-emerald-800 leading-snug">Los 9 tipos de ruta pasan a un dropdown compacto (como "Ubicación" en Inventario).</div>
+    </div>
+    <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-3">
+      <div class="flex items-center gap-1.5 mb-1"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i><span class="text-[11px] font-bold text-emerald-900">Sin solapes</span></div>
+      <div class="text-[11px] text-emerald-800 leading-snug">"Vista", pills y "Estado" se funden en <b>una</b> dimensión de estado.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ ACTO 3 · SUB-DECISIÓN ═══════════════════════════════ -->
+<section class="max-w-[980px] mx-auto px-4 sm:px-6 py-4">
+  <div class="flex items-center gap-3 mb-3">
+    <span class="w-8 h-8 rounded-lg bg-orange-600 text-white text-[13px] font-bold flex items-center justify-center flex-shrink-0">3</span>
+    <div>
+      <div class="text-[17px] font-bold text-slate-900">La única sub-decisión · ¿cómo se muestra "Tipo de ruta"?</div>
+      <div class="text-[12px] text-slate-500">Es la dimensión que te chirriaba. Dos formas, ambas dentro del FiltrosBar.</div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <!-- Opción A · dropdown -->
+    <div class="bg-white border-2 border-orange-300 rounded-2xl p-4 frame">
+      <div class="flex items-center gap-2 mb-2">
+        <span class="badge bg-orange-100 text-orange-700">Opción A · recomendada</span>
+      </div>
+      <div class="text-[14px] font-bold text-slate-900 mb-1">Dropdown compacto</div>
+      <div class="text-[12px] text-slate-500 mb-3 leading-snug">Un botón "Tipo de ruta ▾" que abre un menú agrupado. Igual que "Ubicación" en Inventario.</div>
+      <!-- mini render dropdown abierto -->
+      <div class="flex items-start gap-2">
+        <button class="flex items-center gap-1.5 rounded-lg px-3 py-1.5 bg-orange-50 border border-orange-200 ring-2 ring-orange-100 flex-shrink-0"><i data-lucide="route" class="w-3.5 h-3.5 text-orange-600"></i><span class="text-xs font-bold text-orange-700">Tipo de ruta</span><i data-lucide="chevron-up" class="w-3 h-3 text-orange-500"></i></button>
+        <div class="bg-white border border-slate-200 rounded-xl shadow-lg py-1 w-48 text-[12px]">
+          <div class="px-3 py-1.5 bg-orange-50 text-orange-700 font-semibold flex items-center justify-between">Todos <i data-lucide="check" class="w-3.5 h-3.5"></i></div>
+          <div class="my-1 border-t border-slate-100"></div>
+          <div class="px-3 pt-1.5 pb-0.5 stcap text-slate-400 flex items-center gap-1.5"><i data-lucide="ship" class="w-3 h-3"></i> Importación</div>
+          <div class="px-3 py-1.5 text-slate-700 hover:bg-slate-50">Proveedor-Casilla</div>
+          <div class="px-3 py-1.5 text-slate-700 hover:bg-slate-50">DDP Directo</div>
+          <div class="px-3 pt-1.5 pb-0.5 stcap text-slate-400 flex items-center gap-1.5"><i data-lucide="store" class="w-3 h-3"></i> Nacional</div>
+          <div class="px-3 py-1.5 text-slate-700 hover:bg-slate-50">Despacho venta</div>
+          <div class="px-3 py-1.5 text-slate-700 hover:bg-slate-50">Traslado</div>
+        </div>
+      </div>
+      <div class="mt-3 space-y-1.5 text-[11px]">
+        <div class="flex items-start gap-1.5 text-emerald-700"><i data-lucide="plus" class="w-3 h-3 mt-0.5 flex-shrink-0"></i> Ocupa poco · el más limpio para el hub.</div>
+        <div class="flex items-start gap-1.5 text-emerald-700"><i data-lucide="plus" class="w-3 h-3 mt-0.5 flex-shrink-0"></i> Escala a 9+ rutas sin ruido · agrupado por familia.</div>
+        <div class="flex items-start gap-1.5 text-slate-500"><i data-lucide="minus" class="w-3 h-3 mt-0.5 flex-shrink-0"></i> El tipo de ruta queda a 1 click (no siempre visible).</div>
+      </div>
+    </div>
+
+    <!-- Opción B · chips -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-4 frame">
+      <div class="flex items-center gap-2 mb-2">
+        <span class="badge bg-slate-100 text-slate-600">Opción B · alternativa</span>
+      </div>
+      <div class="text-[14px] font-bold text-slate-900 mb-1">Chips siempre visibles</div>
+      <div class="text-[12px] text-slate-500 mb-3 leading-snug">Los tipos de ruta como chips, pero en el <b>idioma del FiltrosBar</b> (pills chicos), no los grandes de hoy.</div>
+      <!-- mini render chips -->
+      <div class="flex items-center gap-1.5 flex-wrap">
+        <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Ruta:</span>
+        <button class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold bg-slate-200 text-slate-700 ring-2 ring-slate-300">Todos</button>
+        <button class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold bg-white text-slate-600 border border-slate-200"><i data-lucide="factory" class="w-2.5 h-2.5 text-slate-500"></i> Prov-Casilla</button>
+        <button class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold bg-white text-slate-600 border border-slate-200"><i data-lucide="plane" class="w-2.5 h-2.5 text-slate-500"></i> DDP</button>
+        <button class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold bg-white text-slate-600 border border-slate-200"><i data-lucide="ship" class="w-2.5 h-2.5 text-slate-500"></i> Casilla-Perú</button>
+        <button class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold bg-white text-slate-600 border border-slate-200"><i data-lucide="store" class="w-2.5 h-2.5 text-slate-500"></i> Despacho</button>
+        <span class="text-[10px] text-slate-300">+4 →</span>
+      </div>
+      <div class="mt-3 space-y-1.5 text-[11px]">
+        <div class="flex items-start gap-1.5 text-emerald-700"><i data-lucide="plus" class="w-3 h-3 mt-0.5 flex-shrink-0"></i> El tipo de ruta queda siempre a la vista · 1 toque.</div>
+        <div class="flex items-start gap-1.5 text-slate-500"><i data-lucide="minus" class="w-3 h-3 mt-0.5 flex-shrink-0"></i> 9 chips = fila larga con scroll-x (más densa).</div>
+        <div class="flex items-start gap-1.5 text-slate-500"><i data-lucide="minus" class="w-3 h-3 mt-0.5 flex-shrink-0"></i> Menos "aire" que el dropdown.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ ACTO 4 · MAPEO ═══════════════════════════════ -->
+<section class="max-w-[980px] mx-auto px-4 sm:px-6 py-4 pb-10">
+  <div class="flex items-center gap-3 mb-3">
+    <span class="w-8 h-8 rounded-lg bg-slate-800 text-white text-[13px] font-bold flex items-center justify-center flex-shrink-0">4</span>
+    <div>
+      <div class="text-[17px] font-bold text-slate-900">Mapeo de dimensiones · qué pasa con cada filtro</div>
+      <div class="text-[12px] text-slate-500">La propuesta también racionaliza: hay solapes hoy que se funden.</div>
+    </div>
+  </div>
+
+  <div class="bg-white border border-slate-200 rounded-2xl frame overflow-hidden">
+    <div class="grid grid-cols-[1.1fr_1fr_1.4fr] text-[11px]">
+      <div class="stcap text-slate-500 px-4 py-2.5 bg-slate-50 border-b border-slate-200">Hoy</div>
+      <div class="stcap text-slate-500 px-4 py-2.5 bg-slate-50 border-b border-slate-200">Propuesta</div>
+      <div class="stcap text-slate-500 px-4 py-2.5 bg-slate-50 border-b border-slate-200">Nota</div>
+
+      <div class="px-4 py-2.5 border-b border-slate-100 text-slate-700 font-medium">Tipo de ruta (chips A-J)</div>
+      <div class="px-4 py-2.5 border-b border-slate-100 text-orange-700 font-semibold">Dropdown "Tipo de ruta"</div>
+      <div class="px-4 py-2.5 border-b border-slate-100 text-slate-500">Agrupado por familia · Opción A</div>
+
+      <div class="px-4 py-2.5 border-b border-slate-100 text-slate-700 font-medium">Pills (Todas/Activas/Incidencias)</div>
+      <div class="px-4 py-2.5 border-b border-slate-100 text-orange-700 font-semibold">Chips "Estado"</div>
+      <div class="px-4 py-2.5 border-b border-slate-100 text-slate-500">Se fusiona con "Vista" ↓</div>
+
+      <div class="px-4 py-2.5 border-b border-slate-100 text-slate-700 font-medium">Vista (en tránsito / pendientes)</div>
+      <div class="px-4 py-2.5 border-b border-slate-100 text-orange-700 font-semibold">Chips "Estado"</div>
+      <div class="px-4 py-2.5 border-b border-slate-100 text-slate-500">Misma dimensión · deja de duplicarse</div>
+
+      <div class="px-4 py-2.5 border-b border-slate-100 text-slate-700 font-medium">Estado granular (borrador…cancelada)</div>
+      <div class="px-4 py-2.5 border-b border-slate-100 text-orange-700 font-semibold">Chips "Estado"</div>
+      <div class="px-4 py-2.5 border-b border-slate-100 text-slate-500">Un solo eje de estado</div>
+
+      <div class="px-4 py-2.5 border-b border-slate-100 text-slate-700 font-medium">Courier (select)</div>
+      <div class="px-4 py-2.5 border-b border-slate-100 text-orange-700 font-semibold">Dropdown "Courier"</div>
+      <div class="px-4 py-2.5 border-b border-slate-100 text-slate-500">Igual que Tipo de ruta</div>
+
+      <div class="px-4 py-2.5 border-b border-slate-100 text-slate-700 font-medium">Tipo (internacional / interna)</div>
+      <div class="px-4 py-2.5 border-b border-slate-100 text-rose-600 font-semibold">Se elimina</div>
+      <div class="px-4 py-2.5 border-b border-slate-100 text-slate-500">Redundante · la ruta A-J ya lo implica <b>(a confirmar)</b></div>
+
+      <div class="px-4 py-2.5 border-b border-slate-100 text-slate-700 font-medium">Búsqueda</div>
+      <div class="px-4 py-2.5 border-b border-slate-100 text-orange-700 font-semibold">Búsqueda (fila 2)</div>
+      <div class="px-4 py-2.5 border-b border-slate-100 text-slate-500">Igual</div>
+
+      <div class="px-4 py-2.5 text-slate-400 font-medium italic">— (no existe)</div>
+      <div class="px-4 py-2.5 text-emerald-700 font-semibold">Orden (fila 2)</div>
+      <div class="px-4 py-2.5 text-slate-500">Nuevo · recientes / antiguos / por valor</div>
+    </div>
+  </div>
+
+  <div class="mt-4 flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-2xl p-4">
+    <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5"></i>
+    <div class="text-[12px] text-amber-800 leading-relaxed">
+      <b class="text-amber-900">Cambia comportamiento, no solo estilo.</b> Fundir "Vista" + pills + "Estado" en una sola dimensión, y
+      eliminar "Tipo (internacional/interna)", <b>racionaliza</b> el filtrado (hoy hay solapes). Eso requiere tu OK explícito
+      antes de tocar código — por eso es un mockup de decisión, no una implementación.
+    </div>
+  </div>
+</section>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>

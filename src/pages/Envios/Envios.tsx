@@ -25,15 +25,19 @@ import {
   ArrowUpRight,
   Users,
   SlidersHorizontal,
-  Search,
-  ChevronDown,
+  Route,
+  Ship,
+  Store,
+  Undo2,
+  Activity,
+  XCircle,
 } from "lucide-react";
 import { exportService } from "../../services/export.service";
 import {
   ConfirmDialog,
   useConfirmDialog,
 } from "../../components/common";
-import { HubShell, HubTopBar, HubHeader, HubKpiStrip, HubTabs, HubBody } from '../../design-system';
+import { FiltrosBar, HubShell, HubTopBar, HubHeader, HubKpiStrip, HubTabs, HubBody } from '../../design-system';
 import type { HubKpi, HubTab } from '../../design-system';
 import { hasRole } from '../../types/auth.types';
 import { useEnvioStore } from '../../store/envioStore';
@@ -146,17 +150,13 @@ export const Envios: React.FC = () => {
   // S57.x — viewMode ELIMINADO. Vista de tarjetas es la única opción
   // (alineado con /compras, referencia canónica S54.x).
 
-  // Estado de filtros
-  const [activeTab, setActiveTab] = useState<'todas' | 'en_transito' | 'pendientes' | 'incidencias'>('todas');
-  const [filtroTipo, setFiltroTipo] = useState<TipoEnvio | 'todas'>('todas');
-  const [filtroEstado, setFiltroEstado] = useState<EstadoEnvio | ''>('');
+  // Estado de filtros · unificados en FiltrosBar (canon · sin drawer, un solo eje Estado)
   const [busqueda, setBusqueda] = useState('');
-  const [showFilters, setShowFilters] = useState(false);
-  const [pipelineStage, setPipelineStage] = useState<string | null>(null);
-  // S42 Tanda 9 — Filtros extra alineados a mockup s40 líneas 2073-2092
-  const [pillFiltroEnv, setPillFiltroEnv] = useState<'todas' | 'activas' | 'incidencias'>('todas');
+  // Eje ESTADO consolidado (single-select) · fusiona la antigua "Vista" + pills + estado granular
+  const [estadoFiltro, setEstadoFiltro] = useState('');
+  const [orden, setOrden] = useState('reciente');
   const [filtroCourier, setFiltroCourier] = useState('');
-  // S47 — Filtro por tipo de ruta logística (A-J del Modelo Envíos Transversal)
+  // Filtro por tipo de ruta logística (A-J del Modelo Envíos Transversal) · dropdown agrupado
   const [filtroTipoRuta, setFiltroTipoRuta] = useState<TipoRutaLogistica | ''>('');
   const [itemsVisiblesEnv, setItemsVisiblesEnv] = useState(12);
 
@@ -323,40 +323,53 @@ export const Envios: React.FC = () => {
       .slice(0, 5);
   }, [enviosPorLinea]);
 
-  // Filtrar envios
+  // Filtrar envios · dimensiones unificadas en FiltrosBar (Estado + Tipo de ruta + Courier + búsqueda + orden)
   const enviosFiltrados = useMemo(() => {
-    let lista = activeTab === 'en_transito'
-      ? enviosEnTransitoPorLinea
-      : activeTab === 'pendientes'
-        ? enviosPendientesPorLinea
-        : enviosPorLinea;
+    let lista: Envio[] = enviosPorLinea;
 
-    // Filtro por incidencias activas (KPI clickable)
-    if (activeTab === 'incidencias') {
-      lista = lista.filter(e => {
-        if ((e.totalUnidadesFaltantes || 0) > 0 || (e.totalUnidadesDanadas || 0) > 0) return true;
-        if (e.estado === 'retenida_aduana' || e.estado === 'perdida_total') return true;
-        if (Array.isArray(e.incidencias) && e.incidencias.some(i => !i.resuelta)) return true;
-        return false;
-      });
-    }
-
-    if (pipelineStage) {
-      if (pipelineStage === 'recibida') {
+    // Eje ESTADO consolidado (single-select) · reemplaza Vista + pills + estado granular
+    switch (estadoFiltro) {
+      case 'activas':
+        lista = lista.filter(e => !['recibida_completa', 'cancelada'].includes(e.estado));
+        break;
+      case 'en_transito':
+        lista = enviosEnTransitoPorLinea;
+        break;
+      case 'pendientes':
+        lista = enviosPendientesPorLinea;
+        break;
+      case 'incidencias':
+        lista = lista.filter(e => {
+          if ((e.totalUnidadesFaltantes || 0) > 0 || (e.totalUnidadesDanadas || 0) > 0) return true;
+          if (e.estado === 'retenida_aduana' || e.estado === 'perdida_total') return true;
+          if (Array.isArray(e.incidencias) && e.incidencias.some(i => !i.resuelta)) return true;
+          return false;
+        });
+        break;
+      case 'recibidas':
         lista = lista.filter(e => e.estado === 'recibida_parcial' || e.estado === 'recibida_completa');
-      } else {
-        lista = lista.filter(e => e.estado === pipelineStage);
-      }
+        break;
+      case 'retenida_aduana': // cross-link del aside (urgencia aduana)
+        lista = lista.filter(e => e.estado === 'retenida_aduana');
+        break;
+      case 'cancelada':
+        lista = lista.filter(e => e.estado === 'cancelada');
+        break;
+      default:
+        break; // '' = todas
     }
 
-    if (filtroTipo !== 'todas') {
-      lista = lista.filter(e => e.tipo === filtroTipo);
+    // Tipo de ruta (dropdown agrupado · A-J)
+    if (filtroTipoRuta) {
+      lista = lista.filter(e => deriveTipoRutaLogistica(e) === filtroTipoRuta);
     }
 
-    if (filtroEstado) {
-      lista = lista.filter(e => e.estado === filtroEstado);
+    // Courier (chip)
+    if (filtroCourier) {
+      lista = lista.filter(e => e.courier === filtroCourier);
     }
 
+    // Búsqueda
     if (busqueda) {
       const term = busqueda.toLowerCase();
       lista = lista.filter(e => {
@@ -373,37 +386,23 @@ export const Envios: React.FC = () => {
       });
     }
 
-    // Pills filtro · eje ESTADO/SALUD. El filtro por origen/ruta (incl. "lo que manda
-    // el proveedor") vive en la fila "Filtrar por tipo de ruta logística" (ruta A).
-    if (pillFiltroEnv === 'activas') {
-      lista = lista.filter(e => !['recibida_completa', 'cancelada'].includes(e.estado));
-    } else if (pillFiltroEnv === 'incidencias') {
-      lista = lista.filter(e => {
-        if ((e.totalUnidadesFaltantes || 0) > 0 || (e.totalUnidadesDanadas || 0) > 0) return true;
-        if (e.estado === 'retenida_aduana' || e.estado === 'perdida_total') return true;
-        if (Array.isArray(e.incidencias) && e.incidencias.some(i => !i.resuelta)) return true;
-        return false;
-      });
-    }
+    // Orden · copia ANTES de ordenar (algunas ramas devuelven refs del store · nunca mutar)
+    const ms = (t?: { toMillis?: () => number }) => t?.toMillis?.() ?? 0;
+    return [...lista].sort((a, b) => {
+      switch (orden) {
+        case 'antiguo': return ms(a.fechaCreacion) - ms(b.fechaCreacion);
+        case 'unidades': return (b.totalUnidades || 0) - (a.totalUnidades || 0);
+        case 'reciente':
+        default: return ms(b.fechaCreacion) - ms(a.fechaCreacion);
+      }
+    });
+  }, [enviosPorLinea, enviosEnTransitoPorLinea, enviosPendientesPorLinea,
+      estadoFiltro, filtroTipoRuta, filtroCourier, busqueda, orden]);
 
-    // Dropdown courier
-    if (filtroCourier) {
-      lista = lista.filter(e => e.courier === filtroCourier);
-    }
-
-    // S47 — Filtro tipo ruta A-J (Modelo Envíos Transversal)
-    if (filtroTipoRuta) {
-      lista = lista.filter(e => deriveTipoRutaLogistica(e) === filtroTipoRuta);
-    }
-
-    return lista;
-  }, [activeTab, enviosEnTransitoPorLinea, enviosPendientesPorLinea, enviosPorLinea,
-      pipelineStage, filtroTipo, filtroEstado, busqueda, pillFiltroEnv, filtroCourier, filtroTipoRuta]);
-
-  // S42 Tanda 9 — Reset paginación al cambiar filtros
+  // Reset paginación al cambiar filtros
   useEffect(() => {
     setItemsVisiblesEnv(12);
-  }, [activeTab, pipelineStage, filtroTipo, filtroEstado, busqueda, pillFiltroEnv, filtroCourier, filtroTipoRuta]);
+  }, [estadoFiltro, busqueda, filtroCourier, filtroTipoRuta]);
 
   // Handlers de acciones
   const handleConfirmar = useCallback(async (id: string) => {
@@ -682,196 +681,67 @@ export const Envios: React.FC = () => {
           <div className="p-4 sm:p-6 space-y-4">
       {/* KPIs ejecutivos → HubKpiStrip persistente del shell (semántico) ·
            canon de no-redundancia: el strip DA el número, aquí NO se re-renderiza.
-           El filtrado por vista (en_transito/pendientes/incidencias) vive en las
-           pills + panel de filtros inline de abajo (antes era el click en el KPI). */}
+           Todo el filtrado vive en el FiltrosBar canónico de abajo (un solo idioma). */}
 
-      {/* (1) chips por TIPO DE RUTA A-J (scroll-x) — master Acto 3 (1) */}
-      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 -mx-1 px-1" style={{ scrollbarWidth: 'none' }}>
-        <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400 flex-shrink-0 mr-1">Tipo de ruta</span>
-        <button
-          type="button"
-          onClick={() => setFiltroTipoRuta('')}
-          title="Ver todos los tipos de ruta"
-          className={`flex items-center gap-1.5 text-[12px] px-2.5 py-1.5 rounded-lg whitespace-nowrap flex-shrink-0 transition-colors ${
-            filtroTipoRuta === '' ? 'bg-orange-600 text-white font-semibold' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 font-medium'
-          }`}
-        >
-          Todos
-          <span className={`text-[10px] rounded-full px-1.5 py-0.5 font-bold tabular-nums ${filtroTipoRuta === '' ? 'bg-white/20' : 'bg-slate-100 text-slate-500'}`}>{enviosPorLinea.length}</span>
-        </button>
-        {(Object.keys(INFO_TIPO_RUTA) as TipoRutaLogistica[]).map((codigo) => {
-          const info = INFO_TIPO_RUTA[codigo];
-          const count = enviosStatsExtra.countsPorTipoRuta[codigo] || 0;
-          const activo = filtroTipoRuta === codigo;
-          // S52 — Siempre visibles (incluso con count=0) para matching con master
-          return (
-            <button
-              key={codigo}
-              type="button"
-              onClick={() => setFiltroTipoRuta(activo ? '' : codigo)}
-              disabled={count === 0 && !activo}
-              title={info.nombreLargo}
-              className={`flex items-center gap-1.5 text-[12px] px-2.5 py-1.5 rounded-lg whitespace-nowrap flex-shrink-0 transition-colors ${
-                activo
-                  ? 'bg-orange-600 text-white font-semibold'
-                  : count === 0
-                    ? 'bg-white text-slate-300 border border-slate-100 cursor-not-allowed'
-                    : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 font-medium cursor-pointer'
-              }`}
-            >
-              <info.icon className={`w-3.5 h-3.5 ${activo ? '' : 'text-slate-400'}`} />
-              <span>{info.nombreCorto}</span>
-              <span className={`text-[10px] rounded-full px-1.5 py-0.5 font-bold tabular-nums ${activo ? 'bg-white/20' : 'bg-slate-100 text-slate-500'}`}>{count}</span>
-            </button>
-          );
-        })}
-        {enviosStatsExtra.countsPorTipoRuta.sin_clasificar > 0 && (
-          <span className="text-[11px] text-slate-400 italic ml-1 flex-shrink-0">
-            · {enviosStatsExtra.countsPorTipoRuta.sin_clasificar} sin clasificar
-          </span>
-        )}
-      </div>
-
-      {/* (2) pills de estado + buscador inline — master Acto 3 (2) */}
-      <div className="flex flex-col lg:flex-row lg:items-center gap-3">
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 -mx-1 px-1 flex-1 min-w-0" style={{ scrollbarWidth: 'none' }}>
-          <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400 flex-shrink-0 mr-1">Filtrar</span>
-          <button
-            type="button"
-            onClick={() => setPillFiltroEnv('todas')}
-            className={`flex items-center gap-1.5 text-[12px] font-medium px-2.5 py-1.5 rounded-lg whitespace-nowrap flex-shrink-0 transition-colors ${
-              pillFiltroEnv === 'todas' ? 'bg-orange-50 text-orange-700 border border-orange-200' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
-            }`}
-          >
-            Todas <span className={`text-[10px] rounded-full px-1.5 py-0.5 font-bold tabular-nums ${pillFiltroEnv === 'todas' ? 'bg-orange-100 text-orange-700' : 'bg-slate-100 text-slate-500'}`}>{enviosPorLinea.length}</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setPillFiltroEnv('activas')}
-            className={`flex items-center gap-1.5 text-[12px] font-medium px-2.5 py-1.5 rounded-lg whitespace-nowrap flex-shrink-0 transition-colors ${
-              pillFiltroEnv === 'activas' ? 'bg-orange-50 text-orange-700 border border-orange-200' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
-            }`}
-          >
-            Activas <span className={`text-[10px] rounded-full px-1.5 py-0.5 font-bold tabular-nums ${pillFiltroEnv === 'activas' ? 'bg-orange-100 text-orange-700' : 'bg-slate-100 text-slate-500'}`}>{enviosStatsExtra.countActivas}</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setPillFiltroEnv('incidencias')}
-            className={`flex items-center gap-1.5 text-[12px] font-medium px-2.5 py-1.5 rounded-lg whitespace-nowrap flex-shrink-0 transition-colors ${
-              pillFiltroEnv === 'incidencias' ? 'bg-rose-50 text-rose-700 border border-rose-200' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
-            }`}
-          >
-            <AlertTriangle className="w-3.5 h-3.5 text-rose-500" /> Con incidencias <span className="text-[10px] bg-rose-100 text-rose-600 rounded-full px-1.5 py-0.5 font-bold tabular-nums">{enviosStatsExtra.countIncidencias}</span>
-          </button>
-        </div>
-        <div className="flex items-center gap-2 lg:flex-shrink-0">
-          <div className="relative flex-1 min-w-0 lg:w-64">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              value={busqueda}
-              onChange={(e) => setBusqueda(e.target.value)}
-              placeholder="Buscar envío, courier, OC…"
-              className="w-full text-[12px] text-slate-700 placeholder:text-slate-400 bg-white border border-slate-200 rounded-lg pl-9 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-400"
-            />
-          </div>
-          {(() => {
-            const nGran = [filtroTipo !== 'todas' ? filtroTipo : '', filtroEstado, activeTab !== 'todas' ? activeTab : '', filtroCourier].filter(Boolean).length;
-            return (
-              <button
-                type="button"
-                onClick={() => setShowFilters((v) => !v)}
-                className={`flex items-center gap-1.5 text-[12px] font-medium px-2.5 py-2 rounded-lg whitespace-nowrap flex-shrink-0 transition-colors ${
-                  showFilters || nGran > 0 ? 'bg-orange-50 text-orange-700 border border-orange-200' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
-                }`}
-              >
-                <SlidersHorizontal className="w-3.5 h-3.5" /> Filtros
-                {nGran > 0 && (
-                  <span className="text-[10px] bg-orange-100 text-orange-700 rounded-full px-1.5 py-0.5 font-bold tabular-nums">{nGran}</span>
-                )}
-                <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
-              </button>
-            );
-          })()}
-        </div>
-      </div>
-
-      {/* Filtros granulares · panel INLINE colapsable (in-flow · NO drawer lateral ·
-           canon "único sidebar = navegación"). El chrome primario son los chips +
-           pills + search de arriba; los granulares se revelan acá al tocar Filtros. */}
-      {showFilters && (
-        <div className="bg-slate-50/70 border border-slate-200 rounded-xl p-3">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-            <label className="flex flex-col gap-1 min-w-0">
-              <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400">Vista</span>
-              <select
-                value={activeTab}
-                onChange={e => setActiveTab(e.target.value as 'todas' | 'en_transito' | 'pendientes' | 'incidencias')}
-                className="w-full text-[12px] text-slate-700 bg-white border border-slate-200 rounded-lg px-2.5 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-400"
-              >
-                <option value="todas">Todos los envíos</option>
-                <option value="en_transito">En tránsito</option>
-                <option value="pendientes">Pendientes recepción</option>
-                <option value="incidencias">Con incidencias</option>
-              </select>
-            </label>
-            <label className="flex flex-col gap-1 min-w-0">
-              <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400">Tipo</span>
-              <select
-                value={filtroTipo}
-                onChange={e => setFiltroTipo(e.target.value as TipoEnvio | 'todas')}
-                className="w-full text-[12px] text-slate-700 bg-white border border-slate-200 rounded-lg px-2.5 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-400"
-              >
-                <option value="todas">Todos los tipos</option>
-                <option value="internacional_peru">Internacional</option>
-                <option value="interna_origen">Interna Origen</option>
-              </select>
-            </label>
-            <label className="flex flex-col gap-1 min-w-0">
-              <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400">Estado</span>
-              <select
-                value={filtroEstado}
-                onChange={e => setFiltroEstado(e.target.value as EstadoEnvio | '')}
-                className="w-full text-[12px] text-slate-700 bg-white border border-slate-200 rounded-lg px-2.5 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-400"
-              >
-                <option value="">Todos</option>
-                <option value="borrador">Borrador</option>
-                <option value="confirmado">Confirmado</option>
-                <option value="en_transito">En Tránsito</option>
-                <option value="recibida_parcial">Parcial</option>
-                <option value="recibida_completa">Completada</option>
-                <option value="cancelada">Cancelada</option>
-              </select>
-            </label>
-            {couriersUnicos.length > 0 && (
-              <label className="flex flex-col gap-1 min-w-0">
-                <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400">Courier</span>
-                <select
-                  value={filtroCourier}
-                  onChange={e => setFiltroCourier(e.target.value)}
-                  className="w-full text-[12px] text-slate-700 bg-white border border-slate-200 rounded-lg px-2.5 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-400"
-                >
-                  <option value="">Todos los couriers</option>
-                  {couriersUnicos.map((c) => (
-                    <option key={c} value={c}>{c}</option>
-                  ))}
-                </select>
-              </label>
-            )}
-          </div>
-          {(filtroTipo !== 'todas' || filtroEstado || activeTab !== 'todas' || filtroCourier) && (
-            <div className="flex justify-end mt-2.5">
-              <button
-                type="button"
-                onClick={() => { setFiltroTipo('todas'); setFiltroEstado(''); setActiveTab('todas'); setFiltroCourier(''); }}
-                className="text-[11px] text-slate-500 hover:text-rose-600 font-medium"
-              >
-                Limpiar filtros granulares
-              </button>
-            </div>
-          )}
-        </div>
-      )}
+      {/* Filtros · FiltrosBar canónico UNIFICADO (canon · sustituye los 3 lenguajes
+           previos: chips tipo-ruta + pills estado + panel de selects). Tipo de ruta =
+           dropdown agrupado · Estado = un solo eje de chips · Courier = chips · + orden. */}
+      <FiltrosBar
+        color="orange"
+        leadingFilter={{
+          label: 'Tipo de ruta',
+          icon: Route,
+          value: filtroTipoRuta,
+          allOption: { value: '', label: 'Todos los tipos' },
+          options: [
+            { groupLabel: 'Importación', groupIcon: Ship, options: (['A', 'B', 'C', 'D', 'J'] as TipoRutaLogistica[]).map(c => ({ value: c, label: INFO_TIPO_RUTA[c].nombreCorto, icon: INFO_TIPO_RUTA[c].icon })) },
+            { groupLabel: 'Nacional', groupIcon: Store, options: (['E', 'F', 'I'] as TipoRutaLogistica[]).map(c => ({ value: c, label: INFO_TIPO_RUTA[c].nombreCorto, icon: INFO_TIPO_RUTA[c].icon })) },
+            { groupLabel: 'Devolución', groupIcon: Undo2, options: (['G'] as TipoRutaLogistica[]).map(c => ({ value: c, label: INFO_TIPO_RUTA[c].nombreCorto, icon: INFO_TIPO_RUTA[c].icon })) },
+          ],
+          onChange: (v) => setFiltroTipoRuta(v as TipoRutaLogistica | ''),
+        }}
+        chipGroups={[
+          {
+            key: 'estado',
+            label: 'Estado',
+            multi: false,
+            options: [
+              { value: 'activas', label: 'Activas', variant: 'emerald', icon: Activity },
+              { value: 'en_transito', label: 'En tránsito', variant: 'sky', icon: Truck },
+              { value: 'pendientes', label: 'Pendientes', variant: 'amber', icon: Clock },
+              { value: 'incidencias', label: 'Incidencias', variant: 'rose', icon: AlertTriangle },
+              { value: 'recibidas', label: 'Recibidas', variant: 'emerald', icon: Package },
+              { value: 'cancelada', label: 'Canceladas', variant: 'slate', icon: XCircle },
+            ],
+          },
+          ...(couriersUnicos.length > 0 ? [{
+            key: 'courier',
+            label: 'Courier',
+            multi: false,
+            options: couriersUnicos.map(c => ({ value: c, label: c, variant: 'slate' as const })),
+          }] : []),
+        ]}
+        selecciones={{
+          estado: estadoFiltro ? [estadoFiltro] : [],
+          courier: filtroCourier ? [filtroCourier] : [],
+        }}
+        onChipToggle={(key, value) => {
+          if (key === 'estado') setEstadoFiltro(prev => (prev === value ? '' : value));
+          else if (key === 'courier') setFiltroCourier(prev => (prev === value ? '' : value));
+        }}
+        searchTerm={busqueda}
+        searchPlaceholder="Buscar envío, courier, OC…"
+        onSearchChange={setBusqueda}
+        sortValue={orden}
+        sortOptions={[
+          { value: 'reciente', label: 'Más recientes' },
+          { value: 'antiguo', label: 'Más antiguos' },
+          { value: 'unidades', label: 'Más unidades' },
+        ]}
+        onSortChange={setOrden}
+        hayFiltrosActivos={!!estadoFiltro || !!filtroTipoRuta || !!filtroCourier || !!busqueda}
+        onLimpiarTodo={() => { setEstadoFiltro(''); setFiltroTipoRuta(''); setFiltroCourier(''); setBusqueda(''); }}
+      />
 
       {/* Lista de envios */}
       {loading ? (
@@ -895,15 +765,17 @@ export const Envios: React.FC = () => {
                 <ArrowRightLeft className="h-12 w-12 text-slate-300 mx-auto mb-3" />
                 <h3 className="text-[14px] font-semibold text-slate-900 mb-1">No hay envíos</h3>
                 <p className="text-[12px] text-slate-500 mb-4">
-                  {activeTab === 'en_transito'
+                  {estadoFiltro === 'en_transito'
                     ? 'No hay envíos en tránsito.'
-                    : activeTab === 'pendientes'
+                    : estadoFiltro === 'pendientes'
                       ? 'No hay envíos pendientes de recepción.'
-                      : activeTab === 'incidencias' || pillFiltroEnv === 'incidencias'
+                      : estadoFiltro === 'incidencias'
                         ? 'Sin incidencias abiertas. Todo bajo control.'
-                        : 'Crea tu primer envío para mover productos entre casillas.'}
+                        : (estadoFiltro || filtroTipoRuta || filtroCourier || busqueda)
+                          ? 'No hay envíos que coincidan con los filtros.'
+                          : 'Crea tu primer envío para mover productos entre casillas.'}
                 </p>
-                {activeTab === 'todas' && pillFiltroEnv === 'todas' && !filtroTipoRuta && (
+                {!estadoFiltro && !filtroTipoRuta && !filtroCourier && !busqueda && (
                   <button
                     type="button"
                     onClick={() => setShowWizard(true)}
@@ -957,7 +829,7 @@ export const Envios: React.FC = () => {
                   {enviosStatsExtra.countEnAduana > 0 && (
                     <button
                       type="button"
-                      onClick={() => setFiltroEstado('retenida_aduana')}
+                      onClick={() => setEstadoFiltro('retenida_aduana')}
                       className="w-full flex items-start gap-2.5 bg-white border border-rose-200 rounded-lg px-3 py-2 hover:bg-rose-50/50 text-left"
                     >
                       <div className="w-7 h-7 rounded-lg bg-rose-100 flex items-center justify-center flex-shrink-0"><Landmark className="w-3.5 h-3.5 text-rose-700" /></div>
@@ -985,7 +857,7 @@ export const Envios: React.FC = () => {
                   {enviosStatsExtra.countIncidencias > 0 && (
                     <button
                       type="button"
-                      onClick={() => setPillFiltroEnv('incidencias')}
+                      onClick={() => setEstadoFiltro('incidencias')}
                       className="w-full flex items-start gap-2.5 bg-white border border-rose-200 rounded-lg px-3 py-2 hover:bg-rose-50/50 text-left"
                     >
                       <div className="w-7 h-7 rounded-lg bg-rose-100 flex items-center justify-center flex-shrink-0"><AlertTriangle className="w-3.5 h-3.5 text-rose-700" /></div>
