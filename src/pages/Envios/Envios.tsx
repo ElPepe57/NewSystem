@@ -37,7 +37,7 @@ import {
   ConfirmDialog,
   useConfirmDialog,
 } from "../../components/common";
-import { FiltrosBar, HubShell, HubTopBar, HubHeader, HubKpiStrip, HubTabs, HubBody } from '../../design-system';
+import { BorradorBanner, FiltrosBar, HubShell, HubTopBar, HubHeader, HubKpiStrip, HubTabs, HubBody } from '../../design-system';
 import type { HubKpi, HubTab } from '../../design-system';
 import { hasRole } from '../../types/auth.types';
 import { useEnvioStore } from '../../store/envioStore';
@@ -98,6 +98,8 @@ type TabEnvios = 'resumen' | 'operaciones' | 'incidencias' | 'reclamos' | 'costo
 export const Envios: React.FC = () => {
   const [tabEnvios, setTabEnvios] = useState<TabEnvios>('resumen');
   const [showWizard, setShowWizard] = useState(false); // modal de creación de envío
+  const [resumeBorrador, setResumeBorrador] = useState<any>(null); // snapshot de borrador a reanudar (banner del hub)
+  const [borradorKey, setBorradorKey] = useState(0); // refresca el banner de borrador al cerrar el wizard
   const user = useAuthStore(state => state.user);
   const userProfile = useAuthStore((s) => s.userProfile);
   const esAdmin = hasRole(userProfile, 'admin'); // canon "admin ve todo" · chip contextual al rol
@@ -660,6 +662,15 @@ export const Envios: React.FC = () => {
         />
 
         <HubBody flush>
+          {/* Banner de borrador · en el MÓDULO (canon borrador · máxima visibilidad ·
+               NO dentro del wizard). Continuar reabre el wizard con el snapshot cargado. */}
+          <div className="px-4 sm:px-6 pt-4 sm:pt-6 empty:hidden">
+            <BorradorBanner
+              tipo="envio"
+              refreshKey={borradorKey}
+              onContinuar={(b) => { setResumeBorrador(b.estado); setShowWizard(true); }}
+            />
+          </div>
           {error && !loading ? (
             /* Estado de ERROR de página (canon N · el store expone `error`) */
             <div className="p-4 sm:p-6">
@@ -1085,9 +1096,12 @@ export const Envios: React.FC = () => {
       {showWizard && (
         <React.Suspense fallback={null}>
           <EnvioWizardModal
-            onClose={() => setShowWizard(false)}
+            initialState={resumeBorrador}
+            onClose={() => { setShowWizard(false); setResumeBorrador(null); setBorradorKey(k => k + 1); }}
             onCreated={() => {
               setShowWizard(false);
+              setResumeBorrador(null);
+              setBorradorKey(k => k + 1);
               fetchEnvios();
               fetchEnTransito();
               fetchPendientesRecepcion();

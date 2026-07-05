@@ -30,7 +30,6 @@ import { useToastStore } from '../../../store/toastStore';
 
 import { useEnvioWizardState } from './useEnvioWizardState';
 import { RutaVerticalSidebar } from './shared/RutaVerticalSidebar';
-import { BorradorBanner } from '../../../design-system';
 import { Paso1OrigenDestinoUnidades } from './steps/Paso1OrigenDestinoUnidades';
 import { Paso2DestinoDetalles } from './steps/Paso2DestinoDetalles';
 import { Paso3Logistica } from './steps/Paso3Logistica';
@@ -38,7 +37,6 @@ import { Paso4Confirmar } from './steps/Paso4Confirmar';
 import { envioUnificadoService } from './services/envio.unificado.service';
 import { useWizardAutosave } from '../../../hooks/useWizardAutosave';
 import type { EnvioWizardState } from './envioWizardTypes';
-import type { BorradorWizard } from '../../../types/borradorWizard.types';
 
 // D-5: labels genéricos fijos. Orden: 1 → 2 → 3 → 4.
 const WIZARD_STEPS: WizardStep[] = [
@@ -71,9 +69,12 @@ interface EnvioWizardPageProps {
   onClose?: () => void;
   /** Llamado tras crear el envío con éxito (el padre cierra + refresca la lista). */
   onCreated?: () => void;
+  /** Snapshot de borrador a reanudar (desde el banner del HUB · canon borrador). Si
+   *  viene, el wizard carga ese estado al montar (LOAD_STATE) en vez de arrancar vacío. */
+  initialState?: EnvioWizardState | null;
 }
 
-export const EnvioWizardPage: React.FC<EnvioWizardPageProps> = ({ onClose, onCreated }) => {
+export const EnvioWizardPage: React.FC<EnvioWizardPageProps> = ({ onClose, onCreated, initialState }) => {
   const navigate = useNavigate();
   // Patrón modal (canon · consistente con OCWizardV3/Compras): el cierre lo decide
   // el padre vía onClose. Fallback a navigate para la ruta legacy.
@@ -129,6 +130,14 @@ export const EnvioWizardPage: React.FC<EnvioWizardPageProps> = ({ onClose, onCre
         (s.unidadesSeleccionadas?.length ?? 0) === 0,
     });
 
+  // Reanudar borrador si el hub lo pidió (banner "Continuar" del módulo) · carga al montar.
+  useEffect(() => {
+    if (initialState) {
+      dispatch({ type: 'LOAD_STATE', state: initialState });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Auto-saltar Paso 2 cuando el tipo no lo requiere (C y J)
   useEffect(() => {
     if (
@@ -142,10 +151,6 @@ export const EnvioWizardPage: React.FC<EnvioWizardPageProps> = ({ onClose, onCre
 
   // S53.23 — Modal de confirmación al cerrar con cambios
   const [showExitConfirm, setShowExitConfirm] = useState(false);
-
-  // Contador de aperturas (solo usa 1 valor ya que la página se monta una vez,
-  // pero lo mantenemos por paralelismo con el patrón del OC wizard).
-  const openCount = 1;
 
   // Detección de cambios significativos
   const hayCambiosSignificativos = useMemo(() => {
@@ -189,16 +194,6 @@ export const EnvioWizardPage: React.FC<EnvioWizardPageProps> = ({ onClose, onCre
     setShowExitConfirm(false);
   };
 
-  // S53.23 — Click en "Continuar" del BorradorEnvioBanner: cargar el state
-  // del borrador completo (action LOAD_STATE) y ocultar el banner.
-  const [draftAceptado, setDraftAceptado] = useState(false);
-  const handleContinuarBorrador = (borrador: BorradorWizard) => {
-    const draft = borrador.estado as EnvioWizardState | undefined;
-    if (draft) {
-      dispatch({ type: 'LOAD_STATE', state: draft });
-    }
-    setDraftAceptado(true);
-  };
 
   const handleConfirm = async () => {
     if (!user) {
@@ -275,28 +270,14 @@ export const EnvioWizardPage: React.FC<EnvioWizardPageProps> = ({ onClose, onCre
     return partes.length > 0 ? partes.join(' · ') : undefined;
   })();
 
-  const showBannerInterno = !draftAceptado;
-
   return (
     <>
       {/* S53.24 — Look de modal flotante sobre backdrop oscuro (mismo patrón
            visual que OCWizardV3 en /compras). El backdrop-blur desenfoca el
            dashboard por detrás, dando sensación de diálogo superpuesto en
-           lugar de página completa. */}
+           lugar de página completa. El banner de borrador vive en el HUB (canon),
+           no acá dentro. */}
       <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm p-4 sm:p-6 md:p-8 flex flex-col">
-        {/* Banner de borrador (arriba del WizardShell) */}
-        {showBannerInterno && (
-          <div className="w-full max-w-7xl mx-auto mb-3 flex-shrink-0">
-            <BorradorBanner
-              key={`envio-banner-${openCount}`}
-              tipo="envio"
-              refreshKey={openCount}
-              onContinuar={handleContinuarBorrador}
-              onDescartar={() => dispatch({ type: 'RESET' })}
-            />
-          </div>
-        )}
-
         <div className="w-full max-w-7xl mx-auto flex-1 min-h-0">
           <WizardShell
             title="Nuevo envío"
