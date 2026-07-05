@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { formatCurrencyPEN, formatCurrency as formatCurrencyUtil } from '../../utils/format';
-import { Plus, RefreshCw, FileText } from 'lucide-react';
+import { Plus, RefreshCw, FileText, LayoutGrid, List } from 'lucide-react';
 import { Button, ConfirmDialog, useConfirmDialog } from '../../components/common';
-import { PageShell, PageHeader, Toolbar, FilterDrawer, FilterSection } from '../../design-system';
+import { PageShell, PageHeader, FiltrosBar } from '../../design-system';
 import { CotizacionForm } from './CotizacionForm';
 import { CotizacionesMetricas } from './CotizacionesMetricas';
 import { CotizacionesAlertas } from './CotizacionesAlertas';
@@ -64,7 +64,7 @@ export const Cotizaciones: React.FC = () => {
   const [busqueda, setBusqueda] = useState('');
   const [vista, setVista] = useState<VistaType>('kanban');
   const [filtroCanal, setFiltroCanal] = useState('');
-  const [showFilters, setShowFilters] = useState(false);
+  const [orden, setOrden] = useState('reciente');
   const [generandoPdf, setGenerandoPdf] = useState(false);
 
   // Estado para el modal de adelanto
@@ -114,8 +114,19 @@ export const Cotizaciones: React.FC = () => {
     if (filtroCanal) {
       filtradas = filtradas.filter(c => c.canal === filtroCanal);
     }
+    // Orden real (FiltrosBar · sort). `filtradas` es copia → sort in-place seguro.
+    const ms = (t?: { toMillis?: () => number }) => t?.toMillis?.() ?? 0;
+    filtradas.sort((a, b) => {
+      switch (orden) {
+        case 'antiguo': return ms(a.fechaCreacion) - ms(b.fechaCreacion);
+        case 'monto_desc': return (b.totalPEN || 0) - (a.totalPEN || 0);
+        case 'monto_asc': return (a.totalPEN || 0) - (b.totalPEN || 0);
+        case 'reciente':
+        default: return ms(b.fechaCreacion) - ms(a.fechaCreacion);
+      }
+    });
     return filtradas;
-  }, [cotizacionesPorLinea, busqueda, filtroCanal]);
+  }, [cotizacionesPorLinea, busqueda, filtroCanal, orden]);
 
   const {
     nuevas,
@@ -522,36 +533,65 @@ export const Cotizaciones: React.FC = () => {
         onVerDetalles={handleVerDetalles}
       />
 
-      {/* Filtro de línea de negocio */}
-
-      {/* Toolbar */}
-      <Toolbar
-        search={{ value: busqueda, onChange: setBusqueda, placeholder: 'Buscar cotizaciones...' }}
-        viewMode={vista === 'lista' ? 'table' : 'card'}
-        onViewModeChange={(mode) => setVista(mode === 'table' ? 'lista' : 'kanban')}
-        filterCount={filtroCanal ? 1 : 0}
-        onFilterToggle={() => setShowFilters(true)}
-        resultCount={cotizacionesFiltradas.length}
-      />
-
-      <FilterDrawer
-        isOpen={showFilters}
-        onClose={() => setShowFilters(false)}
-        onClearAll={() => setFiltroCanal('')}
-        activeFilterCount={filtroCanal ? 1 : 0}
-      >
-        <FilterSection title="Canal">
-          <select
-            className="w-full text-sm border border-slate-300 rounded-lg px-3 py-2"
-            value={filtroCanal}
-            onChange={(e) => setFiltroCanal(e.target.value)}
-          >
-            <option value="">Todos los canales</option>
-            <option value="mercado_libre">Mercado Libre</option>
-            <option value="directo">Venta Directa</option>
-          </select>
-        </FilterSection>
-      </FilterDrawer>
+      {/* Filtros · FiltrosBar canónico INLINE (Canal + búsqueda + orden) + toggle de
+           vista · todo in-flow, sin drawer lateral (canon "único sidebar = el de
+           navegación"). */}
+      <div>
+        <FiltrosBar
+          color="blue"
+          chipGroups={[{
+            key: 'canal',
+            label: 'Canal',
+            multi: false,
+            options: [
+              { value: 'mercado_libre', label: 'Mercado Libre', variant: 'slate' },
+              { value: 'directo', label: 'Venta Directa', variant: 'slate' },
+            ],
+          }]}
+          selecciones={{ canal: filtroCanal ? [filtroCanal] : [] }}
+          onChipToggle={(_key, value) => setFiltroCanal(prev => (prev === value ? '' : value))}
+          searchTerm={busqueda}
+          searchPlaceholder="Buscar cotizaciones..."
+          onSearchChange={setBusqueda}
+          sortValue={orden}
+          sortOptions={[
+            { value: 'reciente', label: 'Más recientes' },
+            { value: 'antiguo', label: 'Más antiguas' },
+            { value: 'monto_desc', label: 'Mayor monto' },
+            { value: 'monto_asc', label: 'Menor monto' },
+          ]}
+          onSortChange={setOrden}
+          hayFiltrosActivos={!!filtroCanal || !!busqueda}
+          onLimpiarTodo={() => { setFiltroCanal(''); setBusqueda(''); }}
+        />
+        {/* contador + toggle de vista kanban/lista (FiltrosBar no cubre el toggle) */}
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-sm text-slate-600">
+            Mostrando <span className="font-medium tabular-nums">{cotizacionesFiltradas.length}</span>{' '}
+            cotizaci{cotizacionesFiltradas.length === 1 ? 'ón' : 'ones'}
+          </span>
+          <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-0.5 flex-shrink-0">
+            <button
+              type="button"
+              onClick={() => setVista('kanban')}
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                vista === 'kanban' ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <LayoutGrid className="w-3.5 h-3.5" /> Kanban
+            </button>
+            <button
+              type="button"
+              onClick={() => setVista('lista')}
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                vista === 'lista' ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <List className="w-3.5 h-3.5" /> Lista
+            </button>
+          </div>
+        </div>
+      </div>
 
       {/* Contenido principal */}
       {loading ? (

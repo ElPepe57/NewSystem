@@ -15,8 +15,6 @@ export { cn } from './utils';
 export { PageShell } from './components/PageShell';
 export { PageHeader } from './components/PageHeader';
 export { Toolbar } from './components/Toolbar';
-export { FilterDrawer } from './components/FilterDrawer';
-export { FilterSection } from './components/FilterSection';
 
 // Data Display
 export { DataTable } from './components/DataTable';

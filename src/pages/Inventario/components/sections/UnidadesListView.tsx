@@ -15,7 +15,7 @@
  *   - Estado    → chipGroup multi GRANULAR (preserva casos especiales recibida_origen/en_transito_origen)
  *   - Orden     → sortValue (vencen_asc default · reciente_desc · sku_asc · nombre_asc)
  *   - ChipsActivos → banner removible bajo FiltrosBar
- * Eliminados: <Toolbar> · <FilterDrawer>/<FilterSection> · filtro Producto (cubierto por búsqueda).
+ * Eliminados: Toolbar legacy · drawer lateral de filtros · filtro Producto (cubierto por búsqueda).
  */
 
 import React, { useEffect, useState, useMemo } from 'react';
