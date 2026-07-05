@@ -292,6 +292,7 @@ export const WizardFPage: React.FC<WizardFPageProps> = ({
       <WizardShell
         title="Nuevo despacho — Almacén Perú → Cliente"
         subtitle="Despacha una venta existente al cliente final (Caso F · absorbe Ventas logística)"
+        accent="orange"
         steps={STEPS}
         currentStep={state.pasoActual}
         onStepChange={(i) => dispatch({ type: 'GO_TO_STEP', paso: i })}
@@ -299,7 +300,7 @@ export const WizardFPage: React.FC<WizardFPageProps> = ({
         onPrev={() => dispatch({ type: 'PREV_STEP' })}
         onCancel={handleCancel}
         onConfirm={handleConfirm}
-        confirmLabel={creating ? 'Creando despacho…' : '✓ Crear despacho'}
+        confirmLabel={creating ? 'Creando despacho…' : 'Crear despacho'}
         nextDisabled={!canProceed || creating}
         nextHint={nextHint}
         loading={creating}

@@ -256,6 +256,7 @@ export const WizardGPage: React.FC<WizardGPageProps> = ({
       <WizardShell
         title="Nuevo retorno físico — Cliente → Almacén Perú"
         subtitle="Registra el movimiento físico de una devolución existente (Caso G · D-7 unidades en revisión)"
+        accent="orange"
         steps={STEPS}
         currentStep={state.pasoActual}
         onStepChange={(i) => dispatch({ type: 'GO_TO_STEP', paso: i })}
@@ -263,7 +264,7 @@ export const WizardGPage: React.FC<WizardGPageProps> = ({
         onPrev={() => dispatch({ type: 'PREV_STEP' })}
         onCancel={handleCancel}
         onConfirm={handleConfirm}
-        confirmLabel={creating ? 'Creando retorno…' : '✓ Crear retorno físico'}
+        confirmLabel={creating ? 'Creando retorno…' : 'Crear retorno físico'}
         nextDisabled={!canProceed || creating}
         nextHint={nextHint}
         loading={creating}

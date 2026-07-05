@@ -863,15 +863,15 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
       >
         <div className="flex flex-col">
           {/* ═══ Header migrado a <EntityHeader> (Capa 3 estándar OC) ═══
-              Preserva el gradient sky + icon circular + badges a la derecha
-              + acciones contextuales (Imprimir / Registrar recepción / Cerrar). */}
+              Icono del breadcrumb en el color del módulo (Inventario=orange · canon
+              de color) + badges a la derecha + acciones contextuales. */}
           <div className="px-6 py-5 bg-gradient-to-br from-slate-50 to-slate-100 border-b border-slate-200">
             <div className="mb-4">
               <EntityHeader
                 breadcrumb={
                   <>
-                    <div className="w-8 h-8 rounded-lg bg-sky-100 flex items-center justify-center">
-                      <Plane className="w-4 h-4 text-sky-700" />
+                    <div className="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center">
+                      <Plane className="w-4 h-4 text-orange-700" />
                     </div>
                     <span className="font-mono text-xs text-slate-500">
                       {envio.numeroEnvio}
