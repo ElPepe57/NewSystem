@@ -1,15 +1,13 @@
 /**
  * ResolverReclamoModal — Modal para resolver un reclamo con una de las 3
  * salidas posibles (D-16):
- *   1. 💰 Reembolso    → destinatario paga dinero (ingreso_otro)
- *   2. 📦 Reemplazo    → destinatario envía otra unidad (crea sub-tanda, CTRU preservado)
- *   3. 🗑️ Merma       → destinatario no asume (gasto_merma, afecta ranking)
+ *   1. Reembolso    → destinatario paga dinero (ingreso_otro)
+ *   2. Reemplazo    → destinatario envía otra unidad (crea sub-tanda, CTRU preservado)
+ *   3. Merma        → destinatario no asume (gasto_merma, afecta ranking)
  *
- * UI (basada en mockup pixel-perfect docs/mockups/envios-transversal-s43.html
- *     tab "Reclamos" sección "Modal Resolver reclamo"):
- *  - Contexto del reclamo (envío, unidad, monto)
- *  - 3 cards radio con campos contextuales por opción
- *  - Notas de resolución + botones Cancelar / Confirmar
+ * Migrado a FormModalV2 (canon). Icono: Gavel · iconTone="purple" (semántico reclamo
+ * según mockup ACTO 11 · bg-purple-50 · nota "reclamos violet"). submit color="orange"
+ * (chrome Inventario). Funcionalidad preservada íntegra.
  *
  * Al seleccionar "Reemplazo" se destaca visualmente con borde violet.
  * El consumidor es responsable de:
@@ -17,8 +15,8 @@
  *  - Cerrar el modal al terminar
  */
 import React, { useState } from 'react';
-import { DollarSign, Package, Trash2, Info, Link } from 'lucide-react';
-import { Modal, Button } from '../../../components/common';
+import { DollarSign, Package, Trash2, Info, Link, Gavel, PackagePlus, Check } from 'lucide-react';
+import { FormModalV2 } from '../../../design-system';
 import { cn } from '../../../design-system';
 import type { TipoResolucionReclamo } from '../../../types/reclamo.types';
 
@@ -65,10 +63,14 @@ export interface ResolverReclamoModalProps {
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-// Componente
+// Helpers
 // ════════════════════════════════════════════════════════════════════════════
 
 const formatUSD = (n: number): string => `$${n.toFixed(2)}`;
+
+// ════════════════════════════════════════════════════════════════════════════
+// Componente
+// ════════════════════════════════════════════════════════════════════════════
 
 export const ResolverReclamoModal: React.FC<ResolverReclamoModalProps> = ({
   isOpen,
@@ -122,288 +124,286 @@ export const ResolverReclamoModal: React.FC<ResolverReclamoModalProps> = ({
     }
   };
 
-  if (!isOpen) return null;
+  // Submit label dinámico por vía
+  const submitLabel =
+    tipo === 'reemplazo'
+      ? 'Crear tanda reemplazo'
+      : tipo === 'reembolso'
+      ? 'Confirmar reembolso'
+      : 'Confirmar merma';
+
+  const submitIcon = tipo === 'reemplazo' ? PackagePlus : Check;
 
   return (
-    <Modal
-      isOpen
+    <FormModalV2
+      isOpen={isOpen}
       onClose={loading ? () => {} : onClose}
-      title={`Resolver reclamo · ${reclamo.numeroReclamo}`}
+      onSubmit={handleConfirm}
+      title="Resolver reclamo"
+      subtitle={`${reclamo.numeroReclamo} · ${reclamo.unidadesCount} uds · ${reclamo.montoReclamadoPEN ? `S/ ${reclamo.montoReclamadoPEN.toFixed(0)}` : formatUSD(reclamo.montoReclamadoUSD)}`}
+      icon={Gavel}
+      iconTone="orange"
+      color="orange"
       size="lg"
+      submitLabel={submitLabel}
+      submitIcon={submitIcon}
+      loading={loading}
+      disabled={loading}
+      disableBackdropClick={loading}
+      disableEscapeKey={loading}
     >
-      {/* Contexto del reclamo */}
-      <div className="bg-slate-50 rounded-lg p-4 mb-4 text-sm">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div className="space-y-4">
+
+        {/* ── Contexto del reclamo ── */}
+        <div className="bg-slate-50 rounded-lg p-3 grid grid-cols-1 sm:grid-cols-3 gap-3 text-[12px]">
           <div>
-            <div className="text-xs text-slate-500">Envío</div>
+            <div className="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-0.5">Envío</div>
             <div className="font-bold text-slate-900">{reclamo.envioNumero}</div>
-            <div className="text-[10px] text-slate-500">
-              Destinatario: {reclamo.destinatarioNombre}
-            </div>
+            <div className="text-[11px] text-slate-500">Destinatario: {reclamo.destinatarioNombre}</div>
           </div>
           <div>
-            <div className="text-xs text-slate-500">Unidad reclamada</div>
+            <div className="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-0.5">Unidad reclamada</div>
             <div className="font-medium text-slate-900">
               {reclamo.unidadesCount} uds{reclamo.unidadLabel ? ` · ${reclamo.unidadLabel}` : ''}
             </div>
             {reclamo.unidadCodigo && (
-              <div className="text-[10px] font-mono text-slate-500">{reclamo.unidadCodigo}</div>
+              <div className="text-[11px] font-mono text-slate-500">{reclamo.unidadCodigo}</div>
             )}
           </div>
           <div>
-            <div className="text-xs text-slate-500">Monto reclamado</div>
-            <div className="font-bold text-slate-900">{formatUSD(reclamo.montoReclamadoUSD)}</div>
+            <div className="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-0.5">Monto reclamado</div>
+            <div className="font-bold tabular-nums text-amber-900">{formatUSD(reclamo.montoReclamadoUSD)}</div>
             {reclamo.montoReclamadoPEN && (
-              <div className="text-[10px] text-slate-500 tabular-nums">
+              <div className="text-[11px] tabular-nums text-slate-500">
                 S/ {reclamo.montoReclamadoPEN.toFixed(2)}
               </div>
             )}
           </div>
         </div>
-      </div>
 
-      {/* 3 opciones de resolución */}
-      <div className="space-y-3">
-        {/* ─── REEMBOLSO ─── */}
-        <label
-          className={cn(
-            'flex items-start gap-3 p-4 rounded-lg cursor-pointer transition-colors',
-            tipo === 'reembolso'
-              ? 'border-2 border-emerald-400 bg-emerald-50'
-              : 'border border-slate-200 hover:border-emerald-300 hover:bg-emerald-50/30'
-          )}
-        >
-          <input
-            type="radio"
-            name="resolucion"
-            value="reembolso"
-            checked={tipo === 'reembolso'}
-            onChange={() => setTipo('reembolso')}
-            disabled={loading}
-            className="w-4 h-4 mt-1"
-          />
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1">
-              <DollarSign className="w-5 h-5 text-emerald-600" aria-hidden />
-              <span className="font-bold text-slate-900">
-                Reembolso — el destinatario paga el valor
-              </span>
-            </div>
-            <div className="text-xs text-slate-700 mb-2">
+        {/* ── Vía de resolución · selector compacto (mockup: 3-card grid) ── */}
+        <div>
+          <div className="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Vía de resolución</div>
+          <div className="grid grid-cols-3 gap-2">
+
+            {/* Reembolso */}
+            <button
+              type="button"
+              onClick={() => !loading && setTipo('reembolso')}
+              disabled={loading}
+              className={cn(
+                'text-left rounded-lg border-2 p-2.5 transition-colors',
+                tipo === 'reembolso'
+                  ? 'border-orange-500 bg-orange-50/50 ring-2 ring-orange-500/20'
+                  : 'border-slate-200 bg-white hover:border-orange-300'
+              )}
+            >
+              <div className="flex items-center justify-between mb-1">
+                <DollarSign className="w-4 h-4 text-emerald-600" aria-hidden />
+                {tipo === 'reembolso'
+                  ? <span className="w-3.5 h-3.5 rounded-full bg-orange-600 flex items-center justify-center"><Check className="w-2.5 h-2.5 text-white" /></span>
+                  : <span className="w-3.5 h-3.5 rounded-full border-2 border-slate-300" />
+                }
+              </div>
+              <div className={cn('text-[11px] leading-tight', tipo === 'reembolso' ? 'font-bold text-slate-900' : 'font-medium text-slate-600')}>
+                Reembolso
+              </div>
+            </button>
+
+            {/* Reemplazo (default seleccionado) */}
+            <button
+              type="button"
+              onClick={() => !loading && setTipo('reemplazo')}
+              disabled={loading}
+              className={cn(
+                'text-left rounded-lg border-2 p-2.5 transition-colors',
+                tipo === 'reemplazo'
+                  ? 'border-orange-500 bg-orange-50/50 ring-2 ring-orange-500/20'
+                  : 'border-slate-200 bg-white hover:border-orange-300'
+              )}
+            >
+              <div className="flex items-center justify-between mb-1">
+                <Package className="w-4 h-4 text-violet-600" aria-hidden />
+                {tipo === 'reemplazo'
+                  ? <span className="w-3.5 h-3.5 rounded-full bg-orange-600 flex items-center justify-center"><Check className="w-2.5 h-2.5 text-white" /></span>
+                  : <span className="w-3.5 h-3.5 rounded-full border-2 border-slate-300" />
+                }
+              </div>
+              <div className={cn('text-[11px] leading-tight', tipo === 'reemplazo' ? 'font-bold text-slate-900' : 'font-medium text-slate-600')}>
+                Reemplazo
+              </div>
+            </button>
+
+            {/* Merma */}
+            <button
+              type="button"
+              onClick={() => !loading && setTipo('merma')}
+              disabled={loading}
+              className={cn(
+                'text-left rounded-lg border-2 p-2.5 transition-colors',
+                tipo === 'merma'
+                  ? 'border-orange-500 bg-orange-50/50 ring-2 ring-orange-500/20'
+                  : 'border-slate-200 bg-white hover:border-orange-300'
+              )}
+            >
+              <div className="flex items-center justify-between mb-1">
+                <Trash2 className="w-4 h-4 text-red-600" aria-hidden />
+                {tipo === 'merma'
+                  ? <span className="w-3.5 h-3.5 rounded-full bg-orange-600 flex items-center justify-center"><Check className="w-2.5 h-2.5 text-white" /></span>
+                  : <span className="w-3.5 h-3.5 rounded-full border-2 border-slate-300" />
+                }
+              </div>
+              <div className={cn('text-[11px] leading-tight', tipo === 'merma' ? 'font-bold text-slate-900' : 'font-medium text-slate-600')}>
+                Merma
+              </div>
+            </button>
+
+          </div>
+        </div>
+
+        {/* ── Detalle contextual por vía ── */}
+
+        {/* Reembolso · detalle */}
+        {tipo === 'reembolso' && (
+          <div className="space-y-3">
+            <div className="bg-emerald-50 ring-1 ring-emerald-200/60 rounded-lg px-3 py-2.5 text-[11px] text-emerald-800 leading-snug">
               El destinatario acepta devolver el dinero de la unidad. Se registra ingreso en tesorería.
+              Reclamo transita a <code className="bg-white/70 px-1 rounded">cobrado</code> · unidad a{' '}
+              <code className="bg-white/70 px-1 rounded">perdida_total</code>.
             </div>
-            <ul className="text-xs space-y-0.5 pl-4 text-slate-600 border-l-2 border-emerald-300 ml-1">
-              <li>Reclamo transita a <code className="bg-white px-1 rounded">cobrado</code></li>
-              <li>Tesorería: <code className="bg-white px-1 rounded">ingreso_otro</code></li>
-              <li>Unidad → estado <code className="bg-white px-1 rounded">perdida_total</code></li>
-            </ul>
-            {tipo === 'reembolso' && (
-              <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-2">
-                <div>
-                  <label className="text-[10px] text-slate-600 block">Monto acordado USD</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={montoAcordado}
-                    onChange={(e) => setMontoAcordado(e.target.value)}
-                    disabled={loading}
-                    className="w-full border border-slate-300 rounded px-2 py-1 text-xs"
-                  />
-                </div>
-                <div>
-                  <label className="text-[10px] text-slate-600 block">Cuenta tesorería</label>
-                  <select
-                    value={cuentaCobroId}
-                    onChange={(e) => setCuentaCobroId(e.target.value)}
-                    disabled={loading}
-                    className="w-full border border-slate-300 rounded px-2 py-1 text-xs"
-                  >
-                    <option value="">— Selecciona —</option>
-                    {cuentasCobro.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.nombre}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="text-[10px] text-slate-600 block">Fecha cobro estimada</label>
-                  <input
-                    type="date"
-                    value={fechaCobroEstimada}
-                    onChange={(e) => setFechaCobroEstimada(e.target.value)}
-                    disabled={loading}
-                    className="w-full border border-slate-300 rounded px-2 py-1 text-xs"
-                  />
-                </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <div>
+                <label className="text-[10px] uppercase tracking-wider text-slate-500 font-bold block mb-1">
+                  Monto acordado USD
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={montoAcordado}
+                  onChange={(e) => setMontoAcordado(e.target.value)}
+                  disabled={loading}
+                  className="w-full border border-slate-300 rounded-lg px-3 py-1.5 text-[12px] tabular-nums focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
+                />
               </div>
-            )}
-          </div>
-        </label>
-
-        {/* ─── REEMPLAZO (destacado por default) ─── */}
-        <label
-          className={cn(
-            'flex items-start gap-3 p-4 rounded-lg cursor-pointer transition-colors',
-            tipo === 'reemplazo'
-              ? 'border-2 border-violet-400 bg-violet-50'
-              : 'border border-slate-200 hover:border-violet-300 hover:bg-violet-50/30'
-          )}
-        >
-          <input
-            type="radio"
-            name="resolucion"
-            value="reemplazo"
-            checked={tipo === 'reemplazo'}
-            onChange={() => setTipo('reemplazo')}
-            disabled={loading}
-            className="w-4 h-4 mt-1"
-          />
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1 flex-wrap">
-              <Package className="w-5 h-5 text-violet-600" aria-hidden />
-              <span className="font-bold text-slate-900">
-                Reemplazo — el destinatario envía otra unidad
-              </span>
-              <span className="text-[10px] px-2 py-0.5 bg-violet-200 text-violet-900 rounded font-bold">
-                D-16 · NUEVO
-              </span>
-            </div>
-            <div className="text-xs text-slate-700 mb-2">
-              El destinatario acepta mandar físicamente la unidad faltante. Se crea una nueva tanda
-              dentro del mismo envío T1.
-            </div>
-            <ul className="text-xs space-y-0.5 pl-4 text-slate-600 border-l-2 border-violet-400 ml-1 mb-2">
-              <li>
-                Reclamo queda <code className="bg-white px-1 rounded">aceptado</code> pendiente de
-                llegada
-              </li>
-              <li>
-                Se crea sub-tanda con <code className="bg-white px-1 rounded">tipo=reemplazo</code>
-              </li>
-              <li>
-                CTRU de la unidad se <strong>preserva</strong> en {formatUSD(reclamo.montoReclamadoUSD)}
-              </li>
-              <li>Sin asiento contable (reemplazo gratuito)</li>
-            </ul>
-            {tipo === 'reemplazo' && (
-              <div className="p-3 bg-white rounded border border-violet-200 space-y-2">
-                <div className="text-xs font-medium text-violet-900">
-                  Datos de la nueva tanda de reemplazo:
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  <div>
-                    <label className="text-[10px] text-slate-600 block">
-                      Tracking del reemplazo (opcional)
-                    </label>
-                    <input
-                      type="text"
-                      value={reemplazoTracking}
-                      onChange={(e) => setReemplazoTracking(e.target.value)}
-                      placeholder="Ej. TBA-REPL-789"
-                      disabled={loading}
-                      className="w-full border border-slate-300 rounded px-2 py-1 text-xs"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-[10px] text-slate-600 block">
-                      Fecha estimada de llegada
-                    </label>
-                    <input
-                      type="date"
-                      value={reemplazoFechaEstimada}
-                      onChange={(e) => setReemplazoFechaEstimada(e.target.value)}
-                      disabled={loading}
-                      className="w-full border border-slate-300 rounded px-2 py-1 text-xs"
-                    />
-                  </div>
-                </div>
-                <div className="text-[10px] text-violet-700 italic flex items-start gap-1">
-                  <Info className="w-3 h-3 flex-shrink-0 mt-0.5" aria-hidden />
-                  <span>Si el reemplazo también falla, puedes reabrir el reclamo y convertirlo a <strong>Merma</strong>.</span>
-                </div>
+              <div>
+                <label className="text-[10px] uppercase tracking-wider text-slate-500 font-bold block mb-1">
+                  Cuenta tesorería
+                </label>
+                <select
+                  value={cuentaCobroId}
+                  onChange={(e) => setCuentaCobroId(e.target.value)}
+                  disabled={loading}
+                  className="w-full border border-slate-300 rounded-lg px-3 py-1.5 text-[12px] focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
+                >
+                  <option value="">— Selecciona —</option>
+                  {cuentasCobro.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.nombre}
+                    </option>
+                  ))}
+                </select>
               </div>
-            )}
+              <div>
+                <label className="text-[10px] uppercase tracking-wider text-slate-500 font-bold block mb-1">
+                  Fecha cobro estimada
+                </label>
+                <input
+                  type="date"
+                  value={fechaCobroEstimada}
+                  onChange={(e) => setFechaCobroEstimada(e.target.value)}
+                  disabled={loading}
+                  className="w-full border border-slate-300 rounded-lg px-3 py-1.5 text-[12px] focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
+                />
+              </div>
+            </div>
           </div>
-        </label>
+        )}
 
-        {/* ─── MERMA ─── */}
-        <label
-          className={cn(
-            'flex items-start gap-3 p-4 rounded-lg cursor-pointer transition-colors',
-            tipo === 'merma'
-              ? 'border-2 border-red-400 bg-red-50'
-              : 'border border-slate-200 hover:border-red-300 hover:bg-red-50/30'
-          )}
-        >
-          <input
-            type="radio"
-            name="resolucion"
-            value="merma"
-            checked={tipo === 'merma'}
-            onChange={() => setTipo('merma')}
-            disabled={loading}
-            className="w-4 h-4 mt-1"
-          />
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1">
-              <Trash2 className="w-5 h-5 text-red-500" aria-hidden />
-              <span className="font-bold text-slate-900">Merma — el destinatario no asume</span>
+        {/* Reemplazo · detalle */}
+        {tipo === 'reemplazo' && (
+          <div className="space-y-3">
+            <div className="bg-violet-50 ring-1 ring-violet-200/60 rounded-lg px-3 py-2.5 flex items-start gap-2">
+              <PackagePlus className="w-3.5 h-3.5 text-violet-600 flex-shrink-0 mt-0.5" aria-hidden />
+              <div className="text-[11px] text-violet-800 leading-snug">
+                Se creará una <span className="font-semibold">tanda de reemplazo</span> con las{' '}
+                {reclamo.unidadesCount} unidades por reponer. CTRU preservado en{' '}
+                <span className="tabular-nums font-semibold">{formatUSD(reclamo.montoReclamadoUSD)}</span>.{' '}
+                Reclamo queda <code className="bg-white/70 px-1 rounded">aceptado</code> pendiente de llegada.
+              </div>
             </div>
-            <div className="text-xs text-slate-700 mb-2">
-              El destinatario rechaza el reclamo o no responde. Asumimos la pérdida contable.
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div>
+                <label className="text-[10px] uppercase tracking-wider text-slate-500 font-bold block mb-1">
+                  Tracking del reemplazo <span className="text-slate-400 normal-case font-normal">(opcional)</span>
+                </label>
+                <input
+                  type="text"
+                  value={reemplazoTracking}
+                  onChange={(e) => setReemplazoTracking(e.target.value)}
+                  placeholder="Ej. TBA-REPL-789"
+                  disabled={loading}
+                  className="w-full border border-slate-300 rounded-lg px-3 py-1.5 text-[12px] focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] uppercase tracking-wider text-slate-500 font-bold block mb-1">
+                  Fecha estimada de llegada
+                </label>
+                <input
+                  type="date"
+                  value={reemplazoFechaEstimada}
+                  onChange={(e) => setReemplazoFechaEstimada(e.target.value)}
+                  disabled={loading}
+                  className="w-full border border-slate-300 rounded-lg px-3 py-1.5 text-[12px] focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
+                />
+              </div>
             </div>
-            <ul className="text-xs space-y-0.5 pl-4 text-slate-600 border-l-2 border-red-300 ml-1">
-              <li>
-                Reclamo transita a <code className="bg-white px-1 rounded">rechazado</code> o{' '}
-                <code className="bg-white px-1 rounded">cerrado_sin_cobrar</code>
-              </li>
-              <li>
-                Gasto: <code className="bg-white px-1 rounded">gasto_merma_transferencia</code>
-              </li>
-              <li>Unidad → <code className="bg-white px-1 rounded">perdida_total</code></li>
+            <div className="text-[11px] text-violet-700 flex items-start gap-1.5">
+              <Info className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" aria-hidden />
+              <span>Si el reemplazo también falla, podés reabrir el reclamo y convertirlo a <strong>Merma</strong>.</span>
+            </div>
+          </div>
+        )}
+
+        {/* Merma · detalle */}
+        {tipo === 'merma' && (
+          <div className="bg-red-50 ring-1 ring-red-200/60 rounded-lg px-3 py-2.5 text-[11px] text-red-800 leading-snug space-y-1">
+            <div>El destinatario rechaza el reclamo o no responde. Asumimos la pérdida contable.</div>
+            <ul className="list-disc list-inside text-[11px] text-red-700 space-y-0.5 mt-1">
+              <li>Reclamo transita a <code className="bg-white/70 px-1 rounded">rechazado</code> o{' '}
+                <code className="bg-white/70 px-1 rounded">cerrado_sin_cobrar</code></li>
+              <li>Gasto: <code className="bg-white/70 px-1 rounded">gasto_merma_transferencia</code></li>
+              <li>Unidad → <code className="bg-white/70 px-1 rounded">perdida_total</code></li>
               <li>Afecta ranking de integridad del destinatario</li>
             </ul>
           </div>
-        </label>
-      </div>
+        )}
 
-      {/* Notas */}
-      <div className="mt-4">
-        <label className="text-xs font-medium text-slate-700 block mb-1">
-          Notas de la resolución <span className="text-slate-400">(opcional)</span>
-        </label>
-        <textarea
-          value={notas}
-          onChange={(e) => setNotas(e.target.value)}
-          rows={2}
-          placeholder="Ej. Proveedor confirmó reemplazo vía email del 20-abr"
-          disabled={loading}
-          className="w-full border border-slate-300 rounded px-3 py-2 text-xs focus:ring-2 focus:ring-teal-500"
-        />
-      </div>
+        {/* ── Notas de la resolución ── */}
+        <div>
+          <label className="text-[10px] uppercase tracking-wider text-slate-500 font-bold block mb-1">
+            Notas de la resolución <span className="text-slate-400 normal-case font-normal">(opcional)</span>
+          </label>
+          <textarea
+            value={notas}
+            onChange={(e) => setNotas(e.target.value)}
+            rows={2}
+            placeholder="Ej. Proveedor confirmó reemplazo vía email del 20-abr"
+            disabled={loading}
+            className="w-full border border-slate-300 rounded-lg px-3 py-2 text-[12px] focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500 resize-none"
+          />
+        </div>
 
-      {/* Footer */}
-      <div className="mt-5 flex items-center justify-end gap-2 pt-3 border-t border-slate-200">
-        <Button variant="secondary" onClick={onClose} disabled={loading}>
-          Cancelar
-        </Button>
-        <Button variant="primary" onClick={handleConfirm} disabled={loading}>
-          {loading
-            ? 'Confirmando...'
-            : tipo === 'reemplazo'
-            ? '✓ Confirmar — crear tanda reemplazo'
-            : tipo === 'reembolso'
-            ? '✓ Confirmar reembolso'
-            : '✓ Confirmar merma'}
-        </Button>
-      </div>
+        {/* ── Nota de trazabilidad (informativa · siempre visible) ── */}
+        <div className="flex items-start gap-2 bg-sky-50 ring-1 ring-sky-200/60 rounded-lg px-3 py-2.5">
+          <Link className="w-3.5 h-3.5 text-sky-600 flex-shrink-0 mt-0.5" aria-hidden />
+          <span className="text-[11px] text-sky-800 leading-snug">
+            <strong>Trazabilidad:</strong> la unidad mantiene su <code className="bg-white/70 px-1 rounded">unidadId</code>{' '}
+            original. Su historial queda con la tanda original + la tanda de reemplazo (al recibirla). Auditoría completa.
+          </span>
+        </div>
 
-      {/* Nota al pie */}
-      <div className="mt-3 p-3 bg-sky-50 border border-sky-200 rounded text-xs text-sky-900 flex items-start gap-1.5">
-        <Link className="w-3.5 h-3.5 text-sky-600 flex-shrink-0 mt-0.5" aria-hidden />
-        <span><strong>Trazabilidad:</strong> la unidad mantiene su <code className="bg-white px-1 rounded">unidadId</code> original. Su historial queda con la tanda original + la tanda de reemplazo (al recibirla). Auditoría completa.</span>
       </div>
-    </Modal>
+    </FormModalV2>
   );
 };

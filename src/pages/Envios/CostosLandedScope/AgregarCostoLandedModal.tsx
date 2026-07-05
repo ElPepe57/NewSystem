@@ -8,10 +8,13 @@
  *   - Campos comunes: concepto, descripción, monto USD, TC, método prorrateo
  *   - Si estado=confirmado: campo facturaReferencia opcional
  *   - Si estado=estimado: campo motivoEstimado opcional (ej. "pendiente factura")
+ *
+ * Migrado a FormModalV2 · chrome orange (grupo Inventario).
+ * Mockup canon: docs/mockups/envios-master-v1.html · ACTO 11 · modal 4.
  */
 import React, { useMemo, useState } from 'react';
-import { DollarSign, Package, Info, Clock } from 'lucide-react';
-import { Modal, Button } from '../../../components/common';
+import { DollarSign, Package, Layers, Info, Clock, CheckCircle2, Plus } from 'lucide-react';
+import { FormModalV2 } from '../../../design-system';
 import { cn } from '../../../design-system';
 import type {
   SubEnvioT1,
@@ -51,11 +54,11 @@ export interface AgregarCostoLandedModalProps {
   loading?: boolean;
 }
 
-const METODOS_PRORRATEO: Array<{ value: MetodoProrrateo; label: string; desc: string }> = [
-  { value: 'total_por_peso', label: 'Por peso', desc: 'Unidades con más peso absorben más' },
-  { value: 'total_por_valor', label: 'Por valor', desc: 'Proporcional al CTRU base' },
-  { value: 'fijo_por_unidad', label: 'Fijo por unidad', desc: 'Cada unidad paga igual' },
-  { value: 'variado_por_producto', label: 'Variable por producto', desc: 'Tarifa manual por SKU' },
+const METODOS_PRORRATEO: Array<{ value: MetodoProrrateo; label: string; labelCorto: string; desc: string }> = [
+  { value: 'total_por_peso', label: 'Por peso', labelCorto: 'Por peso', desc: 'Unidades con más peso absorben más' },
+  { value: 'total_por_valor', label: 'Por valor', labelCorto: 'Por valor', desc: 'Proporcional al CTRU base' },
+  { value: 'fijo_por_unidad', label: 'Fijo · u', labelCorto: 'Fijo · u', desc: 'Cada unidad paga igual' },
+  { value: 'variado_por_producto', label: 'Variable por producto', labelCorto: 'Variable', desc: 'Tarifa manual por SKU' },
 ];
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -112,7 +115,7 @@ export const AgregarCostoLandedModal: React.FC<AgregarCostoLandedModalProps> = (
     setMotivoEstimado('');
   };
 
-  const handleConfirm = async () => {
+  const handleSubmit = async () => {
     if (!puedeConfirmar) return;
     setSubmitting(true);
     try {
@@ -146,110 +149,122 @@ export const AgregarCostoLandedModal: React.FC<AgregarCostoLandedModalProps> = (
     [subEnvios, tandaId]
   );
 
-  if (!isOpen) return null;
+  // Label overline canon (stcap en mockup)
+  const LabelCap: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block mb-1">
+      {children}
+    </span>
+  );
 
   return (
-    <Modal
-      isOpen
+    <FormModalV2
+      isOpen={isOpen}
       onClose={loading ? () => {} : onClose}
+      onSubmit={handleSubmit}
       title="Agregar costo landed"
+      subtitle="se prorratea al CTRU"
+      icon={DollarSign}
+      iconTone="orange"
+      color="orange"
       size="lg"
+      submitLabel="Agregar costo"
+      submitIcon={Plus}
+      loading={loading}
+      disabled={!puedeConfirmar || loading}
     >
-      <div className="space-y-4">
+      <div className="space-y-3">
+
         {/* ─── Scope: ¿a qué aplica? ─── */}
         <div>
-          <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 block mb-2">
-            ¿A qué aplica este costo?
-          </label>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            <label
+          <LabelCap>Alcance</LabelCap>
+          <div className="grid grid-cols-2 gap-2">
+            {/* Todo el envío */}
+            <button
+              type="button"
+              onClick={() => setScope('envio')}
+              disabled={loading}
               className={cn(
-                'flex items-start gap-2 p-3 rounded-lg cursor-pointer transition-colors',
+                'text-left rounded-lg border-2 p-2.5 transition-colors',
                 scope === 'envio'
-                  ? 'border-2 border-teal-400 bg-teal-50'
-                  : 'border border-slate-200 hover:border-slate-300'
+                  ? 'border-orange-500 bg-orange-50/50 ring-2 ring-orange-500/20'
+                  : 'border-slate-200 bg-white hover:border-orange-300'
               )}
             >
-              <input
-                type="radio"
-                name="scope"
-                checked={scope === 'envio'}
-                onChange={() => setScope('envio')}
-                disabled={loading}
-                className="w-4 h-4 mt-0.5"
-              />
-              <div>
-                <div className="text-sm font-medium text-slate-900 flex items-center gap-2">
-                  <Package className="w-4 h-4 text-slate-500" aria-hidden />
-                  Todo el envío (global)
-                </div>
-                <div className="text-[10px] text-slate-600 mt-0.5">
-                  Se prorratea entre todas las unidades del envío
-                </div>
-              </div>
-            </label>
-            <label
-              className={cn(
-                'flex items-start gap-2 p-3 rounded-lg transition-colors',
-                !hayTandas && 'opacity-50 cursor-not-allowed',
-                hayTandas &&
-                  (scope === 'tanda'
-                    ? 'border-2 border-violet-400 bg-violet-50 cursor-pointer'
-                    : 'border border-slate-200 hover:border-slate-300 cursor-pointer')
-              )}
-            >
-              <input
-                type="radio"
-                name="scope"
-                checked={scope === 'tanda'}
-                onChange={() => setScope('tanda')}
-                disabled={loading || !hayTandas}
-                className="w-4 h-4 mt-0.5"
-              />
-              <div className="flex-1">
-                <div className="text-sm font-medium text-slate-900 flex items-center gap-2">
-                  <Package className="w-4 h-4 text-slate-500" aria-hidden />
-                  Tanda específica
-                </div>
-                <div className="text-[10px] text-slate-600 mt-0.5">
-                  {hayTandas
-                    ? 'Solo afecta las unidades de esta sub-tanda'
-                    : 'El envío no tiene sub-tandas'}
-                </div>
-                {scope === 'tanda' && hayTandas && (
-                  <select
-                    value={tandaId}
-                    onChange={(e) => setTandaId(e.target.value)}
-                    disabled={loading}
-                    className="w-full mt-2 px-2 py-1 text-xs border border-violet-300 rounded"
-                  >
-                    <option value="">— Selecciona tanda —</option>
-                    {subEnvios.map((se) => (
-                      <option key={se.id} value={se.id}>
-                        Tanda {se.secuencia}
-                        {se.tipo === 'reemplazo' ? ' · Reemplazo' : ''}
-                        {` · ${se.unidadesIds.length} uds · ${se.estado}`}
-                      </option>
-                    ))}
-                  </select>
+              <div className="flex items-center justify-between mb-0.5">
+                <Package className="w-4 h-4 text-slate-500" aria-hidden />
+                {scope === 'envio' && (
+                  <CheckCircle2 className="w-3.5 h-3.5 text-orange-600" />
+                )}
+                {scope !== 'envio' && (
+                  <span className="w-3.5 h-3.5 rounded-full border-2 border-slate-300" />
                 )}
               </div>
-            </label>
+              <div className="text-[12px] font-bold text-slate-900">Todo el envío</div>
+              <div className="text-[10px] text-slate-500 mt-0.5">Se prorratea entre todas las unidades</div>
+            </button>
+
+            {/* Tanda específica */}
+            <button
+              type="button"
+              onClick={() => hayTandas && setScope('tanda')}
+              disabled={loading || !hayTandas}
+              className={cn(
+                'text-left rounded-lg border-2 p-2.5 transition-colors',
+                !hayTandas && 'opacity-50 cursor-not-allowed',
+                hayTandas && scope === 'tanda'
+                  ? 'border-orange-500 bg-orange-50/50 ring-2 ring-orange-500/20'
+                  : hayTandas && 'border-slate-200 bg-white hover:border-orange-300'
+              )}
+            >
+              <div className="flex items-center justify-between mb-0.5">
+                <Layers className="w-4 h-4 text-slate-500" aria-hidden />
+                {scope === 'tanda' ? (
+                  <CheckCircle2 className="w-3.5 h-3.5 text-orange-600" />
+                ) : (
+                  <span className="w-3.5 h-3.5 rounded-full border-2 border-slate-300" />
+                )}
+              </div>
+              <div className={cn('text-[12px] font-medium', scope === 'tanda' ? 'text-slate-900 font-bold' : 'text-slate-600')}>
+                Tanda
+              </div>
+              <div className="text-[10px] text-slate-500 mt-0.5">
+                {hayTandas ? 'Solo unidades de esta sub-tanda' : 'Sin sub-tandas'}
+              </div>
+            </button>
           </div>
+
+          {/* Dropdown de tanda cuando scope=tanda */}
+          {scope === 'tanda' && hayTandas && (
+            <select
+              value={tandaId}
+              onChange={(e) => setTandaId(e.target.value)}
+              disabled={loading}
+              className="mt-2 w-full px-3 py-2 text-[12px] border border-orange-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-orange-400 focus:border-orange-400 bg-white"
+            >
+              <option value="">— Selecciona tanda —</option>
+              {subEnvios.map((se) => (
+                <option key={se.id} value={se.id}>
+                  Tanda {se.secuencia}
+                  {se.tipo === 'reemplazo' ? ' · Reemplazo' : ''}
+                  {` · ${se.unidadesIds.length} uds · ${se.estado}`}
+                </option>
+              ))}
+            </select>
+          )}
         </div>
 
-        {/* ─── Concepto + descripción ─── */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div className={categoriasDisponibles ? '' : 'sm:col-span-2'}>
-            <label className="text-xs font-medium text-slate-700 block mb-1">
-              Concepto <span className="text-red-500">*</span>
-            </label>
-            {categoriasDisponibles && categoriasDisponibles.length > 0 ? (
+        {/* ─── Concepto ─── */}
+        <div>
+          <LabelCap>
+            Concepto <span className="text-red-500 normal-case">*</span>
+          </LabelCap>
+          {categoriasDisponibles && categoriasDisponibles.length > 0 ? (
+            <div className="flex items-center gap-2 border border-slate-200 rounded-lg px-3 py-2 bg-white">
               <select
                 value={concepto}
                 onChange={(e) => setConcepto(e.target.value)}
                 disabled={loading}
-                className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500"
+                className="flex-1 text-[12px] text-slate-700 bg-transparent border-none outline-none focus:outline-none appearance-none"
               >
                 <option value="">— Selecciona —</option>
                 {categoriasDisponibles.map((c) => (
@@ -258,57 +273,38 @@ export const AgregarCostoLandedModal: React.FC<AgregarCostoLandedModalProps> = (
                   </option>
                 ))}
               </select>
-            ) : (
-              <input
-                type="text"
-                value={concepto}
-                onChange={(e) => setConcepto(e.target.value)}
-                placeholder="Ej. Flete del viajero, Fee recepción, Aduana, etc."
-                disabled={loading}
-                className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500"
-              />
-            )}
-          </div>
-          {categoriasDisponibles && (
-            <div>
-              <label className="text-xs font-medium text-slate-700 block mb-1">
-                Descripción <span className="text-slate-400">(opcional)</span>
-              </label>
-              <input
-                type="text"
-                value={descripcion}
-                onChange={(e) => setDescripcion(e.target.value)}
-                placeholder="Detalle o nota interna"
-                disabled={loading}
-                className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500"
-              />
             </div>
-          )}
-        </div>
-        {!categoriasDisponibles && (
-          <div>
-            <label className="text-xs font-medium text-slate-700 block mb-1">
-              Descripción <span className="text-slate-400">(opcional)</span>
-            </label>
+          ) : (
             <input
               type="text"
-              value={descripcion}
-              onChange={(e) => setDescripcion(e.target.value)}
-              placeholder="Detalle o nota interna"
+              value={concepto}
+              onChange={(e) => setConcepto(e.target.value)}
+              placeholder="Ej. Flete del viajero, Fee recepción, Aduana, etc."
               disabled={loading}
-              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500"
+              className="w-full px-3 py-2 text-[12px] border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500 bg-white"
             />
-          </div>
-        )}
+          )}
+        </div>
+
+        {/* ─── Descripción ─── */}
+        <div>
+          <LabelCap>Descripción <span className="text-slate-400 normal-case font-normal">(opcional)</span></LabelCap>
+          <input
+            type="text"
+            value={descripcion}
+            onChange={(e) => setDescripcion(e.target.value)}
+            placeholder="Detalle o nota interna"
+            disabled={loading}
+            className="w-full px-3 py-2 text-[12px] border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500 bg-white"
+          />
+        </div>
 
         {/* ─── Monto + moneda + TC ─── */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 gap-2">
           <div>
-            <label className="text-xs font-medium text-slate-700 block mb-1">
-              Monto <span className="text-red-500">*</span>
-            </label>
+            <LabelCap>Monto <span className="text-red-500 normal-case">*</span></LabelCap>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[12px]">
                 {moneda === 'USD' ? '$' : 'S/'}
               </span>
               <input
@@ -317,179 +313,175 @@ export const AgregarCostoLandedModal: React.FC<AgregarCostoLandedModalProps> = (
                 value={monto}
                 onChange={(e) => setMonto(e.target.value)}
                 disabled={loading}
-                className="w-full pl-8 pr-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500"
+                className="w-full pl-7 pr-3 py-2 text-[12px] tabular-nums border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500 bg-white"
+                placeholder="0.00"
               />
             </div>
           </div>
           <div>
-            <label className="text-xs font-medium text-slate-700 block mb-1">Moneda</label>
-            <select
-              value={moneda}
-              onChange={(e) => setMoneda(e.target.value as 'USD' | 'PEN')}
-              disabled={loading}
-              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500"
-            >
-              <option value="USD">USD</option>
-              <option value="PEN">PEN</option>
-            </select>
-          </div>
-          {moneda === 'USD' && (
-            <div>
-              <label className="text-xs font-medium text-slate-700 block mb-1">
-                Tipo de cambio <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="number"
-                step="0.001"
-                value={tc}
-                onChange={(e) => setTc(e.target.value)}
-                placeholder="3.78"
+            <LabelCap>Moneda</LabelCap>
+            <div className="flex gap-1">
+              <button
+                type="button"
+                onClick={() => setMoneda('USD')}
                 disabled={loading}
-                className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500"
-              />
+                className={cn(
+                  'flex-1 text-center text-[12px] font-semibold rounded-lg py-2 border transition-colors',
+                  moneda === 'USD'
+                    ? 'text-orange-700 bg-orange-50 border-orange-200'
+                    : 'text-slate-500 border-slate-200 hover:border-slate-300 bg-white'
+                )}
+              >
+                USD
+              </button>
+              <button
+                type="button"
+                onClick={() => setMoneda('PEN')}
+                disabled={loading}
+                className={cn(
+                  'flex-1 text-center text-[12px] font-semibold rounded-lg py-2 border transition-colors',
+                  moneda === 'PEN'
+                    ? 'text-orange-700 bg-orange-50 border-orange-200'
+                    : 'text-slate-500 border-slate-200 hover:border-slate-300 bg-white'
+                )}
+              >
+                PEN
+              </button>
             </div>
-          )}
+          </div>
         </div>
+
+        {/* TC solo cuando moneda=USD */}
+        {moneda === 'USD' && (
+          <div>
+            <LabelCap>Tipo de cambio <span className="text-red-500 normal-case">*</span></LabelCap>
+            <input
+              type="number"
+              step="0.001"
+              value={tc}
+              onChange={(e) => setTc(e.target.value)}
+              placeholder="3.78"
+              disabled={loading}
+              className="w-full px-3 py-2 text-[12px] tabular-nums border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500 bg-white"
+            />
+          </div>
+        )}
 
         {/* ─── Método de prorrateo ─── */}
         <div>
-          <label className="text-xs font-medium text-slate-700 block mb-2">
-            Método de prorrateo
-          </label>
-          <div className="grid grid-cols-2 gap-2">
+          <LabelCap>Prorrateo</LabelCap>
+          <div className="flex gap-1 flex-wrap">
             {METODOS_PRORRATEO.map((m) => (
-              <label
+              <button
                 key={m.value}
+                type="button"
+                onClick={() => setMetodo(m.value)}
+                disabled={loading}
+                title={m.desc}
                 className={cn(
-                  'flex items-start gap-2 p-2 rounded cursor-pointer transition-colors text-xs',
+                  'flex-1 text-center text-[11px] font-semibold rounded-lg py-1.5 border transition-colors min-w-[4rem]',
                   metodo === m.value
-                    ? 'border-2 border-teal-400 bg-teal-50'
-                    : 'border border-slate-200 hover:border-slate-300'
+                    ? 'text-orange-700 bg-orange-50 border-orange-200'
+                    : 'text-slate-500 border-slate-200 hover:border-slate-300 bg-white'
                 )}
               >
-                <input
-                  type="radio"
-                  name="metodo"
-                  checked={metodo === m.value}
-                  onChange={() => setMetodo(m.value)}
-                  disabled={loading}
-                  className="w-3.5 h-3.5 mt-0.5"
-                />
-                <div>
-                  <div className="font-medium text-slate-900">{m.label}</div>
-                  <div className="text-[10px] text-slate-600">{m.desc}</div>
-                </div>
-              </label>
+                {m.labelCorto}
+              </button>
             ))}
           </div>
+          {/* Descripción del método seleccionado */}
+          <p className="text-[10px] text-slate-400 mt-1">
+            {METODOS_PRORRATEO.find((m) => m.value === metodo)?.desc}
+          </p>
         </div>
 
         {/* ─── Estado inicial ─── */}
-        <div className="p-3 bg-slate-50 rounded border border-slate-200">
-          <label className="text-xs font-medium text-slate-700 block mb-2">
-            Estado inicial del costo
-          </label>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            <label
+        <div>
+          <LabelCap>Estado</LabelCap>
+          <div className="flex gap-1">
+            <button
+              type="button"
+              onClick={() => setEstadoInicial('estimado')}
+              disabled={loading}
               className={cn(
-                'flex items-start gap-2 p-2 rounded cursor-pointer transition-colors',
+                'flex-1 text-center text-[11px] font-semibold rounded-lg py-1.5 border transition-colors',
                 estadoInicial === 'estimado'
-                  ? 'border-2 border-amber-400 bg-amber-50'
-                  : 'border border-slate-200 hover:border-slate-300'
+                  ? 'text-amber-700 bg-amber-50 border-amber-200'
+                  : 'text-slate-500 border-slate-200 hover:border-slate-300 bg-white'
               )}
             >
-              <input
-                type="radio"
-                checked={estadoInicial === 'estimado'}
-                onChange={() => setEstadoInicial('estimado')}
-                disabled={loading}
-                className="w-3.5 h-3.5 mt-0.5"
-              />
-              <div>
-                <div className="text-sm font-medium text-slate-900 flex items-center gap-1.5"><Clock className="w-4 h-4 text-amber-500" aria-hidden /> Estimado</div>
-                <div className="text-[10px] text-slate-600">
-                  Aún no tengo factura firme · bloquea cierre financiero
-                </div>
-              </div>
-            </label>
-            <label
+              <span className="flex items-center justify-center gap-1">
+                <Clock className="w-3 h-3" aria-hidden />
+                Estimado
+              </span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setEstadoInicial('confirmado')}
+              disabled={loading}
               className={cn(
-                'flex items-start gap-2 p-2 rounded cursor-pointer transition-colors',
+                'flex-1 text-center text-[11px] font-semibold rounded-lg py-1.5 border transition-colors',
                 estadoInicial === 'confirmado'
-                  ? 'border-2 border-emerald-400 bg-emerald-50'
-                  : 'border border-slate-200 hover:border-slate-300'
+                  ? 'text-emerald-700 bg-emerald-50 border-emerald-200'
+                  : 'text-slate-500 border-slate-200 hover:border-slate-300 bg-white'
               )}
             >
-              <input
-                type="radio"
-                checked={estadoInicial === 'confirmado'}
-                onChange={() => setEstadoInicial('confirmado')}
-                disabled={loading}
-                className="w-3.5 h-3.5 mt-0.5"
-              />
-              <div>
-                <div className="text-sm font-medium text-slate-900">✓ Confirmado</div>
-                <div className="text-[10px] text-slate-600">
-                  Ya tengo factura · entra al CTRU final
-                </div>
-              </div>
-            </label>
+              <span className="flex items-center justify-center gap-1">
+                <CheckCircle2 className="w-3 h-3" aria-hidden />
+                Confirmado
+              </span>
+            </button>
           </div>
-
-          {/* Campos condicionales según estado */}
-          {estadoInicial === 'estimado' && (
-            <div className="mt-3">
-              <label className="text-[10px] text-slate-600 block mb-1">
-                Motivo del estimado <span className="text-slate-400">(opcional)</span>
-              </label>
-              <input
-                type="text"
-                value={motivoEstimado}
-                onChange={(e) => setMotivoEstimado(e.target.value)}
-                placeholder="Ej. Pendiente factura del viajero"
-                disabled={loading}
-                className="w-full border border-slate-300 rounded px-2 py-1 text-xs"
-              />
-            </div>
-          )}
-          {estadoInicial === 'confirmado' && (
-            <div className="mt-3">
-              <label className="text-[10px] text-slate-600 block mb-1">
-                Referencia de factura <span className="text-slate-400">(opcional)</span>
-              </label>
-              <input
-                type="text"
-                value={facturaRef}
-                onChange={(e) => setFacturaRef(e.target.value)}
-                placeholder="Ej. F-2026-123"
-                disabled={loading}
-                className="w-full border border-slate-300 rounded px-2 py-1 text-xs"
-              />
-            </div>
-          )}
+          <p className="text-[10px] text-slate-400 mt-1">
+            {estadoInicial === 'estimado'
+              ? 'Aún no tengo factura firme · bloquea cierre financiero'
+              : 'Ya tengo factura · entra al CTRU final'}
+          </p>
         </div>
 
-        {/* Contexto informativo */}
-        {scope === 'tanda' && tandaSeleccionada && (
-          <div className="text-xs text-slate-600 bg-violet-50 border border-violet-200 rounded p-2 flex items-start gap-1.5">
-            <Info className="w-3.5 h-3.5 text-violet-500 flex-shrink-0 mt-0.5" aria-hidden />
-            <span>Este costo se prorrateará solo entre las{' '}
-            <strong>{tandaSeleccionada.unidadesIds.length} unidades</strong> de la
-            Tanda {tandaSeleccionada.secuencia}.</span>
+        {/* Campo condicional: motivo estimado */}
+        {estadoInicial === 'estimado' && (
+          <div>
+            <LabelCap>Motivo del estimado <span className="text-slate-400 normal-case font-normal">(opcional)</span></LabelCap>
+            <input
+              type="text"
+              value={motivoEstimado}
+              onChange={(e) => setMotivoEstimado(e.target.value)}
+              placeholder="Ej. Pendiente factura del viajero"
+              disabled={loading}
+              className="w-full px-3 py-2 text-[12px] border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500 bg-white"
+            />
           </div>
         )}
-      </div>
 
-      {/* Footer */}
-      <div className="mt-5 flex items-center justify-end gap-2 pt-3 border-t border-slate-200">
-        <Button variant="secondary" onClick={onClose} disabled={loading}>
-          Cancelar
-        </Button>
-        <Button variant="primary" onClick={handleConfirm} disabled={!puedeConfirmar || loading}>
-          <DollarSign className="w-4 h-4 mr-1.5" aria-hidden />
-          {loading ? 'Agregando...' : 'Agregar costo'}
-        </Button>
+        {/* Campo condicional: referencia de factura */}
+        {estadoInicial === 'confirmado' && (
+          <div>
+            <LabelCap>Referencia de factura <span className="text-slate-400 normal-case font-normal">(opcional)</span></LabelCap>
+            <input
+              type="text"
+              value={facturaRef}
+              onChange={(e) => setFacturaRef(e.target.value)}
+              placeholder="Ej. F-2026-123"
+              disabled={loading}
+              className="w-full px-3 py-2 text-[12px] border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500 bg-white"
+            />
+          </div>
+        )}
+
+        {/* Contexto informativo de tanda seleccionada */}
+        {scope === 'tanda' && tandaSeleccionada && (
+          <div className="text-[11px] text-slate-600 bg-slate-50 border border-slate-200 rounded-lg p-2 flex items-start gap-1.5">
+            <Info className="w-3.5 h-3.5 text-slate-500 flex-shrink-0 mt-0.5" aria-hidden />
+            <span>
+              Este costo se prorrateará solo entre las{' '}
+              <strong className="tabular-nums">{tandaSeleccionada.unidadesIds.length} unidades</strong> de la
+              Tanda {tandaSeleccionada.secuencia}.
+            </span>
+          </div>
+        )}
+
       </div>
-    </Modal>
+    </FormModalV2>
   );
 };

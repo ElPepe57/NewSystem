@@ -17,10 +17,11 @@
 
 import React, { useEffect, useCallback } from 'react';
 import type { LucideIcon } from 'lucide-react';
-import { Coins } from 'lucide-react';
+import { Coins, Loader2 } from 'lucide-react';
 import { Modal } from '../../components/common/Modal';
 import { Button } from '../../components/common';
 import { cn } from '../utils';
+import { COLOR_CLASSES, type ColorIdentidad } from '../grupoColor';
 
 // ─── Tipos ─────────────────────────────────────────────────────────────
 
@@ -51,6 +52,13 @@ export interface FormModalV2Props {
   icon?: LucideIcon;
   /** Color del fondo del icono. Default: 'teal'. */
   iconTone?: 'teal' | 'amber' | 'sky' | 'emerald' | 'red' | 'purple' | 'slate' | 'orange' | 'violet' | 'blue';
+  /**
+   * Color de grupo (`grupoColor`) para el CHROME del submit CTA (Modelo A · el
+   * primary CTA viste el color del módulo). Si se pasa, el botón submit usa el
+   * `primaryBtn` del grupo en vez del teal legacy del `Button`. Aditivo: sin él,
+   * el comportamiento no cambia (los modales no migrados siguen igual).
+   */
+  color?: ColorIdentidad;
 
   // ── Auto-save banner (opcional) ──
   autoSaveStatus?: FormModalV2AutoSaveStatus;
@@ -122,6 +130,7 @@ export const FormModalV2: React.FC<FormModalV2Props> = ({
   breadcrumb,
   icon: Icon = Coins,
   iconTone = 'teal',
+  color,
   autoSaveStatus = 'idle',
   autoSaveLabel,
   children,
@@ -233,16 +242,38 @@ export const FormModalV2: React.FC<FormModalV2Props> = ({
         <Button variant="ghost" size="sm" onClick={onClose} disabled={loading}>
           {cancelLabel}
         </Button>
-        <Button
-          variant={submitVariant}
-          size="sm"
-          onClick={onSubmit}
-          loading={loading}
-          disabled={disabled || loading}
-        >
-          {SubmitIcon && !loading && <SubmitIcon className="w-4 h-4 mr-1.5" />}
-          {submitLabel}
-        </Button>
+        {color ? (
+          // Modelo A · primary CTA en el color del grupo (chrome). Nativo para no
+          // heredar el teal del Button legacy · usa grupoColor (fuente única).
+          <button
+            type="button"
+            onClick={onSubmit}
+            disabled={disabled || loading}
+            className={cn(
+              'inline-flex items-center gap-1.5 text-[13px] font-semibold px-3.5 py-2 rounded-lg shadow-sm transition-colors',
+              'disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-1',
+              COLOR_CLASSES[color].primaryBtn,
+            )}
+          >
+            {loading ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              SubmitIcon && <SubmitIcon className="w-4 h-4" />
+            )}
+            {submitLabel}
+          </button>
+        ) : (
+          <Button
+            variant={submitVariant}
+            size="sm"
+            onClick={onSubmit}
+            loading={loading}
+            disabled={disabled || loading}
+          >
+            {SubmitIcon && !loading && <SubmitIcon className="w-4 h-4 mr-1.5" />}
+            {submitLabel}
+          </Button>
+        )}
       </div>
     </div>
   );

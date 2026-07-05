@@ -1,9 +1,8 @@
 import React, { useState, useMemo } from "react";
-import { DollarSign, AlertTriangle } from "lucide-react";
-import { Modal, Button } from "../../components/common";
+import { DollarSign, Banknote, Check, AlertTriangle } from "lucide-react";
+import { FormModalV2 } from "../../design-system";
 import { useProductoStore } from "../../store/productoStore";
 import type { Envio } from "../../types/envio.types";
-import { getDescripcionProducto } from "../../utils/producto.helpers";
 
 interface EditFleteModalProps {
   transferencia: Envio;
@@ -56,130 +55,115 @@ export const EditFleteModal: React.FC<EditFleteModalProps> = ({
     }
   };
 
+  const yaRecibida =
+    transferencia.estado === 'recibida_completa' || transferencia.estado === 'recibida_parcial';
+
   return (
-    <Modal
+    <FormModalV2
       isOpen={true}
       onClose={onClose}
-      title={`Flete - ${transferencia.numeroEnvio}`}
+      onSubmit={handleSubmit}
+      title="Editar flete"
+      subtitle={`${transferencia.numeroEnvio} · por unidad · total auto`}
+      icon={Banknote}
+      iconTone="orange"
+      color="orange"
       size="lg"
+      submitLabel="Guardar flete"
+      submitIcon={Check}
+      loading={submitting}
+      disabled={submitting}
     >
       <div className="space-y-4">
-        {/* Info de la transferencia */}
-        <div className="bg-slate-50 rounded-lg p-3 text-sm">
-          <div className="grid grid-cols-2 gap-2">
-            <div><span className="text-slate-500">Destino:</span> <span className="font-medium">{transferencia.destinoCasillaNombre}</span></div>
-            <div><span className="text-slate-500">Unidades:</span> <span className="font-medium">{transferencia.totalUnidades}</span></div>
-            {transferencia.colaboradorNombre && (
-              <div><span className="text-slate-500">Viajero:</span> <span className="font-medium">{transferencia.colaboradorNombre}</span></div>
-            )}
+        {/* Info del envío */}
+        <div className="bg-slate-50 rounded-lg p-3 grid grid-cols-2 gap-2 text-[12px]">
+          <div>
+            <span className="text-slate-500">Destino:</span>{' '}
+            <span className="font-medium text-slate-800">{transferencia.destinoCasillaNombre}</span>
+          </div>
+          <div>
+            <span className="text-slate-500">Unidades:</span>{' '}
+            <span className="font-medium text-slate-800 tabular-nums">{transferencia.totalUnidades}</span>
+          </div>
+          {transferencia.colaboradorNombre && (
             <div>
-              <span className="text-slate-500">Flete actual:</span>{' '}
-              <span className="font-medium">
-                {transferencia.costoFleteTotal && transferencia.costoFleteTotal > 0
-                  ? `$${transferencia.costoFleteTotal.toFixed(2)}`
-                  : 'Sin flete'}
-              </span>
+              <span className="text-slate-500">Viajero:</span>{' '}
+              <span className="font-medium text-slate-800">{transferencia.colaboradorNombre}</span>
             </div>
+          )}
+          <div>
+            <span className="text-slate-500">Flete actual:</span>{' '}
+            <span className="font-medium text-slate-800 tabular-nums">
+              {transferencia.costoFleteTotal && transferencia.costoFleteTotal > 0
+                ? `$${transferencia.costoFleteTotal.toFixed(2)}`
+                : 'Sin flete'}
+            </span>
           </div>
         </div>
 
-        {/* Flete por producto */}
-        <div>
-          <div className="flex items-center justify-between mb-3">
-            <h4 className="text-sm font-medium text-slate-700">Costo de Flete por Producto</h4>
-            <div className="text-lg font-bold text-sky-700">${totalFlete.toFixed(2)}</div>
-          </div>
+        {/* Flete por producto · filas compactas con input por unidad */}
+        <div className="space-y-2.5 max-h-72 overflow-y-auto">
+          {transferencia.productosSummary.map((producto) => {
+            const cantidad = producto.cantidad || 1;
+            const fletePorUnidad = fletePorUnidadMap[producto.productoId] || 0;
+            const productoFull = productosMap.get(producto.productoId);
+            const usdLb =
+              productoFull?.pesoLibras && fletePorUnidad > 0
+                ? fletePorUnidad / productoFull.pesoLibras
+                : 0;
 
-          <div className="space-y-3 max-h-64 overflow-y-auto">
-            {transferencia.productosSummary.map((producto) => {
-              const unidadesCount = producto.cantidad;
-              const fletePorUnidad = fletePorUnidadMap[producto.productoId] || 0;
-              const fleteTotalProducto = fletePorUnidad * unidadesCount;
-              const productoFull = productosMap.get(producto.productoId);
-
-              return (
-                <div key={producto.productoId} className="bg-white rounded-lg p-3 border border-slate-200">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex-1 min-w-0">
-                      <h5 className="font-medium text-slate-900 truncate">
-                        {productoFull?.nombreComercial || producto.nombre}
-                      </h5>
-                      <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 mt-0.5">
-                        {productoFull?.marca && (
-                          <span className="text-xs font-medium text-sky-700 bg-sky-50 px-1.5 py-0.5 rounded">{productoFull.marca}</span>
-                        )}
-                        {productoFull && getDescripcionProducto(productoFull) && (
-                          <span className="text-xs text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded">{getDescripcionProducto(productoFull)}</span>
-                        )}
-                      </div>
-                      <p className="text-xs text-slate-500 mt-1">
-                        {producto.sku} &middot; {producto.cantidad} uds
-                        {productoFull?.pesoLibras ? ` · ${(productoFull.pesoLibras * unidadesCount).toFixed(2)} lb total (${productoFull.pesoLibras} lb/ud)` : ''}
-                      </p>
-                      {productoFull?.pesoLibras && fletePorUnidad > 0 && (
-                        <p className="text-xs text-sky-600 mt-0.5">
-                          ${(fletePorUnidad / productoFull.pesoLibras).toFixed(2)} USD/lb
-                        </p>
-                      )}
-                    </div>
-                    <div className="flex-shrink-0 w-40">
-                      <label className="block text-xs text-slate-500 mb-1">Flete por unidad (USD)</label>
-                      <div className="relative">
-                        <DollarSign className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-slate-400" />
-                        <input
-                          type="number"
-                          value={fletePorUnidadMap[producto.productoId] || ''}
-                          onChange={(e) => {
-                            const valor = parseFloat(e.target.value) || 0;
-                            setFletePorUnidadMap(prev => ({
-                              ...prev,
-                              [producto.productoId]: valor
-                            }));
-                          }}
-                          className="w-full pl-6 pr-2 py-1.5 text-sm border border-slate-300 rounded focus:outline-none focus:ring-1 focus:ring-orange-500"
-                          placeholder="0.00"
-                          step="0.01"
-                          min="0"
-                        />
-                      </div>
-                      {fleteTotalProducto > 0 && (
-                        <div className="text-xs text-sky-600 mt-1 text-right">
-                          Total: ${fleteTotalProducto.toFixed(2)}
-                        </div>
-                      )}
-                    </div>
+            return (
+              <div
+                key={producto.productoId}
+                className="flex items-center gap-2.5 border border-slate-200 rounded-lg px-3 py-2 bg-white"
+              >
+                <div className="flex-1 min-w-0">
+                  <div className="text-[12px] text-slate-800 truncate">
+                    {productoFull?.nombreComercial || producto.nombre}
+                    <span className="text-slate-400"> · {producto.sku}</span>
                   </div>
+                  {usdLb > 0 && (
+                    <div className="text-[10px] text-slate-400 tabular-nums">${usdLb.toFixed(2)} USD/lb</div>
+                  )}
                 </div>
-              );
-            })}
-          </div>
+                <span className="text-[11px] text-slate-400 tabular-nums flex-shrink-0">×{cantidad}</span>
+                <div className="relative w-28 flex-shrink-0">
+                  <DollarSign className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-slate-400" />
+                  <input
+                    type="number"
+                    value={fletePorUnidadMap[producto.productoId] || ''}
+                    onChange={(e) => {
+                      const valor = parseFloat(e.target.value) || 0;
+                      setFletePorUnidadMap(prev => ({ ...prev, [producto.productoId]: valor }));
+                    }}
+                    className="w-full pl-6 pr-2 py-1.5 text-[13px] tabular-nums border border-slate-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
+                    placeholder="0.00"
+                    step="0.01"
+                    min="0"
+                  />
+                </div>
+                <span className="text-[11px] text-slate-400 flex-shrink-0">/u</span>
+              </div>
+            );
+          })}
         </div>
 
-        {(transferencia.estado === 'recibida_completa' || transferencia.estado === 'recibida_parcial') && (
-          <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-            <div className="flex items-start gap-2">
-              <AlertTriangle className="h-4 w-4 text-amber-500 mt-0.5 flex-shrink-0" />
-              <p className="text-xs text-amber-700">
-                Esta transferencia ya fue recibida. Al actualizar el flete, se recalculara el CTRU de las unidades afectadas.
-              </p>
-            </div>
+        {/* Total flete · amber (dinero · semántico) */}
+        <div className="flex items-center justify-between bg-amber-50 ring-1 ring-amber-200/60 rounded-lg px-3.5 py-2.5">
+          <span className="text-[11px] uppercase tracking-wider text-amber-700 font-bold">Total flete</span>
+          <span className="text-[15px] font-bold tabular-nums text-amber-900">${totalFlete.toFixed(2)}</span>
+        </div>
+
+        {/* Aviso: envío ya recibido → recalcula CTRU */}
+        {yaRecibida && (
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-start gap-2">
+            <AlertTriangle className="h-4 w-4 text-amber-500 mt-0.5 flex-shrink-0" />
+            <p className="text-[11px] text-amber-700">
+              Este envío ya fue recibido. Al actualizar el flete se recalculará el CTRU de las unidades afectadas.
+            </p>
           </div>
         )}
-
-        {/* Botones */}
-        <div className="flex justify-end space-x-3 pt-2 border-t">
-          <Button variant="secondary" onClick={onClose} disabled={submitting}>
-            Cancelar
-          </Button>
-          <Button
-            variant="primary"
-            onClick={handleSubmit}
-            disabled={submitting}
-          >
-            {submitting ? 'Guardando...' : 'Guardar Flete'}
-          </Button>
-        </div>
       </div>
-    </Modal>
+    </FormModalV2>
   );
 };

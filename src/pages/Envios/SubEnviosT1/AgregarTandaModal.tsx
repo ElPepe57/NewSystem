@@ -2,25 +2,20 @@
  * AgregarTandaModal — Modal para agregar una nueva sub-tanda (SubEnvioT1)
  * a un envío T1 existente (casos A/B/D).
  *
- * UI (basada en mockup pixel-perfect docs/mockups/envios-transversal-s43.html
- *     tab "Sub-envios T1 (Amazon)" sección "Modal + Agregar tanda"):
- *  - Campos tracking (opcional) + fecha estimada
- *  - Picker de unidades disponibles (las no asignadas a otras tandas normales)
- *    agrupadas por producto con stepper +/-
- *  - Radio estado inicial: Pendiente (default) / En tránsito
- *  - Resumen al pie + botones Cancelar / Crear tanda
+ * Migrado a FormModalV2 con chrome orange (Inventario).
+ * Layout basado en Acto 11 · modal 10 del mockup envios-master-v1.html.
  *
  * Este componente es presentacional puro — recibe unidades disponibles ya
  * filtradas por el padre (el padre debe excluir las que están en otras tandas
  * normales del mismo envío padre).
  */
 import React, { useMemo, useState } from 'react';
-import { Package, X, Clock, Truck } from 'lucide-react';
-import { Modal, Button } from '../../../components/common';
+import { PackagePlus, Clock, Truck, Package } from 'lucide-react';
+import { FormModalV2 } from '../../../design-system';
 import { cn } from '../../../design-system';
 
 // ════════════════════════════════════════════════════════════════════════════
-// Tipos
+// Tipos (interfaz pública sin cambios — no rompe padres)
 // ════════════════════════════════════════════════════════════════════════════
 
 export interface AgregarTandaModalUnidad {
@@ -43,7 +38,7 @@ export interface AgregarTandaModalProps {
   onClose: () => void;
   /** Unidades disponibles (el padre ya filtró las asignadas a otras tandas) */
   unidadesDisponibles: AgregarTandaModalUnidad[];
-  /** Título opcional del modal — default "Nueva tanda de despacho del proveedor" */
+  /** Título opcional del modal — default "Agregar tanda" */
   titulo?: string;
   /** Subtítulo contextual opcional (ej: "Envío ENV-2026-123") */
   subtitulo?: string;
@@ -61,7 +56,7 @@ export const AgregarTandaModal: React.FC<AgregarTandaModalProps> = ({
   isOpen,
   onClose,
   unidadesDisponibles,
-  titulo = 'Nueva tanda de despacho del proveedor',
+  titulo = 'Agregar tanda',
   subtitulo,
   onConfirm,
   loading: loadingExt = false,
@@ -118,7 +113,7 @@ export const AgregarTandaModal: React.FC<AgregarTandaModalProps> = ({
     }));
   };
 
-  const handleConfirm = async () => {
+  const handleSubmit = async () => {
     if (!puedeConfirmar) return;
     setSubmitting(true);
     try {
@@ -138,43 +133,51 @@ export const AgregarTandaModal: React.FC<AgregarTandaModalProps> = ({
     }
   };
 
-  if (!isOpen) return null;
-
   return (
-    <Modal isOpen onClose={loading ? () => {} : onClose} title={titulo} size="lg">
-      {subtitulo && (
-        <p className="text-xs text-slate-500 -mt-2 mb-3">{subtitulo}</p>
-      )}
-
-      <div className="space-y-4">
-        {/* Info de la tanda */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <FormModalV2
+      isOpen={isOpen}
+      onClose={loading ? () => {} : onClose}
+      onSubmit={handleSubmit}
+      title={titulo}
+      subtitle={subtitulo}
+      icon={PackagePlus}
+      iconTone="orange"
+      color="orange"
+      size="lg"
+      submitLabel="Crear tanda"
+      submitIcon={PackagePlus}
+      loading={loading}
+      disabled={!puedeConfirmar}
+    >
+      <div className="space-y-3">
+        {/* Tracking + fecha estimada */}
+        <div className="grid grid-cols-2 gap-2">
           <div>
-            <label className="text-xs font-medium text-slate-700 block mb-1">
-              Tracking del proveedor <span className="text-slate-400">(opcional)</span>
-            </label>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+              Tracking proveedor
+            </span>
             <input
               type="text"
               value={tracking}
               onChange={(e) => setTracking(e.target.value)}
-              placeholder="Ej. TBA12345ABC"
+              placeholder="TRK-…"
               disabled={loading}
-              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+              className="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-[12px] text-slate-700 bg-white focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500 disabled:opacity-60"
             />
             <div className="text-[10px] text-slate-500 mt-1">
-              Lo puedes dejar vacío si aún no te lo envían
+              Opcional — puedes dejarlo vacío si aún no te lo envían
             </div>
           </div>
           <div>
-            <label className="text-xs font-medium text-slate-700 block mb-1">
-              Fecha estimada de entrega <span className="text-slate-400">(opcional)</span>
-            </label>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+              Fecha estimada
+            </span>
             <input
               type="date"
               value={fechaEstimada}
               onChange={(e) => setFechaEstimada(e.target.value)}
               disabled={loading}
-              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+              className="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-[12px] text-slate-700 bg-white tabular-nums focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500 disabled:opacity-60"
             />
             <div className="text-[10px] text-slate-500 mt-1">
               Según email del proveedor si lo indicó
@@ -184,64 +187,62 @@ export const AgregarTandaModal: React.FC<AgregarTandaModalProps> = ({
 
         {/* Picker de unidades */}
         <div>
-          <label className="text-xs font-medium text-slate-700 block mb-2">
-            Unidades a incluir en esta tanda <span className="text-red-500">*</span>
-          </label>
-          <div className="text-xs text-slate-600 mb-2">
-            Solo se muestran las unidades sin asignar a otras tandas.
-          </div>
+          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+            Unidades sin asignar
+          </span>
 
           {productosAgrupados.length === 0 ? (
-            <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg text-center">
+            <div className="mt-1 p-4 bg-amber-50 border border-amber-200 rounded-lg text-center">
               <Package className="w-6 h-6 text-amber-600 mx-auto mb-2" aria-hidden />
-              <div className="text-sm font-medium text-amber-900">
+              <div className="text-[12px] font-medium text-amber-900">
                 No hay unidades disponibles
               </div>
-              <div className="text-xs text-amber-700 mt-1">
+              <div className="text-[11px] text-amber-700 mt-1">
                 Todas las unidades del envío ya están asignadas a otras tandas. Elimina o edita
                 una tanda pendiente para liberar unidades.
               </div>
             </div>
           ) : (
-            <div className="border border-slate-200 rounded-lg overflow-hidden divide-y divide-slate-100">
+            <div className="mt-1 border border-slate-200 rounded-lg overflow-hidden divide-y divide-slate-100">
               {productosAgrupados.map((grupo) => {
                 const cantidad = cantidadPorProducto[grupo.productoId] || 0;
                 const disponibles = grupo.unidades.length;
                 return (
-                  <div key={grupo.productoId} className="bg-slate-50 px-3 py-2 flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-2 flex-1 min-w-0">
-                      {grupo.emoji && <span className="text-lg flex-shrink-0" aria-hidden>{grupo.emoji}</span>}
-                      <span className="font-medium text-sm text-slate-900 truncate">
-                        {grupo.nombre}
-                      </span>
-                      <span className="text-xs text-slate-500 flex-shrink-0">
-                        · disponibles: {disponibles}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-1 bg-white border border-slate-300 rounded-lg overflow-hidden flex-shrink-0">
+                  <div
+                    key={grupo.productoId}
+                    className="flex items-center justify-between px-3 py-2 bg-white"
+                  >
+                    <span className="text-[12px] text-slate-700 truncate flex-1 min-w-0">
+                      {grupo.emoji && <span className="mr-1 select-none" aria-hidden>{grupo.emoji}</span>}
+                      {grupo.nombre}
+                      <span className="text-slate-400"> · disponibles: {disponibles}</span>
+                    </span>
+                    <div className="flex items-center gap-1.5 flex-shrink-0">
                       <button
                         type="button"
                         disabled={loading || cantidad === 0}
                         onClick={() => setCantidad(grupo.productoId, cantidad - 1)}
-                        className="w-7 h-7 text-slate-600 hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed"
+                        className="w-6 h-6 rounded-md border border-slate-200 text-slate-500 hover:bg-slate-50 flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed"
                         aria-label="Disminuir cantidad"
                       >
-                        −
+                        <span className="text-[13px] leading-none">−</span>
                       </button>
-                      <span className={cn(
-                        'w-8 text-center text-sm font-bold tabular-nums',
-                        cantidad === 0 && 'text-slate-400'
-                      )}>
+                      <span
+                        className={cn(
+                          'text-[13px] font-bold tabular-nums text-slate-900 w-6 text-center',
+                          cantidad === 0 && 'text-slate-400',
+                        )}
+                      >
                         {cantidad}
                       </span>
                       <button
                         type="button"
                         disabled={loading || cantidad >= disponibles}
                         onClick={() => setCantidad(grupo.productoId, cantidad + 1)}
-                        className="w-7 h-7 text-slate-600 hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed"
+                        className="w-6 h-6 rounded-md border border-slate-200 text-slate-500 hover:bg-slate-50 flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed"
                         aria-label="Aumentar cantidad"
                       >
-                        +
+                        <span className="text-[13px] leading-none">+</span>
                       </button>
                     </div>
                   </div>
@@ -249,85 +250,106 @@ export const AgregarTandaModal: React.FC<AgregarTandaModalProps> = ({
               })}
             </div>
           )}
-
-          {totalSeleccionadas > 0 && (
-            <div className="text-xs text-slate-600 mt-2">
-              <strong>{totalSeleccionadas}</strong> unidad{totalSeleccionadas !== 1 ? 'es' : ''}{' '}
-              seleccionada{totalSeleccionadas !== 1 ? 's' : ''} · {totalProductos} producto{totalProductos !== 1 ? 's' : ''}
-            </div>
-          )}
         </div>
 
-        {/* Estado inicial */}
-        <div className="p-3 bg-slate-50 rounded border border-slate-200">
-          <label className="text-xs font-medium text-slate-700 block mb-2">
-            Estado inicial de la tanda
-          </label>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            <label
+        {/* Resumen · semántico slate (neutro · conteo operativo) */}
+        <div className="flex items-center justify-between bg-slate-50 rounded-lg px-3 py-2">
+          <span className="text-[11px] text-slate-500 font-medium">Resumen</span>
+          <span className="text-[12px] font-semibold tabular-nums text-slate-700">
+            {totalSeleccionadas > 0
+              ? `${totalSeleccionadas} ud${totalSeleccionadas !== 1 ? 's' : ''} · ${totalProductos} producto${totalProductos !== 1 ? 's' : ''}`
+              : 'Sin unidades seleccionadas'}
+          </span>
+        </div>
+
+        {/* Estado inicial · toggle card-style · chrome orange */}
+        <div>
+          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+            Estado inicial
+          </span>
+          <div className="mt-1 grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              disabled={loading}
+              onClick={() => setEstadoInicial('pendiente')}
               className={cn(
-                'flex items-center gap-2 p-2 rounded cursor-pointer transition-colors',
+                'text-left rounded-lg border-2 p-2.5 transition-colors',
                 estadoInicial === 'pendiente'
-                  ? 'border-2 border-violet-400 bg-violet-50'
-                  : 'border border-slate-200 hover:border-slate-300'
+                  ? 'border-orange-500 bg-orange-50/50 ring-2 ring-orange-500/20'
+                  : 'border-slate-200 bg-white hover:border-orange-300',
               )}
             >
-              <input
-                type="radio"
-                name="estado"
-                value="pendiente"
-                checked={estadoInicial === 'pendiente'}
-                onChange={() => setEstadoInicial('pendiente')}
-                disabled={loading}
-                className="w-4 h-4"
-              />
-              <div>
-                <div className="text-sm font-medium text-slate-900 flex items-center gap-1.5"><Clock className="w-4 h-4 text-slate-500" aria-hidden /> Pendiente</div>
-                <div className="text-[10px] text-slate-600">Aún no sale, solo planificación</div>
+              <div className="flex items-center justify-between mb-0.5">
+                <Clock
+                  className={cn(
+                    'w-4 h-4',
+                    estadoInicial === 'pendiente' ? 'text-orange-600' : 'text-slate-500',
+                  )}
+                  aria-hidden
+                />
+                {estadoInicial === 'pendiente' ? (
+                  <svg className="w-3.5 h-3.5 text-orange-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} aria-hidden>
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" />
+                  </svg>
+                ) : (
+                  <span className="w-3.5 h-3.5 rounded-full border-2 border-slate-300" />
+                )}
               </div>
-            </label>
-            <label
+              <div
+                className={cn(
+                  'text-[12px]',
+                  estadoInicial === 'pendiente'
+                    ? 'font-bold text-slate-900'
+                    : 'font-medium text-slate-600',
+                )}
+              >
+                Pendiente
+              </div>
+              <div className="text-[10px] text-slate-500 mt-0.5">Aún no sale, solo planificación</div>
+            </button>
+
+            <button
+              type="button"
+              disabled={loading}
+              onClick={() => setEstadoInicial('en_transito')}
               className={cn(
-                'flex items-center gap-2 p-2 rounded cursor-pointer transition-colors',
+                'text-left rounded-lg border-2 p-2.5 transition-colors',
                 estadoInicial === 'en_transito'
-                  ? 'border-2 border-violet-400 bg-violet-50'
-                  : 'border border-slate-200 hover:border-slate-300'
+                  ? 'border-orange-500 bg-orange-50/50 ring-2 ring-orange-500/20'
+                  : 'border-slate-200 bg-white hover:border-orange-300',
               )}
             >
-              <input
-                type="radio"
-                name="estado"
-                value="en_transito"
-                checked={estadoInicial === 'en_transito'}
-                onChange={() => setEstadoInicial('en_transito')}
-                disabled={loading}
-                className="w-4 h-4"
-              />
-              <div>
-                <div className="text-sm font-medium text-slate-900 flex items-center gap-1.5"><Truck className="w-4 h-4 text-slate-500" aria-hidden /> En tránsito</div>
-                <div className="text-[10px] text-slate-600">Ya salió (tienes tracking)</div>
+              <div className="flex items-center justify-between mb-0.5">
+                <Truck
+                  className={cn(
+                    'w-4 h-4',
+                    estadoInicial === 'en_transito' ? 'text-orange-600' : 'text-slate-500',
+                  )}
+                  aria-hidden
+                />
+                {estadoInicial === 'en_transito' ? (
+                  <svg className="w-3.5 h-3.5 text-orange-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} aria-hidden>
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" />
+                  </svg>
+                ) : (
+                  <span className="w-3.5 h-3.5 rounded-full border-2 border-slate-300" />
+                )}
               </div>
-            </label>
+              <div
+                className={cn(
+                  'text-[12px]',
+                  estadoInicial === 'en_transito'
+                    ? 'font-bold text-slate-900'
+                    : 'font-medium text-slate-600',
+                )}
+              >
+                En tránsito
+              </div>
+              <div className="text-[10px] text-slate-500 mt-0.5">Ya salió (tienes tracking)</div>
+            </button>
           </div>
         </div>
       </div>
-
-      {/* Footer */}
-      <div className="mt-5 flex items-center justify-end gap-2 pt-3 border-t border-slate-200">
-        <Button variant="secondary" onClick={onClose} disabled={loading}>
-          Cancelar
-        </Button>
-        <Button
-          variant="primary"
-          onClick={handleConfirm}
-          disabled={!puedeConfirmar}
-        >
-          {loading ? 'Creando...' : 'Crear tanda'}
-        </Button>
-      </div>
-    </Modal>
+    </FormModalV2>
   );
 };
-
-// Re-export utility icon por si el consumidor lo necesita
-export { X };

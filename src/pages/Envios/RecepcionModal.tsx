@@ -10,8 +10,9 @@ import {
   Calendar,
   Trash2,
   ShieldAlert,
+  PackageCheck,
 } from "lucide-react";
-import { Modal, Button, Badge } from "../../components/common";
+import { FormModalV2 } from "../../design-system";
 import { BarcodeScanner } from "../../components/common/BarcodeScanner";
 import type { Envio, RecepcionEnvioFormData } from "../../types/envio.types";
 import type { Producto } from "../../types/producto.types";
@@ -184,8 +185,6 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
   const totalPendiente = unidadesPendientes.length;
 
   // S40: ¿Mostrar bloque de gastos de liberación aduanera?
-  // Aplica si el envío cruza frontera a Perú Y hay retenidas (en esta recepción o previas
-  // que potencialmente se liberen al recibir ahora).
   const mostrarBloqueAduana = cruzaFronteraPeru && (totalRetenidas > 0 || tienePreviasRetenidas);
 
   // Validar: cada producto con cantidad > 0 debe tener lotes que sumen = cantidad
@@ -407,66 +406,86 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
     }
   };
 
+  // ---- Submit label dinámico ----
+  const submitLabel = hayErrorLotes
+    ? `Asignar vencimientos (${productosConErrorLotes.length})`
+    : [
+        `Registrar #${recepcionNumero}`,
+        totalARecibir > 0 && `${totalARecibir} OK`,
+        totalDanadas > 0 && `${totalDanadas} dañ.`,
+        totalPerdidas > 0 && `${totalPerdidas} perd.`,
+        totalRetenidas > 0 && `${totalRetenidas} aduana`,
+      ]
+        .filter(Boolean)
+        .join(' · ');
+
   return (
-    <Modal
+    <FormModalV2
       isOpen={true}
       onClose={onClose}
-      title={`Recepcion de Productos - ${transferencia.numeroEnvio}`}
+      onSubmit={handleSubmit}
+      title="Registrar recepción"
+      subtitle={`${transferencia.numeroEnvio} · ${totalPendiente} uds esperadas`}
+      icon={PackageCheck}
+      iconTone="orange"
+      color="orange"
       size="lg"
+      submitLabel={submitLabel}
+      submitIcon={PackageCheck}
+      loading={submitting}
+      disabled={submitting || totalProcesadas === 0 || hayErrorLotes}
     >
       <div className="space-y-4">
-        {/* Sticky header */}
-        <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 sticky top-0 z-10">
-          <div className="flex items-center justify-between">
-            <div>
-              <h4 className="font-medium text-orange-900">Unidades a recibir</h4>
-              <p className="text-sm text-orange-700">
-                {totalARecibir} de {totalPendiente} pendientes · Recepcion #{recepcionNumero}
-              </p>
-            </div>
-            <div className="text-right">
-              <div className="text-2xl font-bold text-orange-700">
-                {totalPendiente > 0 ? Math.round((totalARecibir / totalPendiente) * 100) : 0}%
-              </div>
-              <div className="text-xs text-orange-600">Progreso</div>
-            </div>
-          </div>
 
-          <div className="w-full bg-orange-200 rounded-full h-2 mt-3">
+        {/* Barra de progreso + controles de selección */}
+        <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 sticky top-0 z-10">
+          <div className="flex items-center justify-between mb-2">
+            <div>
+              <span className="text-[12px] font-semibold text-orange-900">
+                {totalARecibir} de {totalPendiente} pendientes
+              </span>
+              <span className="text-[11px] text-orange-700 ml-1.5">· Recepción #{recepcionNumero}</span>
+            </div>
+            <span className="text-[15px] font-bold tabular-nums text-orange-700">
+              {totalPendiente > 0 ? Math.round((totalARecibir / totalPendiente) * 100) : 0}%
+            </span>
+          </div>
+          <div className="w-full bg-orange-200 rounded-full h-1.5">
             <div
-              className="bg-orange-600 h-2 rounded-full transition-all"
+              className="bg-orange-500 h-1.5 rounded-full transition-all"
               style={{ width: `${totalPendiente > 0 ? (totalARecibir / totalPendiente) * 100 : 0}%` }}
             />
           </div>
-
-          <div className="flex items-center justify-between mt-3 pt-3 border-t border-orange-200">
+          <div className="flex items-center justify-between mt-2.5 pt-2 border-t border-orange-200">
             <button
               type="button"
               onClick={() => setShowRecepcionScanner(!showRecepcionScanner)}
-              className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded transition-colors ${
-                showRecepcionScanner ? 'bg-orange-200 text-orange-800' : 'text-orange-700 hover:text-orange-900 hover:bg-orange-100'
+              className={`inline-flex items-center gap-1.5 text-[12px] font-semibold px-2.5 py-1.5 rounded-lg border transition-colors ${
+                showRecepcionScanner
+                  ? 'bg-orange-200 text-orange-800 border-orange-300'
+                  : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
               }`}
             >
               <ScanLine className="h-3.5 w-3.5" />
               Escanear
             </button>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={() => handleRecibirTodo(totalARecibir !== totalPendiente)}
-                className="text-xs text-orange-700 hover:text-orange-900 font-medium"
+                className="text-[12px] text-orange-700 hover:text-orange-900 font-medium"
               >
                 Seleccionar todas ({totalPendiente})
               </button>
               {totalARecibir > 0 && (
                 <>
-                  <span className="text-orange-300">|</span>
+                  <span className="text-orange-300 text-[11px]">|</span>
                   <button
                     type="button"
                     onClick={() => handleRecibirTodo(false)}
-                    className="text-xs text-orange-700 hover:text-orange-900 font-medium"
+                    className="text-[12px] text-orange-700 hover:text-orange-900 font-medium"
                   >
-                    Limpiar seleccion
+                    Limpiar
                   </button>
                 </>
               )}
@@ -474,10 +493,14 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
           </div>
 
           {showRecepcionScanner && (
-            <div className="mt-3 p-3 bg-white border border-orange-200 rounded-lg">
+            <div className="mt-2.5 p-3 bg-white border border-orange-200 rounded-lg">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-medium text-slate-700">Escanear producto</span>
-                <button type="button" onClick={() => setShowRecepcionScanner(false)} className="text-slate-400 hover:text-slate-600">
+                <span className="text-[12px] font-medium text-slate-700">Escanear producto</span>
+                <button
+                  type="button"
+                  onClick={() => setShowRecepcionScanner(false)}
+                  className="text-slate-400 hover:text-slate-600"
+                >
                   <XIcon className="h-4 w-4" />
                 </button>
               </div>
@@ -487,7 +510,7 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
         </div>
 
         {/* Lista de productos agrupados */}
-        <div className="space-y-3 max-h-[400px] overflow-y-auto pr-1">
+        <div className="border border-slate-200 rounded-lg divide-y divide-slate-100 max-h-[380px] overflow-y-auto">
           {productosAgrupados.map((prod) => {
             const cant = cantidadRecibir[prod.productoId] || 0;
             const todoRecibido = cant === prod.pendiente;
@@ -498,52 +521,61 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
             const lotesValidos = cant > 0 && sumaLotes === cant;
 
             return (
-              <div key={prod.productoId} className="border rounded-lg overflow-hidden bg-white">
-                <div className="p-3 bg-slate-50">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center flex-1">
+              <div key={prod.productoId} className="bg-white">
+                {/* Fila principal del producto */}
+                <div className="px-3 py-2.5">
+                  <div className="flex items-center justify-between mb-1.5">
+                    {/* Info producto */}
+                    <div className="flex items-center gap-2.5 min-w-0 flex-1">
                       <input
                         type="checkbox"
                         checked={todoRecibido}
                         onChange={() => handleCantidadChange(prod.productoId, todoRecibido ? 0 : prod.pendiente)}
-                        className="h-4 w-4 text-orange-600 rounded mr-3 flex-shrink-0"
+                        className="h-4 w-4 rounded border-slate-300 accent-orange-600 flex-shrink-0"
                       />
                       <div className="min-w-0 flex-1">
-                        <h4 className="font-medium text-slate-900 truncate">{pFull?.nombreComercial || prod.nombreFallback}</h4>
-                        <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 mt-0.5">
+                        <div className="text-[12px] font-medium text-slate-700 truncate">
+                          {pFull?.nombreComercial || prod.nombreFallback}
+                          <span className="text-slate-400 font-normal"> · {prod.sku}</span>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-1 mt-0.5">
                           {pFull?.marca && (
-                            <span className="text-xs font-medium text-sky-700 bg-sky-50 px-1.5 py-0.5 rounded">{pFull.marca}</span>
+                            <span className="text-[10px] font-medium text-sky-700 bg-sky-50 px-1.5 py-0.5 rounded border border-sky-200">
+                              {pFull.marca}
+                            </span>
                           )}
                           {pFull && getDescripcionProducto(pFull) && (
-                            <span className="text-xs text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded">{getDescripcionProducto(pFull)}</span>
+                            <span className="text-[10px] text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
+                              {getDescripcionProducto(pFull)}
+                            </span>
+                          )}
+                          {prod.costoFleteUnit > 0 && (
+                            <span className="text-[10px] text-emerald-700 font-medium">
+                              Flete: ${prod.costoFleteUnit.toFixed(2)}/u
+                            </span>
+                          )}
+                          {prod.yaRecibido > 0 && (
+                            <span className="flex items-center gap-0.5 text-[10px] text-emerald-700">
+                              <CheckCircle className="h-3 w-3" />
+                              {prod.yaRecibido} ya recibidas
+                            </span>
                           )}
                         </div>
-                        <div className="text-xs text-slate-500 mt-1">{prod.sku}</div>
-                        {prod.costoFleteUnit > 0 && (
-                          <div className="text-xs text-emerald-600 font-medium mt-0.5">
-                            Flete: ${prod.costoFleteUnit.toFixed(2)}/u
-                          </div>
-                        )}
-                        {prod.yaRecibido > 0 && (
-                          <div className="flex items-center gap-1 text-xs text-emerald-600 mt-0.5">
-                            <CheckCircle className="h-3 w-3" />
-                            {prod.yaRecibido} ya recibidas
-                          </div>
-                        )}
                       </div>
                     </div>
 
-                    <div className="flex items-center space-x-3 ml-3">
-                      <div className="flex items-center bg-white border rounded-lg overflow-hidden">
+                    {/* Stepper + expand */}
+                    <div className="flex items-center gap-2 ml-2 flex-shrink-0">
+                      <div className="flex items-center border border-slate-200 rounded-lg overflow-hidden bg-white">
                         <button
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation();
                             handleCantidadChange(prod.productoId, Math.max(0, cant - 1));
                           }}
-                          className="px-2 py-1 text-slate-500 hover:bg-slate-100 border-r"
+                          className="w-6 h-6 flex items-center justify-center text-slate-500 hover:bg-slate-50 border-r border-slate-200"
                         >
-                          <Minus className="h-3 w-3" />
+                          <Minus className="h-3.5 w-3.5" />
                         </button>
                         <input
                           type="number"
@@ -553,7 +585,7 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
                             handleCantidadChange(prod.productoId, val);
                           }}
                           onClick={(e) => e.stopPropagation()}
-                          className="w-12 text-center text-sm py-1 border-0 focus:ring-0"
+                          className="w-10 text-center text-[13px] tabular-nums font-bold text-slate-900 py-1 border-0 focus:ring-0 focus:outline-none"
                           min="0"
                           max={prod.pendiente}
                         />
@@ -563,27 +595,30 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
                             e.stopPropagation();
                             handleCantidadChange(prod.productoId, Math.min(prod.pendiente, cant + 1));
                           }}
-                          className="px-2 py-1 text-slate-500 hover:bg-slate-100 border-l"
+                          className="w-6 h-6 flex items-center justify-center text-slate-500 hover:bg-slate-50 border-l border-slate-200"
                         >
-                          <Plus className="h-3 w-3" />
+                          <Plus className="h-3.5 w-3.5" />
                         </button>
                       </div>
 
-                      <Badge variant={todoRecibido ? 'success' : cant > 0 ? 'warning' : 'default'}>
+                      <span className={`text-[11px] tabular-nums flex-shrink-0 ${todoRecibido ? 'text-emerald-600 font-semibold' : 'text-slate-500'}`}>
                         {cant}/{prod.pendiente}
-                      </Badge>
+                      </span>
 
                       <button
                         type="button"
                         onClick={() => toggleExpandirProductoRecepcion(prod.productoId)}
                         className="p-1 text-slate-400 hover:text-slate-600 rounded"
                       >
-                        {estaExpandido ? <ChevronDown className="h-5 w-5" /> : <ChevronRight className="h-5 w-5" />}
+                        {estaExpandido
+                          ? <ChevronDown className="h-4 w-4" />
+                          : <ChevronRight className="h-4 w-4" />
+                        }
                       </button>
                     </div>
                   </div>
 
-                  {/* S39/S40: Contadores de dañadas/perdidas/retenidas — aduana solo si cruza frontera */}
+                  {/* S39/S40: Contadores de dañadas/perdidas/retenidas */}
                   {(() => {
                     const dan = cantidadDanada[prod.productoId] || 0;
                     const per = cantidadPerdida[prod.productoId] || 0;
@@ -594,32 +629,56 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
                     const maxRet = disponibles - dan - per;
                     if (disponibles <= 0 && dan === 0 && per === 0 && ret === 0) return null;
                     return (
-                      <div className="mt-2 flex flex-wrap items-center gap-2 pl-7">
-                        <span className="text-[10px] uppercase font-semibold text-slate-400">Excepciones:</span>
-                        {/* Dañadas */}
-                        <div className="flex items-center gap-1">
-                          <button type="button" onClick={(e) => { e.stopPropagation(); setCantidadDanada(p => ({ ...p, [prod.productoId]: Math.max(0, dan - 1) })); }} className="px-1 py-0.5 text-red-400 hover:bg-red-50 rounded text-xs">−</button>
-                          <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${dan > 0 ? 'bg-red-100 text-red-700' : 'text-slate-400'}`}>
+                      <div className="flex flex-wrap items-center gap-2 mt-1.5 pl-6">
+                        <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Excepciones:</span>
+                        {/* Dañadas — semántico red */}
+                        <div className="flex items-center gap-0.5">
+                          <button
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); setCantidadDanada(p => ({ ...p, [prod.productoId]: Math.max(0, dan - 1) })); }}
+                            className="px-1 py-0.5 text-red-400 hover:bg-red-50 rounded text-[11px]"
+                          >−</button>
+                          <span className={`text-[11px] font-medium px-1.5 py-0.5 rounded ${dan > 0 ? 'bg-red-50 text-red-700 border border-red-200' : 'text-slate-400'}`}>
                             {dan} dañ.
                           </span>
-                          <button type="button" onClick={(e) => { e.stopPropagation(); if (dan < maxDan) setCantidadDanada(p => ({ ...p, [prod.productoId]: dan + 1 })); }} className="px-1 py-0.5 text-red-400 hover:bg-red-50 rounded text-xs">+</button>
+                          <button
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); if (dan < maxDan) setCantidadDanada(p => ({ ...p, [prod.productoId]: dan + 1 })); }}
+                            className="px-1 py-0.5 text-red-400 hover:bg-red-50 rounded text-[11px]"
+                          >+</button>
                         </div>
-                        {/* Perdidas */}
-                        <div className="flex items-center gap-1">
-                          <button type="button" onClick={(e) => { e.stopPropagation(); setCantidadPerdida(p => ({ ...p, [prod.productoId]: Math.max(0, per - 1) })); }} className="px-1 py-0.5 text-orange-400 hover:bg-orange-50 rounded text-xs">−</button>
-                          <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${per > 0 ? 'bg-orange-100 text-orange-700' : 'text-slate-400'}`}>
+                        {/* Perdidas — semántico amber (faltantes) */}
+                        <div className="flex items-center gap-0.5">
+                          <button
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); setCantidadPerdida(p => ({ ...p, [prod.productoId]: Math.max(0, per - 1) })); }}
+                            className="px-1 py-0.5 text-amber-500 hover:bg-amber-50 rounded text-[11px]"
+                          >−</button>
+                          <span className={`text-[11px] font-medium px-1.5 py-0.5 rounded ${per > 0 ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'text-slate-400'}`}>
                             {per} perd.
                           </span>
-                          <button type="button" onClick={(e) => { e.stopPropagation(); if (per < maxPer) setCantidadPerdida(p => ({ ...p, [prod.productoId]: per + 1 })); }} className="px-1 py-0.5 text-orange-400 hover:bg-orange-50 rounded text-xs">+</button>
+                          <button
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); if (per < maxPer) setCantidadPerdida(p => ({ ...p, [prod.productoId]: per + 1 })); }}
+                            className="px-1 py-0.5 text-amber-500 hover:bg-amber-50 rounded text-[11px]"
+                          >+</button>
                         </div>
                         {/* Retenidas aduana — solo si el envío cruza frontera a Perú */}
                         {cruzaFronteraPeru && (
-                          <div className="flex items-center gap-1">
-                            <button type="button" onClick={(e) => { e.stopPropagation(); setCantidadRetenida(p => ({ ...p, [prod.productoId]: Math.max(0, ret - 1) })); }} className="px-1 py-0.5 text-amber-400 hover:bg-amber-50 rounded text-xs">−</button>
-                            <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${ret > 0 ? 'bg-amber-100 text-amber-700' : 'text-slate-400'}`}>
+                          <div className="flex items-center gap-0.5">
+                            <button
+                              type="button"
+                              onClick={(e) => { e.stopPropagation(); setCantidadRetenida(p => ({ ...p, [prod.productoId]: Math.max(0, ret - 1) })); }}
+                              className="px-1 py-0.5 text-amber-400 hover:bg-amber-50 rounded text-[11px]"
+                            >−</button>
+                            <span className={`text-[11px] font-medium px-1.5 py-0.5 rounded ${ret > 0 ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'text-slate-400'}`}>
                               {ret} aduana
                             </span>
-                            <button type="button" onClick={(e) => { e.stopPropagation(); if (ret < maxRet) setCantidadRetenida(p => ({ ...p, [prod.productoId]: ret + 1 })); }} className="px-1 py-0.5 text-amber-400 hover:bg-amber-50 rounded text-xs">+</button>
+                            <button
+                              type="button"
+                              onClick={(e) => { e.stopPropagation(); if (ret < maxRet) setCantidadRetenida(p => ({ ...p, [prod.productoId]: ret + 1 })); }}
+                              className="px-1 py-0.5 text-amber-400 hover:bg-amber-50 rounded text-[11px]"
+                            >+</button>
                           </div>
                         )}
                       </div>
@@ -628,17 +687,18 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
 
                   {/* Sección de lotes con mes/año — visible cuando hay cantidad > 0 */}
                   {cant > 0 && (
-                    <div className={`mt-3 p-3 rounded-lg border ${lotesValidos ? 'bg-emerald-50 border-emerald-200' : 'bg-amber-50 border-amber-200'}`}>
+                    <div className={`mt-2.5 p-3 rounded-lg border ${lotesValidos ? 'bg-emerald-50 border-emerald-200' : 'bg-amber-50 border-amber-200'}`}>
                       <div className="flex items-center justify-between mb-2">
-                        <label className="flex items-center gap-1.5 text-xs font-medium" style={{
-                          color: lotesValidos ? '#166534' : '#92400E'
-                        }}>
+                        <label
+                          className="flex items-center gap-1.5 text-[11px] font-medium"
+                          style={{ color: lotesValidos ? '#166534' : '#92400E' }}
+                        >
                           <Calendar className="h-3.5 w-3.5" />
                           Vencimiento {lotes.length > 1 ? `(${lotes.length} fechas)` : ''}
                         </label>
                         {!lotesValidos && (
-                          <span className="text-xs text-red-500">
-                            {sumaLotes}/{cant} unidades asignadas
+                          <span className="text-[11px] text-red-600 tabular-nums">
+                            {sumaLotes}/{cant} uds asignadas
                           </span>
                         )}
                       </div>
@@ -647,12 +707,12 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
                         {lotes.map((lote, idx) => {
                           const dias = lote.mes && lote.anio ? diasHastaVencimiento(lote.mes, lote.anio) : null;
                           return (
-                            <div key={idx} className="flex items-center gap-2">
+                            <div key={idx} className="flex items-center gap-1.5">
                               {/* Mes */}
                               <select
                                 value={lote.mes}
                                 onChange={(e) => handleLoteFieldChange(prod.productoId, idx, 'mes', parseInt(e.target.value))}
-                                className="text-sm border rounded px-2 py-1.5 bg-white focus:ring-1 focus:ring-orange-500 w-20"
+                                className="text-[12px] border border-slate-200 rounded-lg px-2 py-1.5 bg-white focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500 w-20"
                               >
                                 {MESES.map((m, i) => (
                                   <option key={i} value={i + 1}>{m}</option>
@@ -662,7 +722,7 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
                               <select
                                 value={lote.anio}
                                 onChange={(e) => handleLoteFieldChange(prod.productoId, idx, 'anio', parseInt(e.target.value))}
-                                className="text-sm border rounded px-2 py-1.5 bg-white focus:ring-1 focus:ring-orange-500 w-20"
+                                className="text-[12px] border border-slate-200 rounded-lg px-2 py-1.5 bg-white focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500 w-20"
                               >
                                 {ANIOS.map(a => (
                                   <option key={a} value={a}>{a}</option>
@@ -674,11 +734,11 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
                                   type="number"
                                   value={lote.cantidad || ''}
                                   onChange={(e) => handleLoteFieldChange(prod.productoId, idx, 'cantidad', Math.max(0, parseInt(e.target.value) || 0))}
-                                  className="text-sm border rounded px-2 py-1.5 bg-white focus:ring-1 focus:ring-orange-500 w-14 text-center"
+                                  className="text-[12px] tabular-nums border border-slate-200 rounded-lg px-2 py-1.5 bg-white focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500 w-14 text-center"
                                   min="0"
                                   placeholder="0"
                                 />
-                                <span className="text-xs text-slate-400">uds</span>
+                                <span className="text-[11px] text-slate-400">uds</span>
                               </div>
                               {/* Eliminar lote (solo si hay más de 1) */}
                               {lotes.length > 1 && (
@@ -692,7 +752,7 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
                               )}
                               {/* Indicador de días */}
                               {dias !== null && (
-                                <span className={`text-[10px] whitespace-nowrap ${
+                                <span className={`text-[10px] whitespace-nowrap tabular-nums ${
                                   dias < 0 ? 'text-red-600' : dias < 90 ? 'text-amber-600' : 'text-emerald-600'
                                 }`}>
                                   {dias < 0 ? 'Vencido' : `${dias}d`}
@@ -707,7 +767,7 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
                       <button
                         type="button"
                         onClick={() => handleAgregarLote(prod.productoId)}
-                        className="mt-2 text-xs text-orange-600 hover:text-orange-800 font-medium flex items-center gap-1"
+                        className="mt-2 text-[11px] text-orange-600 hover:text-orange-800 font-medium flex items-center gap-1"
                       >
                         <Plus className="h-3 w-3" />
                         Otra fecha de vencimiento
@@ -716,25 +776,28 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
                   )}
                 </div>
 
+                {/* Panel expandido · unidades individuales */}
                 {estaExpandido && (
-                  <div className="divide-y max-h-48 overflow-y-auto">
+                  <div className="divide-y divide-slate-100 max-h-48 overflow-y-auto border-t border-slate-100">
                     {prod.unidades.map((unidad, idx) => (
                       <div
                         key={unidad.unidadId}
-                        className={`flex items-center justify-between p-3 ${
-                          idx < cant ? 'bg-orange-50' : 'hover:bg-slate-50'
+                        className={`flex items-center justify-between px-3 py-2 ${
+                          idx < cant ? 'bg-orange-50/60' : 'hover:bg-slate-50'
                         }`}
                       >
-                        <div className="flex items-center">
-                          <div className={`h-2 w-2 rounded-full mr-3 ${idx < cant ? 'bg-emerald-500' : 'bg-slate-300'}`} />
+                        <div className="flex items-center gap-2.5">
+                          <div className={`h-2 w-2 rounded-full flex-shrink-0 ${idx < cant ? 'bg-emerald-500' : 'bg-slate-300'}`} />
                           <div>
-                            <div className="flex items-center space-x-2">
-                              <span className="text-xs bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded">
+                            <div className="flex items-center gap-2">
+                              <span className="text-[11px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded tabular-nums">
                                 #{idx + 1}
                               </span>
-                              {unidad.lote && <span className="text-sm text-slate-900">Lote: {unidad.lote}</span>}
+                              {unidad.lote && (
+                                <span className="text-[12px] text-slate-700">Lote: {unidad.lote}</span>
+                              )}
                             </div>
-                            <div className="flex items-center gap-2 text-xs text-slate-500 mt-0.5">
+                            <div className="flex items-center gap-2 text-[11px] text-slate-500 mt-0.5">
                               {unidad.estadoEnvio === 'faltante' && (
                                 <span className="text-amber-600 font-medium">Prev. faltante</span>
                               )}
@@ -742,10 +805,10 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
                             </div>
                           </div>
                         </div>
-                        <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                        <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${
                           idx < cant ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'
                         }`}>
-                          {idx < cant ? 'Se recibira' : 'Pendiente'}
+                          {idx < cant ? 'Se recibirá' : 'Pendiente'}
                         </span>
                       </div>
                     ))}
@@ -756,15 +819,42 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
           })}
         </div>
 
-        {/* C3: Costo de recojo en Peru */}
-        {transferencia.tipo === 'internacional_peru' ? (
+        {/* Resumen de excepciones — semántico */}
+        {(totalDanadas > 0 || totalPerdidas > 0 || totalRetenidas > 0) && (
+          <div className="flex items-center gap-2 flex-wrap">
+            {totalARecibir > 0 && (
+              <span className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                <CheckCircle className="h-3 w-3" />
+                {totalARecibir} OK
+              </span>
+            )}
+            {totalDanadas > 0 && (
+              <span className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-1 rounded-full bg-red-50 text-red-700 border border-red-200">
+                {totalDanadas} dañadas
+              </span>
+            )}
+            {totalPerdidas > 0 && (
+              <span className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                {totalPerdidas} perdidas
+              </span>
+            )}
+            {totalRetenidas > 0 && (
+              <span className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                {totalRetenidas} aduana
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* Costo de recojo en Peru */}
+        {transferencia.tipo === 'internacional_peru' && (
           <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
-            <label className="block text-sm font-medium text-amber-800 mb-1">
-              Costo de recojo en Peru (S/) — opcional
+            <label className="block text-[12px] font-medium text-amber-800 mb-1">
+              Costo de recojo en Perú (S/) — opcional
             </label>
-            <p className="text-xs text-amber-600 mb-2">
-              Taxi, mensajero u otro costo para recoger del courier/viajero al almacen.
-              Se prorratea entre las {totalARecibir} unidades de esta recepcion.
+            <p className="text-[11px] text-amber-700 mb-2">
+              Taxi, mensajero u otro costo para recoger del courier/viajero al almacén.
+              Se prorratea entre las <span className="tabular-nums font-medium">{totalARecibir}</span> unidades de esta recepción.
             </p>
             <div className="flex items-center gap-3">
               <input
@@ -773,17 +863,17 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
                 min="0"
                 value={costoRecojoPEN}
                 onChange={(e) => setCostoRecojoPEN(e.target.value)}
-                className="w-40 px-3 py-2 border border-amber-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white"
+                className="w-36 px-3 py-1.5 text-[12px] tabular-nums border border-amber-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500 bg-white"
                 placeholder="Ej: 15.00"
               />
               {costoRecojoPEN && parseFloat(costoRecojoPEN) > 0 && totalARecibir > 0 && (
-                <span className="text-xs text-amber-700">
+                <span className="text-[11px] text-amber-700 tabular-nums">
                   = S/ {(parseFloat(costoRecojoPEN) / totalARecibir).toFixed(2)} por unidad
                 </span>
               )}
             </div>
           </div>
-        ) : null}
+        )}
 
         {/* S40: Gastos de liberación aduanera — solo si envío cruza frontera Y hay retenidas */}
         {mostrarBloqueAduana && (
@@ -791,10 +881,10 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
             <div className="flex items-start gap-2 mb-2">
               <ShieldAlert className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
               <div>
-                <label className="block text-sm font-medium text-amber-800">
+                <label className="block text-[12px] font-medium text-amber-800">
                   Gastos de liberación aduanera (S/) — opcional
                 </label>
-                <p className="text-xs text-amber-600 mt-0.5">
+                <p className="text-[11px] text-amber-700 mt-0.5">
                   Tasas, aranceles o brokerage pagados a la aduana.
                   Se registrará como <strong>Costo Landed categoría Aduana</strong> y se prorrateará entre las unidades del envío.
                 </p>
@@ -809,20 +899,20 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
                   const v = e.target.value;
                   if (v === '' || /^\d*[.,]?\d*$/.test(v)) setGastosAduanaPEN(v);
                 }}
-                className="w-40 px-3 py-2 border border-amber-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white"
+                className="w-36 px-3 py-1.5 text-[12px] tabular-nums border border-amber-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500 bg-white"
                 placeholder="Ej: 85.00"
               />
               <input
                 type="text"
                 value={descripcionGastosAduana}
                 onChange={(e) => setDescripcionGastosAduana(e.target.value)}
-                className="flex-1 px-3 py-2 border border-amber-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white"
+                className="flex-1 px-3 py-1.5 text-[12px] border border-amber-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500 bg-white"
                 placeholder="Descripción (ej: DUA simplificada, agente)"
               />
             </div>
             {gastosAduanaPEN && parseFloat(gastosAduanaPEN.replace(',', '.')) > 0 && transferencia.unidades.length > 0 && (
-              <p className="text-xs text-amber-700 mt-2 pl-6">
-                ≈ S/ {(parseFloat(gastosAduanaPEN.replace(',', '.')) / transferencia.unidades.length).toFixed(2)} por unidad (prorrateado entre {transferencia.unidades.length} unidades)
+              <p className="text-[11px] text-amber-700 mt-2 pl-6 tabular-nums">
+                ≈ S/ {(parseFloat(gastosAduanaPEN.replace(',', '.')) / transferencia.unidades.length).toFixed(2)} por unidad (prorrateado entre {transferencia.unidades.length} uds)
               </p>
             )}
           </div>
@@ -830,51 +920,19 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
 
         {/* Observaciones */}
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">
-            Observaciones (opcional)
+          <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">
+            Observaciones
           </label>
           <textarea
             value={observaciones}
             onChange={(e) => setObservaciones(e.target.value)}
             rows={2}
-            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-            placeholder="Ej: Paquete 2 de 3, tracking TBA12345..."
+            className="w-full px-3 py-2 text-[12px] border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500 placeholder:text-slate-400 resize-none"
+            placeholder="Notas de la recepción…"
           />
         </div>
 
-        {/* Botones */}
-        <div className="flex justify-between pt-4 border-t">
-          <Button variant="secondary" onClick={onClose} disabled={submitting}>
-            Cancelar
-          </Button>
-          <Button
-            variant="primary"
-            onClick={handleSubmit}
-            disabled={submitting || totalProcesadas === 0 || hayErrorLotes}
-          >
-            {submitting ? (
-              <span className="flex items-center">
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                Procesando...
-              </span>
-            ) : hayErrorLotes ? (
-              <span className="flex items-center text-sm">
-                Asignar unidades por vencimiento ({productosConErrorLotes.length})
-              </span>
-            ) : (
-              <span className="flex items-center">
-                <CheckCircle className="h-4 w-4 mr-2" />
-                Registrar #{recepcionNumero}
-                {totalARecibir > 0 && <span className="ml-1">({totalARecibir} OK</span>}
-                {totalDanadas > 0 && <span>, {totalDanadas} dañ.</span>}
-                {totalPerdidas > 0 && <span>, {totalPerdidas} perd.</span>}
-                {totalRetenidas > 0 && <span>, {totalRetenidas} aduana</span>}
-                {totalARecibir > 0 && <span>)</span>}
-              </span>
-            )}
-          </Button>
-        </div>
       </div>
-    </Modal>
+    </FormModalV2>
   );
 };
