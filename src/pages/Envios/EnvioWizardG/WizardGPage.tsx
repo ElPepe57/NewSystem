@@ -54,7 +54,7 @@ export const WizardGPage: React.FC<WizardGPageProps> = ({
   const esModal = variant === 'modal';
 
   const autosave = useWizardAutosave<typeof state>({
-    tipo: 'envio',
+    tipo: 'envio-g',
     state,
     pasoActual: state.pasoActual,
     buildResumen: () => {

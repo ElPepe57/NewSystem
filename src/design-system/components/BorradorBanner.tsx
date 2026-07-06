@@ -67,6 +67,16 @@ const LABELS: Record<TipoBorradorWizard, {
     resumenFallback: 'Envío sin terminar',
     totalPasos: 4,
   },
+  'envio-f': {
+    titulo: 'Tienes un despacho en borrador',
+    resumenFallback: 'Despacho F sin terminar',
+    totalPasos: 4,
+  },
+  'envio-g': {
+    titulo: 'Tienes un retorno en borrador',
+    resumenFallback: 'Retorno G sin terminar',
+    totalPasos: 3,
+  },
   producto: {
     titulo: 'Tienes un producto en borrador',
     resumenFallback: 'Producto sin terminar',

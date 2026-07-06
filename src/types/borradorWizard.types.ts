@@ -12,7 +12,9 @@ import type { Timestamp } from 'firebase/firestore';
 // 'baja_empleado' (wizard 4 pasos) · ambos con autoguardado obligatorio.
 export type TipoBorradorWizard =
   | 'oc'
-  | 'envio'
+  | 'envio'         // wizard unificado de creación de envío
+  | 'envio-f'       // wizard Despacho venta (Caso F) · clave propia (evita colisión con 'envio')
+  | 'envio-g'       // wizard Retorno devolución (Caso G) · clave propia
   | 'producto'
   | 'gasto'
   | 'liquidar_recaudadora'
