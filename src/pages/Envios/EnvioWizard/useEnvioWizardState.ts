@@ -55,27 +55,23 @@ export function useEnvioWizardState(): UseEnvioWizardStateReturn {
   const totalPrevendidas = selectTotalPrevendidas(state);
   const totalFleteUSD = selectTotalFleteUSD(state);
 
-  // Paso 1 completo: origen + destino + al menos 1 unidad
+  // Paso 1 · RUTA completo (rework 3b): origen + destino + (detalles del destino si el
+  // tipo lo requiere · E/I). Las UNIDADES ya no se validan acá — viven en el Paso 2.
   const paso1Completo =
     !!state.origenCategoria &&
     !!state.destinoCategoria &&
     !!tipoInferido &&
     !!state.ubicacionOrigenId &&
     !!state.ubicacionDestinoId &&
-    totalUnidades > 0;
+    (() => {
+      if (!tipoConfig?.requiereDestinoDetalles) return true; // no aplica (C/J)
+      if (tipoInferido === 'E') return !!state.motivo;
+      if (tipoInferido === 'I') return !!state.referenciaTercero?.trim() && !!state.tipoRelacion;
+      return true;
+    })();
 
-  // Paso 2 completo según tipo (se salta automático para C y J)
-  const paso2Completo = (() => {
-    if (!tipoConfig) return false;
-    if (!tipoConfig.requiereDestinoDetalles) return true; // no aplica
-    if (tipoInferido === 'E') {
-      return !!state.motivo;
-    }
-    if (tipoInferido === 'I') {
-      return !!state.referenciaTercero?.trim() && !!state.tipoRelacion;
-    }
-    return true;
-  })();
+  // Paso 2 · UNIDADES completo: al menos 1 unidad seleccionada.
+  const paso2Completo = totalUnidades > 0;
 
   // Paso 3 completo: transportador + modalidad con valor consistente
   const paso3Completo = (() => {
@@ -93,26 +89,16 @@ export function useEnvioWizardState(): UseEnvioWizardStateReturn {
     return true; // Paso 4 es confirmar, siempre puede avanzar (el botón es Crear)
   })();
 
+  // Rework 3b: sin auto-skip. Los 4 pasos son fijos (Ruta · Unidades · Logística ·
+  // Confirmar) · los "detalles del destino" condicionales se pliegan dentro de Ruta.
   const siguientePaso = useCallback(() => {
-    // Si Paso 2 es condicional y no aplica, saltarlo
-    if (state.pasoActual === 1 && tipoConfig && !tipoConfig.requiereDestinoDetalles) {
-      dispatch({ type: 'VALIDAR_PASO', paso: 1 });
-      dispatch({ type: 'VALIDAR_PASO', paso: 2 });
-      dispatch({ type: 'IR_A_PASO', paso: 3 });
-      return;
-    }
     dispatch({ type: 'VALIDAR_PASO', paso: state.pasoActual });
     dispatch({ type: 'SIGUIENTE_PASO' });
-  }, [state.pasoActual, tipoConfig]);
+  }, [state.pasoActual]);
 
   const pasoAnterior = useCallback(() => {
-    // Si estamos en Paso 3 y el tipo no requiere Paso 2, saltar a Paso 1
-    if (state.pasoActual === 3 && tipoConfig && !tipoConfig.requiereDestinoDetalles) {
-      dispatch({ type: 'IR_A_PASO', paso: 1 });
-      return;
-    }
     dispatch({ type: 'PASO_ANTERIOR' });
-  }, [state.pasoActual, tipoConfig]);
+  }, []);
 
   const irAPaso = useCallback((paso: number) => {
     dispatch({ type: 'IR_A_PASO', paso });

@@ -30,26 +30,26 @@ import { useToastStore } from '../../../store/toastStore';
 
 import { useEnvioWizardState } from './useEnvioWizardState';
 import { RutaVerticalSidebar } from './shared/RutaVerticalSidebar';
-import { Paso1OrigenDestinoUnidades } from './steps/Paso1OrigenDestinoUnidades';
-import { Paso2DestinoDetalles } from './steps/Paso2DestinoDetalles';
+import { Paso1Ruta } from './steps/Paso1Ruta';
+import { Paso2Unidades } from './steps/Paso2Unidades';
 import { Paso3Logistica } from './steps/Paso3Logistica';
 import { Paso4Confirmar } from './steps/Paso4Confirmar';
 import { envioUnificadoService } from './services/envio.unificado.service';
 import { useWizardAutosave } from '../../../hooks/useWizardAutosave';
 import type { EnvioWizardState } from './envioWizardTypes';
 
-// D-5: labels genéricos fijos. Orden: 1 → 2 → 3 → 4.
+// Rework 3b · "unidades como paso propio". Orden fijo: 1 → 2 → 3 → 4 (sin auto-skip ·
+// los detalles del destino condicionales se pliegan dentro de Ruta).
 const WIZARD_STEPS: WizardStep[] = [
   {
-    id: 'origen-destino-unidades',
-    label: 'Origen + destino + unidades',
-    description: 'De dónde, a dónde y qué mandás',
+    id: 'ruta',
+    label: 'Ruta',
+    description: 'Origen y destino',
   },
   {
-    id: 'destino-detalles',
-    label: 'Destino detalles',
-    description: 'Motivo o referencia (si aplica)',
-    optional: true, // condicional: solo E/I
+    id: 'unidades',
+    label: 'Unidades',
+    description: 'Qué unidades mandás',
   },
   {
     id: 'logistica',
@@ -138,16 +138,8 @@ export const EnvioWizardPage: React.FC<EnvioWizardPageProps> = ({ onClose, onCre
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Auto-saltar Paso 2 cuando el tipo no lo requiere (C y J)
-  useEffect(() => {
-    if (
-      state.pasoActual === 2 &&
-      tipoConfig &&
-      !tipoConfig.requiereDestinoDetalles
-    ) {
-      irAPaso(3);
-    }
-  }, [state.pasoActual, tipoConfig, irAPaso]);
+  // Rework 3b: el auto-skip del antiguo Paso 2 (destino detalles) se eliminó — ahora
+  // el Paso 2 es Unidades (siempre) y los detalles condicionales viven dentro de Ruta.
 
   // S53.23 — Modal de confirmación al cerrar con cambios
   const [showExitConfirm, setShowExitConfirm] = useState(false);
@@ -232,9 +224,9 @@ export const EnvioWizardPage: React.FC<EnvioWizardPageProps> = ({ onClose, onCre
   const renderPaso = () => {
     switch (state.pasoActual) {
       case 1:
-        return <Paso1OrigenDestinoUnidades wizard={wizard} />;
+        return <Paso1Ruta wizard={wizard} />;
       case 2:
-        return <Paso2DestinoDetalles wizard={wizard} />;
+        return <Paso2Unidades wizard={wizard} />;
       case 3:
         return <Paso3Logistica wizard={wizard} />;
       case 4:

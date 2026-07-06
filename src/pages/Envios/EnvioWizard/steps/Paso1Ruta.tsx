@@ -1,17 +1,10 @@
 /**
- * Paso 1 · Origen + Destino + Unidades (S52 v7 · S53 F2)
+ * Paso 1 · Ruta (rework 3b · "unidades como paso propio")
  *
- * 3 secciones numeradas colapsables estilo OCWizardV3 (D-8):
- *   [1] ¿De dónde salen las unidades?  — categoría origen + ubicación específica
- *   [2] ¿A dónde llegan las unidades?  — categoría destino + ubicación específica
- *   [3] ¿Qué unidades envías?          — buscador + picker con stepper
- *
- * Comportamiento:
- *   - Al entrar, [1] expandida, [2] y [3] disabled/gated.
- *   - Al seleccionar ubicación en [1], se colapsa automáticamente y [2] se habilita + expande.
- *   - Al seleccionar ubicación en [2], [2] se colapsa y [3] se habilita + expande.
- *   - Click en "Cambiar" de [1] o [2] re-expande esa sección.
- *   - Si se elige una combinación no válida (matriz de inferencia), banner admin.
+ * Origen + destino + (condicional) detalles del destino. Las UNIDADES se movieron
+ * a su propio Paso 2 (Paso2Unidades). El antiguo paso condicional "Destino detalles"
+ * (E/I) se pliega ACÁ cuando el tipo inferido lo requiere → seguimos en 4 pasos, sin
+ * auto-skip. El sidebar "RUTA DEL ENVÍO" persiste el estado en el panel derecho.
  */
 import React, { useState, useEffect } from 'react';
 import { AlertTriangle } from 'lucide-react';
@@ -19,39 +12,30 @@ import type { UseEnvioWizardStateReturn } from '../useEnvioWizardState';
 import { COMBINACIONES_VALIDAS } from '../useTipoInferido';
 import { SeccionOrigen } from './paso1/SeccionOrigen';
 import { SeccionDestino } from './paso1/SeccionDestino';
-import { SeccionUnidades } from './paso1/SeccionUnidades';
+import { Paso2DestinoDetalles } from './Paso2DestinoDetalles';
 
 interface Props {
   wizard: UseEnvioWizardStateReturn;
 }
 
-export const Paso1OrigenDestinoUnidades: React.FC<Props> = ({ wizard }) => {
-  const { state } = wizard;
+export const Paso1Ruta: React.FC<Props> = ({ wizard }) => {
+  const { state, tipoConfig } = wizard;
 
-  // Estados locales de colapso por sección
   const [origenCollapsed, setOrigenCollapsed] = useState(false);
   const [destinoCollapsed, setDestinoCollapsed] = useState(false);
 
-  // Auto-colapsar al tener ubicación seleccionada (al entrar con selección previa)
   useEffect(() => {
-    if (state.ubicacionOrigenId && !origenCollapsed) {
-      setOrigenCollapsed(true);
-    }
+    if (state.ubicacionOrigenId && !origenCollapsed) setOrigenCollapsed(true);
   }, [state.ubicacionOrigenId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (state.ubicacionDestinoId && !destinoCollapsed) {
-      setDestinoCollapsed(true);
-    }
+    if (state.ubicacionDestinoId && !destinoCollapsed) setDestinoCollapsed(true);
   }, [state.ubicacionDestinoId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const origenCompleto = !!state.ubicacionOrigenId;
-  const destinoCompleto = !!state.ubicacionDestinoId;
-  const ambosCompletos = origenCompleto && destinoCompleto;
-
-  // Detectar combinación inválida (ambas categorías elegidas pero no hay tipo inferido)
   const combinacionInvalida =
     !!state.origenCategoria && !!state.destinoCategoria && !wizard.tipoInferido;
+  const requiereDetalles = !!tipoConfig?.requiereDestinoDetalles;
 
   return (
     <div className="space-y-6">
@@ -60,8 +44,8 @@ export const Paso1OrigenDestinoUnidades: React.FC<Props> = ({ wizard }) => {
           ¿Desde dónde y hacia dónde?
         </h3>
         <p className="text-sm text-slate-600">
-          Elegí las ubicaciones. La ruta del envío se va armando en el panel
-          derecho conforme avanzás.
+          Elegí las ubicaciones. La ruta se va armando en el panel derecho.
+          En el siguiente paso elegís las unidades.
         </p>
       </div>
 
@@ -112,7 +96,12 @@ export const Paso1OrigenDestinoUnidades: React.FC<Props> = ({ wizard }) => {
           </div>
         )}
 
-        <SeccionUnidades wizard={wizard} disabled={!ambosCompletos} />
+        {/* Detalles del destino · condicional (E/I) · plegado dentro de Ruta */}
+        {requiereDetalles && (
+          <div className="border-t border-slate-200 pt-5">
+            <Paso2DestinoDetalles wizard={wizard} />
+          </div>
+        )}
       </div>
     </div>
   );
