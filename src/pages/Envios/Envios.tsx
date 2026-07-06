@@ -92,12 +92,22 @@ import {
 const EnvioWizardModal = React.lazy(() =>
   import('./EnvioWizard/EnvioWizardPage').then((m) => ({ default: m.EnvioWizardPage }))
 );
+// Wizards F (despacho venta) y G (retorno devolución) · también MODALES desde el hub
+// (canon · antes eran rutas-página sueltas). Gateados por flag WIZARD_F/WIZARD_G.
+const WizardFModal = React.lazy(() =>
+  import('./EnvioWizardF').then((m) => ({ default: m.WizardFPage }))
+);
+const WizardGModal = React.lazy(() =>
+  import('./EnvioWizardG').then((m) => ({ default: m.WizardGPage }))
+);
 
 type TabEnvios = 'resumen' | 'operaciones' | 'incidencias' | 'reclamos' | 'costos' | 'rendimiento' | 'impacto';
 
 export const Envios: React.FC = () => {
   const [tabEnvios, setTabEnvios] = useState<TabEnvios>('resumen');
   const [showWizard, setShowWizard] = useState(false); // modal de creación de envío
+  const [showWizardF, setShowWizardF] = useState(false); // modal despacho F (gateado por flag)
+  const [showWizardG, setShowWizardG] = useState(false); // modal retorno G (gateado por flag)
   const [resumeBorrador, setResumeBorrador] = useState<any>(null); // snapshot de borrador a reanudar (banner del hub)
   const [borradorKey, setBorradorKey] = useState(0); // refresca el banner de borrador al cerrar el wizard
   const user = useAuthStore(state => state.user);
@@ -642,6 +652,8 @@ export const Envios: React.FC = () => {
           }
           acciones={[
             { label: 'Exportar', icon: Download, onClick: () => exportService.exportEnvios(enviosPorLinea), tier: 'neutral', disabled: enviosPorLinea.length === 0 },
+            ...(wizardFEnabled ? [{ label: 'Nuevo despacho', icon: Truck, onClick: () => setShowWizardF(true), tier: 'neutral' as const }] : []),
+            ...(wizardGEnabled ? [{ label: 'Nuevo retorno', icon: Undo2, onClick: () => setShowWizardG(true), tier: 'neutral' as const }] : []),
             { label: 'Nuevo envío', icon: Plus, onClick: () => setShowWizard(true), tier: 'primary' },
           ]}
         />
@@ -1102,6 +1114,40 @@ export const Envios: React.FC = () => {
               setShowWizard(false);
               setResumeBorrador(null);
               setBorradorKey(k => k + 1);
+              fetchEnvios();
+              fetchEnTransito();
+              fetchPendientesRecepcion();
+              fetchResumen();
+            }}
+          />
+        </React.Suspense>
+      )}
+
+      {/* Wizard F · Despacho venta · MODAL desde el hub (gateado por flag WIZARD_F) */}
+      {showWizardF && (
+        <React.Suspense fallback={null}>
+          <WizardFModal
+            variant="modal"
+            onCancel={() => setShowWizardF(false)}
+            onCreated={() => {
+              setShowWizardF(false);
+              fetchEnvios();
+              fetchEnTransito();
+              fetchPendientesRecepcion();
+              fetchResumen();
+            }}
+          />
+        </React.Suspense>
+      )}
+
+      {/* Wizard G · Retorno devolución · MODAL desde el hub (gateado por flag WIZARD_G) */}
+      {showWizardG && (
+        <React.Suspense fallback={null}>
+          <WizardGModal
+            variant="modal"
+            onCancel={() => setShowWizardG(false)}
+            onCreated={() => {
+              setShowWizardG(false);
               fetchEnvios();
               fetchEnTransito();
               fetchPendientesRecepcion();

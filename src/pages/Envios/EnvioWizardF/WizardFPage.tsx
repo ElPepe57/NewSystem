@@ -9,7 +9,7 @@
 import React, { useReducer, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AlertTriangle, X, Truck } from 'lucide-react';
-import { WizardShell, DraftBanner, formatFechaRelativa } from '../../../design-system';
+import { WizardShell, DraftBanner, ConfirmarSalidaWizardModal, formatFechaRelativa } from '../../../design-system';
 import { useWizardAutosave } from '../../../hooks/useWizardAutosave';
 import { useProductoStore } from '../../../store/productoStore';
 import { useAuthStore } from '../../../store/authStore';
@@ -54,6 +54,8 @@ export const WizardFPage: React.FC<WizardFPageProps> = ({
   const [state, dispatch] = useReducer(envioWizardFReducer, initialEnvioWizardFState);
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showExitConfirm, setShowExitConfirm] = useState(false);
+  const esModal = variant === 'modal';
 
   const autosave = useWizardAutosave<typeof state>({
     tipo: 'envio',
@@ -147,10 +149,32 @@ export const WizardFPage: React.FC<WizardFPageProps> = ({
     };
   }, [state, autosave.lastSavedAt]);
 
-  const handleCancel = () => {
+  const cerrar = () => {
     if (onCancel) return onCancel();
     navigate('/envios');
   };
+
+  // Confirm de salida (canon borrador+descartar · paridad con el wizard unificado)
+  const hayCambios = !!state.ventaId;
+  const handleCancel = () => {
+    if (hayCambios) { setShowExitConfirm(true); return; }
+    cerrar();
+  };
+  const handleGuardarBorradorYSalir = async () => {
+    await autosave.forceSave();
+    setShowExitConfirm(false);
+    cerrar();
+  };
+  const handleDescartarYSalir = async () => {
+    await autosave.descartarBorrador();
+    setShowExitConfirm(false);
+    cerrar();
+  };
+  const resumenExit = state.ventaSnapshot
+    ? `${state.ventaSnapshot.numeroVenta} → ${state.ventaSnapshot.nombreCliente}${
+        selectUnidadesCount(state) > 0 ? ` · ${selectUnidadesCount(state)} uds` : ''
+      }`
+    : undefined;
 
   const handleConfirm = async () => {
     if (!userId) {
@@ -244,71 +268,106 @@ export const WizardFPage: React.FC<WizardFPageProps> = ({
     ? formatFechaRelativa(autosave.borradorExistente.fechaActualizacion)
     : undefined;
 
+  const bannerJsx = autosave.borradorExistente && !autosave.loadingBorrador ? (
+    <div className="mb-4">
+      <DraftBanner
+        show
+        descripcion={
+          (autosave.borradorExistente as { resumen?: string }).resumen ||
+          'Despacho F sin terminar'
+        }
+        fechaLegible={borradorFechaRelativa}
+        pasoActual={`Paso ${
+          ((autosave.borradorExistente as { pasoActual?: number }).pasoActual ?? 0) + 1
+        } de 4`}
+        onContinuar={() => {
+          const hidratado = autosave.continuarBorrador();
+          if (hidratado) dispatch({ type: 'HYDRATE', state: hidratado });
+        }}
+        onDescartar={() => {
+          autosave.descartarBorrador();
+        }}
+      />
+    </div>
+  ) : null;
+
+  const errorJsx = error ? (
+    <div className="mb-4 bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3">
+      <div className="w-8 h-8 rounded-full bg-red-100 text-red-700 flex items-center justify-center flex-shrink-0">
+        <AlertTriangle className="w-4 h-4" />
+      </div>
+      <div className="flex-1">
+        <div className="text-sm font-semibold text-red-900">No se pudo crear el despacho</div>
+        <div className="text-xs text-red-800 mt-0.5">{error}</div>
+      </div>
+      <button
+        type="button"
+        onClick={() => setError(null)}
+        className="text-red-400 hover:text-red-600 flex-shrink-0"
+        aria-label="Cerrar error"
+      >
+        <X className="w-4 h-4" />
+      </button>
+    </div>
+  ) : null;
+
+  const shellJsx = (
+    <WizardShell
+      title="Nuevo despacho — Almacén Perú → Cliente"
+      subtitle="Despacha una venta existente al cliente final (Caso F · absorbe Ventas logística)"
+      accent="orange"
+      steps={STEPS}
+      currentStep={state.pasoActual}
+      onStepChange={(i) => dispatch({ type: 'GO_TO_STEP', paso: i })}
+      onNext={() => dispatch({ type: 'NEXT_STEP' })}
+      onPrev={() => dispatch({ type: 'PREV_STEP' })}
+      onCancel={handleCancel}
+      onConfirm={handleConfirm}
+      confirmLabel={creating ? 'Creando despacho…' : 'Crear despacho'}
+      nextDisabled={!canProceed || creating}
+      nextHint={nextHint}
+      loading={creating}
+      variant="page"
+      className={esModal ? 'h-full' : undefined}
+      previewPanel={<EnvioT2WizardPreview {...previewProps} />}
+    >
+      {renderStep()}
+    </WizardShell>
+  );
+
+  const exitModal = (
+    <ConfirmarSalidaWizardModal
+      isOpen={showExitConfirm}
+      resumen={resumenExit}
+      pasoActual={`Paso ${state.pasoActual + 1} de 4`}
+      contextoSingular="este despacho"
+      onGuardarBorrador={handleGuardarBorradorYSalir}
+      onDescartar={handleDescartarYSalir}
+      onSeguirEditando={() => setShowExitConfirm(false)}
+    />
+  );
+
+  // Modal (canon · abierto desde el hub) o página (ruta legacy /envios/nuevo-f)
+  if (esModal) {
+    return (
+      <>
+        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm p-4 sm:p-6 md:p-8 flex flex-col">
+          {(bannerJsx || errorJsx) && (
+            <div className="w-full max-w-7xl mx-auto flex-shrink-0">{bannerJsx}{errorJsx}</div>
+          )}
+          <div className="w-full max-w-7xl mx-auto flex-1 min-h-0">{shellJsx}</div>
+        </div>
+        {exitModal}
+      </>
+    );
+  }
+
   return (
     <>
-      {autosave.borradorExistente && !autosave.loadingBorrador && (
-        <div className="mb-4">
-          <DraftBanner
-            show
-            descripcion={
-              (autosave.borradorExistente as { resumen?: string }).resumen ||
-              'Despacho F sin terminar'
-            }
-            fechaLegible={borradorFechaRelativa}
-            pasoActual={`Paso ${
-              ((autosave.borradorExistente as { pasoActual?: number }).pasoActual ?? 0) + 1
-            } de 4`}
-            onContinuar={() => {
-              const hidratado = autosave.continuarBorrador();
-              if (hidratado) dispatch({ type: 'HYDRATE', state: hidratado });
-            }}
-            onDescartar={() => {
-              autosave.descartarBorrador();
-            }}
-          />
-        </div>
-      )}
-
-      {error && (
-        <div className="mb-4 bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3">
-          <div className="w-8 h-8 rounded-full bg-red-100 text-red-700 flex items-center justify-center flex-shrink-0">
-            <AlertTriangle className="w-4 h-4" />
-          </div>
-          <div className="flex-1">
-            <div className="text-sm font-semibold text-red-900">No se pudo crear el despacho</div>
-            <div className="text-xs text-red-800 mt-0.5">{error}</div>
-          </div>
-          <button
-            type="button"
-            onClick={() => setError(null)}
-            className="text-red-400 hover:text-red-600 flex-shrink-0"
-            aria-label="Cerrar error"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-      )}
-
-      <WizardShell
-        title="Nuevo despacho — Almacén Perú → Cliente"
-        subtitle="Despacha una venta existente al cliente final (Caso F · absorbe Ventas logística)"
-        accent="orange"
-        steps={STEPS}
-        currentStep={state.pasoActual}
-        onStepChange={(i) => dispatch({ type: 'GO_TO_STEP', paso: i })}
-        onNext={() => dispatch({ type: 'NEXT_STEP' })}
-        onPrev={() => dispatch({ type: 'PREV_STEP' })}
-        onCancel={handleCancel}
-        onConfirm={handleConfirm}
-        confirmLabel={creating ? 'Creando despacho…' : 'Crear despacho'}
-        nextDisabled={!canProceed || creating}
-        nextHint={nextHint}
-        loading={creating}
-        variant={variant}
-        previewPanel={<EnvioT2WizardPreview {...previewProps} />}
-      >
-        {renderStep()}
-      </WizardShell>
+      {bannerJsx}
+      {errorJsx}
+      {shellJsx}
+      {exitModal}
     </>
   );
 };
