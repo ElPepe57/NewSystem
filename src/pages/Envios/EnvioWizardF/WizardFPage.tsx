@@ -9,7 +9,7 @@
 import React, { useReducer, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AlertTriangle, X, Truck } from 'lucide-react';
-import { WizardShell, DraftBanner, ConfirmarSalidaWizardModal, formatFechaRelativa } from '../../../design-system';
+import { WizardShell, ConfirmarSalidaWizardModal, formatFechaRelativa } from '../../../design-system';
 import { useWizardAutosave } from '../../../hooks/useWizardAutosave';
 import { useProductoStore } from '../../../store/productoStore';
 import { useAuthStore } from '../../../store/authStore';
@@ -23,6 +23,7 @@ import {
   selectProductosCount,
   selectTotalCostosPEN,
   selectValorVentaPEN,
+  type EnvioWizardFState,
 } from './envioWizardFTypes';
 
 import { EnvioT2WizardPreview } from '../legacy-shared';
@@ -42,12 +43,15 @@ export interface WizardFPageProps {
   onCreated?: (envioId: string) => void;
   onCancel?: () => void;
   variant?: 'page' | 'modal';
+  /** Snapshot de borrador a reanudar (desde el banner del HUB · canon borrador). */
+  initialDraft?: Partial<EnvioWizardFState> | null;
 }
 
 export const WizardFPage: React.FC<WizardFPageProps> = ({
   onCreated,
   onCancel,
   variant = 'page',
+  initialDraft,
 }) => {
   const navigate = useNavigate();
   const userId = useAuthStore((s) => s.user?.uid);
@@ -81,6 +85,12 @@ export const WizardFPage: React.FC<WizardFPageProps> = ({
   const fetchProductos = useProductoStore((s) => s.fetchProductos);
   useEffect(() => {
     if (productos.length === 0) fetchProductos();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Reanudar borrador si el hub lo pidió (banner del módulo · canon) · hidrata al montar.
+  useEffect(() => {
+    if (initialDraft) dispatch({ type: 'HYDRATE', state: initialDraft });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -264,33 +274,6 @@ export const WizardFPage: React.FC<WizardFPageProps> = ({
     }
   };
 
-  const borradorFechaRelativa = autosave.borradorExistente
-    ? formatFechaRelativa(autosave.borradorExistente.fechaActualizacion)
-    : undefined;
-
-  const bannerJsx = autosave.borradorExistente && !autosave.loadingBorrador ? (
-    <div className="mb-4">
-      <DraftBanner
-        show
-        descripcion={
-          (autosave.borradorExistente as { resumen?: string }).resumen ||
-          'Despacho F sin terminar'
-        }
-        fechaLegible={borradorFechaRelativa}
-        pasoActual={`Paso ${
-          ((autosave.borradorExistente as { pasoActual?: number }).pasoActual ?? 0) + 1
-        } de 4`}
-        onContinuar={() => {
-          const hidratado = autosave.continuarBorrador();
-          if (hidratado) dispatch({ type: 'HYDRATE', state: hidratado });
-        }}
-        onDescartar={() => {
-          autosave.descartarBorrador();
-        }}
-      />
-    </div>
-  ) : null;
-
   const errorJsx = error ? (
     <div className="mb-4 bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3">
       <div className="w-8 h-8 rounded-full bg-red-100 text-red-700 flex items-center justify-center flex-shrink-0">
@@ -352,8 +335,8 @@ export const WizardFPage: React.FC<WizardFPageProps> = ({
     return (
       <>
         <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm p-4 sm:p-6 md:p-8 flex flex-col">
-          {(bannerJsx || errorJsx) && (
-            <div className="w-full max-w-7xl mx-auto flex-shrink-0">{bannerJsx}{errorJsx}</div>
+          {errorJsx && (
+            <div className="w-full max-w-7xl mx-auto flex-shrink-0">{errorJsx}</div>
           )}
           <div className="w-full max-w-7xl mx-auto flex-1 min-h-0">{shellJsx}</div>
         </div>
@@ -364,7 +347,6 @@ export const WizardFPage: React.FC<WizardFPageProps> = ({
 
   return (
     <>
-      {bannerJsx}
       {errorJsx}
       {shellJsx}
       {exitModal}

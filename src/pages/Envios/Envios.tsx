@@ -109,6 +109,8 @@ export const Envios: React.FC = () => {
   const [showWizardF, setShowWizardF] = useState(false); // modal despacho F (gateado por flag)
   const [showWizardG, setShowWizardG] = useState(false); // modal retorno G (gateado por flag)
   const [resumeBorrador, setResumeBorrador] = useState<any>(null); // snapshot de borrador a reanudar (banner del hub)
+  const [resumeBorradorF, setResumeBorradorF] = useState<any>(null); // idem para el wizard F
+  const [resumeBorradorG, setResumeBorradorG] = useState<any>(null); // idem para el wizard G
   const [borradorKey, setBorradorKey] = useState(0); // refresca el banner de borrador al cerrar el wizard
   const user = useAuthStore(state => state.user);
   const userProfile = useAuthStore((s) => s.userProfile);
@@ -676,12 +678,26 @@ export const Envios: React.FC = () => {
         <HubBody flush>
           {/* Banner de borrador · en el MÓDULO (canon borrador · máxima visibilidad ·
                NO dentro del wizard). Continuar reabre el wizard con el snapshot cargado. */}
-          <div className="px-4 sm:px-6 pt-4 sm:pt-6 empty:hidden">
+          <div className="px-4 sm:px-6 pt-4 sm:pt-6 empty:hidden space-y-3">
             <BorradorBanner
               tipo="envio"
               refreshKey={borradorKey}
               onContinuar={(b) => { setResumeBorrador(b.estado); setShowWizard(true); }}
             />
+            {wizardFEnabled && (
+              <BorradorBanner
+                tipo="envio-f"
+                refreshKey={borradorKey}
+                onContinuar={(b) => { setResumeBorradorF(b.estado); setShowWizardF(true); }}
+              />
+            )}
+            {wizardGEnabled && (
+              <BorradorBanner
+                tipo="envio-g"
+                refreshKey={borradorKey}
+                onContinuar={(b) => { setResumeBorradorG(b.estado); setShowWizardG(true); }}
+              />
+            )}
           </div>
           {error && !loading ? (
             /* Estado de ERROR de página (canon N · el store expone `error`) */
@@ -1128,9 +1144,12 @@ export const Envios: React.FC = () => {
         <React.Suspense fallback={null}>
           <WizardFModal
             variant="modal"
-            onCancel={() => setShowWizardF(false)}
+            initialDraft={resumeBorradorF}
+            onCancel={() => { setShowWizardF(false); setResumeBorradorF(null); setBorradorKey(k => k + 1); }}
             onCreated={() => {
               setShowWizardF(false);
+              setResumeBorradorF(null);
+              setBorradorKey(k => k + 1);
               fetchEnvios();
               fetchEnTransito();
               fetchPendientesRecepcion();
@@ -1145,9 +1164,12 @@ export const Envios: React.FC = () => {
         <React.Suspense fallback={null}>
           <WizardGModal
             variant="modal"
-            onCancel={() => setShowWizardG(false)}
+            initialDraft={resumeBorradorG}
+            onCancel={() => { setShowWizardG(false); setResumeBorradorG(null); setBorradorKey(k => k + 1); }}
             onCreated={() => {
               setShowWizardG(false);
+              setResumeBorradorG(null);
+              setBorradorKey(k => k + 1);
               fetchEnvios();
               fetchEnTransito();
               fetchPendientesRecepcion();

@@ -4,10 +4,10 @@
  * 3 pasos: Devolución → Destino+Detalles → Confirmar.
  * Ruta: /envios/nuevo-g (protegido por feature flag WIZARD_G).
  */
-import React, { useReducer, useMemo, useState } from 'react';
+import React, { useReducer, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AlertTriangle, X, RefreshCw } from 'lucide-react';
-import { WizardShell, DraftBanner, ConfirmarSalidaWizardModal, formatFechaRelativa } from '../../../design-system';
+import { WizardShell, ConfirmarSalidaWizardModal, formatFechaRelativa } from '../../../design-system';
 import { useWizardAutosave } from '../../../hooks/useWizardAutosave';
 import { useAuthStore } from '../../../store/authStore';
 import { envioCrudService } from '../../../services/envio.crud.service';
@@ -21,6 +21,7 @@ import {
   selectValorDevolucionPEN,
   selectTotalCostosPEN,
   selectUnidadesPayload,
+  type EnvioWizardGState,
 } from './envioWizardGTypes';
 
 import { EnvioT2WizardPreview } from '../legacy-shared';
@@ -38,12 +39,15 @@ export interface WizardGPageProps {
   onCreated?: (envioId: string) => void;
   onCancel?: () => void;
   variant?: 'page' | 'modal';
+  /** Snapshot de borrador a reanudar (desde el banner del HUB · canon borrador). */
+  initialDraft?: Partial<EnvioWizardGState> | null;
 }
 
 export const WizardGPage: React.FC<WizardGPageProps> = ({
   onCreated,
   onCancel,
   variant = 'page',
+  initialDraft,
 }) => {
   const navigate = useNavigate();
   const userId = useAuthStore((s) => s.user?.uid);
@@ -72,6 +76,12 @@ export const WizardGPage: React.FC<WizardGPageProps> = ({
     // FIX "banner pegado": sin devolución seleccionada → wizard vacío → no autoguardar draft fantasma.
     isEmpty: (s) => !s.devolucionId,
   });
+
+  // Reanudar borrador si el hub lo pidió (banner del módulo · canon) · hidrata al montar.
+  useEffect(() => {
+    if (initialDraft) dispatch({ type: 'HYDRATE', state: initialDraft });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const canProceed = useMemo((): boolean => {
     switch (state.pasoActual) {
@@ -228,33 +238,6 @@ export const WizardGPage: React.FC<WizardGPageProps> = ({
     }
   };
 
-  const borradorFechaRelativa = autosave.borradorExistente
-    ? formatFechaRelativa(autosave.borradorExistente.fechaActualizacion)
-    : undefined;
-
-  const bannerJsx = autosave.borradorExistente && !autosave.loadingBorrador ? (
-    <div className="mb-4">
-      <DraftBanner
-        show
-        descripcion={
-          (autosave.borradorExistente as { resumen?: string }).resumen ||
-          'Retorno G sin terminar'
-        }
-        fechaLegible={borradorFechaRelativa}
-        pasoActual={`Paso ${
-          ((autosave.borradorExistente as { pasoActual?: number }).pasoActual ?? 0) + 1
-        } de 3`}
-        onContinuar={() => {
-          const hidratado = autosave.continuarBorrador();
-          if (hidratado) dispatch({ type: 'HYDRATE', state: hidratado });
-        }}
-        onDescartar={() => {
-          autosave.descartarBorrador();
-        }}
-      />
-    </div>
-  ) : null;
-
   const errorJsx = error ? (
     <div className="mb-4 bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3">
       <div className="w-8 h-8 rounded-full bg-red-100 text-red-700 flex items-center justify-center flex-shrink-0">
@@ -316,8 +299,8 @@ export const WizardGPage: React.FC<WizardGPageProps> = ({
     return (
       <>
         <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm p-4 sm:p-6 md:p-8 flex flex-col">
-          {(bannerJsx || errorJsx) && (
-            <div className="w-full max-w-7xl mx-auto flex-shrink-0">{bannerJsx}{errorJsx}</div>
+          {errorJsx && (
+            <div className="w-full max-w-7xl mx-auto flex-shrink-0">{errorJsx}</div>
           )}
           <div className="w-full max-w-7xl mx-auto flex-1 min-h-0">{shellJsx}</div>
         </div>
@@ -328,7 +311,6 @@ export const WizardGPage: React.FC<WizardGPageProps> = ({
 
   return (
     <>
-      {bannerJsx}
       {errorJsx}
       {shellJsx}
       {exitModal}
